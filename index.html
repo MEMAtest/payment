@@ -1,0 +1,1049 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Poapyments - Consumer financial planning</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="manifest" href="manifest.webmanifest" />
+    <meta name="theme-color" content="#1d3557" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <link rel="icon" href="icons/app-icon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="icons/app-icon.svg" />
+  </head>
+  <body>
+    <div class="page">
+      <header class="top-bar">
+        <div class="brand">
+          <span class="brand-mark"></span>
+          <span class="brand-name">Poapyments</span>
+        </div>
+        <div class="top-actions">
+          <button class="btn ghost" type="button" data-restart>
+            Restart demo
+          </button>
+          <button class="btn primary" type="button">Get early access</button>
+        </div>
+      </header>
+
+      <main class="flow">
+        <section class="screen is-active" data-screen="welcome">
+          <div class="screen-grid">
+            <div>
+              <p class="eyebrow">Plan, protect, and grow</p>
+              <h1>Your money life, fully connected for you and your family.</h1>
+              <p class="lede">
+                Poapyments helps consumers save, invest, and plan with clarity.
+                Start with a few questions and get instant actions that feel
+                rewarding.
+              </p>
+              <div class="cta-row">
+                <button class="btn primary" type="button" data-next>
+                  Sign in
+                </button>
+                <button class="btn ghost" type="button" data-next>
+                  Try the guided demo
+                </button>
+              </div>
+              <div class="chip-row">
+                <span>30-year forecasting</span>
+                <span>Rewards and nudges</span>
+                <span>AI scenario planning</span>
+                <span>Goal tracking</span>
+              </div>
+            </div>
+            <div class="welcome-stack">
+              <div class="stack-card">
+                <p class="card-title">Confidence score</p>
+                <p class="card-value">82 / 100</p>
+                <p class="muted">Ready to invest in 6 weeks.</p>
+              </div>
+              <div class="stack-card">
+                <p class="card-title">Monthly surplus</p>
+                <p class="card-value">£520</p>
+                <p class="muted">Auto-allocate to top goals.</p>
+              </div>
+              <div class="stack-card">
+                <p class="card-title">Rewards wallet</p>
+                <p class="card-value">
+                  <span data-rewards-points>620</span> points
+                </p>
+                <p class="muted">Redeem for travel or wellness.</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="login">
+          <div class="screen-card">
+            <h2>Sign in</h2>
+            <p class="muted">
+              All journeys are consumer-first and built around your goals.
+            </p>
+            <form class="form-grid">
+              <label>
+                Email
+                <input type="email" placeholder="you@email.com" />
+              </label>
+              <label>
+                Password
+                <input type="password" placeholder="Your password" />
+              </label>
+              <button class="btn secondary" type="button">
+                Continue with Apple
+              </button>
+            </form>
+            <div class="screen-actions">
+              <button class="btn ghost" type="button" data-back>Back</button>
+              <button class="btn primary" type="button" data-next>
+                Continue
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="focus">
+          <div class="screen-card">
+            <h2>Tell us about you</h2>
+            <p class="muted">
+              Answer a few questions so we can personalize the plan.
+            </p>
+            <div class="form-grid">
+              <label>
+                What should we call you?
+                <input type="text" placeholder="First name" data-field="name" />
+              </label>
+              <div>
+                <p class="field-label">Your main focus right now</p>
+                <div class="choice-group" data-choice-group="focus">
+                  <button type="button" data-value="saving">Save more</button>
+                  <button type="button" data-value="investing">Start investing</button>
+                  <button type="button" data-value="protection">Protect family</button>
+                  <button type="button" data-value="income">Grow income</button>
+                </div>
+              </div>
+              <div>
+                <p class="field-label">Time horizon</p>
+                <div class="choice-group" data-choice-group="horizon">
+                  <button type="button" data-value="short">0-2 years</button>
+                  <button type="button" data-value="mid">2-7 years</button>
+                  <button type="button" data-value="long">7+ years</button>
+                </div>
+              </div>
+              <div>
+                <p class="field-label">Money persona</p>
+                <div class="choice-group" data-choice-group="persona">
+                  <button type="button" data-value="builder">Builder</button>
+                  <button type="button" data-value="balancer">Balancer</button>
+                  <button type="button" data-value="protector">Protector</button>
+                  <button type="button" data-value="explorer">Explorer</button>
+                </div>
+                <div class="persona-preview">
+                  <p class="persona-label">Persona preview</p>
+                  <h3 data-persona-title>Builder</h3>
+                  <p data-persona-copy>
+                    You like structure, measurable goals, and automated progress.
+                  </p>
+                  <div class="persona-tags" data-persona-tags>
+                    <span>Goal focused</span>
+                    <span>Auto save</span>
+                    <span>Long term clarity</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="screen-actions">
+              <button class="btn ghost" type="button" data-back>Back</button>
+              <button class="btn primary" type="button" data-next>
+                Continue
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="snapshot">
+          <div class="screen-card">
+            <h2>Your money snapshot</h2>
+            <p class="muted">
+              Add a few numbers so we can blend your cash flow with goals.
+            </p>
+            <div class="form-grid">
+              <label>
+                Monthly income
+                <input type="number" min="0" placeholder="3500" data-field="income" />
+              </label>
+              <label>
+                Essential expenses
+                <input type="number" min="0" placeholder="2100" data-field="essentials" />
+              </label>
+              <label>
+                Monthly debt payments
+                <input type="number" min="0" placeholder="220" data-field="debt" />
+              </label>
+              <label>
+                Current savings
+                <input type="number" min="0" placeholder="1800" data-field="savings" />
+              </label>
+              <button class="btn secondary" type="button">
+                Connect accounts
+              </button>
+              <div class="snapshot-card">
+                <p class="card-title">Estimated monthly surplus</p>
+                <p class="card-value" data-snapshot-surplus>£0</p>
+                <p class="muted">We will auto-allocate this to goals.</p>
+              </div>
+            </div>
+            <div class="screen-actions">
+              <button class="btn ghost" type="button" data-back>Back</button>
+              <button class="btn primary" type="button" data-next>
+                Continue
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="goals">
+          <div class="screen-card">
+            <h2>Choose your goals</h2>
+            <p class="muted">
+              Pick multiple goals and set a target. We will keep you motivated.
+            </p>
+            <div class="goal-grid">
+              <label class="goal-card" data-goal-card>
+                <input type="checkbox" data-goal-check value="Emergency buffer" />
+                <span>Emergency buffer</span>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="9000"
+                  data-goal-target
+                />
+              </label>
+              <label class="goal-card" data-goal-card>
+                <input type="checkbox" data-goal-check value="Home deposit" />
+                <span>Home deposit</span>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="25000"
+                  data-goal-target
+                />
+              </label>
+              <label class="goal-card" data-goal-card>
+                <input type="checkbox" data-goal-check value="Family holiday" />
+                <span>Family holiday</span>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="4200"
+                  data-goal-target
+                />
+              </label>
+              <label class="goal-card" data-goal-card>
+                <input type="checkbox" data-goal-check value="Education" />
+                <span>Education</span>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="6000"
+                  data-goal-target
+                />
+              </label>
+              <label class="goal-card" data-goal-card>
+                <input type="checkbox" data-goal-check value="Retirement" />
+                <span>Retirement</span>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="150000"
+                  data-goal-target
+                />
+              </label>
+              <label class="goal-card" data-goal-card>
+                <input type="checkbox" data-goal-check value="Income growth" />
+                <span>Income growth</span>
+                <input
+                  type="number"
+                  min="0"
+                  placeholder="12000"
+                  data-goal-target
+                />
+              </label>
+            </div>
+            <div class="screen-actions">
+              <button class="btn ghost" type="button" data-back>Back</button>
+              <button class="btn primary" type="button" data-next>
+                Generate plan
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="plan">
+          <div class="screen-card">
+            <h2>Your plan is ready</h2>
+            <p class="muted">
+              We blended your goals, cash flow, and persona to create a plan.
+            </p>
+            <div class="plan-grid">
+              <div class="plan-card">
+                <p class="card-title">Hello <span data-summary-name>Friend</span></p>
+                <p class="card-value" data-summary-focus>Focused on saving</p>
+                <p class="muted">
+                  Persona: <span data-summary-persona>Builder</span>
+                </p>
+              </div>
+              <div class="plan-card">
+                <p class="card-title">Monthly surplus</p>
+                <p class="card-value" data-summary-surplus>£0</p>
+                <p class="muted">
+                  Buffer status: <span data-summary-buffer>0 months</span>
+                </p>
+              </div>
+              <div class="plan-card">
+                <p class="card-title">Goals selected</p>
+                <p class="card-value" data-summary-goals>0 goals</p>
+                <p class="muted" data-summary-next>
+                  Your first step will appear here.
+                </p>
+              </div>
+            </div>
+            <div class="plan-actions">
+              <div>
+                <h3>Immediate actions that delight</h3>
+                <ul class="action-list" data-summary-actions>
+                  <li>Activate round-ups to build your buffer.</li>
+                  <li>Find lost balances in 60 seconds.</li>
+                  <li>Unlock your first reward for a 7-day streak.</li>
+                </ul>
+              </div>
+              <button class="btn primary" type="button" data-go="app">
+                Enter the app
+              </button>
+            </div>
+            <div class="screen-actions">
+              <button class="btn ghost" type="button" data-back>Back</button>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="app">
+          <div class="app-shell">
+            <header class="app-header">
+              <div>
+                <p class="app-greeting">
+                  Welcome back, <span data-user-name>Friend</span>
+                </p>
+                <p class="muted">Your next best move is ready.</p>
+              </div>
+              <div class="status-pill">
+                Confidence <span data-app-confidence>80</span>
+              </div>
+            </header>
+
+            <nav class="app-tabs" aria-label="Primary">
+              <button class="nav-item is-active" type="button" data-tab-target="home">
+                Home
+              </button>
+              <button class="nav-item" type="button" data-tab-target="plan">
+                Plan
+              </button>
+              <button class="nav-item" type="button" data-tab-target="goals">
+                Goals
+              </button>
+              <button class="nav-item" type="button" data-tab-target="rewards">
+                Rewards
+              </button>
+              <button class="nav-item" type="button" data-tab-target="family">
+                Family
+              </button>
+              <button class="nav-item" type="button" data-tab-target="profile">
+                Profile
+              </button>
+            </nav>
+
+            <div class="tab-panel is-active" data-tab="home">
+              <div class="panel-grid">
+                <div class="panel-card">
+                  <p class="card-title">Today at a glance</p>
+                  <p class="card-value" data-app-surplus>£0 surplus</p>
+                  <p class="muted">Auto-split between goals.</p>
+                </div>
+                <div class="panel-card">
+                  <p class="card-title">Buffer health</p>
+                  <p class="card-value" data-app-buffer>0 months</p>
+                  <p class="muted">Target: 3 months.</p>
+                </div>
+                <div class="panel-card">
+                  <p class="card-title">Confidence score</p>
+                  <p class="card-value">
+                    <span data-confidence-total>80</span> / 100
+                  </p>
+                  <div class="confidence-breakdown">
+                    <div class="confidence-row">
+                      <span>Base</span>
+                      <span data-confidence-base>50</span>
+                    </div>
+                    <div class="confidence-row">
+                      <span>Buffer</span>
+                      <span data-confidence-buffer>+0</span>
+                    </div>
+                    <div class="confidence-row">
+                      <span>Goals</span>
+                      <span data-confidence-goals>+0</span>
+                    </div>
+                    <div class="confidence-row">
+                      <span>Cashflow</span>
+                      <span data-confidence-cashflow>+0</span>
+                    </div>
+                    <div class="confidence-row">
+                      <span>Debt</span>
+                      <span data-confidence-debt>0</span>
+                    </div>
+                  </div>
+                  <p class="muted" data-confidence-note>
+                    Base 50 + buffer + goals + cashflow - debt.
+                  </p>
+                </div>
+                <div class="panel-card">
+                  <p class="card-title">Rewards</p>
+                  <p class="card-value">
+                    <span data-rewards-points>620</span> points
+                  </p>
+                  <p class="muted">Next reward in 2 deposits.</p>
+                </div>
+              </div>
+
+              <div class="panel-row">
+                <div class="panel-card dashboard-builder">
+                  <h3>Dashboard builder</h3>
+                  <p class="muted">Pick the widgets you want to see today.</p>
+                  <div class="toggle-grid">
+                    <label class="toggle-pill">
+                      <input
+                        type="checkbox"
+                        data-dashboard-toggle
+                        value="cashflow"
+                        checked
+                      />
+                      Cashflow command
+                    </label>
+                    <label class="toggle-pill">
+                      <input
+                        type="checkbox"
+                        data-dashboard-toggle
+                        value="alerts"
+                        checked
+                      />
+                      Upcoming alerts
+                    </label>
+                    <label class="toggle-pill">
+                      <input
+                        type="checkbox"
+                        data-dashboard-toggle
+                        value="vulnerabilities"
+                        checked
+                      />
+                      Vulnerability radar
+                    </label>
+                    <label class="toggle-pill">
+                      <input
+                        type="checkbox"
+                        data-dashboard-toggle
+                        value="quickwins"
+                        checked
+                      />
+                      Quick wins
+                    </label>
+                    <label class="toggle-pill">
+                      <input
+                        type="checkbox"
+                        data-dashboard-toggle
+                        value="spark"
+                        checked
+                      />
+                      Daily spark
+                    </label>
+                  </div>
+                </div>
+                <div class="panel-card">
+                  <h3>Income & expenditure link</h3>
+                  <div class="bar-compare">
+                    <div class="bar-track">
+                      <span>Income</span>
+                      <div class="bar-fill income" data-income-bar>
+                        <span data-income-label>£0</span>
+                      </div>
+                    </div>
+                    <div class="bar-track">
+                      <span>Essentials + debt</span>
+                      <div class="bar-fill expense" data-expense-bar>
+                        <span data-expense-label>£0</span>
+                      </div>
+                    </div>
+                    <div class="bar-track">
+                      <span>Goal allocation</span>
+                      <div class="bar-fill saving" data-saving-bar>
+                        <span data-saving-label>£0</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="muted" data-income-summary>
+                    Link income and outgoings to keep your plan balanced.
+                  </p>
+                </div>
+              </div>
+
+              <div class="dashboard-grid" data-dashboard-grid>
+                <div class="panel-card wide" data-widget="cashflow">
+                  <div class="panel-head">
+                    <div>
+                      <h3>Cashflow command center</h3>
+                      <p class="muted">
+                        Track monthly balance, net flow, and scenario impact.
+                      </p>
+                    </div>
+                    <div class="scenario-controls">
+                      <label>
+                        Scenario
+                        <select data-scenario-select>
+                          <option value="baseline" selected>Baseline</option>
+                          <option value="optimistic">Optimistic</option>
+                          <option value="conservative">Conservative</option>
+                          <option value="stress">Stress test</option>
+                          <option value="custom">Custom</option>
+                        </select>
+                      </label>
+                      <label>
+                        Months
+                        <input
+                          type="number"
+                          min="6"
+                          max="36"
+                          value="12"
+                          data-cashflow-months
+                        />
+                      </label>
+                    </div>
+                  </div>
+                  <div class="scenario-custom" data-scenario-custom>
+                    <label>
+                      Income change (%)
+                      <input
+                        type="number"
+                        step="0.5"
+                        value="0"
+                        data-scenario-income
+                      />
+                    </label>
+                    <label>
+                      Expense change (%)
+                      <input
+                        type="number"
+                        step="0.5"
+                        value="0"
+                        data-scenario-expense
+                      />
+                    </label>
+                  </div>
+                  <div class="chart-wrap" data-cashflow-chart></div>
+                  <div class="chart-legend">
+                    <span class="legend-item">
+                      <span class="legend-dot balance"></span>
+                      Projected balance
+                    </span>
+                    <span class="legend-item">
+                      <span class="legend-dot net"></span>
+                      Monthly net
+                    </span>
+                  </div>
+                  <div class="chart-metrics">
+                    <div>
+                      <p class="metric-label">Average surplus</p>
+                      <p class="metric-value" data-cashflow-average>£0</p>
+                    </div>
+                    <div>
+                      <p class="metric-label">Lowest balance</p>
+                      <p class="metric-value" data-cashflow-low>£0</p>
+                    </div>
+                    <div>
+                      <p class="metric-label">Risk months</p>
+                      <p class="metric-value" data-cashflow-risk>0</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel-card" data-widget="alerts">
+                  <h3>Upcoming alerts</h3>
+                  <ul class="alert-list" data-alert-list></ul>
+                </div>
+
+                <div class="panel-card" data-widget="vulnerabilities">
+                  <h3>Vulnerability radar</h3>
+                  <ul class="vuln-list" data-vulnerability-list></ul>
+                  <div class="vuln-score">
+                    <p class="muted">Overall vulnerability</p>
+                    <p class="card-value" data-vulnerability-score>Low</p>
+                  </div>
+                </div>
+
+                <div class="panel-card" data-widget="quickwins">
+                  <h3>Quick wins</h3>
+                  <div class="quick-grid">
+                    <button type="button" class="pill">Find lost balances</button>
+                    <button type="button" class="pill">Cancel a subscription</button>
+                    <button type="button" class="pill">Auto-save this surplus</button>
+                    <button type="button" class="pill">Start investing check</button>
+                  </div>
+                </div>
+
+                <div class="panel-card" data-widget="spark">
+                  <h3>Daily money spark</h3>
+                  <p>
+                    "Small upgrades beat big delays. Increase your auto-save by
+                    1% today."
+                  </p>
+                  <p class="muted">Personalized to your goals.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-panel" data-tab="plan">
+              <div class="panel-grid">
+                <div class="panel-card">
+                  <h3>Future Lab</h3>
+                  <p class="muted">
+                    LLM conversation + SLM precision for scenario planning.
+                  </p>
+                  <div class="chat-stack" data-future-chat>
+                    <div class="chat-bubble">
+                      <p class="chat-title">You</p>
+                      <p data-future-user>Can we pause investing for 6 months?</p>
+                    </div>
+                    <div class="chat-bubble response">
+                      <p class="chat-title">Poapyments</p>
+                      <p data-future-response>
+                        That delays your goal by 4 months, but keeps the buffer
+                        intact. Want to see alternatives?
+                      </p>
+                    </div>
+                  </div>
+                  <div class="future-form" data-future-form>
+                    <label>
+                      Question
+                      <textarea
+                        rows="2"
+                        placeholder="e.g. Pause investing for 6 months"
+                        data-future-question
+                      ></textarea>
+                    </label>
+                    <div class="future-grid">
+                      <label>
+                        Scenario type
+                        <select data-future-type>
+                          <option value="pause_investing" selected>
+                            Pause goal contributions
+                          </option>
+                          <option value="income_drop">Income drop</option>
+                          <option value="income_boost">Income boost</option>
+                          <option value="expense_spike">Expense spike</option>
+                          <option value="one_off">One-off expense</option>
+                        </select>
+                      </label>
+                      <label>
+                        <span data-future-months-label>Duration (months)</span>
+                        <input
+                          type="number"
+                          min="1"
+                          max="24"
+                          value="6"
+                          data-future-months
+                        />
+                      </label>
+                      <label>
+                        <span data-future-amount-label>Amount per month (£)</span>
+                        <input
+                          type="number"
+                          min="0"
+                          step="50"
+                          value="250"
+                          data-future-amount
+                        />
+                      </label>
+                    </div>
+                    <button class="btn secondary" type="button" data-future-run>
+                      Run scenario
+                    </button>
+                  </div>
+                  <div class="future-output">
+                    <p class="card-title">Scenario impact</p>
+                    <p class="muted" data-future-summary>
+                      Update the fields to simulate your scenario.
+                    </p>
+                    <div class="chart-metrics future-metrics">
+                      <div>
+                        <p class="metric-label">Balance impact</p>
+                        <p class="metric-value" data-future-balance>£0</p>
+                      </div>
+                      <div>
+                        <p class="metric-label">Risk months</p>
+                        <p class="metric-value" data-future-risk>0</p>
+                      </div>
+                      <div>
+                        <p class="metric-label">Goal timing</p>
+                        <p class="metric-value" data-future-delay>--</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel-card">
+                  <h3>Monte Carlo preview</h3>
+                  <form class="monte-form monte-grid" data-monte-form>
+                    <label>
+                      Starting balance
+                      <input
+                        type="number"
+                        min="0"
+                        step="100"
+                        value="2500"
+                        data-monte-start
+                      />
+                    </label>
+                    <label>
+                      Monthly contribution
+                      <input
+                        type="number"
+                        min="1"
+                        value="350"
+                        data-monte-monthly
+                      />
+                    </label>
+                    <label>
+                      Contribution growth (annual %)
+                      <input
+                        type="number"
+                        step="0.1"
+                        value="2"
+                        data-monte-growth
+                      />
+                    </label>
+                    <label>
+                      Years
+                      <input
+                        type="number"
+                        min="1"
+                        max="40"
+                        value="20"
+                        data-monte-years
+                      />
+                    </label>
+                    <label>
+                      Risk style
+                      <select data-monte-risk>
+                        <option value="cautious">Cautious</option>
+                        <option value="balanced" selected>Balanced</option>
+                        <option value="growth">Growth</option>
+                        <option value="custom">Custom</option>
+                      </select>
+                    </label>
+                    <label>
+                      Expected return (%)
+                      <input
+                        type="number"
+                        step="0.1"
+                        value="6"
+                        data-monte-return
+                      />
+                    </label>
+                    <label>
+                      Volatility (%)
+                      <input
+                        type="number"
+                        step="0.1"
+                        value="10"
+                        data-monte-vol
+                      />
+                    </label>
+                    <label>
+                      Inflation (%)
+                      <input
+                        type="number"
+                        step="0.1"
+                        value="2.5"
+                        data-monte-inflation
+                      />
+                    </label>
+                    <label>
+                      Annual fee (%)
+                      <input
+                        type="number"
+                        step="0.1"
+                        value="0.6"
+                        data-monte-fee
+                      />
+                    </label>
+                    <label>
+                      Target value
+                      <input
+                        type="number"
+                        min="0"
+                        step="100"
+                        value="100000"
+                        data-monte-target
+                      />
+                    </label>
+                    <label>
+                      Simulations
+                      <input
+                        type="number"
+                        min="100"
+                        max="5000"
+                        step="50"
+                        value="500"
+                        data-monte-runs
+                      />
+                    </label>
+                    <button class="btn primary full" type="button" data-monte-run>
+                      Run projection
+                    </button>
+                  </form>
+                  <div class="monte-output" data-monte-output>
+                    Projected range: £0 - £0
+                  </div>
+                  <div class="monte-stats">
+                    <div>
+                      <p class="metric-label">Simulations</p>
+                      <p class="metric-value" data-monte-sims>500</p>
+                    </div>
+                    <div>
+                      <p class="metric-label">Hit target</p>
+                      <p class="metric-value" data-monte-hit>0%</p>
+                    </div>
+                    <div>
+                      <p class="metric-label">Real return used</p>
+                      <p class="metric-value" data-monte-real>0%</p>
+                    </div>
+                  </div>
+                  <p class="muted" data-assumptions-updated>
+                    Assumptions updated: --
+                  </p>
+                  <div class="monte-bars" data-monte-bars></div>
+                </div>
+              </div>
+              <div class="panel-row">
+                <div class="panel-card converter-card">
+                  <h3>Currency converter</h3>
+                  <label>
+                    Amount
+                    <input
+                      type="number"
+                      min="0"
+                      value="120"
+                      data-converter-amount
+                    />
+                  </label>
+                  <div class="converter-row">
+                    <label>
+                      From
+                      <select data-converter-from>
+                        <option value="GBP">GBP</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="NGN">NGN</option>
+                        <option value="GHS">GHS</option>
+                        <option value="ZAR">ZAR</option>
+                        <option value="KES">KES</option>
+                        <option value="CAD">CAD</option>
+                      </select>
+                    </label>
+                    <button
+                      class="swap"
+                      type="button"
+                      aria-label="Swap currencies"
+                      data-converter-swap
+                    >
+                      Swap
+                    </button>
+                    <label>
+                      To
+                      <select data-converter-to>
+                        <option value="USD">USD</option>
+                        <option value="GBP">GBP</option>
+                        <option value="EUR">EUR</option>
+                        <option value="NGN">NGN</option>
+                        <option value="GHS">GHS</option>
+                        <option value="ZAR">ZAR</option>
+                        <option value="KES">KES</option>
+                        <option value="CAD">CAD</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div class="converter-output" data-converter-output></div>
+                  <p class="muted" data-fx-updated>Rates updated: --</p>
+                </div>
+                <div class="panel-card">
+                  <h3>Value finder</h3>
+                  <p>
+                    We alert you to better value on big purchases and surface
+                    hidden fees before you pay.
+                  </p>
+                  <div class="pill-row">
+                    <span>Lost balance scan</span>
+                    <span>Income booster</span>
+                    <span>Price alerts</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-panel" data-tab="goals">
+              <div class="panel-card">
+                <h3>Your active goals</h3>
+                <p class="muted">
+                  Edit targets below to update progress and delays.
+                </p>
+                <div class="goal-list" data-app-goals></div>
+              </div>
+              <div class="panel-card">
+                <h3>Stay motivated</h3>
+                <p>
+                  Set shared family milestones and celebrate streaks together.
+                </p>
+                <div class="progress">
+                  <span style="width: 65%"></span>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-panel" data-tab="rewards">
+              <div class="panel-grid">
+                <div class="panel-card">
+                  <h3>Rewards wallet</h3>
+                  <p class="card-value">
+                    <span data-rewards-points>620</span> points
+                  </p>
+                  <p class="muted">Store, share, and redeem when ready.</p>
+                  <div class="pill-row">
+                    <span>Travel perks</span>
+                    <span>Home savings</span>
+                    <span>Wellness boosts</span>
+                  </div>
+                </div>
+                <div class="panel-card">
+                  <h3>Recognition streak</h3>
+                  <p class="card-value">
+                    <span data-rewards-streak>12</span> days
+                  </p>
+                  <p class="muted">Next reward unlocks tomorrow.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-panel" data-tab="family">
+              <div class="panel-grid">
+                <div class="panel-card">
+                  <h3>Shared goals</h3>
+                  <p>
+                    Invite family members and link goals to shared milestones.
+                  </p>
+                  <div class="pill-row">
+                    <span>Family trip</span>
+                    <span>Education fund</span>
+                    <span>Home upgrades</span>
+                  </div>
+                </div>
+                <div class="panel-card">
+                  <h3>Family vault</h3>
+                  <p>
+                    Store and share documents, policies, and emergency plans in
+                    one place.
+                  </p>
+                  <button class="btn secondary" type="button">
+                    Add a family member
+                  </button>
+                </div>
+                <div class="panel-card">
+                  <h3>Learning together</h3>
+                  <p>
+                    Make planning relatable with shared lessons and money
+                    moments.
+                  </p>
+                  <p class="muted">Next family check-in: Sunday 7pm.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="tab-panel" data-tab="profile">
+              <div class="panel-grid">
+                <div class="panel-card">
+                  <h3>Money persona</h3>
+                  <p class="card-value" data-profile-persona>Builder</p>
+                  <p class="muted" data-profile-copy>
+                    Structure and automation keep you on track.
+                  </p>
+                  <div class="persona-tags" data-profile-tags></div>
+                </div>
+                <div class="panel-card">
+                  <h3>Editable snapshot</h3>
+                  <p class="muted">
+                    Update values to refresh dashboards, confidence, and goals.
+                  </p>
+                  <div class="form-grid">
+                    <label>
+                      Monthly income
+                      <input type="number" min="0" data-field="income" />
+                    </label>
+                    <label>
+                      Essential expenses
+                      <input type="number" min="0" data-field="essentials" />
+                    </label>
+                    <label>
+                      Debt payments
+                      <input type="number" min="0" data-field="debt" />
+                    </label>
+                    <label>
+                      Total savings
+                      <input type="number" min="0" data-field="savings" />
+                    </label>
+                    <label>
+                      Rewards points
+                      <input type="number" min="0" data-field="rewardPoints" />
+                    </label>
+                    <label>
+                      Streak days
+                      <input type="number" min="0" data-field="rewardStreak" />
+                    </label>
+                  </div>
+                </div>
+                <div class="panel-card">
+                  <h3>Learning feed</h3>
+                  <p>
+                    "Build the buffer first. Then invest with confidence."
+                  </p>
+                  <p class="muted">Matched to your focus area.</p>
+                </div>
+                <div class="panel-card">
+                  <h3>Protection check</h3>
+                  <p>
+                    Review your family coverage gaps with a guided checklist.
+                  </p>
+                  <button class="btn secondary" type="button">
+                    Start protection review
+                  </button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <script src="app-config.js" defer></script>
+    <script src="firebase-config.js" defer></script>
+    <script src="firebase-init.js" defer></script>
+    <script src="app.js" defer></script>
+  </body>
+</html>

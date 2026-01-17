@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+functions/node_modules/
+
+# Local secrets - NEVER commit these
+.secret.local
+functions/.secret.local
+*.secret
+.env
+.env.local
+.env.*.local
+
+# Firebase
+.firebase/
+firebase-debug.log
+firebase-debug.*.log
+ui-debug.log
+*.log
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Build output
+dist/
+build/

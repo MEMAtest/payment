@@ -1,0 +1,8 @@
+{
+  "updated": "2025-07-28",
+  "riskProfiles": {
+    "cautious": { "mean": 0.045, "vol": 0.06 },
+    "balanced": { "mean": 0.06, "vol": 0.1 },
+    "growth": { "mean": 0.08, "vol": 0.14 }
+  }
+}

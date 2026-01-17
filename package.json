@@ -1,0 +1,11 @@
+{
+  "name": "poapyments-app",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "python3 -m http.server 5055",
+    "start": "python3 -m http.server 5055",
+    "serve": "python3 -m http.server 5055",
+    "emulators": "firebase emulators:start --only hosting"
+  }
+}

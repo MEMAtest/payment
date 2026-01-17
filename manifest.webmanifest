@@ -1,6 +1,6 @@
 {
-  "name": "Poapyments",
-  "short_name": "Poapyments",
+  "name": "Consumer Pay",
+  "short_name": "Consumer Pay",
   "start_url": ".",
   "scope": ".",
   "display": "standalone",

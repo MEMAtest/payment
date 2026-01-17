@@ -1,3 +1,4 @@
+// Consumer Pay - Smart Financial Planning App
 const defaultConfig = {
   fxApiUrl: "https://api.exchangerate.host/latest?base=GBP",
   assumptionsApiUrl: "assumptions.json",
@@ -10,20 +11,9 @@ const config = {
   ...(window.POAP_CONFIG || {}),
 };
 
-const CASHFLOW_SCENARIOS = [
-  "baseline",
-  "optimistic",
-  "conservative",
-  "stress",
-  "custom",
-];
-const DASHBOARD_WIDGET_KEYS = [
-  "cashflow",
-  "alerts",
-  "vulnerabilities",
-  "quickwins",
-  "spark",
-];
+const CASHFLOW_SCENARIOS = ["baseline", "optimistic", "conservative", "stress", "custom"];
+const DASHBOARD_WIDGET_KEYS = ["cashflow", "alerts", "vulnerabilities", "quickwins", "spark"];
+
 const cashflowPresets = {
   baseline: { incomeChange: 0, expenseChange: 0, shock: false },
   optimistic: { incomeChange: 8, expenseChange: -4, shock: false },
@@ -31,11 +21,13 @@ const cashflowPresets = {
   stress: { incomeChange: -12, expenseChange: 12, shock: true },
   custom: { incomeChange: 0, expenseChange: 0, shock: false },
 };
+
 const CASHFLOW_CHART = {
   width: 720,
   height: 240,
   padding: 26,
 };
+
 const FUTURE_SCENARIOS = {
   pause_investing: {
     monthsLabel: "Pause length (months)",
@@ -64,10 +56,26 @@ const FUTURE_SCENARIOS = {
   },
 };
 
-const STORAGE_KEY = "poapyments_state_v1";
-const DEVICE_KEY = "poapyments_device_id";
-const FX_CACHE_KEY = "poapyments_fx_cache_v1";
-const ASSUMPTIONS_CACHE_KEY = "poapyments_assumptions_cache_v1";
+// UK Tax rates 2024/25
+const UK_TAX = {
+  personalAllowance: 12570,
+  basicRateLimit: 50270,
+  higherRateLimit: 125140,
+  basicRate: 0.20,
+  higherRate: 0.40,
+  additionalRate: 0.45,
+  niThreshold: 12570,
+  niUpperLimit: 50270,
+  niRate: 0.08,
+  niUpperRate: 0.02,
+  studentLoanThreshold: 27295,
+  studentLoanRate: 0.09,
+};
+
+const STORAGE_KEY = "consumerpay_state_v1";
+const DEVICE_KEY = "consumerpay_device_id";
+const FX_CACHE_KEY = "consumerpay_fx_cache_v1";
+const ASSUMPTIONS_CACHE_KEY = "consumerpay_assumptions_cache_v1";
 
 const screens = Array.from(document.querySelectorAll("[data-screen]"));
 const steps = Array.from(document.querySelectorAll("[data-step]"));
@@ -78,9 +86,38 @@ const defaultState = {
   focus: "saving",
   horizon: "short",
   persona: "builder",
+  annualSalary: 0,
+  studentLoan: false,
+  pensionContrib: false,
   income: 0,
-  essentials: 0,
-  debt: 0,
+  expenses: {
+    mortgage: 0,
+    councilTax: 0,
+    homeInsurance: 0,
+    energy: 0,
+    water: 0,
+    internet: 0,
+    streaming: 0,
+    carPayment: 0,
+    carInsurance: 0,
+    fuel: 0,
+    publicTransport: 0,
+    groceries: 0,
+    diningOut: 0,
+    coffeeSnacks: 0,
+    childcare: 0,
+    kidsActivities: 0,
+    schoolCosts: 0,
+    kidsClothing: 0,
+    gym: 0,
+    clothing: 0,
+    personalCare: 0,
+    entertainment: 0,
+    subscriptions: 0,
+    creditCards: 0,
+    personalLoans: 0,
+    otherDebt: 0,
+  },
   savings: 0,
   goals: [],
   dashboardWidgets: [...DASHBOARD_WIDGET_KEYS],
@@ -96,36 +133,33 @@ const defaultState = {
   updatedAt: 0,
 };
 
-const state = { ...defaultState };
+const state = { ...defaultState, expenses: { ...defaultState.expenses } };
 const deviceId = getDeviceId();
 
 const personaData = {
   builder: {
     title: "Builder",
-    copy:
-      "You like structure, measurable goals, and automated progress. Poapyments keeps you focused with streaks, dashboards, and reward milestones.",
+    copy: "You like structure, measurable goals, and automated progress. Consumer Pay keeps you focused with streaks, dashboards, and reward milestones.",
     tags: ["Goal focused", "Auto save", "Long term clarity"],
   },
   balancer: {
     title: "Balancer",
-    copy:
-      "You value stability and flexibility. We blend steady saving with an investing plan that adapts when life changes.",
+    copy: "You value stability and flexibility. We blend steady saving with an investing plan that adapts when life changes.",
     tags: ["Steady pacing", "Smart buffers", "Flexible goals"],
   },
   protector: {
     title: "Protector",
-    copy:
-      "You care about security for family and future. We highlight coverage gaps, emergency plans, and confidence milestones.",
+    copy: "You care about security for family and future. We highlight coverage gaps, emergency plans, and confidence milestones.",
     tags: ["Family first", "Safety nets", "Guided support"],
   },
   explorer: {
     title: "Explorer",
-    copy:
-      "You are motivated by possibility. We surface new income paths and show how bold goals impact your future.",
+    copy: "You are motivated by possibility. We surface new income paths and show how bold goals impact your future.",
     tags: ["Opportunity", "Side income", "Scenario planning"],
   },
 };
 
+// Utility functions
 function formatCurrency(value, currency = "GBP", decimals = 0) {
   return new Intl.NumberFormat("en-GB", {
     style: "currency",
@@ -170,17 +204,224 @@ function getDeviceId() {
   return generated;
 }
 
+// UK Salary Calculator
+function calculateUKTax(annualSalary, hasStudentLoan = false, hasPension = false) {
+  let taxableIncome = annualSalary;
+  let pensionDeduction = 0;
+
+  // Pension contribution (5% of gross)
+  if (hasPension) {
+    pensionDeduction = annualSalary * 0.05;
+    taxableIncome = annualSalary - pensionDeduction;
+  }
+
+  // Personal allowance reduction for high earners
+  let personalAllowance = UK_TAX.personalAllowance;
+  if (taxableIncome > 100000) {
+    const reduction = Math.floor((taxableIncome - 100000) / 2);
+    personalAllowance = Math.max(0, personalAllowance - reduction);
+  }
+
+  // Income Tax calculation
+  let incomeTax = 0;
+  const taxableAfterAllowance = Math.max(0, taxableIncome - personalAllowance);
+
+  if (taxableAfterAllowance > 0) {
+    // Basic rate
+    const basicBand = Math.min(taxableAfterAllowance, UK_TAX.basicRateLimit - UK_TAX.personalAllowance);
+    incomeTax += basicBand * UK_TAX.basicRate;
+
+    // Higher rate
+    if (taxableAfterAllowance > UK_TAX.basicRateLimit - UK_TAX.personalAllowance) {
+      const higherBand = Math.min(
+        taxableAfterAllowance - (UK_TAX.basicRateLimit - UK_TAX.personalAllowance),
+        UK_TAX.higherRateLimit - UK_TAX.basicRateLimit
+      );
+      incomeTax += higherBand * UK_TAX.higherRate;
+    }
+
+    // Additional rate
+    if (taxableAfterAllowance > UK_TAX.higherRateLimit - UK_TAX.personalAllowance) {
+      const additionalBand = taxableAfterAllowance - (UK_TAX.higherRateLimit - UK_TAX.personalAllowance);
+      incomeTax += additionalBand * UK_TAX.additionalRate;
+    }
+  }
+
+  // National Insurance
+  let nationalInsurance = 0;
+  if (annualSalary > UK_TAX.niThreshold) {
+    const niBaseBand = Math.min(annualSalary - UK_TAX.niThreshold, UK_TAX.niUpperLimit - UK_TAX.niThreshold);
+    nationalInsurance += niBaseBand * UK_TAX.niRate;
+
+    if (annualSalary > UK_TAX.niUpperLimit) {
+      nationalInsurance += (annualSalary - UK_TAX.niUpperLimit) * UK_TAX.niUpperRate;
+    }
+  }
+
+  // Student Loan (Plan 2)
+  let studentLoan = 0;
+  if (hasStudentLoan && annualSalary > UK_TAX.studentLoanThreshold) {
+    studentLoan = (annualSalary - UK_TAX.studentLoanThreshold) * UK_TAX.studentLoanRate;
+  }
+
+  const totalDeductions = incomeTax + nationalInsurance + studentLoan + pensionDeduction;
+  const netAnnual = annualSalary - totalDeductions;
+
+  // Determine tax band
+  let taxBand = "Personal Allowance (0%)";
+  if (taxableAfterAllowance > UK_TAX.higherRateLimit - UK_TAX.personalAllowance) {
+    taxBand = "Additional Rate (45%)";
+  } else if (taxableAfterAllowance > UK_TAX.basicRateLimit - UK_TAX.personalAllowance) {
+    taxBand = "Higher Rate (40%)";
+  } else if (taxableAfterAllowance > 0) {
+    taxBand = "Basic Rate (20%)";
+  }
+
+  return {
+    gross: annualSalary,
+    tax: incomeTax,
+    ni: nationalInsurance,
+    studentLoan,
+    pension: pensionDeduction,
+    net: netAnnual,
+    monthlyGross: annualSalary / 12,
+    monthlyTax: incomeTax / 12,
+    monthlyNI: nationalInsurance / 12,
+    monthlyStudentLoan: studentLoan / 12,
+    monthlyPension: pensionDeduction / 12,
+    monthlyNet: netAnnual / 12,
+    taxBand,
+  };
+}
+
+function updateSalaryBreakdown() {
+  const salary = state.annualSalary || 0;
+  const calc = calculateUKTax(salary, state.studentLoan, state.pensionContrib);
+
+  // Update income in state
+  state.income = Math.round(calc.monthlyNet);
+
+  // Update display elements
+  setTextAll("[data-monthly-gross]", formatCurrency(calc.monthlyGross));
+  setTextAll("[data-monthly-tax]", `-${formatCurrency(calc.monthlyTax)}`);
+  setTextAll("[data-monthly-ni]", `-${formatCurrency(calc.monthlyNI)}`);
+  setTextAll("[data-monthly-student]", `-${formatCurrency(calc.monthlyStudentLoan)}`);
+  setTextAll("[data-monthly-pension]", `-${formatCurrency(calc.monthlyPension)}`);
+  setTextAll("[data-monthly-net]", formatCurrency(calc.monthlyNet));
+  setTextAll("[data-monthly-takehome]", formatCurrency(calc.monthlyNet));
+  setTextAll("[data-band-name]", calc.taxBand);
+
+  // Show/hide student loan and pension rows
+  const studentRow = document.querySelector("[data-student-loan-row]");
+  const pensionRow = document.querySelector("[data-pension-row]");
+  if (studentRow) studentRow.style.display = state.studentLoan ? "flex" : "none";
+  if (pensionRow) pensionRow.style.display = state.pensionContrib ? "flex" : "none";
+
+  // Update ring chart
+  updateSalaryRing(calc);
+}
+
+function updateSalaryRing(calc) {
+  const circumference = 2 * Math.PI * 80; // ~502
+  const gross = calc.gross || 1;
+
+  const taxPct = calc.tax / gross;
+  const niPct = calc.ni / gross;
+  const otherPct = (calc.studentLoan + calc.pension) / gross;
+  const netPct = calc.net / gross;
+
+  // Ring segments (stroke-dashoffset decreases to show more)
+  const taxRing = document.querySelector("[data-ring-tax]");
+  const niRing = document.querySelector("[data-ring-ni]");
+  const takeHomeRing = document.querySelector("[data-ring-takehome]");
+
+  if (taxRing) {
+    taxRing.style.strokeDashoffset = circumference * (1 - taxPct);
+  }
+  if (niRing) {
+    niRing.style.strokeDashoffset = circumference * (1 - taxPct - niPct);
+  }
+  if (takeHomeRing) {
+    takeHomeRing.style.strokeDashoffset = circumference * (1 - netPct);
+  }
+}
+
+// Expense calculations
+function calculateCategoryTotal(category) {
+  const categoryMap = {
+    housing: ["mortgage", "councilTax", "homeInsurance"],
+    utilities: ["energy", "water", "internet", "streaming"],
+    transport: ["carPayment", "carInsurance", "fuel", "publicTransport"],
+    food: ["groceries", "diningOut", "coffeeSnacks"],
+    family: ["childcare", "kidsActivities", "schoolCosts", "kidsClothing"],
+    personal: ["gym", "clothing", "personalCare", "entertainment", "subscriptions"],
+    debt: ["creditCards", "personalLoans", "otherDebt"],
+  };
+
+  const fields = categoryMap[category] || [];
+  return fields.reduce((sum, field) => sum + (Number(state.expenses[field]) || 0), 0);
+}
+
+function calculateTotalExpenses() {
+  return Object.values(state.expenses).reduce((sum, val) => sum + (Number(val) || 0), 0);
+}
+
+function updateCategoryTotals() {
+  const categories = ["housing", "utilities", "transport", "food", "family", "personal", "debt"];
+  categories.forEach((cat) => {
+    const total = calculateCategoryTotal(cat);
+    const el = document.querySelector(`[data-category-total="${cat}"]`);
+    if (el) el.textContent = formatCurrency(total);
+  });
+
+  // Savings display
+  const savingsEl = document.querySelector('[data-category-total="savings"]');
+  if (savingsEl) savingsEl.textContent = formatCurrency(state.savings);
+}
+
+function updateBudgetSummary() {
+  const income = state.income || 0;
+  const totalExpenses = calculateTotalExpenses();
+  const remaining = income - totalExpenses;
+
+  setTextAll("[data-budget-income]", formatCurrency(income));
+  setTextAll("[data-budget-remaining]", formatCurrency(remaining));
+
+  const remainingEl = document.querySelector("[data-remaining-indicator]");
+  if (remainingEl) {
+    remainingEl.classList.toggle("positive", remaining >= 0);
+    remainingEl.classList.toggle("negative", remaining < 0);
+  }
+
+  // Flow chart
+  const maxVal = Math.max(income, totalExpenses, 1);
+  const incomeFlow = document.querySelector("[data-flow-income]");
+  const expensesFlow = document.querySelector("[data-flow-expenses]");
+  const surplusFlow = document.querySelector("[data-flow-surplus]");
+
+  if (incomeFlow) incomeFlow.style.setProperty("--fill", `${(income / maxVal) * 100}%`);
+  if (expensesFlow) expensesFlow.style.setProperty("--fill", `${(totalExpenses / maxVal) * 100}%`);
+  if (surplusFlow) surplusFlow.style.setProperty("--fill", `${(Math.max(0, remaining) / maxVal) * 100}%`);
+
+  setTextAll("[data-flow-income-amount]", formatCurrency(income));
+  setTextAll("[data-flow-expenses-amount]", formatCurrency(totalExpenses));
+  setTextAll("[data-flow-surplus-amount]", formatCurrency(Math.max(0, remaining)));
+
+  // Goals page surplus
+  setTextAll("[data-goals-surplus]", formatCurrency(Math.max(0, remaining)));
+}
+
+// State management
 function sanitizeState(raw) {
   if (!raw || typeof raw !== "object") {
-    return { ...defaultState };
+    return { ...defaultState, expenses: { ...defaultState.expenses } };
   }
 
   const safe = { ...defaultState, ...raw };
+  safe.expenses = { ...defaultState.expenses, ...(raw.expenses || {}) };
 
   safe.name = typeof safe.name === "string" ? safe.name : "";
-  safe.focus = ["saving", "investing", "protection", "income"].includes(
-    safe.focus
-  )
+  safe.focus = ["saving", "investing", "protection", "income"].includes(safe.focus)
     ? safe.focus
     : defaultState.focus;
   safe.horizon = ["short", "mid", "long"].includes(safe.horizon)
@@ -190,10 +431,16 @@ function sanitizeState(raw) {
     ? safe.persona
     : defaultState.persona;
 
+  safe.annualSalary = Number(safe.annualSalary) || 0;
+  safe.studentLoan = Boolean(safe.studentLoan);
+  safe.pensionContrib = Boolean(safe.pensionContrib);
   safe.income = Number(safe.income) || 0;
-  safe.essentials = Number(safe.essentials) || 0;
-  safe.debt = Number(safe.debt) || 0;
   safe.savings = Number(safe.savings) || 0;
+
+  // Sanitize expenses
+  Object.keys(defaultState.expenses).forEach((key) => {
+    safe.expenses[key] = Number(safe.expenses[key]) || 0;
+  });
 
   safe.goals = Array.isArray(safe.goals)
     ? safe.goals
@@ -229,9 +476,10 @@ function sanitizeState(raw) {
   safe.snapshotSet = Boolean(safe.snapshotSet);
 
   safe.onboardingComplete = Boolean(safe.onboardingComplete);
-  safe.lastScreen = typeof safe.lastScreen === "string" && safe.lastScreen
-    ? safe.lastScreen
-    : defaultState.lastScreen;
+  safe.lastScreen =
+    typeof safe.lastScreen === "string" && safe.lastScreen
+      ? safe.lastScreen
+      : defaultState.lastScreen;
   safe.updatedAt = Number(safe.updatedAt) || 0;
 
   return safe;
@@ -240,6 +488,7 @@ function sanitizeState(raw) {
 function applyState(raw, updatedAtOverride) {
   const safe = sanitizeState(raw);
   Object.assign(state, safe);
+  state.expenses = { ...safe.expenses };
   if (updatedAtOverride) state.updatedAt = updatedAtOverride;
 }
 
@@ -267,7 +516,7 @@ function saveLocalState() {
     const payload = serializeState();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (error) {
-    // Ignore storage failures.
+    // Ignore storage failures
   }
 }
 
@@ -287,6 +536,7 @@ function scheduleSave() {
   }
 }
 
+// Screen navigation
 function showScreen(index) {
   currentIndex = Math.max(0, Math.min(index, screens.length - 1));
   screens.forEach((screen, idx) => {
@@ -302,16 +552,26 @@ function showScreen(index) {
     state.lastScreen = screenId;
     scheduleSave();
   }
+
+  // Update budget page when shown
+  if (screenId === "budget") {
+    updateCategoryTotals();
+    updateBudgetSummary();
+  }
+
+  // Update goals page
+  if (screenId === "goals") {
+    updateBudgetSummary();
+  }
 }
 
 function showInitialScreen() {
   const target = state.onboardingComplete ? "app" : state.lastScreen;
-  const index = screens.findIndex(
-    (screen) => screen.dataset.screen === target
-  );
+  const index = screens.findIndex((screen) => screen.dataset.screen === target);
   showScreen(index === -1 ? 0 : index);
 }
 
+// UI Updates
 function updatePersona() {
   const data = personaData[state.persona] || personaData.builder;
   setTextAll("[data-persona-title]", data.title);
@@ -334,90 +594,61 @@ function updateRewardsUI() {
   setTextAll("[data-rewards-streak]", state.rewardStreak);
 }
 
+function getFinanceSnapshot() {
+  const totalExpenses = calculateTotalExpenses();
+  return {
+    income: state.income,
+    expenses: totalExpenses,
+    savings: state.savings,
+    surplus: state.income - totalExpenses,
+    debt: calculateCategoryTotal("debt"),
+  };
+}
+
 function updateSummary() {
   const snapshot = getFinanceSnapshot();
   const surplus = snapshot.surplus;
   const surplusLabel = surplus >= 0 ? "surplus" : "deficit";
-  const bufferMonths = snapshot.essentials
-    ? snapshot.savings / snapshot.essentials
-    : 0;
+  const bufferMonths = snapshot.expenses ? snapshot.savings / (snapshot.expenses || 1) : 0;
   const goalsCount = state.goals.length;
   const debtRatio = snapshot.income ? snapshot.debt / snapshot.income : 0;
   const surplusRatio = snapshot.income ? snapshot.surplus / snapshot.income : 0;
 
-  const focusLabels = {
-    saving: "Focused on saving",
-    investing: "Focused on investing",
-    protection: "Focused on protection",
-    income: "Focused on income growth",
-  };
-
   setTextAll("[data-summary-name]", state.name || "Friend");
   setTextAll("[data-user-name]", state.name || "Friend");
-  setTextAll(
-    "[data-summary-focus]",
-    focusLabels[state.focus] || "Balanced focus"
-  );
-  setTextAll("[data-summary-persona]", personaData[state.persona].title);
-  setTextAll("[data-summary-surplus]", `${formatCurrency(surplus)}`);
-  setTextAll("[data-snapshot-surplus]", `${formatCurrency(surplus)}`);
-  setTextAll(
-    "[data-app-surplus]",
-    `${formatCurrency(surplus)} ${surplusLabel}`
-  );
+  setTextAll("[data-summary-surplus]", formatCurrency(surplus));
+  setTextAll("[data-app-surplus]", `${formatCurrency(surplus)} ${surplusLabel}`);
   setTextAll("[data-summary-buffer]", `${bufferMonths.toFixed(1)} months`);
   setTextAll("[data-app-buffer]", `${bufferMonths.toFixed(1)} months`);
-  setTextAll(
-    "[data-summary-goals]",
-    `${goalsCount} goal${goalsCount === 1 ? "" : "s"}`
-  );
+  setTextAll("[data-summary-goals]", `${goalsCount} goal${goalsCount === 1 ? "" : "s"}`);
 
   const summaryNext = document.querySelector("[data-summary-next]");
   let nextStep = "";
   if (surplus < 0) {
-    nextStep = "Reduce expenses to reach break-even before investing.";
+    nextStep = "Reduce expenses to reach break-even.";
   } else if (bufferMonths < 1) {
-    nextStep = "Start a 1 month buffer before investing.";
+    nextStep = "Build a 1 month emergency buffer.";
   } else if (bufferMonths < 3) {
-    nextStep = "Grow your buffer to 3 months for confidence.";
+    nextStep = "Grow your buffer to 3 months.";
   } else if (goalsCount === 0) {
-    nextStep = "Add your first goal to unlock rewards.";
+    nextStep = "Add your first goal to start tracking.";
   } else {
-    nextStep = "Automate your top goal and review investing readiness.";
+    nextStep = "Automate savings to your top goal.";
   }
   if (summaryNext) summaryNext.textContent = nextStep;
 
-  const actionsEl = document.querySelector("[data-summary-actions]");
-  if (actionsEl) {
-    const firstAction =
-      surplus < 0
-        ? "Trim expenses to close the monthly gap."
-        : bufferMonths < 3
-        ? "Activate round-ups to build your buffer."
-        : "Boost your top goal by 1% today.";
-    const actions = [
-      firstAction,
-      "Find lost balances in 60 seconds.",
-      state.focus === "income"
-        ? "Unlock income booster ideas matched to your skills."
-        : "Unlock your next reward with a 7-day streak.",
-    ];
-    actionsEl.innerHTML = actions.map((item) => `<li>${item}</li>`).join("");
-  }
-
+  // Confidence score
   const baseScore = 50;
   const bufferScore = Math.min(25, Math.round(bufferMonths * 6));
   const goalScore = Math.min(15, goalsCount * 3);
   const cashflowScore = Math.min(10, Math.round(Math.max(0, surplusRatio * 40)));
   let debtPenalty = 0;
-  if (debtRatio > 0.35) {
-    debtPenalty = -12;
-  } else if (debtRatio > 0.2) {
-    debtPenalty = -6;
-  }
+  if (debtRatio > 0.35) debtPenalty = -12;
+  else if (debtRatio > 0.2) debtPenalty = -6;
 
   let score = baseScore + bufferScore + goalScore + cashflowScore + debtPenalty;
   score = Math.max(35, Math.min(95, score));
+
   setTextAll("[data-app-confidence]", score);
   setTextAll("[data-confidence-total]", score);
   setTextAll("[data-confidence-base]", baseScore);
@@ -432,7 +663,7 @@ function updateSummary() {
   updateIncomeBreakdown();
   updateCashflowInsights();
   updateVulnerabilityPanel();
-  runFutureScenario();
+  updateAlertList();
 }
 
 function updateGoalList() {
@@ -440,8 +671,7 @@ function updateGoalList() {
   if (!goalList) return;
 
   if (!state.goals.length) {
-    goalList.innerHTML =
-      "<p class=\"muted\">No goals yet. Add one to start tracking progress.</p>";
+    goalList.innerHTML = '<p class="muted">No goals yet. Add one to start tracking progress.</p>';
     return;
   }
 
@@ -449,1336 +679,405 @@ function updateGoalList() {
     const savedValue = Number(goal.saved) || 0;
     const monthlyValue = Number(goal.monthly) || 0;
     const targetValue = goal.target ? goal.target : "";
-    const progress = goal.target
-      ? Math.min(100, Math.round((savedValue / goal.target) * 100))
-      : 0;
-    const progressLabel = goal.target
-      ? `${progress}% funded`
-      : "Set a target to calculate progress";
+    const progress = goal.target ? Math.min(100, Math.round((savedValue / goal.target) * 100)) : 0;
+
     let timelineLabel = "Set a monthly amount to estimate timing";
     if (!goal.target) {
       timelineLabel = "Set a target to estimate timing";
     } else if (savedValue >= goal.target) {
-      timelineLabel = "Goal met";
+      timelineLabel = "Goal reached!";
     } else if (monthlyValue > 0) {
       const months = Math.ceil((goal.target - savedValue) / monthlyValue);
       const eta = new Date();
       eta.setMonth(eta.getMonth() + months);
-      const etaLabel = eta.toLocaleDateString("en-GB", {
-        month: "short",
-        year: "numeric",
-      });
+      const etaLabel = eta.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
       timelineLabel = `~${months} months (ETA ${etaLabel})`;
     }
+
     return `
       <div class="goal-item" data-goal-index="${index}">
         <div class="goal-row">
           <div>
             <p class="card-title">${goal.name}</p>
-            <p class="muted">Target</p>
+            <p class="muted">${timelineLabel}</p>
           </div>
-          <input
-            class="goal-input"
-            type="number"
-            min="0"
-            step="100"
-            placeholder="Set target"
-            value="${targetValue}"
-            data-goal-target-input
-          />
+          <input class="goal-input" type="number" min="0" step="100" placeholder="Target" value="${targetValue}" data-goal-target-input />
         </div>
         <div class="goal-edit-grid">
           <label>
             Saved so far
-            <input
-              type="number"
-              min="0"
-              step="50"
-              value="${savedValue || ""}"
-              data-goal-saved-input
-            />
+            <input type="number" min="0" step="50" value="${savedValue || ""}" data-goal-saved-input />
           </label>
           <label>
             Monthly contribution
-            <input
-              type="number"
-              min="0"
-              step="25"
-              value="${monthlyValue || ""}"
-              data-goal-monthly-input
-            />
+            <input type="number" min="0" step="25" value="${monthlyValue || ""}" data-goal-monthly-input />
           </label>
         </div>
-        <div class="goal-meta">
-          <span class="muted" data-goal-progress-label>${progressLabel}</span>
-          <span class="muted" data-goal-timeline>${timelineLabel}</span>
-        </div>
         <div class="progress"><span style="width: ${progress}%"></span></div>
+        <p class="muted">${progress}% funded</p>
       </div>
     `;
   });
 
   goalList.innerHTML = items.join("");
-
-  goalList.querySelectorAll("[data-goal-target-input]").forEach((input) => {
-    const row = input.closest("[data-goal-index]");
-    if (!row) return;
-    const index = Number(row.dataset.goalIndex);
-    input.addEventListener("input", () => {
-      const value = Number(input.value) || 0;
-      if (state.goals[index]) {
-        state.goals[index].target = value;
-      }
-      updateGoalRowUI(row, state.goals[index]);
-      scheduleSave();
-    });
-    input.addEventListener("change", updateSummary);
-  });
-
-  goalList.querySelectorAll("[data-goal-saved-input]").forEach((input) => {
-    const row = input.closest("[data-goal-index]");
-    if (!row) return;
-    const index = Number(row.dataset.goalIndex);
-    input.addEventListener("input", () => {
-      const value = Number(input.value) || 0;
-      if (state.goals[index]) {
-        state.goals[index].saved = value;
-      }
-      updateGoalRowUI(row, state.goals[index]);
-      scheduleSave();
-    });
-    input.addEventListener("change", updateSummary);
-  });
-
-  goalList.querySelectorAll("[data-goal-monthly-input]").forEach((input) => {
-    const row = input.closest("[data-goal-index]");
-    if (!row) return;
-    const index = Number(row.dataset.goalIndex);
-    input.addEventListener("input", () => {
-      const value = Number(input.value) || 0;
-      if (state.goals[index]) {
-        state.goals[index].monthly = value;
-      }
-      updateGoalRowUI(row, state.goals[index]);
-      scheduleSave();
-    });
-    input.addEventListener("change", updateSummary);
-  });
+  attachGoalInputListeners();
 }
 
-function updateGoalRowUI(row, goal) {
-  if (!row || !goal) return;
-  const savedValue = Number(goal.saved) || 0;
-  const monthlyValue = Number(goal.monthly) || 0;
-  const targetValue = Number(goal.target) || 0;
-  const progress = targetValue
-    ? Math.min(100, Math.round((savedValue / targetValue) * 100))
-    : 0;
-  const progressEl = row.querySelector(".progress span");
-  const progressLabel = row.querySelector("[data-goal-progress-label]");
-  const timelineLabel = row.querySelector("[data-goal-timeline]");
-  if (progressEl) progressEl.style.width = `${progress}%`;
-  if (progressLabel) {
-    progressLabel.textContent = targetValue
-      ? `${progress}% funded`
-      : "Set a target to calculate progress";
-  }
-  if (timelineLabel) {
-    let label = "Set a monthly amount to estimate timing";
-    if (!targetValue) {
-      label = "Set a target to estimate timing";
-    } else if (savedValue >= targetValue) {
-      label = "Goal met";
-    } else if (monthlyValue > 0) {
-      const months = Math.ceil((targetValue - savedValue) / monthlyValue);
-      const eta = new Date();
-      eta.setMonth(eta.getMonth() + months);
-      const etaLabel = eta.toLocaleDateString("en-GB", {
-        month: "short",
-        year: "numeric",
+function attachGoalInputListeners() {
+  document.querySelectorAll("[data-goal-index]").forEach((item) => {
+    const index = parseInt(item.dataset.goalIndex, 10);
+    const targetInput = item.querySelector("[data-goal-target-input]");
+    const savedInput = item.querySelector("[data-goal-saved-input]");
+    const monthlyInput = item.querySelector("[data-goal-monthly-input]");
+
+    if (targetInput) {
+      targetInput.addEventListener("input", () => {
+        state.goals[index].target = Number(targetInput.value) || 0;
+        scheduleSave();
+        updateGoalList();
       });
-      label = `~${months} months (ETA ${etaLabel})`;
     }
-    timelineLabel.textContent = label;
-  }
-}
-
-function getFinanceSnapshot() {
-  const fallbackIncome = 3200;
-  const fallbackEssentials = 2100;
-  const fallbackDebt = 220;
-  const fallbackSavings = 1200;
-
-  const useFallbacks = !state.snapshotSet;
-  const income = useFallbacks ? fallbackIncome : Number(state.income) || 0;
-  const essentials = useFallbacks ? fallbackEssentials : Number(state.essentials) || 0;
-  const debt = useFallbacks ? fallbackDebt : Number(state.debt) || 0;
-  const savings = useFallbacks ? fallbackSavings : Number(state.savings) || 0;
-  const surplus = income - essentials - debt;
-  const explicitContribution = state.goals.reduce(
-    (total, goal) => total + (Number(goal.monthly) || 0),
-    0
-  );
-  const fallbackContribution = Math.max(0, surplus * 0.45);
-  const goalContribution =
-    explicitContribution > 0 ? explicitContribution : fallbackContribution;
-
-  return {
-    income,
-    essentials,
-    debt,
-    savings,
-    surplus,
-    goalContribution,
-  };
-}
-
-function updateIncomeBreakdown() {
-  if (!incomeBar || !expenseBar || !savingBar) return;
-  const snapshot = getFinanceSnapshot();
-  const expenses = snapshot.essentials + snapshot.debt;
-  const maxValue = Math.max(snapshot.income, expenses + snapshot.goalContribution, 1);
-  const incomeFill = snapshot.income / maxValue;
-  const expenseFill = expenses / maxValue;
-  const savingFill = snapshot.goalContribution / maxValue;
-
-  incomeBar.style.setProperty("--fill", incomeFill.toFixed(3));
-  expenseBar.style.setProperty("--fill", expenseFill.toFixed(3));
-  savingBar.style.setProperty("--fill", savingFill.toFixed(3));
-
-  if (incomeLabel) incomeLabel.textContent = formatCurrency(snapshot.income);
-  if (expenseLabel) expenseLabel.textContent = formatCurrency(expenses);
-  if (savingLabel) savingLabel.textContent = formatCurrency(snapshot.goalContribution);
-
-  if (incomeSummary) {
-    const fixedRatio = expenses / snapshot.income;
-    const ratioText = Math.round(fixedRatio * 100);
-    incomeSummary.textContent =
-      fixedRatio >= 0.7
-        ? `Fixed costs are ${ratioText}% of income. Consider trimming essentials.`
-        : `Fixed costs are ${ratioText}% of income. You have room to invest.`;
-  }
+    if (savedInput) {
+      savedInput.addEventListener("input", () => {
+        state.goals[index].saved = Number(savedInput.value) || 0;
+        scheduleSave();
+        updateGoalList();
+      });
+    }
+    if (monthlyInput) {
+      monthlyInput.addEventListener("input", () => {
+        state.goals[index].monthly = Number(monthlyInput.value) || 0;
+        scheduleSave();
+        updateGoalList();
+      });
+    }
+  });
 }
 
 function updateDashboardVisibility() {
-  if (!dashboardWidgets.length) return;
-  const selected = new Set(state.dashboardWidgets);
-  dashboardWidgets.forEach((widget) => {
-    widget.classList.toggle("is-hidden", !selected.has(widget.dataset.widget));
+  DASHBOARD_WIDGET_KEYS.forEach((key) => {
+    const widget = document.querySelector(`[data-widget="${key}"]`);
+    if (widget) {
+      widget.classList.toggle("is-hidden", !state.dashboardWidgets.includes(key));
+    }
   });
 }
 
-function updateVulnerabilityPanel() {
-  if (!vulnerabilityList) return;
+function updateIncomeBreakdown() {
   const snapshot = getFinanceSnapshot();
-  const bufferMonths = snapshot.essentials
-    ? snapshot.savings / snapshot.essentials
-    : 0;
-  const debtRatio = snapshot.debt / snapshot.income;
-  const fixedCostRatio = (snapshot.essentials + snapshot.debt) / snapshot.income;
-  const surplusRatio = snapshot.surplus / snapshot.income;
+  const max = Math.max(snapshot.income, snapshot.expenses, 1);
 
-  const items = [
-    {
-      title: "Emergency buffer",
-      level: bufferMonths < 1 ? "high" : bufferMonths < 3 ? "medium" : "low",
-      detail: `${bufferMonths.toFixed(1)} months`,
-    },
-    {
-      title: "Debt load",
-      level: debtRatio > 0.35 ? "high" : debtRatio > 0.2 ? "medium" : "low",
-      detail: `${Math.round(debtRatio * 100)}% of income`,
-    },
-    {
-      title: "Fixed cost exposure",
-      level:
-        fixedCostRatio > 0.75 ? "high" : fixedCostRatio > 0.6 ? "medium" : "low",
-      detail: `${Math.round(fixedCostRatio * 100)}% of income`,
-    },
-    {
-      title: "Income resilience",
-      level: surplusRatio < 0 ? "high" : surplusRatio < 0.1 ? "medium" : "low",
-      detail: `${formatCurrency(snapshot.surplus)} net`,
-    },
-  ];
+  const incomeBar = document.querySelector("[data-income-bar]");
+  const expenseBar = document.querySelector("[data-expense-bar]");
+  const savingBar = document.querySelector("[data-saving-bar]");
 
-  vulnerabilityList.innerHTML = items
-    .map(
-      (item) => `
-        <li class="vuln-item">
-          <div>
-            <p class="alert-title">${item.title}</p>
-            <p class="muted">${item.detail}</p>
-          </div>
-          <span class="severity ${item.level}">${item.level}</span>
-        </li>
-      `
-    )
-    .join("");
+  if (incomeBar) incomeBar.style.setProperty("--fill", snapshot.income / max);
+  if (expenseBar) expenseBar.style.setProperty("--fill", snapshot.expenses / max);
+  if (savingBar) savingBar.style.setProperty("--fill", Math.max(0, snapshot.surplus) / max);
 
-  const highCount = items.filter((item) => item.level === "high").length;
-  const mediumCount = items.filter((item) => item.level === "medium").length;
-  let scoreLabel = "Low";
-  if (highCount >= 2 || (highCount === 1 && mediumCount >= 2)) {
-    scoreLabel = "High";
-  } else if (highCount === 1 || mediumCount >= 2) {
-    scoreLabel = "Moderate";
-  }
-  if (vulnerabilityScore) vulnerabilityScore.textContent = scoreLabel;
+  setTextAll("[data-income-label]", formatCurrency(snapshot.income));
+  setTextAll("[data-expense-label]", formatCurrency(snapshot.expenses));
+  setTextAll("[data-saving-label]", formatCurrency(Math.max(0, snapshot.surplus)));
 }
 
+// Cash flow chart
 function buildCashflowData(months, scenario) {
-  const snapshot = getFinanceSnapshot();
-  const results = [];
-  let balance = snapshot.savings;
-  const netValues = [];
-  const balanceValues = [];
-  const incomeValues = [];
-  const expenseValues = [];
+  const preset = cashflowPresets[scenario] || cashflowPresets.baseline;
+  const incomeAdj = scenario === "custom" ? state.cashflowIncomeChange : preset.incomeChange;
+  const expenseAdj = scenario === "custom" ? state.cashflowExpenseChange : preset.expenseChange;
 
-  for (let i = 0; i < months; i += 1) {
+  const snapshot = getFinanceSnapshot();
+  const baseIncome = snapshot.income;
+  const baseExpense = snapshot.expenses;
+  const startBalance = snapshot.savings;
+
+  const data = [];
+  let balance = startBalance;
+
+  for (let i = 0; i < months; i++) {
     const seasonality = 1 + Math.sin((i / 12) * Math.PI * 2) * 0.03;
-    const income =
-      snapshot.income * (1 + scenario.incomeChange / 100) * seasonality;
-    let expenses =
-      (snapshot.essentials + snapshot.debt + snapshot.goalContribution) *
-      (1 + scenario.expenseChange / 100);
-    if (scenario.shock && i === 2) {
-      expenses += snapshot.essentials * 0.6;
+    const income = Math.round(baseIncome * (1 + incomeAdj / 100) * seasonality);
+    let expense = Math.round(baseExpense * (1 + expenseAdj / 100));
+
+    if (preset.shock && i >= 3 && i <= 5) {
+      expense = Math.round(expense * 1.25);
     }
 
-    const net = income - expenses;
+    const net = income - expense;
     balance += net;
 
-    results.push(i + 1);
-    netValues.push(net);
-    balanceValues.push(balance);
-    incomeValues.push(income);
-    expenseValues.push(expenses);
+    const date = new Date();
+    date.setMonth(date.getMonth() + i);
+
+    data.push({
+      month: date.toLocaleDateString("en-GB", { month: "short" }),
+      income,
+      expense,
+      net,
+      balance,
+    });
   }
 
-  return {
-    months: results,
-    net: netValues,
-    balance: balanceValues,
-    income: incomeValues,
-    expenses: expenseValues,
-  };
+  return data;
 }
 
-function buildCashflowMeta(data) {
+function renderCashflowChart(data) {
+  const container = document.querySelector("[data-cashflow-chart]");
+  if (!container) return;
+
   const { width, height, padding } = CASHFLOW_CHART;
-  const values = [...data.balance, ...data.net, 0];
-  const minValue = Math.min(...values);
-  const maxValue = Math.max(...values);
-  const range = maxValue - minValue || 1;
-  const step =
-    data.months.length > 1
-      ? (width - padding * 2) / (data.months.length - 1)
-      : 1;
-  const zeroY =
-    padding + ((maxValue - 0) / range) * (height - padding * 2);
-  return {
-    width,
-    height,
-    padding,
-    minValue,
-    maxValue,
-    range,
-    step,
-    zeroY,
-  };
-}
+  const chartWidth = width - padding * 2;
+  const chartHeight = height - padding * 2;
 
-function renderCashflowChart(data, meta) {
-  const {
-    width,
-    height,
-    padding,
-    minValue,
-    maxValue,
-    range,
-    step,
-    zeroY,
-  } = meta;
+  const balances = data.map((d) => d.balance);
+  const nets = data.map((d) => d.net);
+  const maxBalance = Math.max(...balances, 0);
+  const minBalance = Math.min(...balances, 0);
+  const maxNet = Math.max(...nets.map(Math.abs), 1);
+  const balanceRange = Math.max(maxBalance - minBalance, 1);
 
-  const y = (value) =>
-    padding + ((maxValue - value) / range) * (height - padding * 2);
+  const barWidth = Math.max(8, (chartWidth / data.length) * 0.5);
+  const gap = (chartWidth - barWidth * data.length) / (data.length - 1 || 1);
 
-  const barWidth = Math.max(8, step * 0.45);
+  const scaleY = (val) => padding + chartHeight - ((val - minBalance) / balanceRange) * chartHeight;
+  const scaleNetY = (val) => (Math.abs(val) / maxNet) * (chartHeight * 0.3);
+  const zeroY = scaleY(0);
 
-  const bars = data.net
-    .map((value, index) => {
-      const x = padding + index * step - barWidth / 2;
-      const barHeight = Math.abs(y(value) - zeroY);
-      const yPos = value >= 0 ? y(value) : zeroY;
-      const barClass = value >= 0 ? "positive" : "negative";
-      return `<rect class="net-bar ${barClass}" x="${x.toFixed(
-        1
-      )}" y="${yPos.toFixed(1)}" width="${barWidth.toFixed(
-        1
-      )}" height="${Math.max(barHeight, 2).toFixed(1)}" />`;
+  // Build balance line path
+  const linePath = data
+    .map((d, i) => {
+      const x = padding + i * (barWidth + gap) + barWidth / 2;
+      const y = scaleY(d.balance);
+      return `${i === 0 ? "M" : "L"} ${x} ${y}`;
     })
-    .join("");
-
-  const points = data.balance
-    .map((value, index) => `${(padding + index * step).toFixed(1)},${y(value).toFixed(1)}`)
     .join(" ");
 
-  const areaPath = `M ${padding} ${y(data.balance[0]).toFixed(1)} ${data.balance
-    .map((value, index) => `L ${(padding + index * step).toFixed(1)} ${y(value).toFixed(1)}`)
-    .join(" ")} L ${(padding + (data.months.length - 1) * step).toFixed(
-    1
-  )} ${zeroY.toFixed(1)} L ${padding} ${zeroY.toFixed(1)} Z`;
+  // Build area path
+  const firstX = padding + barWidth / 2;
+  const lastX = padding + (data.length - 1) * (barWidth + gap) + barWidth / 2;
+  const areaPath = `${linePath} L ${lastX} ${height - padding} L ${firstX} ${height - padding} Z`;
 
-  const gridLines = [0.25, 0.5, 0.75]
-    .map((ratio) => {
-      const yPos = padding + ratio * (height - padding * 2);
-      return `<line class="grid-line" x1="${padding}" x2="${
-        width - padding
-      }" y1="${yPos.toFixed(1)}" y2="${yPos.toFixed(1)}" />`;
+  // Build bars
+  const bars = data
+    .map((d, i) => {
+      const x = padding + i * (barWidth + gap);
+      const barHeight = scaleNetY(d.net);
+      const y = d.net >= 0 ? zeroY - barHeight : zeroY;
+      const cls = d.net >= 0 ? "positive" : "negative";
+      return `<rect class="net-bar ${cls}" x="${x}" y="${y}" width="${barWidth}" height="${barHeight}" rx="3" data-index="${i}" />`;
     })
     .join("");
 
-  return `
-    <svg class="cashflow-chart" viewBox="0 0 ${width} ${height}" role="img" aria-label="Cashflow chart">
+  // Grid lines
+  const gridLines = [0.25, 0.5, 0.75]
+    .map((pct) => {
+      const y = padding + chartHeight * (1 - pct);
+      return `<line class="grid-line" x1="${padding}" y1="${y}" x2="${width - padding}" y2="${y}" />`;
+    })
+    .join("");
+
+  container.innerHTML = `
+    <svg class="cashflow-chart" viewBox="0 0 ${width} ${height}" preserveAspectRatio="xMidYMid meet">
       ${gridLines}
-      <line class="zero-line" x1="${padding}" x2="${width - padding}" y1="${zeroY.toFixed(
-        1
-      )}" y2="${zeroY.toFixed(1)}" />
+      <line class="zero-line" x1="${padding}" y1="${zeroY}" x2="${width - padding}" y2="${zeroY}" />
       <path class="balance-area" d="${areaPath}" />
+      <path class="balance-line" d="${linePath}" />
       ${bars}
-      <polyline class="balance-line" points="${points}" />
-      <line class="focus-line" x1="${padding}" x2="${padding}" y1="${padding}" y2="${height - padding}" />
-      <circle class="focus-dot" cx="${padding}" cy="${zeroY.toFixed(1)}" r="4" />
+      <line class="focus-line" x1="0" y1="0" x2="0" y2="${height}" data-focus-line />
+      <circle class="focus-dot" cx="0" cy="0" r="6" data-focus-dot />
     </svg>
-    <div class="chart-tooltip" data-cashflow-tooltip></div>
+    <div class="chart-tooltip" data-chart-tooltip>
+      <div class="tooltip-title" data-tooltip-month></div>
+      <div><strong>Balance:</strong> <span data-tooltip-balance></span></div>
+      <div><strong>Income:</strong> <span data-tooltip-income></span></div>
+      <div><strong>Expenses:</strong> <span data-tooltip-expense></span></div>
+      <div><strong>Net:</strong> <span data-tooltip-net></span></div>
+    </div>
   `;
+
+  currentCashflowData = data;
+  attachCashflowInteractions();
 }
 
 function attachCashflowInteractions() {
-  if (!cashflowChart || !currentCashflowData || !cashflowMeta) return;
-  const cashflowSvg = cashflowChart.querySelector("svg");
-  const tooltip = cashflowChart.querySelector("[data-cashflow-tooltip]");
-  if (!cashflowSvg || !tooltip) return;
+  const container = document.querySelector("[data-cashflow-chart]");
+  if (!container || !currentCashflowData) return;
 
-  const focusLine = cashflowSvg.querySelector(".focus-line");
-  const focusDot = cashflowSvg.querySelector(".focus-dot");
-  const { width, height, padding, maxValue, range, step } = cashflowMeta;
+  const svg = container.querySelector("svg");
+  const tooltip = container.querySelector("[data-chart-tooltip]");
+  const focusLine = container.querySelector("[data-focus-line]");
+  const focusDot = container.querySelector("[data-focus-dot]");
 
-  const y = (value) =>
-    padding + ((maxValue - value) / range) * (height - padding * 2);
+  if (!svg || !tooltip) return;
 
-  const showPoint = (index, event) => {
-    const safeIndex = Math.max(0, Math.min(index, currentCashflowData.months.length - 1));
-    const xPos = padding + safeIndex * step;
-    const balance = currentCashflowData.balance[safeIndex];
-    const net = currentCashflowData.net[safeIndex];
-    const income = currentCashflowData.income[safeIndex];
-    const expenses = currentCashflowData.expenses[safeIndex];
-    const yPos = y(balance);
+  const { width, height, padding } = CASHFLOW_CHART;
+  const data = currentCashflowData;
+  const chartWidth = width - padding * 2;
+  const barWidth = Math.max(8, (chartWidth / data.length) * 0.5);
+  const gap = (chartWidth - barWidth * data.length) / (data.length - 1 || 1);
+
+  const balances = data.map((d) => d.balance);
+  const maxBalance = Math.max(...balances, 0);
+  const minBalance = Math.min(...balances, 0);
+  const balanceRange = Math.max(maxBalance - minBalance, 1);
+  const scaleY = (val) => padding + (height - padding * 2) - ((val - minBalance) / balanceRange) * (height - padding * 2);
+
+  function showTooltip(index, clientX) {
+    const d = data[index];
+    if (!d) return;
+
+    tooltip.querySelector("[data-tooltip-month]").textContent = d.month;
+    tooltip.querySelector("[data-tooltip-balance]").textContent = formatCurrency(d.balance);
+    tooltip.querySelector("[data-tooltip-income]").textContent = formatCurrency(d.income);
+    tooltip.querySelector("[data-tooltip-expense]").textContent = formatCurrency(d.expense);
+    tooltip.querySelector("[data-tooltip-net]").textContent = formatSignedCurrency(d.net);
+
+    const x = padding + index * (barWidth + gap) + barWidth / 2;
+    const y = scaleY(d.balance);
 
     if (focusLine) {
-      focusLine.setAttribute("x1", xPos.toFixed(1));
-      focusLine.setAttribute("x2", xPos.toFixed(1));
-      focusLine.style.opacity = "1";
+      focusLine.setAttribute("x1", x);
+      focusLine.setAttribute("x2", x);
+      focusLine.style.opacity = 1;
     }
     if (focusDot) {
-      focusDot.setAttribute("cx", xPos.toFixed(1));
-      focusDot.setAttribute("cy", yPos.toFixed(1));
-      focusDot.style.opacity = "1";
+      focusDot.setAttribute("cx", x);
+      focusDot.setAttribute("cy", y);
+      focusDot.style.opacity = 1;
     }
 
-    tooltip.innerHTML = `
-      <div class="tooltip-title">Month ${safeIndex + 1}</div>
-      <div>Balance: ${formatCurrency(balance)}</div>
-      <div>Net: ${formatSignedCurrency(net)}</div>
-      <div>Income: ${formatCurrency(income)}</div>
-      <div>Expenses: ${formatCurrency(expenses)}</div>
-    `;
-
-    const svgRect = cashflowSvg.getBoundingClientRect();
-    const wrapRect = cashflowChart.getBoundingClientRect();
-    const left = (xPos / width) * svgRect.width;
-    const top = (yPos / height) * svgRect.height;
-    const offsetX = svgRect.left - wrapRect.left;
-    const offsetY = svgRect.top - wrapRect.top;
-    tooltip.style.left = `${offsetX + left}px`;
-    tooltip.style.top = `${offsetY + top}px`;
+    const rect = container.getBoundingClientRect();
+    const tooltipX = (x / width) * rect.width;
+    tooltip.style.left = `${tooltipX}px`;
+    tooltip.style.top = `${(y / height) * rect.height}px`;
     tooltip.classList.add("is-visible");
-  };
+  }
 
-  cashflowSvg.onmousemove = (event) => {
-    const rect = cashflowSvg.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * width;
-    const clamped = Math.max(padding, Math.min(x, width - padding));
-    const index = Math.round((clamped - padding) / step);
-    showPoint(index, event);
-  };
-
-  cashflowSvg.onmouseenter = (event) => {
-    const rect = cashflowSvg.getBoundingClientRect();
-    const x = ((event.clientX - rect.left) / rect.width) * width;
-    const clamped = Math.max(padding, Math.min(x, width - padding));
-    const index = Math.round((clamped - padding) / step);
-    showPoint(index, event);
-  };
-
-  cashflowSvg.onmouseleave = () => {
-    if (focusLine) focusLine.style.opacity = "0";
-    if (focusDot) focusDot.style.opacity = "0";
+  function hideTooltip() {
     tooltip.classList.remove("is-visible");
-  };
-}
-
-function updateAlertList(data) {
-  if (!alertList) return;
-  const snapshot = getFinanceSnapshot();
-  const alerts = [];
-
-  const firstDeficitMonth = data.net.findIndex((value) => value < 0);
-  if (firstDeficitMonth >= 0) {
-    alerts.push({
-      title: "Projected monthly deficit",
-      detail: `Month ${firstDeficitMonth + 1} shows a shortfall.`,
-      level: "high",
-    });
+    if (focusLine) focusLine.style.opacity = 0;
+    if (focusDot) focusDot.style.opacity = 0;
   }
 
-  const lowestBalance = Math.min(...data.balance);
-  if (lowestBalance < 0) {
-    alerts.push({
-      title: "Balance drops below zero",
-      detail: `Lowest balance ${formatCurrency(lowestBalance)}.`,
-      level: "high",
-    });
-  } else if (lowestBalance < snapshot.essentials) {
-    alerts.push({
-      title: "Buffer dips below one month",
-      detail: `Lowest balance ${formatCurrency(lowestBalance)}.`,
-      level: "medium",
-    });
-  }
+  svg.addEventListener("mousemove", (e) => {
+    const rect = svg.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * width;
+    const index = Math.floor((x - padding) / (barWidth + gap));
+    if (index >= 0 && index < data.length) {
+      showTooltip(index, e.clientX);
+    }
+  });
 
-  if (snapshot.debt > snapshot.income * 0.35) {
-    alerts.push({
-      title: "Debt payments feel heavy",
-      detail: "Debt is above 35% of income.",
-      level: "medium",
-    });
-  }
-
-  if (!alerts.length) {
-    alerts.push({
-      title: "All clear",
-      detail: "No upcoming risks detected in this scenario.",
-      level: "low",
-    });
-  }
-
-  alertList.innerHTML = alerts
-    .map(
-      (alert) => `
-        <li class="alert-item">
-          <div>
-            <p class="alert-title">${alert.title}</p>
-            <p class="muted">${alert.detail}</p>
-          </div>
-          <span class="severity ${alert.level}">${alert.level}</span>
-        </li>
-      `
-    )
-    .join("");
+  svg.addEventListener("mouseleave", hideTooltip);
 }
 
 function updateCashflowInsights() {
-  if (!cashflowChart) return;
-  const scenarioKey = scenarioSelect ? scenarioSelect.value : state.cashflowScenario;
-  const preset = cashflowPresets[scenarioKey] || cashflowPresets.baseline;
-  const isCustom = scenarioKey === "custom";
-  const incomeChange = isCustom
-    ? Number(scenarioIncomeInput?.value) || 0
-    : preset.incomeChange;
-  const expenseChange = isCustom
-    ? Number(scenarioExpenseInput?.value) || 0
-    : preset.expenseChange;
-  const months = Number(cashflowMonthsInput?.value) || state.cashflowMonths;
-  const scenario = {
-    ...preset,
-    incomeChange,
-    expenseChange,
-  };
+  const data = buildCashflowData(state.cashflowMonths, state.cashflowScenario);
+  renderCashflowChart(data);
 
-  state.cashflowScenario = scenarioKey;
-  state.cashflowMonths = months;
-  state.cashflowIncomeChange = incomeChange;
-  state.cashflowExpenseChange = expenseChange;
+  const avgNet = data.reduce((sum, d) => sum + d.net, 0) / data.length;
+  const lowBalance = Math.min(...data.map((d) => d.balance));
+  const riskMonths = data.filter((d) => d.balance < 0).length;
 
-  const data = buildCashflowData(months, scenario);
-  currentCashflowData = data;
-  cashflowMeta = buildCashflowMeta(data);
-  cashflowChart.innerHTML = renderCashflowChart(data, cashflowMeta);
-  attachCashflowInteractions();
+  setTextAll("[data-cashflow-average]", formatCurrency(avgNet));
+  setTextAll("[data-cashflow-low]", formatCurrency(lowBalance));
+  setTextAll("[data-cashflow-risk]", riskMonths);
+}
 
-  const avgNet =
-    data.net.reduce((total, value) => total + value, 0) / data.net.length;
-  const lowBalance = Math.min(...data.balance);
+// Vulnerability panel
+function updateVulnerabilityPanel() {
+  const vulnList = document.querySelector("[data-vulnerability-list]");
+  const vulnScore = document.querySelector("[data-vulnerability-score]");
+  if (!vulnList) return;
+
   const snapshot = getFinanceSnapshot();
-  const riskMonths = data.balance.filter(
-    (value) => value < snapshot.essentials
-  ).length;
+  const bufferMonths = snapshot.expenses ? snapshot.savings / snapshot.expenses : 0;
+  const debtRatio = snapshot.income ? snapshot.debt / snapshot.income : 0;
 
-  if (cashflowAverage) {
-    cashflowAverage.textContent = formatCurrency(avgNet);
-  }
-  if (cashflowLow) {
-    cashflowLow.textContent = formatCurrency(lowBalance);
-  }
-  if (cashflowRisk) {
-    cashflowRisk.textContent = `${riskMonths}`;
+  const vulns = [];
+
+  if (bufferMonths < 1) {
+    vulns.push({ text: "Emergency buffer below 1 month", severity: "high" });
+  } else if (bufferMonths < 3) {
+    vulns.push({ text: "Emergency buffer below 3 months", severity: "medium" });
   }
 
-  updateAlertList(data);
-}
-
-function simulateScenarioCashflow(snapshot, horizon, type, amount, effectMonths) {
-  const results = [];
-  const netValues = [];
-  const balanceValues = [];
-  const incomeValues = [];
-  const expenseValues = [];
-  let balance = snapshot.savings;
-  const effectSpan = Math.min(Math.max(effectMonths, 1), horizon);
-  const oneOffMonth = Math.min(Math.max(effectMonths, 1), horizon) - 1;
-
-  for (let i = 0; i < horizon; i += 1) {
-    let income = snapshot.income;
-    let expenses = snapshot.essentials + snapshot.debt + snapshot.goalContribution;
-    const withinEffect = i < effectSpan;
-
-    if (type === "pause_investing" && withinEffect) {
-      expenses -= snapshot.goalContribution;
-    } else if (type === "income_drop" && withinEffect) {
-      income -= amount;
-    } else if (type === "income_boost" && withinEffect) {
-      income += amount;
-    } else if (type === "expense_spike" && withinEffect) {
-      expenses += amount;
-    } else if (type === "one_off" && i === oneOffMonth) {
-      expenses += amount;
-    }
-
-    expenses = Math.max(0, expenses);
-    const net = income - expenses;
-    balance += net;
-
-    results.push(i + 1);
-    netValues.push(net);
-    balanceValues.push(balance);
-    incomeValues.push(income);
-    expenseValues.push(expenses);
+  if (debtRatio > 0.35) {
+    vulns.push({ text: "Debt payments exceed 35% of income", severity: "high" });
+  } else if (debtRatio > 0.2) {
+    vulns.push({ text: "Debt payments above 20% of income", severity: "medium" });
   }
 
-  return {
-    months: results,
-    net: netValues,
-    balance: balanceValues,
-    income: incomeValues,
-    expenses: expenseValues,
-  };
-}
-
-function getPrimaryGoal() {
-  if (!state.goals.length) return null;
-  return state.goals.reduce((best, goal) => {
-    const bestMonthly = Number(best.monthly) || 0;
-    const currentMonthly = Number(goal.monthly) || 0;
-    if (currentMonthly !== bestMonthly) {
-      return currentMonthly > bestMonthly ? goal : best;
-    }
-    const bestTarget = Number(best.target) || 0;
-    const currentTarget = Number(goal.target) || 0;
-    return currentTarget > bestTarget ? goal : best;
-  }, state.goals[0]);
-}
-
-function estimateGoalDelay(type, effectMonths, amount, snapshot) {
-  const goal = getPrimaryGoal();
-  if (!goal || !goal.target) {
-    return "Set a target to estimate timing.";
+  if (snapshot.surplus < 0) {
+    vulns.push({ text: "Monthly expenses exceed income", severity: "high" });
   }
 
-  const remaining = Math.max(goal.target - (Number(goal.saved) || 0), 0);
-  const totalMonthly = state.goals.reduce(
-    (total, item) => total + (Number(item.monthly) || 0),
-    0
-  );
-  const baseContribution =
-    Number(goal.monthly) ||
-    (totalMonthly > 0 ? 0 : snapshot.goalContribution / state.goals.length);
-  if (!baseContribution) {
-    return "No monthly contribution set.";
+  if (state.goals.length === 0) {
+    vulns.push({ text: "No financial goals set", severity: "low" });
   }
 
-  if (totalMonthly > 0 && !Number(goal.monthly)) {
-    return "Set a monthly contribution for this goal.";
+  if (vulns.length === 0) {
+    vulnList.innerHTML = '<li class="vuln-item"><span>No major vulnerabilities detected</span><span class="severity low">Good</span></li>';
+  } else {
+    vulnList.innerHTML = vulns
+      .map((v) => `<li class="vuln-item"><span>${v.text}</span><span class="severity ${v.severity}">${v.severity}</span></li>`)
+      .join("");
   }
 
-  if (type === "pause_investing") {
-    return effectMonths > 0 ? `~${effectMonths} month delay` : "No change";
-  }
-
-  if (type === "one_off") {
-    const delay = Math.ceil(amount / baseContribution);
-    return delay > 0 ? `~${delay} month delay` : "No change";
-  }
-
-  let scenarioSurplus = snapshot.surplus;
-  if (type === "income_drop") {
-    scenarioSurplus -= amount;
-  } else if (type === "income_boost") {
-    scenarioSurplus += amount;
-  } else if (type === "expense_spike") {
-    scenarioSurplus -= amount;
-  }
-
-  const scenarioContribution =
-    totalMonthly > 0 && Number(goal.monthly)
-      ? Math.max(0, baseContribution)
-      : Math.max(0, (scenarioSurplus * 0.45) / state.goals.length);
-  if (!scenarioContribution) {
-    return "Goal stalls while contributions are £0.";
-  }
-
-  const baseMonths = remaining / baseContribution;
-  const scenarioMonths = remaining / scenarioContribution;
-  const delay = Math.round(scenarioMonths - baseMonths);
-  if (delay > 0) return `~${delay} month delay`;
-  if (delay < 0) return `~${Math.abs(delay)} months faster`;
-  return "No change";
-}
-
-function updateFutureInputs() {
-  if (!futureType) return;
-  const config = FUTURE_SCENARIOS[futureType.value] || FUTURE_SCENARIOS.pause_investing;
-  if (futureMonthsLabel) futureMonthsLabel.textContent = config.monthsLabel;
-  if (futureAmountLabel) futureAmountLabel.textContent = config.amountLabel;
-  if (futureAmount) {
-    futureAmount.disabled = !config.usesAmount;
-    if (!config.usesAmount) futureAmount.value = "0";
+  if (vulnScore) {
+    const highCount = vulns.filter((v) => v.severity === "high").length;
+    const medCount = vulns.filter((v) => v.severity === "medium").length;
+    let level = "Low";
+    if (highCount > 0) level = "High";
+    else if (medCount > 0) level = "Medium";
+    vulnScore.textContent = level;
   }
 }
 
-function getDefaultFutureQuestion(type, months, amount) {
-  if (type === "pause_investing") {
-    return `Can we pause goal contributions for ${months} months?`;
-  }
-  if (type === "income_drop") {
-    return `What if my income drops by ${formatCurrency(amount)} for ${months} months?`;
-  }
-  if (type === "income_boost") {
-    return `What if I add ${formatCurrency(amount)} monthly income for ${months} months?`;
-  }
-  if (type === "expense_spike") {
-    return `What if expenses rise by ${formatCurrency(amount)} for ${months} months?`;
-  }
-  return `What if I spend ${formatCurrency(amount)} in month ${months}?`;
-}
+// Alert list
+function updateAlertList() {
+  const alertList = document.querySelector("[data-alert-list]");
+  if (!alertList) return;
 
-function runFutureScenario(options = {}) {
-  if (!futureType || !futureMonths) return;
-  const type = futureType.value;
-  const months = Math.min(Math.max(Number(futureMonths.value) || 6, 1), 36);
-  if (futureMonths) futureMonths.value = months;
-  const amount = Math.max(Number(futureAmount?.value) || 0, 0);
   const snapshot = getFinanceSnapshot();
-  const horizon = Math.max(12, months);
+  const alerts = [];
 
-  const baseline = buildCashflowData(horizon, cashflowPresets.baseline);
-  const scenario = simulateScenarioCashflow(snapshot, horizon, type, amount, months);
-  const endDelta = scenario.balance[horizon - 1] - baseline.balance[horizon - 1];
-  const baselineRisk = baseline.balance.filter(
-    (value) => value < snapshot.essentials
-  ).length;
-  const scenarioRisk = scenario.balance.filter(
-    (value) => value < snapshot.essentials
-  ).length;
-  const riskDelta = scenarioRisk - baselineRisk;
-
-  const questionText =
-    futureQuestion?.value?.trim() || getDefaultFutureQuestion(type, months, amount);
-  if (futureUser) futureUser.textContent = questionText;
-
-  const delayLabel = estimateGoalDelay(type, months, amount, snapshot);
-  const fallbackResponse = `Over ${horizon} months, you would be ${formatSignedCurrency(
-    endDelta
-  )} versus baseline with ${scenarioRisk} risk month${
-    scenarioRisk === 1 ? "" : "s"
-  }.`;
-  if (futureResponse) futureResponse.textContent = fallbackResponse;
-  if (futureSummary) {
-    futureSummary.textContent = `Scenario impact vs baseline: ${formatSignedCurrency(
-      endDelta
-    )} balance change, ${formatSignedNumber(riskDelta)} risk months, ${delayLabel.toLowerCase()}.`;
+  if (snapshot.surplus < 0) {
+    alerts.push({ title: "Budget deficit this month", date: "Review expenses", severity: "high" });
   }
-  if (futureBalance) futureBalance.textContent = formatSignedCurrency(endDelta);
-  if (futureRisk) {
-    futureRisk.textContent = `${scenarioRisk} (${formatSignedNumber(
-      riskDelta
-    )} vs baseline)`;
-  }
-  if (futureDelay) futureDelay.textContent = delayLabel;
 
-  if (options.useAI) {
-    if (futureResponse) futureResponse.textContent = "Thinking...";
-    requestFutureLabResponse({
-      question: questionText,
-      type,
-      months,
-      amount,
-      snapshot,
-      baseline: {
-        balance: baseline.balance[horizon - 1],
-        riskMonths: baselineRisk,
-      },
-      scenario: {
-        balance: scenario.balance[horizon - 1],
-        riskMonths: scenarioRisk,
-        delta: endDelta,
-        delay: delayLabel,
-      },
-    }).then((message) => {
-      if (futureResponse) {
-        futureResponse.textContent = message || fallbackResponse;
-      }
-    });
+  if (snapshot.savings < snapshot.expenses) {
+    alerts.push({ title: "Emergency fund low", date: "Build buffer", severity: "medium" });
+  }
+
+  const upcomingGoals = state.goals.filter((g) => g.target && g.saved >= g.target * 0.9 && g.saved < g.target);
+  upcomingGoals.forEach((g) => {
+    alerts.push({ title: `${g.name} almost reached`, date: "Nearly there!", severity: "low" });
+  });
+
+  if (alerts.length === 0) {
+    alertList.innerHTML = '<li class="alert-item"><div><p class="alert-title">All clear</p><p class="muted">No alerts at this time</p></div></li>';
+  } else {
+    alertList.innerHTML = alerts
+      .map(
+        (a) => `
+        <li class="alert-item">
+          <div>
+            <p class="alert-title">${a.title}</p>
+            <p class="muted">${a.date}</p>
+          </div>
+          <span class="severity ${a.severity}">${a.severity}</span>
+        </li>
+      `
+      )
+      .join("");
   }
 }
 
-async function requestFutureLabResponse(payload) {
-  try {
-    const response = await fetch("/.netlify/functions/future-lab", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(payload),
-    });
-
-    if (!response.ok) return null;
-    const data = await response.json();
-    return data?.message || null;
-  } catch (error) {
-    return null;
-  }
-}
-
-function updateGoalsFromCards(goalCards, options = {}) {
-  state.goals = goalCards
-    .filter((card) => card.checkbox.checked)
-    .map((card) => {
-      const existing = state.goals.find((goal) => goal.name === card.checkbox.value);
-      return {
-        name: card.checkbox.value,
-        target: Number(card.amount.value) || 0,
-        saved: existing ? Number(existing.saved) || 0 : 0,
-        monthly: existing ? Number(existing.monthly) || 0 : 0,
-      };
-    });
-
-  goalCards.forEach((card) => {
-    card.element.classList.toggle("active", card.checkbox.checked);
-  });
-
-  if (!options.silent) {
-    updateSummary();
-    scheduleSave();
-  }
-}
-
-function applyGoalsFromState(goalCards) {
-  goalCards.forEach((card) => {
-    const stored = state.goals.find((goal) => goal.name === card.checkbox.value);
-    card.checkbox.checked = Boolean(stored);
-    card.amount.value = stored && stored.target ? stored.target : "";
-    card.element.classList.toggle("active", card.checkbox.checked);
-  });
-}
-
-const savedState = loadLocalState();
-if (savedState) {
-  applyState(savedState);
-}
-
-const choiceGroupMap = {};
-const choiceGroups = document.querySelectorAll("[data-choice-group]");
-choiceGroups.forEach((group) => {
-  const key = group.dataset.choiceGroup;
-  const buttons = Array.from(group.querySelectorAll("button"));
-
-  function selectChoice(value, options = {}) {
-    const chosen = buttons.find((btn) => btn.dataset.value === value) || buttons[0];
-    if (!chosen) return;
-
-    buttons.forEach((btn) => {
-      btn.classList.toggle("active", btn === chosen);
-    });
-
-    const selectedValue = chosen.dataset.value;
-    if (key === "persona") {
-      state.persona = selectedValue;
-      updatePersona();
-    } else {
-      state[key] = selectedValue;
-    }
-
-    if (!options.silent) {
-      updateSummary();
-      scheduleSave();
-    }
-  }
-
-  buttons.forEach((button) => {
-    button.addEventListener("click", () => selectChoice(button.dataset.value));
-  });
-
-  choiceGroupMap[key] = { selectChoice };
-});
-
-const fields = document.querySelectorAll("[data-field]");
-fields.forEach((field) => {
-  field.addEventListener("input", () => {
-    const key = field.dataset.field;
-    if (key === "name") {
-      state.name = field.value.trim();
-    } else {
-      state[key] = Number(field.value) || 0;
-      if (["income", "essentials", "debt", "savings"].includes(key)) {
-        state.snapshotSet = true;
-      }
-    }
-    updateSummary();
-    scheduleSave();
-  });
-});
-
-const goalCards = Array.from(document.querySelectorAll("[data-goal-card]")).map(
-  (card) => ({
-    element: card,
-    checkbox: card.querySelector("[data-goal-check]"),
-    amount: card.querySelector("[data-goal-target]"),
-  })
-);
-
-goalCards.forEach((card) => {
-  card.checkbox.addEventListener("change", () =>
-    updateGoalsFromCards(goalCards)
-  );
-  card.amount.addEventListener("input", () => updateGoalsFromCards(goalCards));
-});
-
-function syncFormFromState() {
-  document.querySelectorAll("[data-field]").forEach((field) => {
-    const key = field.dataset.field;
-    if (key === "name") {
-      field.value = state.name || "";
-    } else {
-      field.value = state[key] ? state[key] : "";
-    }
-  });
-
-  Object.keys(choiceGroupMap).forEach((key) => {
-    const group = choiceGroupMap[key];
-    group.selectChoice(state[key], { silent: true });
-  });
-
-  applyGoalsFromState(goalCards);
-  updateGoalsFromCards(goalCards, { silent: true });
-  syncDashboardToggles();
-  syncScenarioControls();
-  updatePersona();
-  updateSummary();
-}
-
-const dashboardToggles = Array.from(
-  document.querySelectorAll("[data-dashboard-toggle]")
-);
-const dashboardWidgets = Array.from(document.querySelectorAll("[data-widget]"));
-const incomeBar = document.querySelector("[data-income-bar]");
-const expenseBar = document.querySelector("[data-expense-bar]");
-const savingBar = document.querySelector("[data-saving-bar]");
-const incomeLabel = document.querySelector("[data-income-label]");
-const expenseLabel = document.querySelector("[data-expense-label]");
-const savingLabel = document.querySelector("[data-saving-label]");
-const incomeSummary = document.querySelector("[data-income-summary]");
-const cashflowChart = document.querySelector("[data-cashflow-chart]");
-const cashflowAverage = document.querySelector("[data-cashflow-average]");
-const cashflowLow = document.querySelector("[data-cashflow-low]");
-const cashflowRisk = document.querySelector("[data-cashflow-risk]");
-const alertList = document.querySelector("[data-alert-list]");
-const vulnerabilityList = document.querySelector("[data-vulnerability-list]");
-const vulnerabilityScore = document.querySelector("[data-vulnerability-score]");
-const scenarioSelect = document.querySelector("[data-scenario-select]");
-const scenarioIncomeInput = document.querySelector("[data-scenario-income]");
-const scenarioExpenseInput = document.querySelector("[data-scenario-expense]");
-const scenarioCustom = document.querySelector("[data-scenario-custom]");
-const cashflowMonthsInput = document.querySelector("[data-cashflow-months]");
-const futureQuestion = document.querySelector("[data-future-question]");
-const futureType = document.querySelector("[data-future-type]");
-const futureMonths = document.querySelector("[data-future-months]");
-const futureAmount = document.querySelector("[data-future-amount]");
-const futureRun = document.querySelector("[data-future-run]");
-const futureUser = document.querySelector("[data-future-user]");
-const futureResponse = document.querySelector("[data-future-response]");
-const futureSummary = document.querySelector("[data-future-summary]");
-const futureBalance = document.querySelector("[data-future-balance]");
-const futureRisk = document.querySelector("[data-future-risk]");
-const futureDelay = document.querySelector("[data-future-delay]");
-const futureMonthsLabel = document.querySelector("[data-future-months-label]");
-const futureAmountLabel = document.querySelector("[data-future-amount-label]");
-
-function syncDashboardToggles() {
-  if (!dashboardToggles.length) return;
-  dashboardToggles.forEach((toggle) => {
-    toggle.checked = state.dashboardWidgets.includes(toggle.value);
-  });
-  updateDashboardVisibility();
-}
-
-function updateScenarioInputs() {
-  if (!scenarioSelect || !scenarioIncomeInput || !scenarioExpenseInput) return;
-  const preset = cashflowPresets[scenarioSelect.value] || cashflowPresets.baseline;
-  const isCustom = scenarioSelect.value === "custom";
-  scenarioIncomeInput.disabled = !isCustom;
-  scenarioExpenseInput.disabled = !isCustom;
-  if (!isCustom) {
-    scenarioIncomeInput.value = preset.incomeChange;
-    scenarioExpenseInput.value = preset.expenseChange;
-  }
-  if (scenarioCustom) {
-    scenarioCustom.classList.toggle("is-hidden", !isCustom);
-  }
-}
-
-function syncScenarioControls() {
-  if (!scenarioSelect) return;
-  scenarioSelect.value = state.cashflowScenario;
-  if (cashflowMonthsInput) cashflowMonthsInput.value = state.cashflowMonths;
-  if (scenarioIncomeInput) scenarioIncomeInput.value = state.cashflowIncomeChange;
-  if (scenarioExpenseInput) scenarioExpenseInput.value = state.cashflowExpenseChange;
-  updateScenarioInputs();
-}
-
-syncFormFromState();
-showInitialScreen();
-updateFutureInputs();
-runFutureScenario();
-
-const restartButton = document.querySelector("[data-restart]");
-if (restartButton) {
-  restartButton.addEventListener("click", () => {
-    Object.assign(state, { ...defaultState });
-    syncFormFromState();
-    showScreen(0);
-    saveLocalState();
-  });
-}
-
-dashboardToggles.forEach((toggle) => {
-  toggle.addEventListener("change", () => {
-    state.dashboardWidgets = dashboardToggles
-      .filter((item) => item.checked)
-      .map((item) => item.value);
-    updateDashboardVisibility();
-    scheduleSave();
-  });
-});
-
-if (scenarioSelect) {
-  scenarioSelect.addEventListener("change", () => {
-    state.cashflowScenario = scenarioSelect.value;
-    updateScenarioInputs();
-    updateCashflowInsights();
-    scheduleSave();
-  });
-}
-
-if (cashflowMonthsInput) {
-  cashflowMonthsInput.addEventListener("input", () => {
-    const months = Number(cashflowMonthsInput.value) || 12;
-    state.cashflowMonths = Math.min(Math.max(months, 6), 36);
-    cashflowMonthsInput.value = state.cashflowMonths;
-    updateCashflowInsights();
-    scheduleSave();
-  });
-}
-
-if (scenarioIncomeInput) {
-  scenarioIncomeInput.addEventListener("input", () => {
-    state.cashflowIncomeChange = Number(scenarioIncomeInput.value) || 0;
-    updateCashflowInsights();
-    scheduleSave();
-  });
-}
-
-if (scenarioExpenseInput) {
-  scenarioExpenseInput.addEventListener("input", () => {
-    state.cashflowExpenseChange = Number(scenarioExpenseInput.value) || 0;
-    updateCashflowInsights();
-    scheduleSave();
-  });
-}
-
-if (futureType) {
-  updateFutureInputs();
-  futureType.addEventListener("change", () => {
-    updateFutureInputs();
-    runFutureScenario();
-  });
-}
-
-if (futureRun) {
-  futureRun.addEventListener("click", () => runFutureScenario({ useAI: true }));
-}
-
-if (futureQuestion) {
-  futureQuestion.addEventListener("input", () => {
-    if (futureUser) {
-      const text = futureQuestion.value.trim();
-      futureUser.textContent = text || futureUser.textContent;
-    }
-  });
-}
-
-if (futureMonths) {
-  futureMonths.addEventListener("input", runFutureScenario);
-}
-
-if (futureAmount) {
-  futureAmount.addEventListener("input", runFutureScenario);
-}
-
-document.querySelectorAll("[data-next]").forEach((button) => {
-  button.addEventListener("click", () => showScreen(currentIndex + 1));
-});
-
-document.querySelectorAll("[data-back]").forEach((button) => {
-  button.addEventListener("click", () => showScreen(currentIndex - 1));
-});
-
-document.querySelectorAll("[data-go]").forEach((button) => {
-  button.addEventListener("click", () => {
-    const target = button.dataset.go;
-    const index = screens.findIndex(
-      (screen) => screen.dataset.screen === target
-    );
-    if (target === "app") {
-      state.onboardingComplete = true;
-      state.lastScreen = "app";
-      scheduleSave();
-    }
-    if (index !== -1) showScreen(index);
-  });
-});
-
-const tabButtons = document.querySelectorAll("[data-tab-target]");
-const tabPanels = document.querySelectorAll(".tab-panel");
-
-tabButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    const target = button.dataset.tabTarget;
-    tabButtons.forEach((btn) =>
-      btn.classList.toggle("is-active", btn === button)
-    );
-    tabPanels.forEach((panel) =>
-      panel.classList.toggle("is-active", panel.dataset.tab === target)
-    );
-  });
-});
-
-let fxBase = "GBP";
-let converterRates = {
-  GBP: 1,
-  USD: 1.27,
-  EUR: 1.16,
-  NGN: 1962,
-  GHS: 18.5,
-  ZAR: 23.3,
-  KES: 163,
-  CAD: 1.7,
-};
-
-const converterAmount = document.querySelector("[data-converter-amount]");
-const converterFrom = document.querySelector("[data-converter-from]");
-const converterTo = document.querySelector("[data-converter-to]");
-const converterOutput = document.querySelector("[data-converter-output]");
-const converterSwap = document.querySelector("[data-converter-swap]");
-const fxUpdatedLabel = document.querySelector("[data-fx-updated]");
-
-function updateConverter() {
-  if (!converterOutput) return;
-  const amount = Number(converterAmount.value) || 0;
-  const from = converterFrom.value;
-  const to = converterTo.value;
-  const fromRate = converterRates[from] || 1;
-  const toRate = converterRates[to] || 1;
-  const baseAmount = from === fxBase ? amount : amount / fromRate;
-  const converted = to === fxBase ? baseAmount : baseAmount * toRate;
-  converterOutput.textContent = `${formatCurrency(converted, to, 2)} ${to}`;
-}
-
-function updateFxLabel(timestamp) {
-  if (fxUpdatedLabel) {
-    fxUpdatedLabel.textContent = `Rates updated: ${formatTimestamp(timestamp)}`;
-  }
-}
-
-function readCache(key) {
-  try {
-    const raw = localStorage.getItem(key);
-    if (!raw) return null;
-    return JSON.parse(raw);
-  } catch (error) {
-    return null;
-  }
-}
-
-function writeCache(key, payload) {
-  try {
-    localStorage.setItem(key, JSON.stringify(payload));
-  } catch (error) {
-    // Ignore cache failures.
-  }
-}
-
-async function loadFxRates() {
-  const cached = readCache(FX_CACHE_KEY);
-  const cacheDuration = config.fxCacheHours * 60 * 60 * 1000;
-  if (cached && Date.now() - cached.timestamp < cacheDuration) {
-    converterRates = cached.rates || converterRates;
-    fxBase = cached.base || fxBase;
-    updateFxLabel(cached.timestamp);
-    updateConverter();
-  }
-
-  if (!config.fxApiUrl) return;
-
-  try {
-    const response = await fetch(config.fxApiUrl);
-    if (!response.ok) return;
-    const data = await response.json();
-    if (!data || !data.rates) return;
-
-    converterRates = data.rates;
-    fxBase = data.base || fxBase;
-    const timestamp = Date.now();
-    writeCache(FX_CACHE_KEY, {
-      timestamp,
-      base: fxBase,
-      rates: converterRates,
-    });
-    updateFxLabel(timestamp);
-    updateConverter();
-  } catch (error) {
-    // Keep fallback rates.
-  }
-}
-
-if (converterAmount) {
-  [converterAmount, converterFrom, converterTo].forEach((input) => {
-    input.addEventListener("input", updateConverter);
-    input.addEventListener("change", updateConverter);
-  });
-
-  converterSwap.addEventListener("click", () => {
-    const currentFrom = converterFrom.value;
-    converterFrom.value = converterTo.value;
-    converterTo.value = currentFrom;
-    updateConverter();
-  });
-
-  updateConverter();
-  loadFxRates();
-}
-
-let riskProfiles = {
-  cautious: { mean: 0.045, vol: 0.06 },
-  balanced: { mean: 0.06, vol: 0.1 },
-  growth: { mean: 0.08, vol: 0.14 },
-};
-
-const assumptionsUpdatedLabel = document.querySelector(
-  "[data-assumptions-updated]"
-);
-
-function updateAssumptionsLabel(timestamp) {
-  if (assumptionsUpdatedLabel) {
-    assumptionsUpdatedLabel.textContent = `Assumptions updated: ${formatTimestamp(
-      timestamp
-    )}`;
-  }
-}
-
-async function loadAssumptions() {
-  const cached = readCache(ASSUMPTIONS_CACHE_KEY);
-  const cacheDuration = config.assumptionsCacheHours * 60 * 60 * 1000;
-  if (cached && Date.now() - cached.timestamp < cacheDuration) {
-    if (cached.riskProfiles) riskProfiles = cached.riskProfiles;
-    updateAssumptionsLabel(cached.timestamp);
-    if (monteRisk && monteRisk.value !== "custom") {
-      setRiskInputs(monteRisk.value);
-    }
-  }
-
-  if (!config.assumptionsApiUrl) return;
-
-  try {
-    const response = await fetch(config.assumptionsApiUrl);
-    if (!response.ok) return;
-    const data = await response.json();
-    if (!data || !data.riskProfiles) return;
-
-    riskProfiles = data.riskProfiles;
-    const timestamp = Date.now();
-    writeCache(ASSUMPTIONS_CACHE_KEY, {
-      timestamp,
-      riskProfiles,
-    });
-    updateAssumptionsLabel(timestamp);
-    if (monteRisk && monteRisk.value !== "custom") {
-      setRiskInputs(monteRisk.value);
-    }
-  } catch (error) {
-    // Keep fallback assumptions.
-  }
-}
-
-const monteStart = document.querySelector("[data-monte-start]");
-const monteMonthly = document.querySelector("[data-monte-monthly]");
-const monteGrowth = document.querySelector("[data-monte-growth]");
-const monteYears = document.querySelector("[data-monte-years]");
-const monteRisk = document.querySelector("[data-monte-risk]");
-const monteReturn = document.querySelector("[data-monte-return]");
-const monteVol = document.querySelector("[data-monte-vol]");
-const monteInflation = document.querySelector("[data-monte-inflation]");
-const monteFee = document.querySelector("[data-monte-fee]");
-const monteTarget = document.querySelector("[data-monte-target]");
-const monteRuns = document.querySelector("[data-monte-runs]");
-const monteRun = document.querySelector("[data-monte-run]");
-const monteOutput = document.querySelector("[data-monte-output]");
-const monteBars = document.querySelector("[data-monte-bars]");
-const monteSims = document.querySelector("[data-monte-sims]");
-const monteHit = document.querySelector("[data-monte-hit]");
-const monteReal = document.querySelector("[data-monte-real]");
-
-function setRiskInputs(profileKey) {
-  const profile = riskProfiles[profileKey];
-  if (!profile || !monteReturn || !monteVol) return;
-  monteReturn.value = (profile.mean * 100).toFixed(1);
-  monteVol.value = (profile.vol * 100).toFixed(1);
-}
-
+// Monte Carlo simulation
 function randomNormal() {
-  let u = 0;
-  let v = 0;
+  let u = 0,
+    v = 0;
   while (u === 0) u = Math.random();
   while (v === 0) v = Math.random();
   return Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
@@ -1791,254 +1090,702 @@ function simulatePortfolio({ start, monthly, years, mean, vol, growth }) {
   const monthlyMean = mean / 12;
   const monthlyVol = vol / Math.sqrt(12);
   const growthRate = growth / 100 / 12;
-  for (let i = 0; i < months; i += 1) {
+
+  const history = [value];
+
+  for (let i = 0; i < months; i++) {
     const monthlyReturn = monthlyMean + randomNormal() * monthlyVol;
     value = (value + contribution) * (1 + monthlyReturn);
     contribution *= 1 + growthRate;
+    history.push(value);
   }
-  return value;
+
+  return { finalValue: value, history };
 }
 
-function percentile(sorted, ratio) {
-  if (!sorted.length) return 0;
-  const index = (sorted.length - 1) * ratio;
-  const lower = Math.floor(index);
-  const upper = Math.ceil(index);
-  if (lower === upper) return sorted[lower];
-  return sorted[lower] + (sorted[upper] - sorted[lower]) * (index - lower);
+let riskProfiles = {
+  cautious: { mean: 0.045, vol: 0.06 },
+  balanced: { mean: 0.06, vol: 0.1 },
+  growth: { mean: 0.08, vol: 0.14 },
+};
+
+function percentile(arr, p) {
+  const idx = (arr.length - 1) * p;
+  const lower = Math.floor(idx);
+  const upper = Math.ceil(idx);
+  if (lower === upper) return arr[lower];
+  return arr[lower] + (arr[upper] - arr[lower]) * (idx - lower);
 }
 
 function updateMonteCarlo() {
-  if (!monteOutput) return;
-  const start = Math.max(Number(monteStart?.value) || 0, 0);
-  const monthly = Math.max(Number(monteMonthly?.value) || 0, 0);
-  const growth = Number(monteGrowth?.value) || 0;
-  const years = Math.min(Math.max(Number(monteYears?.value) || 1, 1), 40);
-  const returnPct = Number(monteReturn?.value) || 0;
-  const volPct = Number(monteVol?.value) || 0;
-  const inflationPct = Number(monteInflation?.value) || 0;
-  const feePct = Number(monteFee?.value) || 0;
-  const target = Math.max(Number(monteTarget?.value) || 0, 0);
-  const runs = Math.min(Math.max(Number(monteRuns?.value) || 500, 100), 5000);
+  const startEl = document.querySelector("[data-monte-start]");
+  const monthlyEl = document.querySelector("[data-monte-monthly]");
+  const growthEl = document.querySelector("[data-monte-growth]");
+  const yearsEl = document.querySelector("[data-monte-years]");
+  const riskEl = document.querySelector("[data-monte-risk]");
+  const returnEl = document.querySelector("[data-monte-return]");
+  const volEl = document.querySelector("[data-monte-vol]");
+  const inflationEl = document.querySelector("[data-monte-inflation]");
+  const feeEl = document.querySelector("[data-monte-fee]");
+  const targetEl = document.querySelector("[data-monte-target]");
+  const runsEl = document.querySelector("[data-monte-runs]");
 
-  if (monteRuns) monteRuns.value = runs;
+  const start = Number(startEl?.value) || 2500;
+  const monthly = Number(monthlyEl?.value) || 350;
+  const growth = Number(growthEl?.value) || 2;
+  const years = Number(yearsEl?.value) || 20;
+  const risk = riskEl?.value || "balanced";
+  const inflation = Number(inflationEl?.value) || 2.5;
+  const fee = Number(feeEl?.value) || 0.6;
+  const target = Number(targetEl?.value) || 100000;
+  const runs = Math.min(Math.max(Number(runsEl?.value) || 500, 100), 5000);
 
-  const mean =
-    Math.max(returnPct, 0) / 100 -
-    Math.max(inflationPct, 0) / 100 -
-    Math.max(feePct, 0) / 100;
-  const vol = Math.max(volPct, 0) / 100;
+  let mean, vol;
+  if (risk === "custom") {
+    mean = (Number(returnEl?.value) || 6) / 100;
+    vol = (Number(volEl?.value) || 10) / 100;
+  } else {
+    const profile = riskProfiles[risk] || riskProfiles.balanced;
+    mean = profile.mean;
+    vol = profile.vol;
+    if (returnEl) returnEl.value = (mean * 100).toFixed(1);
+    if (volEl) volEl.value = (vol * 100).toFixed(1);
+  }
+
+  const realMean = mean - inflation / 100 - fee / 100;
 
   const results = [];
-  for (let i = 0; i < runs; i += 1) {
-    results.push(
-      simulatePortfolio({
-        start,
-        monthly,
-        years,
-        mean,
-        vol,
-        growth,
-      })
-    );
+  let hits = 0;
+
+  for (let i = 0; i < runs; i++) {
+    const { finalValue } = simulatePortfolio({
+      start,
+      monthly,
+      years,
+      mean: realMean,
+      vol,
+      growth,
+    });
+    results.push(finalValue);
+    if (finalValue >= target) hits++;
   }
 
   results.sort((a, b) => a - b);
+
   const low = percentile(results, 0.1);
   const mid = percentile(results, 0.5);
   const high = percentile(results, 0.9);
-  const hits = target
-    ? results.filter((value) => value >= target).length
-    : 0;
-  const hitRate = target ? Math.round((hits / runs) * 100) : 0;
+  const hitRate = Math.round((hits / runs) * 100);
 
-  monteOutput.textContent = `Projected range (${runs} sims): ${formatCurrency(
-    low,
-    "GBP",
-    0
-  )} - ${formatCurrency(high, "GBP", 0)} (median ${formatCurrency(
-    mid,
-    "GBP",
-    0
-  )})`;
+  setTextAll("[data-monte-output]", `Projected range: ${formatCurrency(low)} - ${formatCurrency(high)}`);
+  setTextAll("[data-monte-sims]", runs);
+  setTextAll("[data-monte-hit]", `${hitRate}%`);
+  setTextAll("[data-monte-real]", `${(realMean * 100).toFixed(1)}%`);
+  setTextAll("[data-monte-p10]", `10th: ${formatCurrency(low)}`);
+  setTextAll("[data-monte-p50]", `50th: ${formatCurrency(mid)}`);
+  setTextAll("[data-monte-p90]", `90th: ${formatCurrency(high)}`);
 
-  if (monteSims) monteSims.textContent = `${runs}`;
-  if (monteHit) {
-    monteHit.textContent = target ? `${hitRate}%` : "n/a";
+  // Histogram
+  const buckets = 12;
+  const min = results[0];
+  const max = results[results.length - 1];
+  const bucketSize = (max - min) / buckets;
+  const counts = new Array(buckets).fill(0);
+
+  results.forEach((r) => {
+    const idx = Math.min(Math.floor((r - min) / bucketSize), buckets - 1);
+    counts[idx]++;
+  });
+
+  const maxCount = Math.max(...counts, 1);
+  const barsContainer = document.querySelector("[data-monte-bars]");
+  if (barsContainer) {
+    barsContainer.innerHTML = counts
+      .map((count, i) => {
+        const h = (count / maxCount) * 100;
+        const rangeStart = formatCurrency(min + i * bucketSize);
+        const rangeEnd = formatCurrency(min + (i + 1) * bucketSize);
+        return `<div class="bar" style="--h: ${h}" data-range="${rangeStart} - ${rangeEnd}" data-count="${count}"></div>`;
+      })
+      .join("");
+
+    // Add tooltips
+    barsContainer.querySelectorAll(".bar").forEach((bar) => {
+      bar.addEventListener("mouseenter", (e) => {
+        const tooltip = document.querySelector(".monte-tooltip") || createMonteTooltip();
+        tooltip.textContent = `${bar.dataset.range}: ${bar.dataset.count} runs`;
+        tooltip.style.left = `${e.clientX}px`;
+        tooltip.style.top = `${e.clientY - 40}px`;
+        tooltip.classList.add("is-visible");
+      });
+      bar.addEventListener("mouseleave", () => {
+        const tooltip = document.querySelector(".monte-tooltip");
+        if (tooltip) tooltip.classList.remove("is-visible");
+      });
+    });
   }
-  if (monteReal) {
-    monteReal.textContent = `${(mean * 100).toFixed(1)}%`;
+
+  // Generate report
+  generateMonteCarloReport({ start, monthly, growth, years, mean, vol, realMean, target, runs, low, mid, high, hitRate, results });
+}
+
+function createMonteTooltip() {
+  const tooltip = document.createElement("div");
+  tooltip.className = "monte-tooltip";
+  document.querySelector(".monte-panel")?.appendChild(tooltip);
+  return tooltip;
+}
+
+function generateMonteCarloReport(params) {
+  const reportEl = document.querySelector("[data-monte-report]");
+  const contentEl = document.querySelector("[data-report-content]");
+  if (!reportEl || !contentEl) return;
+
+  const { start, monthly, growth, years, mean, realMean, target, runs, low, mid, high, hitRate, results } = params;
+
+  const totalContributions = start + monthly * 12 * years * (1 + (growth / 100 / 2) * years);
+  const medianGrowth = mid - totalContributions;
+  const shortfallRisk = results.filter((r) => r < target * 0.5).length / runs;
+
+  const report = `
+    <p><strong>Simulation Summary</strong></p>
+    <p>Based on ${runs.toLocaleString()} Monte Carlo simulations over ${years} years:</p>
+    <ul>
+      <li><strong>Starting investment:</strong> ${formatCurrency(start)}</li>
+      <li><strong>Monthly contribution:</strong> ${formatCurrency(monthly)} (growing ${growth}% annually)</li>
+      <li><strong>Expected real return:</strong> ${(realMean * 100).toFixed(1)}% per year</li>
+      <li><strong>Target value:</strong> ${formatCurrency(target)}</li>
+    </ul>
+    <p><strong>Projected Outcomes</strong></p>
+    <ul>
+      <li><strong>10th percentile (worst case):</strong> ${formatCurrency(low)}</li>
+      <li><strong>50th percentile (median):</strong> ${formatCurrency(mid)}</li>
+      <li><strong>90th percentile (best case):</strong> ${formatCurrency(high)}</li>
+    </ul>
+    <p><strong>Key Insights</strong></p>
+    <ul>
+      <li>There is a <strong>${hitRate}%</strong> probability of reaching your ${formatCurrency(target)} target.</li>
+      <li>Your total contributions would be approximately ${formatCurrency(totalContributions)}.</li>
+      <li>Median investment growth: ${formatCurrency(medianGrowth)} (${((medianGrowth / totalContributions) * 100).toFixed(0)}% return on contributions).</li>
+      <li>Risk of significant shortfall (below 50% of target): ${(shortfallRisk * 100).toFixed(1)}%</li>
+    </ul>
+    <p><strong>Recommendation</strong></p>
+    <p>${hitRate >= 75 ? "Your plan is on track. Consider maintaining your current strategy." : hitRate >= 50 ? "Moderate success probability. Consider increasing contributions or extending your timeline." : "Lower probability of reaching target. Review your risk profile, increase contributions, or adjust your goal."}</p>
+  `;
+
+  contentEl.innerHTML = report;
+  reportEl.style.display = "block";
+}
+
+// Future scenario
+function runFutureScenario() {
+  const typeEl = document.querySelector("[data-future-type]");
+  const monthsEl = document.querySelector("[data-future-months]");
+  const amountEl = document.querySelector("[data-future-amount]");
+
+  if (!typeEl) return;
+
+  const type = typeEl.value;
+  const months = Number(monthsEl?.value) || 6;
+  const amount = Number(amountEl?.value) || 250;
+
+  const scenario = FUTURE_SCENARIOS[type];
+  const monthsLabel = document.querySelector("[data-future-months-label]");
+  const amountLabel = document.querySelector("[data-future-amount-label]");
+
+  if (monthsLabel) monthsLabel.textContent = scenario?.monthsLabel || "Months";
+  if (amountLabel) amountLabel.textContent = scenario?.amountLabel || "Amount (£)";
+
+  const snapshot = getFinanceSnapshot();
+  let balanceImpact = 0;
+  let riskMonths = 0;
+  let goalDelay = "--";
+
+  switch (type) {
+    case "pause_investing":
+      balanceImpact = snapshot.surplus * months;
+      break;
+    case "income_drop":
+      balanceImpact = -amount * months;
+      break;
+    case "income_boost":
+      balanceImpact = amount * months;
+      break;
+    case "expense_spike":
+      balanceImpact = -amount * months;
+      break;
+    case "one_off":
+      balanceImpact = -amount;
+      break;
   }
 
-  const min = results[0] || 0;
-  const max = results[results.length - 1] || 1;
-  const buckets = new Array(12).fill(0);
-  const range = max - min || 1;
-  const step = range / buckets.length;
-
-  results.forEach((value) => {
-    const idx = Math.min(
-      buckets.length - 1,
-      Math.floor((value - min) / step)
-    );
-    buckets[idx] += 1;
-  });
-
-  const maxCount = Math.max(...buckets, 1);
-  const bars = buckets
-    .map((count, index) => {
-      const height = Math.round((count / maxCount) * 100);
-      const bucketStart = min + step * index;
-      const bucketEnd = bucketStart + step;
-      const rangeLabel = `${formatCurrency(bucketStart, "GBP", 0)} - ${formatCurrency(
-        bucketEnd,
-        "GBP",
-        0
-      )}`;
-      return `<div class="bar" style="--h: ${height};" data-count="${count}" data-range="${rangeLabel}"></div>`;
-    })
-    .join("");
-  monteBars.innerHTML = `${bars}<div class="monte-tooltip" data-monte-tooltip></div>`;
-  attachMonteInteractions();
-}
-
-function attachMonteInteractions() {
-  if (!monteBars) return;
-  const tooltip = monteBars.querySelector("[data-monte-tooltip]");
-  if (!tooltip) return;
-
-  let activeBar = null;
-
-  const hideTooltip = () => {
-    if (activeBar) {
-      activeBar.classList.remove("is-active");
-      activeBar = null;
-    }
-    tooltip.classList.remove("is-visible");
-  };
-
-  monteBars.onmousemove = (event) => {
-    const bar = event.target.closest(".bar");
-    if (!bar || !monteBars.contains(bar)) {
-      hideTooltip();
-      return;
-    }
-
-    if (activeBar && activeBar !== bar) {
-      activeBar.classList.remove("is-active");
-    }
-    activeBar = bar;
-    activeBar.classList.add("is-active");
-
-    const count = Number(bar.dataset.count) || 0;
-    const range = bar.dataset.range || "";
-    tooltip.innerHTML = `
-      <div class="tooltip-title">${range}</div>
-      <div>${count} simulations</div>
-    `;
-
-    const barRect = bar.getBoundingClientRect();
-    const containerRect = monteBars.getBoundingClientRect();
-    tooltip.style.left = `${barRect.left - containerRect.left + barRect.width / 2}px`;
-    tooltip.style.top = `${barRect.top - containerRect.top}px`;
-    tooltip.classList.add("is-visible");
-  };
-
-  monteBars.onmouseleave = hideTooltip;
-}
-
-if (monteRun) {
-  monteRun.addEventListener("click", updateMonteCarlo);
-  if (monteRisk && monteRisk.value !== "custom") {
-    setRiskInputs(monteRisk.value);
+  const projectedBalance = snapshot.savings + balanceImpact;
+  if (projectedBalance < 0) {
+    riskMonths = Math.ceil(Math.abs(projectedBalance) / (snapshot.expenses || 1));
   }
-  updateMonteCarlo();
-  loadAssumptions().then(() => {
-    if (monteRisk && monteRisk.value !== "custom") {
-      setRiskInputs(monteRisk.value);
+
+  if (state.goals.length > 0 && snapshot.surplus > 0) {
+    const firstGoal = state.goals[0];
+    const remaining = (firstGoal.target || 0) - (firstGoal.saved || 0);
+    if (remaining > 0) {
+      const normalMonths = Math.ceil(remaining / snapshot.surplus);
+      const adjustedSurplus = snapshot.surplus + balanceImpact / Math.max(months, 1);
+      const adjustedMonths = adjustedSurplus > 0 ? Math.ceil(remaining / adjustedSurplus) : Infinity;
+      const delay = adjustedMonths - normalMonths;
+      goalDelay = delay > 0 ? `+${delay} months` : delay < 0 ? `${delay} months` : "No change";
     }
-    updateMonteCarlo();
-  });
+  }
+
+  setTextAll("[data-future-balance]", formatSignedCurrency(balanceImpact));
+  setTextAll("[data-future-risk]", riskMonths);
+  setTextAll("[data-future-delay]", goalDelay);
+  setTextAll("[data-future-summary]", `This scenario would ${balanceImpact >= 0 ? "add" : "reduce"} ${formatCurrency(Math.abs(balanceImpact))} from your position.`);
 }
 
-if (monteRisk) {
-  monteRisk.addEventListener("change", () => {
-    if (monteRisk.value !== "custom") {
-      setRiskInputs(monteRisk.value);
+// Currency converter
+let fxRates = null;
+
+async function loadFxRates() {
+  try {
+    const cached = localStorage.getItem(FX_CACHE_KEY);
+    if (cached) {
+      const { rates, timestamp } = JSON.parse(cached);
+      const age = (Date.now() - timestamp) / 1000 / 60 / 60;
+      if (age < config.fxCacheHours) {
+        fxRates = rates;
+        setTextAll("[data-fx-updated]", `Rates updated: ${formatTimestamp(timestamp)}`);
+        return;
+      }
+    }
+
+    const res = await fetch(config.fxApiUrl);
+    const data = await res.json();
+    fxRates = data.rates;
+    localStorage.setItem(FX_CACHE_KEY, JSON.stringify({ rates: fxRates, timestamp: Date.now() }));
+    setTextAll("[data-fx-updated]", `Rates updated: ${formatTimestamp(Date.now())}`);
+  } catch (e) {
+    fxRates = { GBP: 1, USD: 1.27, EUR: 1.17, NGN: 1800, GHS: 15.5, ZAR: 23.5, KES: 195, CAD: 1.72 };
+  }
+}
+
+function updateConverter() {
+  const amountEl = document.querySelector("[data-converter-amount]");
+  const fromEl = document.querySelector("[data-converter-from]");
+  const toEl = document.querySelector("[data-converter-to]");
+  const outputEl = document.querySelector("[data-converter-output]");
+
+  if (!fxRates || !amountEl || !outputEl) return;
+
+  const amount = Number(amountEl.value) || 0;
+  const from = fromEl?.value || "GBP";
+  const to = toEl?.value || "USD";
+
+  const inGBP = from === "GBP" ? amount : amount / (fxRates[from] || 1);
+  const result = to === "GBP" ? inGBP : inGBP * (fxRates[to] || 1);
+
+  outputEl.textContent = `${amount.toLocaleString()} ${from} = ${result.toFixed(2)} ${to}`;
+}
+
+// Goals from onboarding
+function updateGoalsFromCards() {
+  const cards = document.querySelectorAll("[data-goal-card]");
+  const goals = [];
+
+  cards.forEach((card) => {
+    const checkbox = card.querySelector("[data-goal-check]");
+    const targetInput = card.querySelector("[data-goal-target]");
+
+    if (checkbox?.checked) {
+      goals.push({
+        name: checkbox.value,
+        target: Number(targetInput?.value) || Number(targetInput?.placeholder) || 0,
+        saved: 0,
+        monthly: 0,
+      });
+    }
+
+    card.classList.toggle("active", checkbox?.checked);
+  });
+
+  state.goals = goals;
+  scheduleSave();
+}
+
+// Form sync
+function syncFormFromState() {
+  document.querySelectorAll("[data-field]").forEach((el) => {
+    const field = el.dataset.field;
+    if (field === "annualSalary") {
+      el.value = state.annualSalary || "";
+    } else if (field === "studentLoan") {
+      el.checked = state.studentLoan;
+    } else if (field === "pensionContrib") {
+      el.checked = state.pensionContrib;
+    } else if (field === "savings") {
+      el.value = state.savings || "";
+    } else if (field === "name") {
+      el.value = state.name || "";
+    } else if (field === "rewardPoints") {
+      el.value = state.rewardPoints || "";
+    } else if (field === "rewardStreak") {
+      el.value = state.rewardStreak || "";
+    } else if (state[field] !== undefined) {
+      el.value = state[field];
     }
   });
+
+  // Sync expense inputs
+  document.querySelectorAll("[data-expense]").forEach((el) => {
+    const key = el.dataset.expense;
+    if (state.expenses[key] !== undefined) {
+      el.value = state.expenses[key] || "";
+    }
+  });
+
+  // Sync choice groups
+  document.querySelectorAll("[data-choice-group]").forEach((group) => {
+    const field = group.dataset.choiceGroup;
+    const val = state[field];
+    group.querySelectorAll("button").forEach((btn) => {
+      btn.classList.toggle("active", btn.dataset.value === val);
+    });
+  });
+
+  // Sync dashboard toggles
+  document.querySelectorAll("[data-dashboard-toggle]").forEach((el) => {
+    el.checked = state.dashboardWidgets.includes(el.value);
+  });
+
+  updatePersona();
+  updateSalaryBreakdown();
+  updateCategoryTotals();
+  updateBudgetSummary();
 }
 
-if (monteReturn) {
-  monteReturn.addEventListener("input", () => {
-    if (monteRisk) monteRisk.value = "custom";
-  });
-}
-
-if (monteVol) {
-  monteVol.addEventListener("input", () => {
-    if (monteRisk) monteRisk.value = "custom";
-  });
+// Firebase (optional)
+async function initFirebase() {
+  if (typeof window.initFirebaseClient === "function") {
+    try {
+      firebaseClient = await window.initFirebaseClient();
+      await loadStateFromFirebase();
+    } catch (e) {
+      console.warn("Firebase initialization failed:", e);
+    }
+  }
 }
 
 async function loadStateFromFirebase() {
-  if (!firebaseClient?.db) return;
-
+  if (!firebaseClient) return;
   try {
-    const doc = await firebaseClient.db
-      .collection("profiles")
-      .doc(deviceId)
-      .get();
-    if (!doc.exists) return;
-
-    const data = doc.data();
-    const remoteState = data?.state;
-    const remoteUpdatedAt = data?.updatedAt?.toMillis
-      ? data.updatedAt.toMillis()
-      : Number(data?.updatedAt) || 0;
-
-    if (remoteState && remoteUpdatedAt > state.updatedAt) {
-      applyState(remoteState, remoteUpdatedAt);
-      syncFormFromState();
-      showInitialScreen();
+    const doc = await firebaseClient.getDoc(firebaseClient.doc(firebaseClient.db, "users", deviceId));
+    if (doc.exists()) {
+      const remote = doc.data();
+      if (remote.updatedAt > state.updatedAt) {
+        applyState(remote, remote.updatedAt);
+        syncFormFromState();
+        updateSummary();
+      }
     }
-  } catch (error) {
-    // Ignore Firebase load failures.
+  } catch (e) {
+    console.warn("Failed to load from Firebase:", e);
   }
 }
 
 async function saveStateToFirebase() {
-  if (!firebaseClient?.db) return;
+  if (!firebaseClient) return;
   try {
     const payload = serializeState();
-    await firebaseClient.db
-      .collection("profiles")
-      .doc(deviceId)
-      .set(
-        {
-          state: payload,
-          updatedAt: firebaseClient.firebase.firestore.FieldValue.serverTimestamp(),
-          deviceId,
-        },
-        { merge: true }
-      );
-  } catch (error) {
-    // Ignore Firebase save failures.
+    await firebaseClient.setDoc(firebaseClient.doc(firebaseClient.db, "users", deviceId), payload);
+  } catch (e) {
+    console.warn("Failed to save to Firebase:", e);
   }
 }
 
-if (window.POAP_FIREBASE?.db) {
-  firebaseClient = window.POAP_FIREBASE;
-  loadStateFromFirebase();
-}
-
-window.addEventListener("poap:firebase-ready", () => {
-  firebaseClient = window.POAP_FIREBASE;
-  loadStateFromFirebase();
-});
-
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("sw.js").catch(() => {});
+// Event listeners
+function attachEventListeners() {
+  // Navigation buttons
+  document.querySelectorAll("[data-next]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      if (screens[currentIndex]?.dataset.screen === "goals") {
+        updateGoalsFromCards();
+      }
+      if (screens[currentIndex]?.dataset.screen === "plan") {
+        state.onboardingComplete = true;
+        state.snapshotSet = true;
+        scheduleSave();
+      }
+      showScreen(currentIndex + 1);
+      updateSummary();
+    });
   });
+
+  document.querySelectorAll("[data-back]").forEach((btn) => {
+    btn.addEventListener("click", () => showScreen(currentIndex - 1));
+  });
+
+  document.querySelectorAll("[data-go]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.go;
+      const index = screens.findIndex((s) => s.dataset.screen === target);
+      if (index !== -1) {
+        if (target === "app") {
+          state.onboardingComplete = true;
+          scheduleSave();
+        }
+        showScreen(index);
+        updateSummary();
+      }
+    });
+  });
+
+  // Restart button
+  const restartBtn = document.querySelector("[data-restart]");
+  if (restartBtn) {
+    restartBtn.addEventListener("click", () => {
+      Object.assign(state, { ...defaultState, expenses: { ...defaultState.expenses } });
+      state.snapshotSet = false;
+      state.onboardingComplete = false;
+      showScreen(0);
+      syncFormFromState();
+      saveLocalState();
+    });
+  }
+
+  // Form fields
+  document.querySelectorAll("[data-field]").forEach((el) => {
+    const field = el.dataset.field;
+    const event = el.type === "checkbox" ? "change" : "input";
+
+    el.addEventListener(event, () => {
+      if (field === "annualSalary") {
+        state.annualSalary = Number(el.value) || 0;
+        updateSalaryBreakdown();
+      } else if (field === "studentLoan") {
+        state.studentLoan = el.checked;
+        updateSalaryBreakdown();
+      } else if (field === "pensionContrib") {
+        state.pensionContrib = el.checked;
+        updateSalaryBreakdown();
+      } else if (field === "savings") {
+        state.savings = Number(el.value) || 0;
+      } else if (field === "name") {
+        state.name = el.value;
+      } else if (field === "rewardPoints") {
+        state.rewardPoints = Number(el.value) || 0;
+        updateRewardsUI();
+      } else if (field === "rewardStreak") {
+        state.rewardStreak = Number(el.value) || 0;
+        updateRewardsUI();
+      } else {
+        state[field] = el.type === "checkbox" ? el.checked : el.value;
+      }
+      scheduleSave();
+    });
+  });
+
+  // Expense inputs
+  document.querySelectorAll("[data-expense]").forEach((el) => {
+    el.addEventListener("input", () => {
+      const key = el.dataset.expense;
+      state.expenses[key] = Number(el.value) || 0;
+      updateCategoryTotals();
+      updateBudgetSummary();
+      scheduleSave();
+    });
+  });
+
+  // Choice groups
+  document.querySelectorAll("[data-choice-group]").forEach((group) => {
+    const field = group.dataset.choiceGroup;
+    group.querySelectorAll("button").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        group.querySelectorAll("button").forEach((b) => b.classList.remove("active"));
+        btn.classList.add("active");
+        state[field] = btn.dataset.value;
+        if (field === "persona") updatePersona();
+        scheduleSave();
+      });
+    });
+  });
+
+  // Category toggles
+  document.querySelectorAll("[data-toggle-category]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const category = btn.dataset.toggleCategory;
+      const container = btn.closest(".expense-category");
+      container?.classList.toggle("expanded");
+    });
+  });
+
+  // Goal card checkboxes
+  document.querySelectorAll("[data-goal-card]").forEach((card) => {
+    const checkbox = card.querySelector("[data-goal-check]");
+    card.addEventListener("click", (e) => {
+      if (e.target.tagName !== "INPUT") {
+        checkbox.checked = !checkbox.checked;
+      }
+      card.classList.toggle("active", checkbox.checked);
+    });
+  });
+
+  // App tabs
+  document.querySelectorAll("[data-tab-target]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const target = btn.dataset.tabTarget;
+      document.querySelectorAll("[data-tab-target]").forEach((b) => b.classList.remove("is-active"));
+      document.querySelectorAll("[data-tab]").forEach((p) => p.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      document.querySelector(`[data-tab="${target}"]`)?.classList.add("is-active");
+
+      if (target === "plan") {
+        updateCashflowInsights();
+      }
+    });
+  });
+
+  // Dashboard toggles
+  document.querySelectorAll("[data-dashboard-toggle]").forEach((el) => {
+    el.addEventListener("change", () => {
+      if (el.checked) {
+        if (!state.dashboardWidgets.includes(el.value)) {
+          state.dashboardWidgets.push(el.value);
+        }
+      } else {
+        state.dashboardWidgets = state.dashboardWidgets.filter((k) => k !== el.value);
+      }
+      updateDashboardVisibility();
+      scheduleSave();
+    });
+  });
+
+  // Cashflow controls
+  const scenarioSelect = document.querySelector("[data-scenario-select]");
+  const cashflowMonthsInput = document.querySelector("[data-cashflow-months]");
+  const scenarioCustom = document.querySelector("[data-scenario-custom]");
+  const scenarioIncomeInput = document.querySelector("[data-scenario-income]");
+  const scenarioExpenseInput = document.querySelector("[data-scenario-expense]");
+
+  if (scenarioSelect) {
+    scenarioSelect.addEventListener("change", () => {
+      state.cashflowScenario = scenarioSelect.value;
+      if (scenarioCustom) {
+        scenarioCustom.style.display = state.cashflowScenario === "custom" ? "grid" : "none";
+      }
+      updateCashflowInsights();
+      scheduleSave();
+    });
+  }
+
+  if (cashflowMonthsInput) {
+    cashflowMonthsInput.addEventListener("input", () => {
+      state.cashflowMonths = Math.min(Math.max(Number(cashflowMonthsInput.value) || 12, 6), 36);
+      updateCashflowInsights();
+      scheduleSave();
+    });
+  }
+
+  if (scenarioIncomeInput) {
+    scenarioIncomeInput.addEventListener("input", () => {
+      state.cashflowIncomeChange = Number(scenarioIncomeInput.value) || 0;
+      updateCashflowInsights();
+      scheduleSave();
+    });
+  }
+
+  if (scenarioExpenseInput) {
+    scenarioExpenseInput.addEventListener("input", () => {
+      state.cashflowExpenseChange = Number(scenarioExpenseInput.value) || 0;
+      updateCashflowInsights();
+      scheduleSave();
+    });
+  }
+
+  // Monte Carlo
+  const monteRunBtn = document.querySelector("[data-monte-run]");
+  if (monteRunBtn) {
+    monteRunBtn.addEventListener("click", updateMonteCarlo);
+  }
+
+  const monteRiskSelect = document.querySelector("[data-monte-risk]");
+  if (monteRiskSelect) {
+    monteRiskSelect.addEventListener("change", () => {
+      const returnEl = document.querySelector("[data-monte-return]");
+      const volEl = document.querySelector("[data-monte-vol]");
+      if (monteRiskSelect.value !== "custom" && returnEl && volEl) {
+        returnEl.disabled = true;
+        volEl.disabled = true;
+      } else {
+        returnEl.disabled = false;
+        volEl.disabled = false;
+      }
+    });
+  }
+
+  const downloadReportBtn = document.querySelector("[data-download-report]");
+  if (downloadReportBtn) {
+    downloadReportBtn.addEventListener("click", () => {
+      const content = document.querySelector("[data-report-content]")?.innerText || "";
+      const blob = new Blob([content], { type: "text/plain" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "monte-carlo-report.txt";
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  // Future scenario
+  const futureRunBtn = document.querySelector("[data-future-run]");
+  if (futureRunBtn) {
+    futureRunBtn.addEventListener("click", runFutureScenario);
+  }
+
+  document.querySelectorAll("[data-future-type], [data-future-months], [data-future-amount]").forEach((el) => {
+    el.addEventListener("change", runFutureScenario);
+  });
+
+  // Currency converter
+  const converterInputs = document.querySelectorAll("[data-converter-amount], [data-converter-from], [data-converter-to]");
+  converterInputs.forEach((el) => {
+    el.addEventListener("input", updateConverter);
+    el.addEventListener("change", updateConverter);
+  });
+
+  const swapBtn = document.querySelector("[data-converter-swap]");
+  if (swapBtn) {
+    swapBtn.addEventListener("click", () => {
+      const fromEl = document.querySelector("[data-converter-from]");
+      const toEl = document.querySelector("[data-converter-to]");
+      if (fromEl && toEl) {
+        const temp = fromEl.value;
+        fromEl.value = toEl.value;
+        toEl.value = temp;
+        updateConverter();
+      }
+    });
+  }
 }
+
+// Initialize
+async function init() {
+  const localData = loadLocalState();
+  if (localData) {
+    applyState(localData);
+  }
+
+  syncFormFromState();
+  showInitialScreen();
+  updateSummary();
+
+  await loadFxRates();
+  updateConverter();
+
+  await initFirebase();
+
+  // Initial Monte Carlo
+  setTimeout(updateMonteCarlo, 500);
+}
+
+attachEventListeners();
+init();

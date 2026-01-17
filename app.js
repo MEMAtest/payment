@@ -189,6 +189,7 @@ const defaultState = {
   },
   savings: 0,
   goals: [],
+  bills: [],
   dashboardWidgets: [...DASHBOARD_WIDGET_KEYS],
   cashflowScenario: "baseline",
   cashflowMonths: 12,
@@ -646,6 +647,26 @@ function sanitizeState(raw) {
         .filter((goal) => goal.name)
     : [];
 
+  // Sanitize bills (recurring payments/subscriptions)
+  const BILL_CATEGORIES = ["subscription", "utility", "insurance", "loan", "rent", "other"];
+  const BILL_FREQUENCIES = ["weekly", "monthly", "quarterly", "yearly"];
+  safe.bills = Array.isArray(safe.bills)
+    ? safe.bills
+        .map((bill, idx) => ({
+          id: bill.id || `bill-${Date.now()}-${idx}`,
+          name: String(bill.name || "").trim().slice(0, 50),
+          amount: Math.max(0, Number(bill.amount) || 0),
+          dueDay: Math.max(1, Math.min(31, Number(bill.dueDay) || 1)),
+          category: BILL_CATEGORIES.includes(bill.category) ? bill.category : "other",
+          frequency: BILL_FREQUENCIES.includes(bill.frequency) ? bill.frequency : "monthly",
+          autoPay: Boolean(bill.autoPay),
+          reminderDays: Math.max(0, Math.min(14, Number(bill.reminderDays) || 3)),
+          active: bill.active !== false,
+          createdAt: bill.createdAt || Date.now(),
+        }))
+        .filter((bill) => bill.name && bill.amount > 0)
+    : [];
+
   safe.dashboardWidgets = Array.isArray(safe.dashboardWidgets)
     ? safe.dashboardWidgets.filter((key) => DASHBOARD_WIDGET_KEYS.includes(key))
     : [...defaultState.dashboardWidgets];
@@ -862,6 +883,7 @@ function updateSummary() {
   updateCashflowInsights();
   updateVulnerabilityPanel();
   updateAlertList();
+  updateBillsList();
 }
 
 // Goal Engine v2
@@ -1701,44 +1723,365 @@ function updateVulnerabilityPanel() {
   }
 }
 
-// Alert list
-function updateAlertList() {
-  const alertList = document.querySelector("[data-alert-list]");
-  if (!alertList) return;
-
-  const snapshot = getFinanceSnapshot();
+// Smart Alerts System
+function generateSmartAlerts() {
   const alerts = [];
+  const snapshot = getFinanceSnapshot();
+  const today = new Date();
+  const currentDay = today.getDate();
+  const daysInMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
 
-  if (snapshot.surplus < 0) {
-    alerts.push({ title: "Budget deficit this month", date: "Review expenses", severity: "high" });
-  }
+  // Bill due alerts
+  const activeBills = (state.bills || []).filter((b) => b.active);
+  activeBills.forEach((bill) => {
+    const dueDay = bill.dueDay;
+    let daysUntilDue;
 
-  if (snapshot.savings < snapshot.expenses) {
-    alerts.push({ title: "Emergency fund low", date: "Build buffer", severity: "medium" });
-  }
+    if (dueDay >= currentDay) {
+      daysUntilDue = dueDay - currentDay;
+    } else {
+      daysUntilDue = daysInMonth - currentDay + dueDay;
+    }
 
-  const upcomingGoals = state.goals.filter((g) => g.target && g.saved >= g.target * 0.9 && g.saved < g.target);
-  upcomingGoals.forEach((g) => {
-    alerts.push({ title: `${escapeHtml(g.name)} almost reached`, date: "Nearly there!", severity: "low" });
+    if (daysUntilDue <= bill.reminderDays) {
+      const dueText = daysUntilDue === 0 ? "Due today" : daysUntilDue === 1 ? "Due tomorrow" : `Due in ${daysUntilDue} days`;
+      alerts.push({
+        type: "bill",
+        title: `${bill.name} payment`,
+        subtitle: `${formatCurrency(bill.amount)} ${dueText}`,
+        severity: daysUntilDue === 0 ? "high" : daysUntilDue <= 2 ? "medium" : "low",
+        icon: "calendar",
+        action: bill.autoPay ? "Auto-pay enabled" : "Manual payment needed",
+      });
+    }
   });
 
+  // Budget health alerts
+  if (snapshot.surplus < 0) {
+    const deficit = Math.abs(snapshot.surplus);
+    alerts.push({
+      type: "budget",
+      title: "Budget deficit this month",
+      subtitle: `${formatCurrency(deficit)} over budget`,
+      severity: "high",
+      icon: "alert-triangle",
+      action: "Review expenses",
+    });
+  }
+
+  // Savings rate alert
+  const savingsRate = snapshot.income > 0 ? snapshot.surplus / snapshot.income : 0;
+  if (savingsRate > 0 && savingsRate < 0.1) {
+    alerts.push({
+      type: "savings",
+      title: "Low savings rate",
+      subtitle: `${Math.round(savingsRate * 100)}% of income saved`,
+      severity: "medium",
+      icon: "piggy-bank",
+      action: "Aim for 10-20%",
+    });
+  }
+
+  // Emergency fund alerts
+  const bufferMonths = snapshot.expenses > 0 ? snapshot.savings / snapshot.expenses : 0;
+  if (bufferMonths < 1 && snapshot.expenses > 0) {
+    alerts.push({
+      type: "emergency",
+      title: "Emergency fund critical",
+      subtitle: `${bufferMonths.toFixed(1)} months of expenses saved`,
+      severity: "high",
+      icon: "shield-alert",
+      action: "Build to 1 month minimum",
+    });
+  } else if (bufferMonths < 3 && bufferMonths >= 1) {
+    alerts.push({
+      type: "emergency",
+      title: "Emergency fund needs attention",
+      subtitle: `${bufferMonths.toFixed(1)} months buffer`,
+      severity: "medium",
+      icon: "shield",
+      action: "Target 3-6 months",
+    });
+  }
+
+  // Goal milestone alerts
+  const goals = state.goals || [];
+  goals.forEach((g) => {
+    if (!g.target || g.target <= 0) return;
+
+    const progress = g.saved / g.target;
+    const eta = calculateGoalETA(g);
+
+    // Goal almost reached (90%+)
+    if (progress >= 0.9 && progress < 1) {
+      const remaining = g.target - g.saved;
+      alerts.push({
+        type: "goal-milestone",
+        title: `${g.name} almost reached!`,
+        subtitle: `${formatCurrency(remaining)} to go`,
+        severity: "low",
+        icon: "flag",
+        action: "Nearly there!",
+      });
+    }
+
+    // Goal completed
+    if (progress >= 1) {
+      alerts.push({
+        type: "goal-complete",
+        title: `${g.name} completed!`,
+        subtitle: `${formatCurrency(g.target)} goal reached`,
+        severity: "success",
+        icon: "check-circle",
+        action: "Celebrate!",
+      });
+    }
+
+    // Goal behind schedule
+    if (eta.status === "behind" && g.targetDate) {
+      alerts.push({
+        type: "goal-behind",
+        title: `${g.name} behind schedule`,
+        subtitle: `Increase to ${formatCurrency(eta.requiredMonthly || 0)}/month`,
+        severity: "medium",
+        icon: "clock",
+        action: "Adjust contribution",
+      });
+    }
+  });
+
+  // Subscription audit suggestion (if total subscriptions > 5% of income)
+  const totalSubscriptions = activeBills.filter((b) => b.category === "subscription").reduce((sum, b) => sum + b.amount, 0);
+  if (snapshot.income > 0 && totalSubscriptions > snapshot.income * 0.05) {
+    alerts.push({
+      type: "subscription",
+      title: "High subscription spend",
+      subtitle: `${formatCurrency(totalSubscriptions)}/month on subscriptions`,
+      severity: "low",
+      icon: "scissors",
+      action: "Review and trim",
+    });
+  }
+
+  // Sort alerts by severity (high first)
+  const severityOrder = { high: 0, medium: 1, low: 2, success: 3 };
+  alerts.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+
+  return alerts;
+}
+
+function getAlertIcon(iconName) {
+  const icons = {
+    calendar: '<path d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zM16 2v4M8 2v4M3 10h18"/>',
+    "alert-triangle": '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
+    "piggy-bank": '<path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2h0V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    "shield-alert": '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
+    flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
+    "check-circle": '<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
+    clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
+    scissors: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/>',
+  };
+  return icons[iconName] || icons.calendar;
+}
+
+function updateAlertList() {
+  const alertList = document.querySelector("[data-alert-list]");
+  const alertCount = document.querySelector("[data-alert-count]");
+  if (!alertList) return;
+
+  const alerts = generateSmartAlerts();
+
+  // Update count badge if exists
+  if (alertCount) {
+    const urgentCount = alerts.filter((a) => a.severity === "high" || a.severity === "medium").length;
+    alertCount.textContent = urgentCount > 0 ? urgentCount : "";
+    alertCount.style.display = urgentCount > 0 ? "flex" : "none";
+  }
+
   if (alerts.length === 0) {
-    alertList.innerHTML = '<li class="alert-item"><div><p class="alert-title">All clear</p><p class="muted">No alerts at this time</p></div></li>';
+    alertList.innerHTML = `
+      <li class="alert-item all-clear">
+        <div class="alert-icon success">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <div class="alert-content">
+          <p class="alert-title">All clear</p>
+          <p class="alert-subtitle">No alerts at this time</p>
+        </div>
+      </li>
+    `;
   } else {
     alertList.innerHTML = alerts
       .map(
         (a) => `
-        <li class="alert-item">
-          <div>
-            <p class="alert-title">${escapeHtml(a.title)}</p>
-            <p class="muted">${escapeHtml(a.date)}</p>
+        <li class="alert-item ${escapeHtml(a.severity)}">
+          <div class="alert-icon ${escapeHtml(a.severity)}">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              ${getAlertIcon(a.icon)}
+            </svg>
           </div>
-          <span class="severity ${escapeHtml(a.severity)}">${escapeHtml(a.severity)}</span>
+          <div class="alert-content">
+            <p class="alert-title">${escapeHtml(a.title)}</p>
+            <p class="alert-subtitle">${escapeHtml(a.subtitle)}</p>
+          </div>
+          <span class="alert-action">${escapeHtml(a.action)}</span>
         </li>
       `
       )
       .join("");
   }
+}
+
+// Bills management
+function updateBillsList() {
+  const billsList = document.querySelector("[data-bills-list]");
+  const billsTotal = document.querySelector("[data-bills-total]");
+  if (!billsList) return;
+
+  const bills = state.bills || [];
+  const activeBills = bills.filter((b) => b.active);
+  const totalMonthly = activeBills.reduce((sum, b) => {
+    switch (b.frequency) {
+      case "weekly":
+        return sum + b.amount * 4.33;
+      case "quarterly":
+        return sum + b.amount / 3;
+      case "yearly":
+        return sum + b.amount / 12;
+      default:
+        return sum + b.amount;
+    }
+  }, 0);
+
+  if (billsTotal) {
+    billsTotal.textContent = formatCurrency(totalMonthly);
+  }
+
+  if (bills.length === 0) {
+    billsList.innerHTML = `
+      <li class="bill-item empty">
+        <p>No recurring bills added</p>
+        <button type="button" class="btn small" data-add-bill>Add your first bill</button>
+      </li>
+    `;
+  } else {
+    const categoryIcons = {
+      subscription: "tv",
+      utility: "zap",
+      insurance: "shield",
+      loan: "credit-card",
+      rent: "home",
+      other: "file-text",
+    };
+
+    billsList.innerHTML = bills
+      .map(
+        (bill, idx) => `
+        <li class="bill-item ${bill.active ? "" : "inactive"}" data-bill-id="${escapeHtml(bill.id)}">
+          <div class="bill-icon ${escapeHtml(bill.category)}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              ${getBillIcon(categoryIcons[bill.category] || "file-text")}
+            </svg>
+          </div>
+          <div class="bill-info">
+            <p class="bill-name">${escapeHtml(bill.name)}</p>
+            <p class="bill-meta">Day ${bill.dueDay} &middot; ${escapeHtml(bill.frequency)}${bill.autoPay ? " &middot; Auto-pay" : ""}</p>
+          </div>
+          <div class="bill-amount">${formatCurrency(bill.amount)}</div>
+          <button type="button" class="bill-delete" data-delete-bill="${idx}" aria-label="Delete bill">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+          </button>
+        </li>
+      `
+      )
+      .join("");
+  }
+
+  attachBillListeners();
+}
+
+function getBillIcon(iconName) {
+  const icons = {
+    tv: '<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>',
+    zap: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    "credit-card": '<rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>',
+    home: '<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+    "file-text": '<path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>',
+  };
+  return icons[iconName] || icons["file-text"];
+}
+
+function attachBillListeners() {
+  // Add bill button
+  document.querySelectorAll("[data-add-bill]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      showAddBillModal();
+    });
+  });
+
+  // Delete bill buttons
+  document.querySelectorAll("[data-delete-bill]").forEach((btn) => {
+    btn.addEventListener("click", (e) => {
+      const idx = parseInt(btn.dataset.deleteBill, 10);
+      if (!isNaN(idx) && state.bills[idx]) {
+        state.bills.splice(idx, 1);
+        scheduleSave();
+        updateBillsList();
+        updateAlertList();
+      }
+    });
+  });
+}
+
+function showAddBillModal() {
+  // Simple prompt-based addition for now
+  const name = prompt("Bill name (e.g., Netflix, Electricity):");
+  if (!name || !name.trim()) return;
+
+  const amountStr = prompt("Amount (£):");
+  const amount = parseFloat(amountStr);
+  if (isNaN(amount) || amount <= 0) {
+    alert("Please enter a valid amount");
+    return;
+  }
+
+  const dueDayStr = prompt("Due day of month (1-31):");
+  const dueDay = parseInt(dueDayStr, 10);
+  if (isNaN(dueDay) || dueDay < 1 || dueDay > 31) {
+    alert("Please enter a valid day (1-31)");
+    return;
+  }
+
+  const categoryChoice = prompt("Category:\n1. Subscription\n2. Utility\n3. Insurance\n4. Loan\n5. Rent\n6. Other\n\nEnter number (1-6):");
+  const categories = ["subscription", "utility", "insurance", "loan", "rent", "other"];
+  const categoryIdx = parseInt(categoryChoice, 10) - 1;
+  const category = categories[categoryIdx] || "other";
+
+  const autoPay = confirm("Is this bill on auto-pay?");
+
+  const newBill = {
+    id: `bill-${Date.now()}`,
+    name: name.trim(),
+    amount,
+    dueDay,
+    category,
+    frequency: "monthly",
+    autoPay,
+    reminderDays: 3,
+    active: true,
+    createdAt: Date.now(),
+  };
+
+  state.bills.push(newBill);
+  scheduleSave();
+  updateBillsList();
+  updateAlertList();
 }
 
 // Monte Carlo simulation

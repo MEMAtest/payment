@@ -1542,25 +1542,54 @@
             </div>
 
             <div class="tab-panel" data-tab="rewards">
-              <div class="panel-grid">
-                <div class="panel-card rewards-main">
-                  <h3>Rewards Wallet</h3>
-                  <p class="card-value">
-                    <span data-rewards-points>620</span> points
-                  </p>
-                  <p class="muted">Earn points for hitting savings targets</p>
-                  <div class="pill-row">
-                    <span>Travel perks</span>
-                    <span>Home savings</span>
-                    <span>Wellness boosts</span>
+              <div class="panel-grid rewards-grid">
+                <div class="panel-card rewards-level-card">
+                  <div class="level-header">
+                    <div class="level-badge" data-rewards-level-badge>
+                      <span class="level-number" data-rewards-level>1</span>
+                    </div>
+                    <div class="level-info">
+                      <h3 data-rewards-level-name>Starter</h3>
+                      <p class="level-points"><span data-rewards-points>0</span> points</p>
+                    </div>
                   </div>
+                  <div class="level-progress-bar">
+                    <div class="level-progress-fill" data-rewards-level-progress></div>
+                  </div>
+                  <p class="level-progress-text" data-rewards-level-info>0 / 200 pts to Bronze</p>
                 </div>
-                <div class="panel-card">
-                  <h3>Streak</h3>
-                  <p class="card-value">
-                    <span data-rewards-streak>12</span> days
-                  </p>
-                  <p class="muted">Keep your streak going for bonus points!</p>
+
+                <div class="panel-card rewards-streak-card">
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/>
+                    </svg>
+                    Daily Streak
+                  </h3>
+                  <p class="streak-value"><span data-rewards-streak>0</span> days</p>
+                  <div class="streak-display" data-rewards-streak-display></div>
+                  <p class="muted">Check in daily for bonus points!</p>
+                </div>
+
+                <div class="panel-card rewards-badges-card">
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>
+                    </svg>
+                    Achievements
+                  </h3>
+                  <div class="badges-grid" data-rewards-badges></div>
+                </div>
+
+                <div class="panel-card rewards-offers-card">
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 010-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 000-5C13 2 12 7 12 7z"/>
+                    </svg>
+                    Partner Offers
+                  </h3>
+                  <p class="muted">Redeem your points for exclusive rewards</p>
+                  <div class="offers-grid" data-rewards-offers></div>
                 </div>
               </div>
             </div>

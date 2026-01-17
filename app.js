@@ -195,8 +195,12 @@ const defaultState = {
   cashflowMonths: 12,
   cashflowIncomeChange: 0,
   cashflowExpenseChange: 0,
-  rewardPoints: 620,
-  rewardStreak: 12,
+  rewardPoints: 0,
+  rewardStreak: 0,
+  rewardLevel: 1,
+  rewardLastCheckIn: null,
+  unlockedBadges: [],
+  claimedOffers: [],
   snapshotSet: false,
   onboardingComplete: false,
   lastScreen: "welcome",
@@ -682,11 +686,19 @@ function sanitizeState(raw) {
   safe.cashflowIncomeChange = Number(safe.cashflowIncomeChange) || 0;
   safe.cashflowExpenseChange = Number(safe.cashflowExpenseChange) || 0;
   safe.rewardPoints = Number.isFinite(Number(safe.rewardPoints))
-    ? Number(safe.rewardPoints)
+    ? Math.max(0, Number(safe.rewardPoints))
     : defaultState.rewardPoints;
   safe.rewardStreak = Number.isFinite(Number(safe.rewardStreak))
-    ? Number(safe.rewardStreak)
+    ? Math.max(0, Number(safe.rewardStreak))
     : defaultState.rewardStreak;
+  safe.rewardLevel = Math.max(1, Math.min(10, Number(safe.rewardLevel) || 1));
+  safe.rewardLastCheckIn = safe.rewardLastCheckIn || null;
+  safe.unlockedBadges = Array.isArray(safe.unlockedBadges)
+    ? safe.unlockedBadges.filter((b) => typeof b === "string")
+    : [];
+  safe.claimedOffers = Array.isArray(safe.claimedOffers)
+    ? safe.claimedOffers.filter((o) => typeof o === "string")
+    : [];
   safe.snapshotSet = Boolean(safe.snapshotSet);
 
   safe.onboardingComplete = Boolean(safe.onboardingComplete);
@@ -808,9 +820,299 @@ function updatePersona() {
   }
 }
 
+// Rewards v2 System
+const REWARD_BADGES = {
+  "first-goal": { name: "Goal Setter", description: "Create your first savings goal", icon: "target", points: 50 },
+  "budget-master": { name: "Budget Master", description: "Set up your full budget", icon: "pie-chart", points: 100 },
+  "emergency-starter": { name: "Safety Net", description: "Save 1 month of expenses", icon: "shield", points: 150 },
+  "emergency-pro": { name: "Fully Protected", description: "Save 3 months of expenses", icon: "shield-check", points: 300 },
+  "streak-7": { name: "Week Warrior", description: "Maintain a 7-day streak", icon: "flame", points: 75 },
+  "streak-30": { name: "Monthly Master", description: "Maintain a 30-day streak", icon: "fire", points: 200 },
+  "streak-100": { name: "Centurion", description: "Maintain a 100-day streak", icon: "crown", points: 500 },
+  "goal-complete": { name: "Goal Crusher", description: "Complete your first goal", icon: "trophy", points: 200 },
+  "debt-free": { name: "Debt Destroyer", description: "Reduce debt to under 10% of income", icon: "broken-chain", points: 250 },
+  "saver-10": { name: "Smart Saver", description: "Achieve 10% savings rate", icon: "piggy-bank", points: 100 },
+  "saver-20": { name: "Super Saver", description: "Achieve 20% savings rate", icon: "rocket", points: 200 },
+  "bill-tracker": { name: "Bill Boss", description: "Track 5 recurring bills", icon: "calendar-check", points: 75 },
+  "protection-80": { name: "Well Protected", description: "Reach 80+ protection score", icon: "award", points: 300 },
+};
+
+const REWARD_LEVELS = [
+  { level: 1, name: "Starter", minPoints: 0, color: "#94a3b8" },
+  { level: 2, name: "Bronze", minPoints: 200, color: "#cd7f32" },
+  { level: 3, name: "Silver", minPoints: 500, color: "#c0c0c0" },
+  { level: 4, name: "Gold", minPoints: 1000, color: "#ffd700" },
+  { level: 5, name: "Platinum", minPoints: 2000, color: "#e5e4e2" },
+  { level: 6, name: "Diamond", minPoints: 3500, color: "#b9f2ff" },
+  { level: 7, name: "Master", minPoints: 5000, color: "#9333ea" },
+  { level: 8, name: "Legend", minPoints: 7500, color: "#dc2626" },
+  { level: 9, name: "Champion", minPoints: 10000, color: "#f59e0b" },
+  { level: 10, name: "Elite", minPoints: 15000, color: "#059669" },
+];
+
+const PARTNER_OFFERS = [
+  { id: "travel-5", name: "5% off Holiday Bookings", partner: "TravelSave", cost: 500, category: "travel", icon: "plane" },
+  { id: "groceries-10", name: "£10 Supermarket Voucher", partner: "FreshMart", cost: 300, category: "groceries", icon: "shopping-cart" },
+  { id: "fitness-month", name: "Free Month Gym Pass", partner: "FitLife", cost: 400, category: "wellness", icon: "dumbbell" },
+  { id: "coffee-free", name: "Free Coffee Bundle", partner: "BeanBrew", cost: 150, category: "food", icon: "coffee" },
+  { id: "streaming-month", name: "1 Month Streaming Free", partner: "StreamPlus", cost: 250, category: "entertainment", icon: "tv" },
+  { id: "home-discount", name: "£20 Home Insurance Discount", partner: "SafeHome", cost: 600, category: "insurance", icon: "home" },
+  { id: "book-credit", name: "£5 Book Credit", partner: "ReadMore", cost: 200, category: "education", icon: "book" },
+  { id: "restaurant-deal", name: "25% off Dining", partner: "TastyEats", cost: 350, category: "food", icon: "utensils" },
+];
+
+function getCurrentLevel() {
+  const points = state.rewardPoints || 0;
+  let currentLevel = REWARD_LEVELS[0];
+  for (const level of REWARD_LEVELS) {
+    if (points >= level.minPoints) {
+      currentLevel = level;
+    } else {
+      break;
+    }
+  }
+  return currentLevel;
+}
+
+function getNextLevel() {
+  const current = getCurrentLevel();
+  const nextIdx = REWARD_LEVELS.findIndex((l) => l.level === current.level) + 1;
+  return nextIdx < REWARD_LEVELS.length ? REWARD_LEVELS[nextIdx] : null;
+}
+
+function getLevelProgress() {
+  const points = state.rewardPoints || 0;
+  const current = getCurrentLevel();
+  const next = getNextLevel();
+  if (!next) return 100;
+  const levelPoints = points - current.minPoints;
+  const levelRange = next.minPoints - current.minPoints;
+  return Math.min(100, Math.round((levelPoints / levelRange) * 100));
+}
+
+function awardPoints(amount, reason) {
+  state.rewardPoints = (state.rewardPoints || 0) + amount;
+
+  // Check for level up
+  const newLevel = getCurrentLevel();
+  if (newLevel.level > (state.rewardLevel || 1)) {
+    state.rewardLevel = newLevel.level;
+  }
+
+  scheduleSave();
+  updateRewardsUI();
+}
+
+function checkAndAwardBadge(badgeId) {
+  if (!REWARD_BADGES[badgeId]) return false;
+  if ((state.unlockedBadges || []).includes(badgeId)) return false;
+
+  state.unlockedBadges = [...(state.unlockedBadges || []), badgeId];
+  awardPoints(REWARD_BADGES[badgeId].points, `Badge: ${REWARD_BADGES[badgeId].name}`);
+  return true;
+}
+
+function checkAllBadges() {
+  const snapshot = getFinanceSnapshot();
+  const bufferMonths = snapshot.expenses > 0 ? snapshot.savings / snapshot.expenses : 0;
+  const debtRatio = snapshot.income > 0 ? snapshot.debt / snapshot.income : 0;
+  const savingsRate = snapshot.income > 0 ? snapshot.surplus / snapshot.income : 0;
+  const protectionScore = typeof calculateProtectionScore === "function" ? calculateProtectionScore().total : 0;
+
+  // Check badge conditions
+  if (state.goals && state.goals.length >= 1) checkAndAwardBadge("first-goal");
+  if (state.snapshotSet) checkAndAwardBadge("budget-master");
+  if (bufferMonths >= 1) checkAndAwardBadge("emergency-starter");
+  if (bufferMonths >= 3) checkAndAwardBadge("emergency-pro");
+  if (state.rewardStreak >= 7) checkAndAwardBadge("streak-7");
+  if (state.rewardStreak >= 30) checkAndAwardBadge("streak-30");
+  if (state.rewardStreak >= 100) checkAndAwardBadge("streak-100");
+  if (state.goals && state.goals.some((g) => g.target > 0 && g.saved >= g.target)) checkAndAwardBadge("goal-complete");
+  if (debtRatio <= 0.1 && snapshot.debt > 0) checkAndAwardBadge("debt-free");
+  if (savingsRate >= 0.1) checkAndAwardBadge("saver-10");
+  if (savingsRate >= 0.2) checkAndAwardBadge("saver-20");
+  if (state.bills && state.bills.length >= 5) checkAndAwardBadge("bill-tracker");
+  if (protectionScore >= 80) checkAndAwardBadge("protection-80");
+}
+
+function handleDailyCheckIn() {
+  const today = new Date().toDateString();
+  const lastCheckIn = state.rewardLastCheckIn;
+
+  if (lastCheckIn === today) return; // Already checked in today
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (lastCheckIn === yesterday.toDateString()) {
+    // Continue streak
+    state.rewardStreak = (state.rewardStreak || 0) + 1;
+  } else if (lastCheckIn) {
+    // Streak broken
+    state.rewardStreak = 1;
+  } else {
+    // First check-in
+    state.rewardStreak = 1;
+  }
+
+  state.rewardLastCheckIn = today;
+
+  // Award daily points (base + streak bonus)
+  const streakBonus = Math.min(state.rewardStreak, 30); // Cap bonus at 30
+  awardPoints(5 + streakBonus, "Daily check-in");
+
+  checkAllBadges();
+}
+
+function claimOffer(offerId) {
+  const offer = PARTNER_OFFERS.find((o) => o.id === offerId);
+  if (!offer) return false;
+  if ((state.claimedOffers || []).includes(offerId)) return false;
+  if ((state.rewardPoints || 0) < offer.cost) return false;
+
+  state.rewardPoints -= offer.cost;
+  state.claimedOffers = [...(state.claimedOffers || []), offerId];
+  scheduleSave();
+  updateRewardsUI();
+  return true;
+}
+
+function getBadgeIcon(iconName) {
+  const icons = {
+    target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    "pie-chart": '<path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/>',
+    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
+    "shield-check": '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>',
+    flame: '<path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/>',
+    fire: '<path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/>',
+    crown: '<path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/>',
+    trophy: '<path d="M6 9H4.5a2.5 2.5 0 010-5H6"/><path d="M18 9h1.5a2.5 2.5 0 000-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 1012 0V2z"/>',
+    "broken-chain": '<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>',
+    "piggy-bank": '<path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/>',
+    rocket: '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',
+    "calendar-check": '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/>',
+    award: '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>',
+  };
+  return icons[iconName] || icons.target;
+}
+
+function getOfferIcon(iconName) {
+  const icons = {
+    plane: '<path d="M17.8 19.2L16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>',
+    "shopping-cart": '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 002 1.61h9.72a2 2 0 002-1.61L23 6H6"/>',
+    dumbbell: '<path d="M6.5 6.5h11M6.5 17.5h11M17.5 6.5a1 1 0 011 1v9a1 1 0 01-1 1M6.5 6.5a1 1 0 00-1 1v9a1 1 0 001 1M20.5 8a1 1 0 011 1v6a1 1 0 01-1 1M3.5 8a1 1 0 00-1 1v6a1 1 0 001 1"/>',
+    coffee: '<path d="M17 8h1a4 4 0 110 8h-1"/><path d="M3 8h14v9a4 4 0 01-4 4H7a4 4 0 01-4-4z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/>',
+    tv: '<rect x="2" y="7" width="20" height="15" rx="2" ry="2"/><polyline points="17 2 12 7 7 2"/>',
+    home: '<path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>',
+    book: '<path d="M4 19.5A2.5 2.5 0 016.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 014 19.5v-15A2.5 2.5 0 016.5 2z"/>',
+    utensils: '<path d="M3 2v7c0 1.1.9 2 2 2h4a2 2 0 002-2V2"/><path d="M7 2v20"/><path d="M21 15V2v0a5 5 0 00-5 5v6c0 1.1.9 2 2 2h3zm0 0v7"/>',
+  };
+  return icons[iconName] || icons.plane;
+}
+
 function updateRewardsUI() {
-  setTextAll("[data-rewards-points]", state.rewardPoints);
-  setTextAll("[data-rewards-streak]", state.rewardStreak);
+  // Handle daily check-in
+  handleDailyCheckIn();
+
+  // Update basic displays
+  setTextAll("[data-rewards-points]", state.rewardPoints || 0);
+  setTextAll("[data-rewards-streak]", state.rewardStreak || 0);
+
+  // Update level display
+  const currentLevel = getCurrentLevel();
+  const nextLevel = getNextLevel();
+  const progress = getLevelProgress();
+
+  setTextAll("[data-rewards-level]", currentLevel.level);
+  setTextAll("[data-rewards-level-name]", currentLevel.name);
+
+  const levelProgress = document.querySelector("[data-rewards-level-progress]");
+  if (levelProgress) {
+    levelProgress.style.width = `${progress}%`;
+    levelProgress.style.background = currentLevel.color;
+  }
+
+  const levelInfo = document.querySelector("[data-rewards-level-info]");
+  if (levelInfo && nextLevel) {
+    levelInfo.textContent = `${state.rewardPoints || 0} / ${nextLevel.minPoints} pts to ${nextLevel.name}`;
+  } else if (levelInfo) {
+    levelInfo.textContent = "Maximum level reached!";
+  }
+
+  // Update badges grid
+  const badgesGrid = document.querySelector("[data-rewards-badges]");
+  if (badgesGrid) {
+    const unlockedBadges = state.unlockedBadges || [];
+    badgesGrid.innerHTML = Object.entries(REWARD_BADGES)
+      .map(([id, badge]) => {
+        const unlocked = unlockedBadges.includes(id);
+        return `
+          <div class="badge-item ${unlocked ? "unlocked" : "locked"}" title="${escapeHtml(badge.description)}">
+            <div class="badge-icon">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                ${getBadgeIcon(badge.icon)}
+              </svg>
+            </div>
+            <span class="badge-name">${escapeHtml(badge.name)}</span>
+            <span class="badge-points">${unlocked ? "Unlocked" : `${badge.points} pts`}</span>
+          </div>
+        `;
+      })
+      .join("");
+  }
+
+  // Update offers grid
+  const offersGrid = document.querySelector("[data-rewards-offers]");
+  if (offersGrid) {
+    const claimedOffers = state.claimedOffers || [];
+    const points = state.rewardPoints || 0;
+
+    offersGrid.innerHTML = PARTNER_OFFERS.map((offer) => {
+      const claimed = claimedOffers.includes(offer.id);
+      const canAfford = points >= offer.cost;
+      return `
+        <div class="offer-item ${claimed ? "claimed" : ""} ${!canAfford && !claimed ? "locked" : ""}">
+          <div class="offer-icon ${escapeHtml(offer.category)}">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              ${getOfferIcon(offer.icon)}
+            </svg>
+          </div>
+          <div class="offer-info">
+            <p class="offer-name">${escapeHtml(offer.name)}</p>
+            <p class="offer-partner">${escapeHtml(offer.partner)}</p>
+          </div>
+          <div class="offer-action">
+            ${claimed
+              ? '<span class="offer-claimed">Claimed</span>'
+              : `<button class="btn small ${canAfford ? "" : "disabled"}" data-claim-offer="${escapeHtml(offer.id)}" ${!canAfford ? "disabled" : ""}>${offer.cost} pts</button>`
+            }
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    // Attach claim listeners
+    offersGrid.querySelectorAll("[data-claim-offer]").forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const offerId = btn.dataset.claimOffer;
+        if (claimOffer(offerId)) {
+          updateRewardsUI();
+        }
+      });
+    });
+  }
+
+  // Update streak display
+  const streakDisplay = document.querySelector("[data-rewards-streak-display]");
+  if (streakDisplay) {
+    const streak = state.rewardStreak || 0;
+    const streakDays = [];
+    for (let i = 6; i >= 0; i--) {
+      const dayStreak = streak > i;
+      streakDays.push(`<div class="streak-day ${dayStreak ? "active" : ""}"></div>`);
+    }
+    streakDisplay.innerHTML = streakDays.join("");
+  }
 }
 
 function getFinanceSnapshot() {

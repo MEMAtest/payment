@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Poapyments - Consumer financial planning</title>
+    <title>Consumer Pay - Smart Financial Planning</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#1d3557" />
@@ -18,59 +18,88 @@
       <header class="top-bar">
         <div class="brand">
           <span class="brand-mark"></span>
-          <span class="brand-name">Poapyments</span>
+          <span class="brand-name">Consumer Pay</span>
         </div>
         <div class="top-actions">
           <button class="btn ghost" type="button" data-restart>
-            Restart demo
+            Start Fresh
           </button>
-          <button class="btn primary" type="button">Get early access</button>
         </div>
       </header>
 
       <main class="flow">
         <section class="screen is-active" data-screen="welcome">
-          <div class="screen-grid">
-            <div>
-              <p class="eyebrow">Plan, protect, and grow</p>
-              <h1>Your money life, fully connected for you and your family.</h1>
-              <p class="lede">
-                Poapyments helps consumers save, invest, and plan with clarity.
-                Start with a few questions and get instant actions that feel
-                rewarding.
+          <div class="welcome-hero">
+            <div class="welcome-content">
+              <p class="eyebrow animate-in">Smart money management</p>
+              <h1 class="animate-in delay-1">Take control of your finances with confidence</h1>
+              <p class="lede animate-in delay-2">
+                Enter your UK salary, set your budget, and watch your financial future unfold.
+                We'll help you understand exactly where your money goes and how to reach your goals faster.
               </p>
-              <div class="cta-row">
-                <button class="btn primary" type="button" data-next>
-                  Sign in
-                </button>
-                <button class="btn ghost" type="button" data-next>
-                  Try the guided demo
+              <div class="cta-row animate-in delay-3">
+                <button class="btn primary large" type="button" data-next>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M5 12h14M12 5l7 7-7 7"/>
+                  </svg>
+                  Get Started
                 </button>
               </div>
-              <div class="chip-row">
-                <span>30-year forecasting</span>
-                <span>Rewards and nudges</span>
-                <span>AI scenario planning</span>
-                <span>Goal tracking</span>
+              <div class="feature-pills animate-in delay-4">
+                <span class="feature-pill">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 10h20"/>
+                  </svg>
+                  UK Tax Calculator
+                </span>
+                <span class="feature-pill">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                  </svg>
+                  Budget Breakdown
+                </span>
+                <span class="feature-pill">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                  </svg>
+                  Cash Flow Analysis
+                </span>
+                <span class="feature-pill">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
+                  </svg>
+                  Goal Tracking
+                </span>
               </div>
             </div>
-            <div class="welcome-stack">
-              <div class="stack-card">
-                <p class="card-title">Confidence score</p>
-                <p class="card-value">82 / 100</p>
-                <p class="muted">Ready to invest in 6 weeks.</p>
+            <div class="welcome-visual">
+              <div class="hero-card primary">
+                <div class="hero-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                  </svg>
+                </div>
+                <p class="hero-label">Monthly Take-Home</p>
+                <p class="hero-value">See your real income</p>
               </div>
-              <div class="stack-card">
-                <p class="card-title">Monthly surplus</p>
-                <p class="card-value">£520</p>
-                <p class="muted">Auto-allocate to top goals.</p>
+              <div class="hero-card secondary">
+                <div class="hero-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                  </svg>
+                </div>
+                <p class="hero-label">Smart Projections</p>
+                <p class="hero-value">30-year forecasting</p>
               </div>
-              <div class="stack-card">
-                <p class="card-title">Rewards wallet</p>
-                <p class="card-value">
-                  <span data-rewards-points>620</span> points
-                </p>
-                <p class="muted">Redeem for travel or wellness.</p>
+              <div class="hero-card tertiary">
+                <div class="hero-icon">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
+                    <circle cx="12" cy="7" r="4"/>
+                  </svg>
+                </div>
+                <p class="hero-label">Personalized</p>
+                <p class="hero-value">Tailored to you</p>
               </div>
             </div>
           </div>
@@ -106,26 +135,50 @@
 
         <section class="screen" data-screen="focus">
           <div class="screen-card">
-            <h2>Tell us about you</h2>
-            <p class="muted">
-              Answer a few questions so we can personalize the plan.
-            </p>
+            <div class="screen-header">
+              <span class="step-badge">Step 1 of 4</span>
+              <h2>Let's personalise your experience</h2>
+              <p class="muted">
+                Tell us a bit about yourself so we can tailor your financial plan.
+              </p>
+            </div>
             <div class="form-grid">
               <label>
                 What should we call you?
-                <input type="text" placeholder="First name" data-field="name" />
+                <input type="text" placeholder="Your first name" data-field="name" />
               </label>
               <div>
-                <p class="field-label">Your main focus right now</p>
+                <p class="field-label">What's your main financial focus?</p>
                 <div class="choice-group" data-choice-group="focus">
-                  <button type="button" data-value="saving">Save more</button>
-                  <button type="button" data-value="investing">Start investing</button>
-                  <button type="button" data-value="protection">Protect family</button>
-                  <button type="button" data-value="income">Grow income</button>
+                  <button type="button" data-value="saving">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/>
+                      <path d="M2 9v1c0 1.1.9 2 2 2h1"/>
+                    </svg>
+                    Save more
+                  </button>
+                  <button type="button" data-value="investing">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                    Start investing
+                  </button>
+                  <button type="button" data-value="protection">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Protect family
+                  </button>
+                  <button type="button" data-value="income">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                    </svg>
+                    Grow income
+                  </button>
                 </div>
               </div>
               <div>
-                <p class="field-label">Time horizon</p>
+                <p class="field-label">How far ahead are you planning?</p>
                 <div class="choice-group" data-choice-group="horizon">
                   <button type="button" data-value="short">0-2 years</button>
                   <button type="button" data-value="mid">2-7 years</button>
@@ -133,15 +186,36 @@
                 </div>
               </div>
               <div>
-                <p class="field-label">Money persona</p>
-                <div class="choice-group" data-choice-group="persona">
-                  <button type="button" data-value="builder">Builder</button>
-                  <button type="button" data-value="balancer">Balancer</button>
-                  <button type="button" data-value="protector">Protector</button>
-                  <button type="button" data-value="explorer">Explorer</button>
+                <p class="field-label">What's your money style?</p>
+                <div class="choice-group persona-group" data-choice-group="persona">
+                  <button type="button" data-value="builder">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                      <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+                    </svg>
+                    Builder
+                  </button>
+                  <button type="button" data-value="balancer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/>
+                    </svg>
+                    Balancer
+                  </button>
+                  <button type="button" data-value="protector">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Protector
+                  </button>
+                  <button type="button" data-value="explorer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+                    </svg>
+                    Explorer
+                  </button>
                 </div>
                 <div class="persona-preview">
-                  <p class="persona-label">Persona preview</p>
+                  <p class="persona-label">Your money personality</p>
                   <h3 data-persona-title>Builder</h3>
                   <p data-persona-copy>
                     You like structure, measurable goals, and automated progress.
@@ -164,163 +238,702 @@
         </section>
 
         <section class="screen" data-screen="snapshot">
-          <div class="screen-card">
-            <h2>Your money snapshot</h2>
-            <p class="muted">
-              Add a few numbers so we can blend your cash flow with goals.
-            </p>
-            <div class="form-grid">
-              <label>
-                Monthly income
-                <input type="number" min="0" placeholder="3500" data-field="income" />
-              </label>
-              <label>
-                Essential expenses
-                <input type="number" min="0" placeholder="2100" data-field="essentials" />
-              </label>
-              <label>
-                Monthly debt payments
-                <input type="number" min="0" placeholder="220" data-field="debt" />
-              </label>
-              <label>
-                Current savings
-                <input type="number" min="0" placeholder="1800" data-field="savings" />
-              </label>
-              <button class="btn secondary" type="button">
-                Connect accounts
-              </button>
-              <div class="snapshot-card">
-                <p class="card-title">Estimated monthly surplus</p>
-                <p class="card-value" data-snapshot-surplus>£0</p>
-                <p class="muted">We will auto-allocate this to goals.</p>
+          <div class="screen-card salary-card">
+            <div class="screen-header">
+              <span class="step-badge">Step 2 of 4</span>
+              <h2>Your UK Salary Calculator</h2>
+              <p class="muted">
+                Enter your annual salary and we'll calculate your monthly take-home pay after tax and National Insurance.
+              </p>
+            </div>
+
+            <div class="salary-calculator">
+              <div class="salary-input-section">
+                <label class="salary-label">
+                  <span class="label-text">Annual Gross Salary</span>
+                  <div class="salary-input-wrap">
+                    <span class="currency-symbol">£</span>
+                    <input type="number" min="0" step="1000" placeholder="45000" data-field="annualSalary" class="salary-input" />
+                    <span class="per-year">per year</span>
+                  </div>
+                </label>
+
+                <div class="tax-options">
+                  <label class="toggle-option">
+                    <input type="checkbox" data-field="studentLoan" />
+                    <span>Student Loan (Plan 2)</span>
+                  </label>
+                  <label class="toggle-option">
+                    <input type="checkbox" data-field="pensionContrib" />
+                    <span>Pension (5%)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="salary-breakdown" data-salary-breakdown>
+                <div class="breakdown-header">
+                  <h3>Your Monthly Breakdown</h3>
+                  <p class="muted">Based on 2024/25 UK tax rates</p>
+                </div>
+
+                <div class="breakdown-visual">
+                  <div class="salary-ring" data-salary-ring>
+                    <svg viewBox="0 0 200 200" class="ring-svg">
+                      <circle cx="100" cy="100" r="80" class="ring-bg"/>
+                      <circle cx="100" cy="100" r="80" class="ring-tax" data-ring-tax/>
+                      <circle cx="100" cy="100" r="80" class="ring-ni" data-ring-ni/>
+                      <circle cx="100" cy="100" r="80" class="ring-take-home" data-ring-takehome/>
+                    </svg>
+                    <div class="ring-center">
+                      <p class="ring-label">Take Home</p>
+                      <p class="ring-value" data-monthly-takehome>£0</p>
+                      <p class="ring-subtext">per month</p>
+                    </div>
+                  </div>
+
+                  <div class="breakdown-details">
+                    <div class="breakdown-row gross">
+                      <span class="breakdown-label">Gross Monthly</span>
+                      <span class="breakdown-value" data-monthly-gross>£0</span>
+                    </div>
+                    <div class="breakdown-row deduction">
+                      <span class="breakdown-label">
+                        <span class="color-dot tax"></span>
+                        Income Tax
+                      </span>
+                      <span class="breakdown-value" data-monthly-tax>-£0</span>
+                    </div>
+                    <div class="breakdown-row deduction">
+                      <span class="breakdown-label">
+                        <span class="color-dot ni"></span>
+                        National Insurance
+                      </span>
+                      <span class="breakdown-value" data-monthly-ni>-£0</span>
+                    </div>
+                    <div class="breakdown-row deduction" data-student-loan-row style="display:none;">
+                      <span class="breakdown-label">
+                        <span class="color-dot student"></span>
+                        Student Loan
+                      </span>
+                      <span class="breakdown-value" data-monthly-student>-£0</span>
+                    </div>
+                    <div class="breakdown-row deduction" data-pension-row style="display:none;">
+                      <span class="breakdown-label">
+                        <span class="color-dot pension"></span>
+                        Pension (5%)
+                      </span>
+                      <span class="breakdown-value" data-monthly-pension>-£0</span>
+                    </div>
+                    <div class="breakdown-row takehome">
+                      <span class="breakdown-label">
+                        <span class="color-dot takehome"></span>
+                        Net Take-Home
+                      </span>
+                      <span class="breakdown-value" data-monthly-net>£0</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tax-band-indicator" data-tax-band>
+                  <span class="band-label">Tax Band:</span>
+                  <span class="band-value" data-band-name>Basic Rate (20%)</span>
+                </div>
               </div>
             </div>
+
             <div class="screen-actions">
               <button class="btn ghost" type="button" data-back>Back</button>
               <button class="btn primary" type="button" data-next>
-                Continue
+                Continue to Budget
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section class="screen" data-screen="budget">
+          <div class="screen-card budget-card">
+            <div class="screen-header">
+              <span class="step-badge">Step 3 of 4</span>
+              <h2>Where does your money go?</h2>
+              <p class="muted">
+                Break down your monthly expenses. We'll show you what's left for savings and goals.
+              </p>
+            </div>
+
+            <div class="budget-summary-bar">
+              <div class="budget-income">
+                <span class="budget-label">Monthly Income</span>
+                <span class="budget-value" data-budget-income>£0</span>
+              </div>
+              <div class="budget-remaining" data-remaining-indicator>
+                <span class="budget-label">Remaining</span>
+                <span class="budget-value" data-budget-remaining>£0</span>
+              </div>
+            </div>
+
+            <div class="expense-categories">
+              <div class="expense-category housing">
+                <div class="category-header">
+                  <div class="category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                      <polyline points="9 22 9 12 15 12 15 22"/>
+                    </svg>
+                  </div>
+                  <div class="category-info">
+                    <h4>Housing</h4>
+                    <p class="category-total" data-category-total="housing">£0</p>
+                  </div>
+                  <button class="category-toggle" type="button" data-toggle-category="housing">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="category-items" data-category-items="housing">
+                  <label class="expense-item">
+                    <span>Mortgage / Rent</span>
+                    <input type="number" min="0" placeholder="1200" data-expense="mortgage" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Council Tax</span>
+                    <input type="number" min="0" placeholder="150" data-expense="councilTax" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Home Insurance</span>
+                    <input type="number" min="0" placeholder="40" data-expense="homeInsurance" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="expense-category utilities">
+                <div class="category-header">
+                  <div class="category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    </svg>
+                  </div>
+                  <div class="category-info">
+                    <h4>Utilities & Bills</h4>
+                    <p class="category-total" data-category-total="utilities">£0</p>
+                  </div>
+                  <button class="category-toggle" type="button" data-toggle-category="utilities">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="category-items" data-category-items="utilities">
+                  <label class="expense-item">
+                    <span>Gas & Electric</span>
+                    <input type="number" min="0" placeholder="150" data-expense="energy" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Water</span>
+                    <input type="number" min="0" placeholder="40" data-expense="water" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Internet & Phone</span>
+                    <input type="number" min="0" placeholder="60" data-expense="internet" />
+                  </label>
+                  <label class="expense-item">
+                    <span>TV & Streaming</span>
+                    <input type="number" min="0" placeholder="30" data-expense="streaming" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="expense-category transport">
+                <div class="category-header">
+                  <div class="category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="1" y="3" width="15" height="13" rx="2"/>
+                      <circle cx="6" cy="16" r="2"/><circle cx="12" cy="16" r="2"/>
+                      <path d="M16 8h4l3 5v5h-3M1 12h15"/>
+                    </svg>
+                  </div>
+                  <div class="category-info">
+                    <h4>Transport</h4>
+                    <p class="category-total" data-category-total="transport">£0</p>
+                  </div>
+                  <button class="category-toggle" type="button" data-toggle-category="transport">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="category-items" data-category-items="transport">
+                  <label class="expense-item">
+                    <span>Car Payment / Lease</span>
+                    <input type="number" min="0" placeholder="250" data-expense="carPayment" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Car Insurance</span>
+                    <input type="number" min="0" placeholder="80" data-expense="carInsurance" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Fuel / Charging</span>
+                    <input type="number" min="0" placeholder="150" data-expense="fuel" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Public Transport</span>
+                    <input type="number" min="0" placeholder="100" data-expense="publicTransport" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="expense-category food">
+                <div class="category-header">
+                  <div class="category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/>
+                      <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+                    </svg>
+                  </div>
+                  <div class="category-info">
+                    <h4>Food & Groceries</h4>
+                    <p class="category-total" data-category-total="food">£0</p>
+                  </div>
+                  <button class="category-toggle" type="button" data-toggle-category="food">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="category-items" data-category-items="food">
+                  <label class="expense-item">
+                    <span>Groceries</span>
+                    <input type="number" min="0" placeholder="400" data-expense="groceries" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Dining Out</span>
+                    <input type="number" min="0" placeholder="100" data-expense="diningOut" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Coffee & Snacks</span>
+                    <input type="number" min="0" placeholder="50" data-expense="coffeeSnacks" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="expense-category family">
+                <div class="category-header">
+                  <div class="category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                      <circle cx="9" cy="7" r="4"/>
+                      <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                    </svg>
+                  </div>
+                  <div class="category-info">
+                    <h4>Family & Children</h4>
+                    <p class="category-total" data-category-total="family">£0</p>
+                  </div>
+                  <button class="category-toggle" type="button" data-toggle-category="family">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="category-items" data-category-items="family">
+                  <label class="expense-item">
+                    <span>Childcare / Nursery</span>
+                    <input type="number" min="0" placeholder="800" data-expense="childcare" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Kids Activities & Clubs</span>
+                    <input type="number" min="0" placeholder="150" data-expense="kidsActivities" />
+                  </label>
+                  <label class="expense-item">
+                    <span>School Costs</span>
+                    <input type="number" min="0" placeholder="50" data-expense="schoolCosts" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Kids Clothing</span>
+                    <input type="number" min="0" placeholder="40" data-expense="kidsClothing" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="expense-category personal">
+                <div class="category-header">
+                  <div class="category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/>
+                      <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>
+                    </svg>
+                  </div>
+                  <div class="category-info">
+                    <h4>Personal & Lifestyle</h4>
+                    <p class="category-total" data-category-total="personal">£0</p>
+                  </div>
+                  <button class="category-toggle" type="button" data-toggle-category="personal">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="category-items" data-category-items="personal">
+                  <label class="expense-item">
+                    <span>Gym & Fitness</span>
+                    <input type="number" min="0" placeholder="40" data-expense="gym" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Clothing</span>
+                    <input type="number" min="0" placeholder="75" data-expense="clothing" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Personal Care</span>
+                    <input type="number" min="0" placeholder="50" data-expense="personalCare" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Entertainment</span>
+                    <input type="number" min="0" placeholder="100" data-expense="entertainment" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Subscriptions</span>
+                    <input type="number" min="0" placeholder="30" data-expense="subscriptions" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="expense-category debt">
+                <div class="category-header">
+                  <div class="category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="5" width="20" height="14" rx="2"/>
+                      <line x1="2" y1="10" x2="22" y2="10"/>
+                    </svg>
+                  </div>
+                  <div class="category-info">
+                    <h4>Debt Repayments</h4>
+                    <p class="category-total" data-category-total="debt">£0</p>
+                  </div>
+                  <button class="category-toggle" type="button" data-toggle-category="debt">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="category-items" data-category-items="debt">
+                  <label class="expense-item">
+                    <span>Credit Cards</span>
+                    <input type="number" min="0" placeholder="100" data-expense="creditCards" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Personal Loans</span>
+                    <input type="number" min="0" placeholder="150" data-expense="personalLoans" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Other Debt</span>
+                    <input type="number" min="0" placeholder="0" data-expense="otherDebt" />
+                  </label>
+                </div>
+              </div>
+
+              <div class="expense-category savings">
+                <div class="category-header">
+                  <div class="category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/>
+                      <path d="M2 9v1c0 1.1.9 2 2 2h1"/>
+                    </svg>
+                  </div>
+                  <div class="category-info">
+                    <h4>Current Savings</h4>
+                    <p class="category-total" data-category-total="savings">£0</p>
+                  </div>
+                  <button class="category-toggle" type="button" data-toggle-category="savings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="category-items" data-category-items="savings">
+                  <label class="expense-item">
+                    <span>Emergency Fund (current balance)</span>
+                    <input type="number" min="0" placeholder="5000" data-field="savings" />
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <div class="budget-visualization">
+              <h4>Your Money Flow</h4>
+              <div class="flow-chart" data-flow-chart>
+                <div class="flow-bar income-bar">
+                  <span class="flow-label">Income</span>
+                  <div class="flow-fill" data-flow-income></div>
+                  <span class="flow-amount" data-flow-income-amount>£0</span>
+                </div>
+                <div class="flow-bar expenses-bar">
+                  <span class="flow-label">Expenses</span>
+                  <div class="flow-fill" data-flow-expenses></div>
+                  <span class="flow-amount" data-flow-expenses-amount>£0</span>
+                </div>
+                <div class="flow-bar surplus-bar">
+                  <span class="flow-label">Available</span>
+                  <div class="flow-fill" data-flow-surplus></div>
+                  <span class="flow-amount" data-flow-surplus-amount>£0</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="screen-actions">
+              <button class="btn ghost" type="button" data-back>Back</button>
+              <button class="btn primary" type="button" data-next>
+                Set Your Goals
               </button>
             </div>
           </div>
         </section>
 
         <section class="screen" data-screen="goals">
-          <div class="screen-card">
-            <h2>Choose your goals</h2>
-            <p class="muted">
-              Pick multiple goals and set a target. We will keep you motivated.
-            </p>
+          <div class="screen-card goals-card">
+            <div class="screen-header">
+              <span class="step-badge">Step 4 of 4</span>
+              <h2>What are you saving for?</h2>
+              <p class="muted">
+                Select your financial goals and set target amounts. We'll create a personalised plan to help you achieve them.
+              </p>
+            </div>
+
+            <div class="surplus-banner" data-surplus-banner>
+              <div class="surplus-icon">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                </svg>
+              </div>
+              <div class="surplus-info">
+                <p class="surplus-label">Available to save each month</p>
+                <p class="surplus-amount" data-goals-surplus>£0</p>
+              </div>
+            </div>
+
             <div class="goal-grid">
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="Emergency buffer" />
-                <span>Emergency buffer</span>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="9000"
-                  data-goal-target
-                />
+                <div class="goal-icon emergency">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <path d="M12 8v4M12 16h.01"/>
+                  </svg>
+                </div>
+                <div class="goal-content">
+                  <span class="goal-name">Emergency Fund</span>
+                  <span class="goal-desc">3-6 months of expenses for unexpected costs</span>
+                </div>
+                <div class="goal-target-wrap">
+                  <span class="goal-target-label">Target</span>
+                  <div class="goal-input-wrap">
+                    <span>£</span>
+                    <input type="number" min="0" placeholder="9000" data-goal-target />
+                  </div>
+                </div>
               </label>
+
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="Home deposit" />
-                <span>Home deposit</span>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="25000"
-                  data-goal-target
-                />
+                <div class="goal-icon home">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                    <path d="M9 22V12h6v10"/>
+                  </svg>
+                </div>
+                <div class="goal-content">
+                  <span class="goal-name">Home Deposit</span>
+                  <span class="goal-desc">Save towards your dream home</span>
+                </div>
+                <div class="goal-target-wrap">
+                  <span class="goal-target-label">Target</span>
+                  <div class="goal-input-wrap">
+                    <span>£</span>
+                    <input type="number" min="0" placeholder="25000" data-goal-target />
+                  </div>
+                </div>
               </label>
+
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="Family holiday" />
-                <span>Family holiday</span>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="4200"
-                  data-goal-target
-                />
+                <div class="goal-icon holiday">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                  </svg>
+                </div>
+                <div class="goal-content">
+                  <span class="goal-name">Family Holiday</span>
+                  <span class="goal-desc">Create lasting memories together</span>
+                </div>
+                <div class="goal-target-wrap">
+                  <span class="goal-target-label">Target</span>
+                  <div class="goal-input-wrap">
+                    <span>£</span>
+                    <input type="number" min="0" placeholder="4000" data-goal-target />
+                  </div>
+                </div>
               </label>
+
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="Education" />
-                <span>Education</span>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="6000"
-                  data-goal-target
-                />
+                <div class="goal-icon education">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
+                    <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
+                  </svg>
+                </div>
+                <div class="goal-content">
+                  <span class="goal-name">Education Fund</span>
+                  <span class="goal-desc">Invest in your future or your children's</span>
+                </div>
+                <div class="goal-target-wrap">
+                  <span class="goal-target-label">Target</span>
+                  <div class="goal-input-wrap">
+                    <span>£</span>
+                    <input type="number" min="0" placeholder="10000" data-goal-target />
+                  </div>
+                </div>
               </label>
+
+              <label class="goal-card" data-goal-card>
+                <input type="checkbox" data-goal-check value="New car" />
+                <div class="goal-icon car">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14 16H9m10 0h3v-3.15a1 1 0 00-.84-.99L16 11l-2.7-3.6a1 1 0 00-.8-.4H5.24a2 2 0 00-1.8 1.1l-.8 1.63A6 6 0 002 12.42V16h2"/>
+                    <circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/>
+                  </svg>
+                </div>
+                <div class="goal-content">
+                  <span class="goal-name">New Car</span>
+                  <span class="goal-desc">Save for your next vehicle</span>
+                </div>
+                <div class="goal-target-wrap">
+                  <span class="goal-target-label">Target</span>
+                  <div class="goal-input-wrap">
+                    <span>£</span>
+                    <input type="number" min="0" placeholder="15000" data-goal-target />
+                  </div>
+                </div>
+              </label>
+
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="Retirement" />
-                <span>Retirement</span>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="150000"
-                  data-goal-target
-                />
+                <div class="goal-icon retirement">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"/>
+                    <path d="M12 6v6l4 2"/>
+                  </svg>
+                </div>
+                <div class="goal-content">
+                  <span class="goal-name">Retirement</span>
+                  <span class="goal-desc">Build your long-term wealth</span>
+                </div>
+                <div class="goal-target-wrap">
+                  <span class="goal-target-label">Target</span>
+                  <div class="goal-input-wrap">
+                    <span>£</span>
+                    <input type="number" min="0" placeholder="100000" data-goal-target />
+                  </div>
+                </div>
               </label>
+
               <label class="goal-card" data-goal-card>
-                <input type="checkbox" data-goal-check value="Income growth" />
-                <span>Income growth</span>
-                <input
-                  type="number"
-                  min="0"
-                  placeholder="12000"
-                  data-goal-target
-                />
+                <input type="checkbox" data-goal-check value="Wedding" />
+                <div class="goal-icon wedding">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                  </svg>
+                </div>
+                <div class="goal-content">
+                  <span class="goal-name">Wedding</span>
+                  <span class="goal-desc">Plan your perfect day</span>
+                </div>
+                <div class="goal-target-wrap">
+                  <span class="goal-target-label">Target</span>
+                  <div class="goal-input-wrap">
+                    <span>£</span>
+                    <input type="number" min="0" placeholder="20000" data-goal-target />
+                  </div>
+                </div>
+              </label>
+
+              <label class="goal-card" data-goal-card>
+                <input type="checkbox" data-goal-check value="Home improvements" />
+                <div class="goal-icon improvements">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+                  </svg>
+                </div>
+                <div class="goal-content">
+                  <span class="goal-name">Home Improvements</span>
+                  <span class="goal-desc">Upgrade your living space</span>
+                </div>
+                <div class="goal-target-wrap">
+                  <span class="goal-target-label">Target</span>
+                  <div class="goal-input-wrap">
+                    <span>£</span>
+                    <input type="number" min="0" placeholder="8000" data-goal-target />
+                  </div>
+                </div>
               </label>
             </div>
+
             <div class="screen-actions">
               <button class="btn ghost" type="button" data-back>Back</button>
               <button class="btn primary" type="button" data-next>
-                Generate plan
+                Generate My Plan
               </button>
             </div>
           </div>
         </section>
 
         <section class="screen" data-screen="plan">
-          <div class="screen-card">
-            <h2>Your plan is ready</h2>
-            <p class="muted">
-              We blended your goals, cash flow, and persona to create a plan.
-            </p>
+          <div class="screen-card plan-summary-card">
+            <div class="plan-header">
+              <div class="plan-checkmark">
+                <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                  <polyline points="22 4 12 14.01 9 11.01"/>
+                </svg>
+              </div>
+              <h2>Your plan is ready, <span data-summary-name>Friend</span>!</h2>
+              <p class="muted">
+                Based on your income, expenses, and goals, here's your personalised financial roadmap.
+              </p>
+            </div>
+
             <div class="plan-grid">
-              <div class="plan-card">
-                <p class="card-title">Hello <span data-summary-name>Friend</span></p>
-                <p class="card-value" data-summary-focus>Focused on saving</p>
-                <p class="muted">
-                  Persona: <span data-summary-persona>Builder</span>
-                </p>
-              </div>
-              <div class="plan-card">
-                <p class="card-title">Monthly surplus</p>
+              <div class="plan-card highlight">
+                <p class="card-title">Monthly Surplus</p>
                 <p class="card-value" data-summary-surplus>£0</p>
-                <p class="muted">
-                  Buffer status: <span data-summary-buffer>0 months</span>
-                </p>
+                <p class="muted">Available for goals after expenses</p>
               </div>
               <div class="plan-card">
-                <p class="card-title">Goals selected</p>
+                <p class="card-title">Buffer Status</p>
+                <p class="card-value" data-summary-buffer>0 months</p>
+                <p class="muted">Emergency fund coverage</p>
+              </div>
+              <div class="plan-card">
+                <p class="card-title">Goals Active</p>
                 <p class="card-value" data-summary-goals>0 goals</p>
-                <p class="muted" data-summary-next>
-                  Your first step will appear here.
-                </p>
+                <p class="muted" data-summary-next>Add goals to start tracking</p>
               </div>
             </div>
+
             <div class="plan-actions">
-              <div>
-                <h3>Immediate actions that delight</h3>
+              <div class="action-preview">
+                <h3>Your Next Steps</h3>
                 <ul class="action-list" data-summary-actions>
-                  <li>Activate round-ups to build your buffer.</li>
-                  <li>Find lost balances in 60 seconds.</li>
-                  <li>Unlock your first reward for a 7-day streak.</li>
+                  <li>Set up automatic transfers to your goals</li>
+                  <li>Review your emergency fund target</li>
+                  <li>Explore investment options for long-term goals</li>
                 </ul>
               </div>
-              <button class="btn primary" type="button" data-go="app">
-                Enter the app
+              <button class="btn primary large" type="button" data-go="app">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M21 9H3M21 15H3"/>
+                </svg>
+                Enter Dashboard
               </button>
             </div>
             <div class="screen-actions">
@@ -336,48 +949,85 @@
                 <p class="app-greeting">
                   Welcome back, <span data-user-name>Friend</span>
                 </p>
-                <p class="muted">Your next best move is ready.</p>
+                <p class="muted">Your financial command center</p>
               </div>
               <div class="status-pill">
-                Confidence <span data-app-confidence>80</span>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+                Score <span data-app-confidence>80</span>
               </div>
             </header>
 
             <nav class="app-tabs" aria-label="Primary">
               <button class="nav-item is-active" type="button" data-tab-target="home">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                </svg>
                 Home
               </button>
               <button class="nav-item" type="button" data-tab-target="plan">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
                 Plan
               </button>
               <button class="nav-item" type="button" data-tab-target="goals">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+                </svg>
                 Goals
               </button>
               <button class="nav-item" type="button" data-tab-target="rewards">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                </svg>
                 Rewards
               </button>
               <button class="nav-item" type="button" data-tab-target="family">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
+                  <circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                </svg>
                 Family
               </button>
               <button class="nav-item" type="button" data-tab-target="profile">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                </svg>
                 Profile
               </button>
             </nav>
 
             <div class="tab-panel is-active" data-tab="home">
               <div class="panel-grid">
-                <div class="panel-card">
-                  <p class="card-title">Today at a glance</p>
-                  <p class="card-value" data-app-surplus>£0 surplus</p>
-                  <p class="muted">Auto-split between goals.</p>
+                <div class="panel-card metric-card">
+                  <div class="metric-icon surplus-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                    </svg>
+                  </div>
+                  <p class="card-title">Monthly Surplus</p>
+                  <p class="card-value" data-app-surplus>£0</p>
+                  <p class="muted">Auto-allocated to goals</p>
                 </div>
-                <div class="panel-card">
-                  <p class="card-title">Buffer health</p>
+                <div class="panel-card metric-card">
+                  <div class="metric-icon buffer-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                  </div>
+                  <p class="card-title">Buffer Health</p>
                   <p class="card-value" data-app-buffer>0 months</p>
-                  <p class="muted">Target: 3 months.</p>
+                  <p class="muted">Target: 3-6 months</p>
                 </div>
-                <div class="panel-card">
-                  <p class="card-title">Confidence score</p>
+                <div class="panel-card metric-card">
+                  <div class="metric-icon score-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                  </div>
+                  <p class="card-title">Financial Score</p>
                   <p class="card-value">
                     <span data-confidence-total>80</span> / 100
                   </p>
@@ -403,73 +1053,50 @@
                       <span data-confidence-debt>0</span>
                     </div>
                   </div>
-                  <p class="muted" data-confidence-note>
-                    Base 50 + buffer + goals + cashflow - debt.
-                  </p>
                 </div>
-                <div class="panel-card">
+                <div class="panel-card metric-card">
+                  <div class="metric-icon rewards-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                    </svg>
+                  </div>
                   <p class="card-title">Rewards</p>
                   <p class="card-value">
-                    <span data-rewards-points>620</span> points
+                    <span data-rewards-points>620</span> pts
                   </p>
-                  <p class="muted">Next reward in 2 deposits.</p>
+                  <p class="muted">Keep saving to earn more!</p>
                 </div>
               </div>
 
               <div class="panel-row">
                 <div class="panel-card dashboard-builder">
-                  <h3>Dashboard builder</h3>
-                  <p class="muted">Pick the widgets you want to see today.</p>
+                  <h3>Dashboard Builder</h3>
+                  <p class="muted">Customise your view</p>
                   <div class="toggle-grid">
                     <label class="toggle-pill">
-                      <input
-                        type="checkbox"
-                        data-dashboard-toggle
-                        value="cashflow"
-                        checked
-                      />
-                      Cashflow command
+                      <input type="checkbox" data-dashboard-toggle value="cashflow" checked />
+                      <span>Cash Flow</span>
                     </label>
                     <label class="toggle-pill">
-                      <input
-                        type="checkbox"
-                        data-dashboard-toggle
-                        value="alerts"
-                        checked
-                      />
-                      Upcoming alerts
+                      <input type="checkbox" data-dashboard-toggle value="alerts" checked />
+                      <span>Alerts</span>
                     </label>
                     <label class="toggle-pill">
-                      <input
-                        type="checkbox"
-                        data-dashboard-toggle
-                        value="vulnerabilities"
-                        checked
-                      />
-                      Vulnerability radar
+                      <input type="checkbox" data-dashboard-toggle value="vulnerabilities" checked />
+                      <span>Risk Radar</span>
                     </label>
                     <label class="toggle-pill">
-                      <input
-                        type="checkbox"
-                        data-dashboard-toggle
-                        value="quickwins"
-                        checked
-                      />
-                      Quick wins
+                      <input type="checkbox" data-dashboard-toggle value="quickwins" checked />
+                      <span>Quick Wins</span>
                     </label>
                     <label class="toggle-pill">
-                      <input
-                        type="checkbox"
-                        data-dashboard-toggle
-                        value="spark"
-                        checked
-                      />
-                      Daily spark
+                      <input type="checkbox" data-dashboard-toggle value="spark" checked />
+                      <span>Daily Tip</span>
                     </label>
                   </div>
                 </div>
                 <div class="panel-card">
-                  <h3>Income & expenditure link</h3>
+                  <h3>Income vs Expenses</h3>
                   <div class="bar-compare">
                     <div class="bar-track">
                       <span>Income</span>
@@ -478,20 +1105,20 @@
                       </div>
                     </div>
                     <div class="bar-track">
-                      <span>Essentials + debt</span>
+                      <span>Expenses</span>
                       <div class="bar-fill expense" data-expense-bar>
                         <span data-expense-label>£0</span>
                       </div>
                     </div>
                     <div class="bar-track">
-                      <span>Goal allocation</span>
+                      <span>Savings</span>
                       <div class="bar-fill saving" data-saving-bar>
                         <span data-saving-label>£0</span>
                       </div>
                     </div>
                   </div>
                   <p class="muted" data-income-summary>
-                    Link income and outgoings to keep your plan balanced.
+                    Balance your income and expenses for financial health.
                   </p>
                 </div>
               </div>
@@ -500,9 +1127,9 @@
                 <div class="panel-card wide" data-widget="cashflow">
                   <div class="panel-head">
                     <div>
-                      <h3>Cashflow command center</h3>
+                      <h3>Cash Flow Forecast</h3>
                       <p class="muted">
-                        Track monthly balance, net flow, and scenario impact.
+                        Track your projected balance over time
                       </p>
                     </div>
                     <div class="scenario-controls">
@@ -512,100 +1139,107 @@
                           <option value="baseline" selected>Baseline</option>
                           <option value="optimistic">Optimistic</option>
                           <option value="conservative">Conservative</option>
-                          <option value="stress">Stress test</option>
+                          <option value="stress">Stress Test</option>
                           <option value="custom">Custom</option>
                         </select>
                       </label>
                       <label>
                         Months
-                        <input
-                          type="number"
-                          min="6"
-                          max="36"
-                          value="12"
-                          data-cashflow-months
-                        />
+                        <input type="number" min="6" max="36" value="12" data-cashflow-months />
                       </label>
                     </div>
                   </div>
                   <div class="scenario-custom" data-scenario-custom>
                     <label>
                       Income change (%)
-                      <input
-                        type="number"
-                        step="0.5"
-                        value="0"
-                        data-scenario-income
-                      />
+                      <input type="number" step="0.5" value="0" data-scenario-income />
                     </label>
                     <label>
                       Expense change (%)
-                      <input
-                        type="number"
-                        step="0.5"
-                        value="0"
-                        data-scenario-expense
-                      />
+                      <input type="number" step="0.5" value="0" data-scenario-expense />
                     </label>
                   </div>
                   <div class="chart-wrap" data-cashflow-chart></div>
                   <div class="chart-legend">
                     <span class="legend-item">
                       <span class="legend-dot balance"></span>
-                      Projected balance
+                      Projected Balance
                     </span>
                     <span class="legend-item">
-                      <span class="legend-dot net"></span>
-                      Monthly net
+                      <span class="legend-dot net positive"></span>
+                      Monthly Surplus
+                    </span>
+                    <span class="legend-item">
+                      <span class="legend-dot net negative"></span>
+                      Monthly Deficit
                     </span>
                   </div>
                   <div class="chart-metrics">
-                    <div>
-                      <p class="metric-label">Average surplus</p>
+                    <div class="chart-metric">
+                      <p class="metric-label">Avg Monthly</p>
                       <p class="metric-value" data-cashflow-average>£0</p>
                     </div>
-                    <div>
-                      <p class="metric-label">Lowest balance</p>
+                    <div class="chart-metric">
+                      <p class="metric-label">Lowest Point</p>
                       <p class="metric-value" data-cashflow-low>£0</p>
                     </div>
-                    <div>
-                      <p class="metric-label">Risk months</p>
+                    <div class="chart-metric">
+                      <p class="metric-label">Risk Months</p>
                       <p class="metric-value" data-cashflow-risk>0</p>
                     </div>
                   </div>
                 </div>
 
                 <div class="panel-card" data-widget="alerts">
-                  <h3>Upcoming alerts</h3>
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+                    </svg>
+                    Upcoming Alerts
+                  </h3>
                   <ul class="alert-list" data-alert-list></ul>
                 </div>
 
                 <div class="panel-card" data-widget="vulnerabilities">
-                  <h3>Vulnerability radar</h3>
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+                    </svg>
+                    Risk Radar
+                  </h3>
                   <ul class="vuln-list" data-vulnerability-list></ul>
                   <div class="vuln-score">
-                    <p class="muted">Overall vulnerability</p>
+                    <p class="muted">Overall Risk Level</p>
                     <p class="card-value" data-vulnerability-score>Low</p>
                   </div>
                 </div>
 
                 <div class="panel-card" data-widget="quickwins">
-                  <h3>Quick wins</h3>
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                    Quick Wins
+                  </h3>
                   <div class="quick-grid">
                     <button type="button" class="pill">Find lost balances</button>
-                    <button type="button" class="pill">Cancel a subscription</button>
-                    <button type="button" class="pill">Auto-save this surplus</button>
-                    <button type="button" class="pill">Start investing check</button>
+                    <button type="button" class="pill">Review subscriptions</button>
+                    <button type="button" class="pill">Auto-save surplus</button>
+                    <button type="button" class="pill">Investment check</button>
                   </div>
                 </div>
 
                 <div class="panel-card" data-widget="spark">
-                  <h3>Daily money spark</h3>
-                  <p>
-                    "Small upgrades beat big delays. Increase your auto-save by
-                    1% today."
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    Daily Money Tip
+                  </h3>
+                  <p class="spark-quote">
+                    "Small upgrades beat big delays. Increase your auto-save by 1% today."
                   </p>
-                  <p class="muted">Personalized to your goals.</p>
+                  <p class="muted">Personalized to your goals</p>
                 </div>
               </div>
             </div>
@@ -615,7 +1249,7 @@
                 <div class="panel-card">
                   <h3>Future Lab</h3>
                   <p class="muted">
-                    LLM conversation + SLM precision for scenario planning.
+                    AI-powered scenario planning
                   </p>
                   <div class="chat-stack" data-future-chat>
                     <div class="chat-bubble">
@@ -623,7 +1257,7 @@
                       <p data-future-user>Can we pause investing for 6 months?</p>
                     </div>
                     <div class="chat-bubble response">
-                      <p class="chat-title">Poapyments</p>
+                      <p class="chat-title">Consumer Pay</p>
                       <p data-future-response>
                         That delays your goal by 4 months, but keeps the buffer
                         intact. Want to see alternatives?
@@ -632,20 +1266,14 @@
                   </div>
                   <div class="future-form" data-future-form>
                     <label>
-                      Question
-                      <textarea
-                        rows="2"
-                        placeholder="e.g. Pause investing for 6 months"
-                        data-future-question
-                      ></textarea>
+                      Ask a question
+                      <textarea rows="2" placeholder="e.g. What if I pause investing for 6 months?" data-future-question></textarea>
                     </label>
                     <div class="future-grid">
                       <label>
                         Scenario type
                         <select data-future-type>
-                          <option value="pause_investing" selected>
-                            Pause goal contributions
-                          </option>
+                          <option value="pause_investing" selected>Pause contributions</option>
                           <option value="income_drop">Income drop</option>
                           <option value="income_boost">Income boost</option>
                           <option value="expense_spike">Expense spike</option>
@@ -654,93 +1282,60 @@
                       </label>
                       <label>
                         <span data-future-months-label>Duration (months)</span>
-                        <input
-                          type="number"
-                          min="1"
-                          max="24"
-                          value="6"
-                          data-future-months
-                        />
+                        <input type="number" min="1" max="24" value="6" data-future-months />
                       </label>
                       <label>
-                        <span data-future-amount-label>Amount per month (£)</span>
-                        <input
-                          type="number"
-                          min="0"
-                          step="50"
-                          value="250"
-                          data-future-amount
-                        />
+                        <span data-future-amount-label>Amount (£)</span>
+                        <input type="number" min="0" step="50" value="250" data-future-amount />
                       </label>
                     </div>
                     <button class="btn secondary" type="button" data-future-run>
-                      Run scenario
+                      Run Scenario
                     </button>
                   </div>
                   <div class="future-output">
-                    <p class="card-title">Scenario impact</p>
+                    <p class="card-title">Scenario Impact</p>
                     <p class="muted" data-future-summary>
                       Update the fields to simulate your scenario.
                     </p>
                     <div class="chart-metrics future-metrics">
                       <div>
-                        <p class="metric-label">Balance impact</p>
+                        <p class="metric-label">Balance Impact</p>
                         <p class="metric-value" data-future-balance>£0</p>
                       </div>
                       <div>
-                        <p class="metric-label">Risk months</p>
+                        <p class="metric-label">Risk Months</p>
                         <p class="metric-value" data-future-risk>0</p>
                       </div>
                       <div>
-                        <p class="metric-label">Goal timing</p>
+                        <p class="metric-label">Goal Timing</p>
                         <p class="metric-value" data-future-delay>--</p>
                       </div>
                     </div>
                   </div>
                 </div>
-                <div class="panel-card">
-                  <h3>Monte Carlo preview</h3>
+                <div class="panel-card monte-panel">
+                  <h3>Monte Carlo Simulator</h3>
+                  <p class="muted">Run thousands of scenarios to see your probability of success</p>
                   <form class="monte-form monte-grid" data-monte-form>
                     <label>
                       Starting balance
-                      <input
-                        type="number"
-                        min="0"
-                        step="100"
-                        value="2500"
-                        data-monte-start
-                      />
+                      <input type="number" min="0" step="100" value="2500" data-monte-start />
                     </label>
                     <label>
                       Monthly contribution
-                      <input
-                        type="number"
-                        min="1"
-                        value="350"
-                        data-monte-monthly
-                      />
+                      <input type="number" min="1" value="350" data-monte-monthly />
                     </label>
                     <label>
-                      Contribution growth (annual %)
-                      <input
-                        type="number"
-                        step="0.1"
-                        value="2"
-                        data-monte-growth
-                      />
+                      Contribution growth (%/yr)
+                      <input type="number" step="0.1" value="2" data-monte-growth />
                     </label>
                     <label>
                       Years
-                      <input
-                        type="number"
-                        min="1"
-                        max="40"
-                        value="20"
-                        data-monte-years
-                      />
+                      <input type="number" min="1" max="40" value="20" data-monte-years />
                     </label>
                     <label>
-                      Risk style
+                      Risk profile
                       <select data-monte-risk>
                         <option value="cautious">Cautious</option>
                         <option value="balanced" selected>Balanced</option>
@@ -750,99 +1345,79 @@
                     </label>
                     <label>
                       Expected return (%)
-                      <input
-                        type="number"
-                        step="0.1"
-                        value="6"
-                        data-monte-return
-                      />
+                      <input type="number" step="0.1" value="6" data-monte-return />
                     </label>
                     <label>
                       Volatility (%)
-                      <input
-                        type="number"
-                        step="0.1"
-                        value="10"
-                        data-monte-vol
-                      />
+                      <input type="number" step="0.1" value="10" data-monte-vol />
                     </label>
                     <label>
                       Inflation (%)
-                      <input
-                        type="number"
-                        step="0.1"
-                        value="2.5"
-                        data-monte-inflation
-                      />
+                      <input type="number" step="0.1" value="2.5" data-monte-inflation />
                     </label>
                     <label>
                       Annual fee (%)
-                      <input
-                        type="number"
-                        step="0.1"
-                        value="0.6"
-                        data-monte-fee
-                      />
+                      <input type="number" step="0.1" value="0.6" data-monte-fee />
                     </label>
                     <label>
                       Target value
-                      <input
-                        type="number"
-                        min="0"
-                        step="100"
-                        value="100000"
-                        data-monte-target
-                      />
+                      <input type="number" min="0" step="100" value="100000" data-monte-target />
                     </label>
                     <label>
                       Simulations
-                      <input
-                        type="number"
-                        min="100"
-                        max="5000"
-                        step="50"
-                        value="500"
-                        data-monte-runs
-                      />
+                      <input type="number" min="100" max="5000" step="50" value="500" data-monte-runs />
                     </label>
                     <button class="btn primary full" type="button" data-monte-run>
-                      Run projection
+                      Run Simulation
                     </button>
                   </form>
-                  <div class="monte-output" data-monte-output>
-                    Projected range: £0 - £0
+                  <div class="monte-results">
+                    <div class="monte-output" data-monte-output>
+                      Projected range: £0 - £0
+                    </div>
+                    <div class="monte-stats">
+                      <div>
+                        <p class="metric-label">Simulations</p>
+                        <p class="metric-value" data-monte-sims>500</p>
+                      </div>
+                      <div>
+                        <p class="metric-label">Hit Target</p>
+                        <p class="metric-value" data-monte-hit>0%</p>
+                      </div>
+                      <div>
+                        <p class="metric-label">Real Return</p>
+                        <p class="metric-value" data-monte-real>0%</p>
+                      </div>
+                    </div>
+                    <p class="muted" data-assumptions-updated>Assumptions updated: --</p>
+                    <div class="monte-chart-wrap">
+                      <h4>Distribution of Outcomes</h4>
+                      <div class="monte-bars" data-monte-bars></div>
+                      <div class="monte-percentiles">
+                        <span class="percentile p10" data-monte-p10>10th: £0</span>
+                        <span class="percentile p50" data-monte-p50>50th: £0</span>
+                        <span class="percentile p90" data-monte-p90>90th: £0</span>
+                      </div>
+                    </div>
+                    <div class="monte-report" data-monte-report style="display: none;">
+                      <h4>Simulation Report</h4>
+                      <div class="report-content" data-report-content></div>
+                      <button class="btn ghost" type="button" data-download-report>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        Download Report
+                      </button>
+                    </div>
                   </div>
-                  <div class="monte-stats">
-                    <div>
-                      <p class="metric-label">Simulations</p>
-                      <p class="metric-value" data-monte-sims>500</p>
-                    </div>
-                    <div>
-                      <p class="metric-label">Hit target</p>
-                      <p class="metric-value" data-monte-hit>0%</p>
-                    </div>
-                    <div>
-                      <p class="metric-label">Real return used</p>
-                      <p class="metric-value" data-monte-real>0%</p>
-                    </div>
-                  </div>
-                  <p class="muted" data-assumptions-updated>
-                    Assumptions updated: --
-                  </p>
-                  <div class="monte-bars" data-monte-bars></div>
                 </div>
               </div>
               <div class="panel-row">
                 <div class="panel-card converter-card">
-                  <h3>Currency converter</h3>
+                  <h3>Currency Converter</h3>
                   <label>
                     Amount
-                    <input
-                      type="number"
-                      min="0"
-                      value="120"
-                      data-converter-amount
-                    />
+                    <input type="number" min="0" value="120" data-converter-amount />
                   </label>
                   <div class="converter-row">
                     <label>
@@ -858,13 +1433,11 @@
                         <option value="CAD">CAD</option>
                       </select>
                     </label>
-                    <button
-                      class="swap"
-                      type="button"
-                      aria-label="Swap currencies"
-                      data-converter-swap
-                    >
-                      Swap
+                    <button class="swap" type="button" aria-label="Swap currencies" data-converter-swap>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/>
+                        <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
+                      </svg>
                     </button>
                     <label>
                       To
@@ -884,10 +1457,9 @@
                   <p class="muted" data-fx-updated>Rates updated: --</p>
                 </div>
                 <div class="panel-card">
-                  <h3>Value finder</h3>
+                  <h3>Value Finder</h3>
                   <p>
-                    We alert you to better value on big purchases and surface
-                    hidden fees before you pay.
+                    We alert you to better value on big purchases and surface hidden fees.
                   </p>
                   <div class="pill-row">
                     <span>Lost balance scan</span>
@@ -900,31 +1472,32 @@
 
             <div class="tab-panel" data-tab="goals">
               <div class="panel-card">
-                <h3>Your active goals</h3>
+                <h3>Your Active Goals</h3>
                 <p class="muted">
-                  Edit targets below to update progress and delays.
+                  Edit targets and track your progress towards financial freedom.
                 </p>
                 <div class="goal-list" data-app-goals></div>
               </div>
-              <div class="panel-card">
-                <h3>Stay motivated</h3>
+              <div class="panel-card motivation-card">
+                <h3>Stay Motivated</h3>
                 <p>
-                  Set shared family milestones and celebrate streaks together.
+                  Set shared family milestones and celebrate your wins together.
                 </p>
                 <div class="progress">
                   <span style="width: 65%"></span>
                 </div>
+                <p class="muted">You're 65% closer to your first milestone!</p>
               </div>
             </div>
 
             <div class="tab-panel" data-tab="rewards">
               <div class="panel-grid">
-                <div class="panel-card">
-                  <h3>Rewards wallet</h3>
+                <div class="panel-card rewards-main">
+                  <h3>Rewards Wallet</h3>
                   <p class="card-value">
                     <span data-rewards-points>620</span> points
                   </p>
-                  <p class="muted">Store, share, and redeem when ready.</p>
+                  <p class="muted">Earn points for hitting savings targets</p>
                   <div class="pill-row">
                     <span>Travel perks</span>
                     <span>Home savings</span>
@@ -932,11 +1505,11 @@
                   </div>
                 </div>
                 <div class="panel-card">
-                  <h3>Recognition streak</h3>
+                  <h3>Streak</h3>
                   <p class="card-value">
                     <span data-rewards-streak>12</span> days
                   </p>
-                  <p class="muted">Next reward unlocks tomorrow.</p>
+                  <p class="muted">Keep your streak going for bonus points!</p>
                 </div>
               </div>
             </div>
@@ -944,9 +1517,9 @@
             <div class="tab-panel" data-tab="family">
               <div class="panel-grid">
                 <div class="panel-card">
-                  <h3>Shared goals</h3>
+                  <h3>Shared Goals</h3>
                   <p>
-                    Invite family members and link goals to shared milestones.
+                    Invite family members and work towards common goals together.
                   </p>
                   <div class="pill-row">
                     <span>Family trip</span>
@@ -955,22 +1528,20 @@
                   </div>
                 </div>
                 <div class="panel-card">
-                  <h3>Family vault</h3>
+                  <h3>Family Vault</h3>
                   <p>
-                    Store and share documents, policies, and emergency plans in
-                    one place.
+                    Store and share important documents securely.
                   </p>
                   <button class="btn secondary" type="button">
-                    Add a family member
+                    Add Family Member
                   </button>
                 </div>
                 <div class="panel-card">
-                  <h3>Learning together</h3>
+                  <h3>Learning Together</h3>
                   <p>
-                    Make planning relatable with shared lessons and money
-                    moments.
+                    Make financial planning fun with shared lessons.
                   </p>
-                  <p class="muted">Next family check-in: Sunday 7pm.</p>
+                  <p class="muted">Next family check-in: Sunday 7pm</p>
                 </div>
               </div>
             </div>
@@ -978,7 +1549,7 @@
             <div class="tab-panel" data-tab="profile">
               <div class="panel-grid">
                 <div class="panel-card">
-                  <h3>Money persona</h3>
+                  <h3>Money Persona</h3>
                   <p class="card-value" data-profile-persona>Builder</p>
                   <p class="muted" data-profile-copy>
                     Structure and automation keep you on track.
@@ -986,51 +1557,43 @@
                   <div class="persona-tags" data-profile-tags></div>
                 </div>
                 <div class="panel-card">
-                  <h3>Editable snapshot</h3>
+                  <h3>Update Your Details</h3>
                   <p class="muted">
-                    Update values to refresh dashboards, confidence, and goals.
+                    Changes here refresh all calculations.
                   </p>
-                  <div class="form-grid">
+                  <div class="form-grid compact">
                     <label>
-                      Monthly income
-                      <input type="number" min="0" data-field="income" />
+                      Annual Salary
+                      <input type="number" min="0" data-field="annualSalary" />
                     </label>
                     <label>
-                      Essential expenses
-                      <input type="number" min="0" data-field="essentials" />
-                    </label>
-                    <label>
-                      Debt payments
-                      <input type="number" min="0" data-field="debt" />
-                    </label>
-                    <label>
-                      Total savings
+                      Total Savings
                       <input type="number" min="0" data-field="savings" />
                     </label>
                     <label>
-                      Rewards points
+                      Rewards Points
                       <input type="number" min="0" data-field="rewardPoints" />
                     </label>
                     <label>
-                      Streak days
+                      Streak Days
                       <input type="number" min="0" data-field="rewardStreak" />
                     </label>
                   </div>
                 </div>
                 <div class="panel-card">
-                  <h3>Learning feed</h3>
-                  <p>
+                  <h3>Learning Feed</h3>
+                  <p class="spark-quote">
                     "Build the buffer first. Then invest with confidence."
                   </p>
-                  <p class="muted">Matched to your focus area.</p>
+                  <p class="muted">Matched to your focus area</p>
                 </div>
                 <div class="panel-card">
-                  <h3>Protection check</h3>
+                  <h3>Protection Check</h3>
                   <p>
-                    Review your family coverage gaps with a guided checklist.
+                    Review your family coverage gaps.
                   </p>
                   <button class="btn secondary" type="button">
-                    Start protection review
+                    Start Review
                   </button>
                 </div>
               </div>

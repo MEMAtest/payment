@@ -72,6 +72,56 @@ const UK_TAX = {
   studentLoanRate: 0.09,
 };
 
+// Scottish tax rates 2024/25
+const SCOTTISH_TAX = {
+  starterRate: 0.19,
+  starterLimit: 14876,
+  basicRate: 0.20,
+  basicLimit: 26561,
+  intermediateRate: 0.21,
+  intermediateLimit: 43662,
+  higherRate: 0.42,
+  higherLimit: 75000,
+  advancedRate: 0.45,
+  advancedLimit: 125140,
+  topRate: 0.48,
+};
+
+// Parse UK tax code to extract allowance and flags
+function parseTaxCode(code) {
+  if (!code) return { allowance: UK_TAX.personalAllowance, isScottish: false, isWelsh: false, isEmergency: false, specialCode: null };
+
+  const cleaned = code.toUpperCase().replace(/\s+/g, "").replace(/W1$|M1$|X$/i, "");
+  const isEmergency = /W1$|M1$|X$/i.test(code.toUpperCase());
+  const isScottish = cleaned.startsWith("S");
+  const isWelsh = cleaned.startsWith("C");
+  const taxCode = cleaned.replace(/^[SC]/, "");
+
+  // Special codes with no personal allowance
+  if (taxCode === "BR") return { allowance: 0, isScottish, isWelsh, isEmergency, specialCode: "BR", description: "Basic rate on all income" };
+  if (taxCode === "D0") return { allowance: 0, isScottish, isWelsh, isEmergency, specialCode: "D0", description: "Higher rate (40%) on all income" };
+  if (taxCode === "D1") return { allowance: 0, isScottish, isWelsh, isEmergency, specialCode: "D1", description: "Additional rate (45%) on all income" };
+  if (taxCode === "NT") return { allowance: Infinity, isScottish, isWelsh, isEmergency, specialCode: "NT", description: "No tax deducted" };
+  if (taxCode === "0T") return { allowance: 0, isScottish, isWelsh, isEmergency, specialCode: "0T", description: "No personal allowance" };
+
+  // K codes (negative allowance - you owe tax on benefits)
+  const kMatch = taxCode.match(/^K(\d+)$/);
+  if (kMatch) {
+    const negativeAllowance = parseInt(kMatch[1], 10) * 10 * -1;
+    return { allowance: negativeAllowance, isScottish, isWelsh, isEmergency, specialCode: "K", description: "Tax code includes benefits/debts" };
+  }
+
+  // Standard codes (1257L, 1185L, etc.)
+  const standardMatch = taxCode.match(/^(\d+)[LMNPTY]$/);
+  if (standardMatch) {
+    const allowance = parseInt(standardMatch[1], 10) * 10;
+    return { allowance, isScottish, isWelsh, isEmergency, specialCode: null, description: null };
+  }
+
+  // Default to standard allowance if code not recognized
+  return { allowance: UK_TAX.personalAllowance, isScottish, isWelsh, isEmergency, specialCode: null, description: "Code not recognized, using default" };
+}
+
 const STORAGE_KEY = "consumerpay_state_v1";
 const DEVICE_KEY = "consumerpay_device_id";
 const FX_CACHE_KEY = "consumerpay_fx_cache_v1";
@@ -87,6 +137,7 @@ const defaultState = {
   horizon: "short",
   persona: "builder",
   annualSalary: 0,
+  taxCode: "",
   studentLoan: false,
   pensionContrib: false,
   income: 0,
@@ -211,9 +262,13 @@ function getDeviceId() {
 }
 
 // UK Salary Calculator
-function calculateUKTax(annualSalary, hasStudentLoan = false, hasPension = false) {
+function calculateUKTax(annualSalary, hasStudentLoan = false, hasPension = false, taxCode = "") {
   let taxableIncome = annualSalary;
   let pensionDeduction = 0;
+
+  // Parse tax code
+  const parsed = parseTaxCode(taxCode);
+  const isScottish = parsed.isScottish;
 
   // Pension contribution (5% of gross)
   if (hasPension) {
@@ -221,39 +276,76 @@ function calculateUKTax(annualSalary, hasStudentLoan = false, hasPension = false
     taxableIncome = annualSalary - pensionDeduction;
   }
 
-  // Personal allowance reduction for high earners (based on gross income, not post-pension)
-  let personalAllowance = UK_TAX.personalAllowance;
-  if (annualSalary > 100000) {
+  // Personal allowance - use from tax code or calculate with taper
+  let personalAllowance = parsed.allowance;
+
+  // If no tax code provided, apply standard taper for high earners
+  if (!taxCode && annualSalary > 100000) {
     const reduction = Math.floor((annualSalary - 100000) / 2);
-    personalAllowance = Math.max(0, personalAllowance - reduction);
+    personalAllowance = Math.max(0, UK_TAX.personalAllowance - reduction);
   }
 
-  // Income Tax calculation
+  // Handle special codes
   let incomeTax = 0;
-  const taxableAfterAllowance = Math.max(0, taxableIncome - personalAllowance);
+  let taxBand = "Personal Allowance (0%)";
 
-  if (taxableAfterAllowance > 0) {
-    // Basic rate
-    const basicBand = Math.min(taxableAfterAllowance, UK_TAX.basicRateLimit - UK_TAX.personalAllowance);
-    incomeTax += basicBand * UK_TAX.basicRate;
+  if (parsed.specialCode === "NT") {
+    // No tax
+    incomeTax = 0;
+    taxBand = "NT (No Tax)";
+  } else if (parsed.specialCode === "BR") {
+    // All income at basic rate
+    incomeTax = taxableIncome * UK_TAX.basicRate;
+    taxBand = "BR (Basic Rate Only)";
+  } else if (parsed.specialCode === "D0") {
+    // All income at higher rate
+    incomeTax = taxableIncome * UK_TAX.higherRate;
+    taxBand = "D0 (Higher Rate Only)";
+  } else if (parsed.specialCode === "D1") {
+    // All income at additional rate
+    incomeTax = taxableIncome * UK_TAX.additionalRate;
+    taxBand = "D1 (Additional Rate Only)";
+  } else if (isScottish) {
+    // Scottish tax calculation
+    const taxableAfterAllowance = Math.max(0, taxableIncome - personalAllowance);
+    incomeTax = calculateScottishTax(taxableAfterAllowance);
+    taxBand = getScottishTaxBand(taxableAfterAllowance);
+  } else {
+    // Standard UK tax calculation
+    const taxableAfterAllowance = Math.max(0, taxableIncome - personalAllowance);
 
-    // Higher rate
-    if (taxableAfterAllowance > UK_TAX.basicRateLimit - UK_TAX.personalAllowance) {
-      const higherBand = Math.min(
-        taxableAfterAllowance - (UK_TAX.basicRateLimit - UK_TAX.personalAllowance),
-        UK_TAX.higherRateLimit - UK_TAX.basicRateLimit
-      );
-      incomeTax += higherBand * UK_TAX.higherRate;
-    }
+    if (taxableAfterAllowance > 0) {
+      // Basic rate
+      const basicBand = Math.min(taxableAfterAllowance, UK_TAX.basicRateLimit - UK_TAX.personalAllowance);
+      incomeTax += basicBand * UK_TAX.basicRate;
 
-    // Additional rate
-    if (taxableAfterAllowance > UK_TAX.higherRateLimit - UK_TAX.personalAllowance) {
-      const additionalBand = taxableAfterAllowance - (UK_TAX.higherRateLimit - UK_TAX.personalAllowance);
-      incomeTax += additionalBand * UK_TAX.additionalRate;
+      // Higher rate
+      if (taxableAfterAllowance > UK_TAX.basicRateLimit - UK_TAX.personalAllowance) {
+        const higherBand = Math.min(
+          taxableAfterAllowance - (UK_TAX.basicRateLimit - UK_TAX.personalAllowance),
+          UK_TAX.higherRateLimit - UK_TAX.basicRateLimit
+        );
+        incomeTax += higherBand * UK_TAX.higherRate;
+      }
+
+      // Additional rate
+      if (taxableAfterAllowance > UK_TAX.higherRateLimit - UK_TAX.personalAllowance) {
+        const additionalBand = taxableAfterAllowance - (UK_TAX.higherRateLimit - UK_TAX.personalAllowance);
+        incomeTax += additionalBand * UK_TAX.additionalRate;
+      }
+
+      // Determine tax band
+      if (taxableAfterAllowance > UK_TAX.higherRateLimit - UK_TAX.personalAllowance) {
+        taxBand = "Additional Rate (45%)";
+      } else if (taxableAfterAllowance > UK_TAX.basicRateLimit - UK_TAX.personalAllowance) {
+        taxBand = "Higher Rate (40%)";
+      } else {
+        taxBand = "Basic Rate (20%)";
+      }
     }
   }
 
-  // National Insurance
+  // National Insurance (same for all UK)
   let nationalInsurance = 0;
   if (annualSalary > UK_TAX.niThreshold) {
     const niBaseBand = Math.min(annualSalary - UK_TAX.niThreshold, UK_TAX.niUpperLimit - UK_TAX.niThreshold);
@@ -273,14 +365,9 @@ function calculateUKTax(annualSalary, hasStudentLoan = false, hasPension = false
   const totalDeductions = incomeTax + nationalInsurance + studentLoan + pensionDeduction;
   const netAnnual = annualSalary - totalDeductions;
 
-  // Determine tax band
-  let taxBand = "Personal Allowance (0%)";
-  if (taxableAfterAllowance > UK_TAX.higherRateLimit - UK_TAX.personalAllowance) {
-    taxBand = "Additional Rate (45%)";
-  } else if (taxableAfterAllowance > UK_TAX.basicRateLimit - UK_TAX.personalAllowance) {
-    taxBand = "Higher Rate (40%)";
-  } else if (taxableAfterAllowance > 0) {
-    taxBand = "Basic Rate (20%)";
+  // Add Scottish/Welsh indicator to band
+  if (isScottish && !parsed.specialCode) {
+    taxBand = "Scottish " + taxBand;
   }
 
   return {
@@ -297,12 +384,68 @@ function calculateUKTax(annualSalary, hasStudentLoan = false, hasPension = false
     monthlyPension: pensionDeduction / 12,
     monthlyNet: netAnnual / 12,
     taxBand,
+    taxCodeInfo: parsed.description,
+    personalAllowance,
   };
+}
+
+// Calculate Scottish income tax
+function calculateScottishTax(taxableIncome) {
+  if (taxableIncome <= 0) return 0;
+
+  let tax = 0;
+  let remaining = taxableIncome;
+
+  // Starter rate (19%)
+  const starterBand = Math.min(remaining, SCOTTISH_TAX.starterLimit);
+  tax += starterBand * SCOTTISH_TAX.starterRate;
+  remaining -= starterBand;
+  if (remaining <= 0) return tax;
+
+  // Basic rate (20%)
+  const basicBand = Math.min(remaining, SCOTTISH_TAX.basicLimit - SCOTTISH_TAX.starterLimit);
+  tax += basicBand * SCOTTISH_TAX.basicRate;
+  remaining -= basicBand;
+  if (remaining <= 0) return tax;
+
+  // Intermediate rate (21%)
+  const intermediateBand = Math.min(remaining, SCOTTISH_TAX.intermediateLimit - SCOTTISH_TAX.basicLimit);
+  tax += intermediateBand * SCOTTISH_TAX.intermediateRate;
+  remaining -= intermediateBand;
+  if (remaining <= 0) return tax;
+
+  // Higher rate (42%)
+  const higherBand = Math.min(remaining, SCOTTISH_TAX.higherLimit - SCOTTISH_TAX.intermediateLimit);
+  tax += higherBand * SCOTTISH_TAX.higherRate;
+  remaining -= higherBand;
+  if (remaining <= 0) return tax;
+
+  // Advanced rate (45%)
+  const advancedBand = Math.min(remaining, SCOTTISH_TAX.advancedLimit - SCOTTISH_TAX.higherLimit);
+  tax += advancedBand * SCOTTISH_TAX.advancedRate;
+  remaining -= advancedBand;
+  if (remaining <= 0) return tax;
+
+  // Top rate (48%)
+  tax += remaining * SCOTTISH_TAX.topRate;
+
+  return tax;
+}
+
+// Get Scottish tax band label
+function getScottishTaxBand(taxableIncome) {
+  if (taxableIncome <= 0) return "Personal Allowance (0%)";
+  if (taxableIncome <= SCOTTISH_TAX.starterLimit) return "Starter Rate (19%)";
+  if (taxableIncome <= SCOTTISH_TAX.basicLimit) return "Basic Rate (20%)";
+  if (taxableIncome <= SCOTTISH_TAX.intermediateLimit) return "Intermediate Rate (21%)";
+  if (taxableIncome <= SCOTTISH_TAX.higherLimit) return "Higher Rate (42%)";
+  if (taxableIncome <= SCOTTISH_TAX.advancedLimit) return "Advanced Rate (45%)";
+  return "Top Rate (48%)";
 }
 
 function updateSalaryBreakdown() {
   const salary = state.annualSalary || 0;
-  const calc = calculateUKTax(salary, state.studentLoan, state.pensionContrib);
+  const calc = calculateUKTax(salary, state.studentLoan, state.pensionContrib, state.taxCode);
 
   // Update income in state
   state.income = Math.round(calc.monthlyNet);
@@ -322,6 +465,25 @@ function updateSalaryBreakdown() {
   const pensionRow = document.querySelector("[data-pension-row]");
   if (studentRow) studentRow.style.display = state.studentLoan ? "flex" : "none";
   if (pensionRow) pensionRow.style.display = state.pensionContrib ? "flex" : "none";
+
+  // Update tax code hint
+  const taxCodeHint = document.querySelector("[data-tax-code-hint]");
+  if (taxCodeHint) {
+    const parsed = parseTaxCode(state.taxCode);
+    taxCodeHint.classList.remove("is-scottish", "is-special");
+
+    if (!state.taxCode) {
+      taxCodeHint.textContent = "Found on your payslip";
+    } else if (parsed.description) {
+      taxCodeHint.textContent = parsed.description;
+      if (parsed.specialCode) taxCodeHint.classList.add("is-special");
+    } else if (parsed.isScottish) {
+      taxCodeHint.textContent = `Scottish taxpayer • £${parsed.allowance.toLocaleString()} allowance`;
+      taxCodeHint.classList.add("is-scottish");
+    } else {
+      taxCodeHint.textContent = `£${parsed.allowance.toLocaleString()} personal allowance`;
+    }
+  }
 
   // Update ring chart
   updateSalaryRing(calc);
@@ -438,6 +600,7 @@ function sanitizeState(raw) {
     : defaultState.persona;
 
   safe.annualSalary = Math.max(0, Math.min(Number(safe.annualSalary) || 0, 10000000));
+  safe.taxCode = typeof safe.taxCode === "string" ? safe.taxCode.toUpperCase().trim() : "";
   safe.studentLoan = Boolean(safe.studentLoan);
   safe.pensionContrib = Boolean(safe.pensionContrib);
   safe.income = Number(safe.income) || 0;
@@ -1576,6 +1739,9 @@ function attachEventListeners() {
         updateSalaryBreakdown();
       } else if (field === "pensionContrib") {
         state.pensionContrib = el.checked;
+        updateSalaryBreakdown();
+      } else if (field === "taxCode") {
+        state.taxCode = el.value.toUpperCase().trim();
         updateSalaryBreakdown();
       } else if (field === "savings") {
         state.savings = Number(el.value) || 0;

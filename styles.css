@@ -573,6 +573,65 @@ textarea {
   font-size: 0.9rem;
 }
 
+/* Tax Code Input */
+.tax-code-label {
+  display: block;
+  margin-top: 20px;
+}
+
+.tax-code-label .optional {
+  font-weight: 400;
+  color: var(--ink-muted);
+  font-size: 0.85em;
+}
+
+.tax-code-input-wrap {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 8px;
+}
+
+.tax-code-input {
+  width: 120px;
+  padding: 12px 16px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  border: 2px solid rgba(24, 35, 39, 0.1);
+  border-radius: 12px;
+  background: var(--white);
+  transition: all var(--transition);
+  letter-spacing: 1px;
+}
+
+.tax-code-input:focus {
+  outline: none;
+  border-color: var(--sea);
+  box-shadow: 0 0 0 4px var(--sea-light);
+}
+
+.tax-code-input::placeholder {
+  color: var(--ink-muted);
+  opacity: 0.5;
+  font-weight: 400;
+}
+
+.tax-code-hint {
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+}
+
+.tax-code-hint.is-scottish {
+  color: var(--purple);
+  font-weight: 500;
+}
+
+.tax-code-hint.is-special {
+  color: var(--coral);
+  font-weight: 500;
+}
+
 .tax-options {
   display: flex;
   gap: 20px;

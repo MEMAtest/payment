@@ -1208,17 +1208,39 @@
                   <ul class="alert-list" data-alert-list></ul>
                 </div>
 
-                <div class="panel-card" data-widget="vulnerabilities">
+                <div class="panel-card protection-check-card" data-widget="vulnerabilities" data-protection-check>
                   <h3>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
                     </svg>
-                    Risk Radar
+                    Protection Check
                   </h3>
-                  <ul class="vuln-list" data-vulnerability-list></ul>
-                  <div class="vuln-score">
-                    <p class="muted">Overall Risk Level</p>
-                    <p class="card-value" data-vulnerability-score>Low</p>
+
+                  <div class="protection-gauge">
+                    <div class="gauge-ring">
+                      <svg viewBox="0 0 100 100">
+                        <circle class="gauge-bg" cx="50" cy="50" r="42" />
+                        <circle class="gauge-fill" cx="50" cy="50" r="42" data-protection-gauge-fill />
+                      </svg>
+                      <div class="gauge-center">
+                        <span class="gauge-value" data-protection-score>0</span>
+                        <span class="gauge-max">/100</span>
+                      </div>
+                    </div>
+                    <p class="protection-label" data-protection-label>Calculating...</p>
+                  </div>
+
+                  <div class="protection-categories" data-protection-categories>
+                  </div>
+
+                  <div class="protection-section">
+                    <h4>Issues</h4>
+                    <ul class="protection-issues" data-protection-issues></ul>
+                  </div>
+
+                  <div class="protection-section">
+                    <h4>Recommendations</h4>
+                    <ul class="protection-tips" data-protection-tips></ul>
                   </div>
                 </div>
 

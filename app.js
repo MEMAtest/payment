@@ -39,6 +39,13 @@ const GOAL_COLORS = [
   "#457b9d", // blue
 ];
 
+// Validate color is safe for inline styles (prevent CSS injection)
+function safeColor(color) {
+  if (!color) return GOAL_COLORS[0];
+  if (GOAL_COLORS.includes(color)) return color;
+  return /^#[0-9A-Fa-f]{6}$/.test(color) ? color : GOAL_COLORS[0];
+}
+
 const FUTURE_SCENARIOS = {
   pause_investing: {
     monthsLabel: "Pause length (months)",
@@ -859,6 +866,10 @@ function updateSummary() {
 
 // Goal Engine v2
 function calculateGoalETA(goal) {
+  if (!goal || typeof goal !== "object") {
+    return { months: 0, date: null, status: "invalid" };
+  }
+
   const saved = Number(goal.saved) || 0;
   const target = Number(goal.target) || 0;
   const monthly = Number(goal.monthly) || 0;
@@ -874,7 +885,11 @@ function calculateGoalETA(goal) {
   // Check against target date if set
   if (goal.targetDate) {
     const targetDate = new Date(goal.targetDate);
-    const monthsToTarget = Math.max(0, Math.ceil((targetDate - new Date()) / (30 * 24 * 60 * 60 * 1000)));
+    const now = new Date();
+    const monthsToTarget = Math.max(
+      0,
+      (targetDate.getFullYear() - now.getFullYear()) * 12 + targetDate.getMonth() - now.getMonth()
+    );
     const requiredMonthly = monthsToTarget > 0 ? Math.ceil(remaining / monthsToTarget) : remaining;
 
     return {
@@ -988,7 +1003,7 @@ function updateGoalList() {
     const monthly = Number(goal.monthly) || 0;
     const progress = target ? Math.min(100, Math.round((saved / target) * 100)) : 0;
     const eta = calculateGoalETA(goal);
-    const color = goal.color || GOAL_COLORS[displayIdx % GOAL_COLORS.length];
+    const color = safeColor(goal.color || GOAL_COLORS[displayIdx % GOAL_COLORS.length]);
 
     let statusHtml = "";
     let etaLabel = "";
@@ -1116,30 +1131,36 @@ function attachGoalInputListeners() {
 
     if (targetInput) {
       targetInput.addEventListener("input", () => {
-        state.goals[index].target = Number(targetInput.value) || 0;
+        state.goals[index].target = Math.max(0, Number(targetInput.value) || 0);
         scheduleSave();
+      });
+      targetInput.addEventListener("change", () => {
         updateGoalList();
       });
     }
     if (savedInput) {
       savedInput.addEventListener("input", () => {
-        state.goals[index].saved = Number(savedInput.value) || 0;
+        state.goals[index].saved = Math.max(0, Number(savedInput.value) || 0);
         scheduleSave();
+      });
+      savedInput.addEventListener("change", () => {
         updateGoalList();
       });
     }
     if (monthlyInput) {
       monthlyInput.addEventListener("input", () => {
-        const value = Number(monthlyInput.value) || 0;
+        const value = Math.max(0, Number(monthlyInput.value) || 0);
         state.goals[index].monthly = value;
         if (monthlySlider) monthlySlider.value = value;
         scheduleSave();
+      });
+      monthlyInput.addEventListener("change", () => {
         updateGoalList();
       });
     }
     if (monthlySlider) {
       monthlySlider.addEventListener("input", () => {
-        const value = Number(monthlySlider.value) || 0;
+        const value = Math.max(0, Number(monthlySlider.value) || 0);
         state.goals[index].monthly = value;
         if (monthlyInput) monthlyInput.value = value;
         scheduleSave();
@@ -1463,7 +1484,7 @@ function updateVulnerabilityPanel() {
     vulnList.innerHTML = '<li class="vuln-item"><span>No major vulnerabilities detected</span><span class="severity low">Good</span></li>';
   } else {
     vulnList.innerHTML = vulns
-      .map((v) => `<li class="vuln-item"><span>${v.text}</span><span class="severity ${v.severity}">${v.severity}</span></li>`)
+      .map((v) => `<li class="vuln-item"><span>${escapeHtml(v.text)}</span><span class="severity ${escapeHtml(v.severity)}">${escapeHtml(v.severity)}</span></li>`)
       .join("");
   }
 
@@ -1495,7 +1516,7 @@ function updateAlertList() {
 
   const upcomingGoals = state.goals.filter((g) => g.target && g.saved >= g.target * 0.9 && g.saved < g.target);
   upcomingGoals.forEach((g) => {
-    alerts.push({ title: `${g.name} almost reached`, date: "Nearly there!", severity: "low" });
+    alerts.push({ title: `${escapeHtml(g.name)} almost reached`, date: "Nearly there!", severity: "low" });
   });
 
   if (alerts.length === 0) {
@@ -1506,10 +1527,10 @@ function updateAlertList() {
         (a) => `
         <li class="alert-item">
           <div>
-            <p class="alert-title">${a.title}</p>
-            <p class="muted">${a.date}</p>
+            <p class="alert-title">${escapeHtml(a.title)}</p>
+            <p class="muted">${escapeHtml(a.date)}</p>
           </div>
-          <span class="severity ${a.severity}">${a.severity}</span>
+          <span class="severity ${escapeHtml(a.severity)}">${escapeHtml(a.severity)}</span>
         </li>
       `
       )

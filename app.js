@@ -194,6 +194,12 @@ function setTextAll(selector, value) {
   });
 }
 
+function escapeHtml(text) {
+  const div = document.createElement("div");
+  div.textContent = text;
+  return div.innerHTML;
+}
+
 function getDeviceId() {
   const existing = localStorage.getItem(DEVICE_KEY);
   if (existing) return existing;
@@ -215,10 +221,10 @@ function calculateUKTax(annualSalary, hasStudentLoan = false, hasPension = false
     taxableIncome = annualSalary - pensionDeduction;
   }
 
-  // Personal allowance reduction for high earners
+  // Personal allowance reduction for high earners (based on gross income, not post-pension)
   let personalAllowance = UK_TAX.personalAllowance;
-  if (taxableIncome > 100000) {
-    const reduction = Math.floor((taxableIncome - 100000) / 2);
+  if (annualSalary > 100000) {
+    const reduction = Math.floor((annualSalary - 100000) / 2);
     personalAllowance = Math.max(0, personalAllowance - reduction);
   }
 
@@ -431,7 +437,7 @@ function sanitizeState(raw) {
     ? safe.persona
     : defaultState.persona;
 
-  safe.annualSalary = Number(safe.annualSalary) || 0;
+  safe.annualSalary = Math.max(0, Math.min(Number(safe.annualSalary) || 0, 10000000));
   safe.studentLoan = Boolean(safe.studentLoan);
   safe.pensionContrib = Boolean(safe.pensionContrib);
   safe.income = Number(safe.income) || 0;
@@ -516,7 +522,12 @@ function saveLocalState() {
     const payload = serializeState();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
   } catch (error) {
-    // Ignore storage failures
+    console.warn("Failed to save to localStorage:", error.message);
+    // Show user notification if storage is full
+    if (error.name === "QuotaExceededError" || error.code === 22) {
+      const notification = document.querySelector("[data-storage-warning]");
+      if (notification) notification.classList.remove("is-hidden");
+    }
   }
 }
 
@@ -698,7 +709,7 @@ function updateGoalList() {
       <div class="goal-item" data-goal-index="${index}">
         <div class="goal-row">
           <div>
-            <p class="card-title">${goal.name}</p>
+            <p class="card-title">${escapeHtml(goal.name)}</p>
             <p class="muted">${timelineLabel}</p>
           </div>
           <input class="goal-input" type="number" min="0" step="100" placeholder="Target" value="${targetValue}" data-goal-target-input />
@@ -1558,7 +1569,7 @@ function attachEventListeners() {
 
     el.addEventListener(event, () => {
       if (field === "annualSalary") {
-        state.annualSalary = Number(el.value) || 0;
+        state.annualSalary = Math.max(0, Math.min(Number(el.value) || 0, 10000000));
         updateSalaryBreakdown();
       } else if (field === "studentLoan") {
         state.studentLoan = el.checked;

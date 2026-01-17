@@ -27,3 +27,6 @@ ui-debug.log
 # Build output
 dist/
 build/
+
+# Local Netlify folder
+.netlify

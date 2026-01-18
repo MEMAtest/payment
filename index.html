@@ -991,6 +991,12 @@
                 </svg>
                 Family
               </button>
+              <button class="nav-item" type="button" data-tab-target="learn">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/>
+                </svg>
+                Learn
+              </button>
               <button class="nav-item" type="button" data-tab-target="profile">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
@@ -1065,6 +1071,48 @@
                     <span data-rewards-points>620</span> pts
                   </p>
                   <p class="muted">Keep saving to earn more!</p>
+                </div>
+              </div>
+
+              <!-- Money Mood Tracker -->
+              <div class="panel-card wide mood-tracker-card">
+                <div class="mood-header">
+                  <div class="mood-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+                    </svg>
+                  </div>
+                  <div>
+                    <h3>How's your money mood today?</h3>
+                    <p class="muted">Track your financial confidence over time</p>
+                  </div>
+                </div>
+                <div class="mood-selector" data-mood-selector>
+                  <button type="button" class="mood-btn" data-mood="1" title="Very Stressed">
+                    <span class="mood-emoji">😰</span>
+                    <span class="mood-label">Stressed</span>
+                  </button>
+                  <button type="button" class="mood-btn" data-mood="2" title="Worried">
+                    <span class="mood-emoji">😟</span>
+                    <span class="mood-label">Worried</span>
+                  </button>
+                  <button type="button" class="mood-btn" data-mood="3" title="Neutral">
+                    <span class="mood-emoji">😐</span>
+                    <span class="mood-label">Neutral</span>
+                  </button>
+                  <button type="button" class="mood-btn" data-mood="4" title="Confident">
+                    <span class="mood-emoji">🙂</span>
+                    <span class="mood-label">Good</span>
+                  </button>
+                  <button type="button" class="mood-btn" data-mood="5" title="Excited">
+                    <span class="mood-emoji">😄</span>
+                    <span class="mood-label">Great!</span>
+                  </button>
+                </div>
+                <div class="mood-history" data-mood-history>
+                  <h4>Your Mood Trend</h4>
+                  <div class="mood-chart" data-mood-chart></div>
+                  <p class="mood-insight muted" data-mood-insight>Log your mood to see trends</p>
                 </div>
               </div>
 
@@ -1592,6 +1640,144 @@
               </div>
             </div>
 
+            <!-- Financial Literacy Hub / Learn Tab -->
+            <div class="tab-panel" data-tab="learn">
+              <div class="learn-header">
+                <h2>Financial Literacy Hub</h2>
+                <p class="muted">Build your money knowledge, one lesson at a time</p>
+                <div class="learn-stats">
+                  <div class="learn-stat">
+                    <span class="stat-value" data-learn-completed>0</span>
+                    <span class="stat-label">Completed</span>
+                  </div>
+                  <div class="learn-stat">
+                    <span class="stat-value" data-learn-streak>0</span>
+                    <span class="stat-label">Day Streak</span>
+                  </div>
+                  <div class="learn-stat">
+                    <span class="stat-value" data-learn-points>0</span>
+                    <span class="stat-label">Quiz Points</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="learn-modules">
+                <div class="learn-module" data-module="budgeting">
+                  <div class="module-icon budgeting">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="3" width="20" height="14" rx="2"/><path d="M2 10h20"/>
+                    </svg>
+                  </div>
+                  <div class="module-content">
+                    <h3>Budgeting Basics</h3>
+                    <p>Master the 50/30/20 rule and build a budget that works</p>
+                    <div class="module-progress">
+                      <div class="progress"><span style="width: 0%" data-module-progress="budgeting"></span></div>
+                      <span class="muted">0/4 lessons</span>
+                    </div>
+                  </div>
+                  <button class="btn primary small" type="button" data-start-module="budgeting">Start</button>
+                </div>
+
+                <div class="learn-module" data-module="emergency">
+                  <div class="module-icon emergency">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                  </div>
+                  <div class="module-content">
+                    <h3>Emergency Fund Essentials</h3>
+                    <p>Build your financial safety net step by step</p>
+                    <div class="module-progress">
+                      <div class="progress"><span style="width: 0%" data-module-progress="emergency"></span></div>
+                      <span class="muted">0/3 lessons</span>
+                    </div>
+                  </div>
+                  <button class="btn primary small" type="button" data-start-module="emergency">Start</button>
+                </div>
+
+                <div class="learn-module" data-module="investing">
+                  <div class="module-icon investing">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                  </div>
+                  <div class="module-content">
+                    <h3>Investing 101</h3>
+                    <p>Understand stocks, bonds, and index funds</p>
+                    <div class="module-progress">
+                      <div class="progress"><span style="width: 0%" data-module-progress="investing"></span></div>
+                      <span class="muted">0/5 lessons</span>
+                    </div>
+                  </div>
+                  <button class="btn primary small" type="button" data-start-module="investing">Start</button>
+                </div>
+
+                <div class="learn-module" data-module="debt">
+                  <div class="module-icon debt">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="1" y="4" width="22" height="16" rx="2"/><path d="M1 10h22"/>
+                    </svg>
+                  </div>
+                  <div class="module-content">
+                    <h3>Debt Destruction</h3>
+                    <p>Strategies to eliminate debt faster</p>
+                    <div class="module-progress">
+                      <div class="progress"><span style="width: 0%" data-module-progress="debt"></span></div>
+                      <span class="muted">0/4 lessons</span>
+                    </div>
+                  </div>
+                  <button class="btn primary small" type="button" data-start-module="debt">Start</button>
+                </div>
+
+                <div class="learn-module" data-module="psychology">
+                  <div class="module-icon psychology">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2a10 10 0 1010 10A10 10 0 0012 2zm0 6a2 2 0 11-2 2 2 2 0 012-2zm0 10a8 8 0 01-6.25-3 6 6 0 0112.5 0A8 8 0 0112 18z"/>
+                    </svg>
+                  </div>
+                  <div class="module-content">
+                    <h3>Money Psychology</h3>
+                    <p>Understand your relationship with money</p>
+                    <div class="module-progress">
+                      <div class="progress"><span style="width: 0%" data-module-progress="psychology"></span></div>
+                      <span class="muted">0/3 lessons</span>
+                    </div>
+                  </div>
+                  <button class="btn primary small" type="button" data-start-module="psychology">Start</button>
+                </div>
+              </div>
+
+              <!-- Quiz Modal (hidden by default) -->
+              <div class="quiz-modal" data-quiz-modal hidden>
+                <div class="quiz-container">
+                  <div class="quiz-header">
+                    <h3 data-quiz-title>Quiz</h3>
+                    <button class="quiz-close" type="button" data-quiz-close>&times;</button>
+                  </div>
+                  <div class="quiz-content">
+                    <div class="quiz-lesson" data-quiz-lesson></div>
+                    <div class="quiz-question" data-quiz-question>
+                      <p class="question-text" data-question-text></p>
+                      <div class="quiz-options" data-quiz-options></div>
+                    </div>
+                    <div class="quiz-feedback" data-quiz-feedback hidden>
+                      <div class="feedback-icon" data-feedback-icon></div>
+                      <p class="feedback-text" data-feedback-text></p>
+                      <p class="feedback-explanation" data-feedback-explanation></p>
+                    </div>
+                  </div>
+                  <div class="quiz-footer">
+                    <div class="quiz-progress">
+                      <span data-quiz-current>1</span> / <span data-quiz-total>3</span>
+                    </div>
+                    <button class="btn primary" type="button" data-quiz-next hidden>Next Question</button>
+                    <button class="btn primary" type="button" data-quiz-finish hidden>Finish Lesson</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
             <div class="tab-panel" data-tab="profile">
               <div class="panel-grid">
                 <div class="panel-card">
@@ -1649,6 +1835,92 @@
         </section>
       </main>
     </div>
+
+    <!-- Confetti Container for Celebrations -->
+    <div class="confetti-container" data-confetti-container></div>
+
+    <!-- Celebration Modal -->
+    <div class="celebration-modal" data-celebration-modal hidden>
+      <div class="celebration-content">
+        <div class="celebration-icon" data-celebration-icon>🎉</div>
+        <h2 class="celebration-title" data-celebration-title>Milestone Reached!</h2>
+        <p class="celebration-message" data-celebration-message>You're making amazing progress!</p>
+        <div class="celebration-badge" data-celebration-badge>
+          <div class="badge-icon">🏆</div>
+          <div class="badge-info">
+            <span class="badge-name" data-badge-name>Achievement Unlocked</span>
+            <span class="badge-desc" data-badge-desc>Keep going!</span>
+          </div>
+        </div>
+        <div class="celebration-stats" data-celebration-stats>
+          <div class="celebration-stat">
+            <span class="stat-value" data-celebration-progress>25%</span>
+            <span class="stat-label">Progress</span>
+          </div>
+          <div class="celebration-stat">
+            <span class="stat-value" data-celebration-saved>£0</span>
+            <span class="stat-label">Saved</span>
+          </div>
+          <div class="celebration-stat">
+            <span class="stat-value" data-celebration-remaining>£0</span>
+            <span class="stat-label">To Go</span>
+          </div>
+        </div>
+        <button class="btn primary" type="button" data-celebration-close>Keep Going!</button>
+        <button class="btn ghost" type="button" data-celebration-share>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/>
+            <line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/>
+          </svg>
+          Share Achievement
+        </button>
+      </div>
+    </div>
+
+    <!-- Budget Planner Modal -->
+    <div class="budget-planner-modal" data-budget-planner-modal hidden>
+      <div class="planner-content">
+        <div class="planner-header">
+          <h2>Budget Reallocation Planner</h2>
+          <p class="muted">Drag sliders to see how changes affect your goals</p>
+          <button class="planner-close" type="button" data-planner-close>&times;</button>
+        </div>
+        <div class="planner-body">
+          <div class="planner-categories" data-planner-categories>
+            <!-- Categories will be populated by JS -->
+          </div>
+          <div class="planner-impact">
+            <h3>Impact Preview</h3>
+            <div class="impact-cards">
+              <div class="impact-card">
+                <span class="impact-label">Monthly Savings</span>
+                <span class="impact-value" data-impact-savings>+£0</span>
+              </div>
+              <div class="impact-card">
+                <span class="impact-label">Goal Timeline</span>
+                <span class="impact-value" data-impact-timeline>No change</span>
+              </div>
+              <div class="impact-card">
+                <span class="impact-label">Emergency Fund</span>
+                <span class="impact-value" data-impact-emergency>+0 months</span>
+              </div>
+            </div>
+            <div class="impact-chart" data-impact-chart></div>
+          </div>
+        </div>
+        <div class="planner-footer">
+          <button class="btn ghost" type="button" data-planner-reset>Reset Changes</button>
+          <button class="btn primary" type="button" data-planner-apply>Apply Changes</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Open Budget Planner button (floating) -->
+    <button class="fab-button" type="button" data-open-planner title="Budget Planner">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M12 20V10M18 20V4M6 20v-4"/>
+      </svg>
+    </button>
 
     <script src="app-config.js" defer></script>
     <script src="firebase-config.js" defer></script>

@@ -2182,6 +2182,805 @@ function updateSmartInsights() {
   }
 }
 
+// =============================================
+// ENGAGEMENT FEATURES
+// =============================================
+
+// Money Mood Tracker
+const MOOD_STORAGE_KEY = "consumerpay_mood_history";
+
+function getMoodHistory() {
+  try {
+    const data = localStorage.getItem(MOOD_STORAGE_KEY);
+    return data ? JSON.parse(data) : [];
+  } catch {
+    return [];
+  }
+}
+
+function saveMoodEntry(mood) {
+  const history = getMoodHistory();
+  const today = new Date().toISOString().split("T")[0];
+
+  // Remove any existing entry for today
+  const filtered = history.filter(entry => entry.date !== today);
+  filtered.push({ date: today, mood, timestamp: Date.now() });
+
+  // Keep last 30 days
+  const cutoff = Date.now() - 30 * 24 * 60 * 60 * 1000;
+  const recent = filtered.filter(entry => entry.timestamp > cutoff);
+
+  localStorage.setItem(MOOD_STORAGE_KEY, JSON.stringify(recent));
+
+  // Award points for logging mood
+  state.rewardPoints += 5;
+  scheduleSave();
+
+  return recent;
+}
+
+function getTodaysMood() {
+  const history = getMoodHistory();
+  const today = new Date().toISOString().split("T")[0];
+  const todayEntry = history.find(entry => entry.date === today);
+  return todayEntry?.mood || null;
+}
+
+function updateMoodChart() {
+  const chart = document.querySelector("[data-mood-chart]");
+  const insight = document.querySelector("[data-mood-insight]");
+  if (!chart) return;
+
+  const history = getMoodHistory();
+  const last7Days = [];
+
+  for (let i = 6; i >= 0; i--) {
+    const date = new Date();
+    date.setDate(date.getDate() - i);
+    const dateStr = date.toISOString().split("T")[0];
+    const entry = history.find(e => e.date === dateStr);
+    const dayName = date.toLocaleDateString("en-GB", { weekday: "short" }).slice(0, 2);
+    last7Days.push({
+      day: dayName,
+      mood: entry?.mood || 0,
+    });
+  }
+
+  chart.innerHTML = last7Days
+    .map(d => `<div class="mood-bar ${d.mood ? `level-${d.mood}` : ""}" data-day="${d.day}"></div>`)
+    .join("");
+
+  // Calculate insight
+  const validMoods = last7Days.filter(d => d.mood > 0);
+  if (validMoods.length === 0) {
+    if (insight) insight.textContent = "Log your mood to see trends";
+  } else {
+    const avg = validMoods.reduce((sum, d) => sum + d.mood, 0) / validMoods.length;
+    const trend = validMoods.length >= 3
+      ? validMoods.slice(-3).reduce((sum, d) => sum + d.mood, 0) / 3 - validMoods.slice(0, 3).reduce((sum, d) => sum + d.mood, 0) / Math.min(3, validMoods.length)
+      : 0;
+
+    let insightText = `Average mood: ${avg.toFixed(1)}/5. `;
+    if (trend > 0.5) insightText += "You're feeling more confident lately!";
+    else if (trend < -0.5) insightText += "Your mood has dipped - check your spending patterns.";
+    else insightText += "Staying steady. Keep tracking!";
+
+    if (insight) insight.textContent = insightText;
+  }
+}
+
+function initMoodTracker() {
+  const selector = document.querySelector("[data-mood-selector]");
+  if (!selector) return;
+
+  const todaysMood = getTodaysMood();
+
+  selector.querySelectorAll(".mood-btn").forEach(btn => {
+    const mood = parseInt(btn.dataset.mood, 10);
+
+    if (mood === todaysMood) {
+      btn.classList.add("active");
+    }
+
+    btn.addEventListener("click", () => {
+      selector.querySelectorAll(".mood-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      saveMoodEntry(mood);
+      updateMoodChart();
+      updateRewardsUI();
+    });
+  });
+
+  updateMoodChart();
+}
+
+// Financial Literacy Hub
+const LEARN_STORAGE_KEY = "consumerpay_learn_progress";
+
+const LEARNING_MODULES = {
+  budgeting: {
+    title: "Budgeting Basics",
+    lessons: [
+      {
+        content: "The 50/30/20 rule is a simple way to budget: allocate 50% of your income to needs (rent, utilities, groceries), 30% to wants (entertainment, dining out), and 20% to savings and debt repayment.",
+        question: "According to the 50/30/20 rule, what percentage should go to savings?",
+        options: ["10%", "20%", "30%", "50%"],
+        correct: 1,
+        explanation: "20% of your after-tax income should go towards savings and paying off debt.",
+      },
+      {
+        content: "Zero-based budgeting means every pound has a job. You assign all your income to specific categories until you have zero left to allocate. This doesn't mean spending everything - savings is a category too!",
+        question: "What does zero-based budgeting mean?",
+        options: ["Spending nothing", "Having no savings", "Every pound is assigned a purpose", "Starting fresh each year"],
+        correct: 2,
+        explanation: "Zero-based budgeting means assigning every pound of income to a specific purpose, including savings.",
+      },
+      {
+        content: "Fixed expenses stay the same each month (rent, insurance), while variable expenses change (groceries, utilities). Track both to understand your true spending patterns.",
+        question: "Which is typically a fixed expense?",
+        options: ["Groceries", "Electricity", "Rent", "Entertainment"],
+        correct: 2,
+        explanation: "Rent typically stays the same each month, making it a fixed expense.",
+      },
+      {
+        content: "Pay yourself first! Set up automatic transfers to savings on payday, before you spend on anything else. This makes saving effortless and consistent.",
+        question: "When should you transfer money to savings?",
+        options: ["End of the month", "When you have spare money", "On payday before spending", "Once a year"],
+        correct: 2,
+        explanation: "Paying yourself first means transferring to savings immediately on payday, before other spending.",
+      },
+    ],
+  },
+  emergency: {
+    title: "Emergency Fund Essentials",
+    lessons: [
+      {
+        content: "An emergency fund is money set aside for unexpected expenses - car repairs, medical bills, or job loss. It's your financial safety net that prevents you from going into debt when life happens.",
+        question: "What is an emergency fund for?",
+        options: ["Holidays", "Unexpected expenses", "Shopping", "Investments"],
+        correct: 1,
+        explanation: "An emergency fund covers unexpected costs like repairs, medical bills, or job loss.",
+      },
+      {
+        content: "Financial experts recommend saving 3-6 months of essential expenses. Start with a smaller goal of £1,000 to build the habit, then grow from there.",
+        question: "How much should your emergency fund ideally cover?",
+        options: ["1 week of expenses", "1 month of expenses", "3-6 months of expenses", "1 year of expenses"],
+        correct: 2,
+        explanation: "Aim for 3-6 months of essential expenses to handle most emergencies.",
+      },
+      {
+        content: "Keep your emergency fund in an easy-access savings account. It should be liquid (quickly accessible) but separate from your current account to avoid temptation.",
+        question: "Where should you keep your emergency fund?",
+        options: ["Under the mattress", "Invested in stocks", "Easy-access savings account", "Locked term deposit"],
+        correct: 2,
+        explanation: "An easy-access savings account offers quick access while keeping funds separate from daily spending.",
+      },
+    ],
+  },
+  investing: {
+    title: "Investing 101",
+    lessons: [
+      {
+        content: "Compound interest is interest on interest. If you invest £1,000 at 7% annually, after 10 years you'd have about £1,967 - nearly double! The earlier you start, the more powerful compounding becomes.",
+        question: "What makes compound interest so powerful?",
+        options: ["Government guarantees", "Interest earning interest over time", "No risk involved", "Fixed returns"],
+        correct: 1,
+        explanation: "Compound interest means your earnings generate their own earnings over time.",
+      },
+      {
+        content: "An index fund tracks a market index (like the FTSE 100). Instead of picking individual stocks, you own a small piece of many companies. This provides instant diversification at low cost.",
+        question: "What is an index fund?",
+        options: ["A single company stock", "A fund tracking a market index", "A savings account", "A type of bond"],
+        correct: 1,
+        explanation: "Index funds track market indices, giving you exposure to many companies in one investment.",
+      },
+      {
+        content: "Risk and reward are linked. Higher potential returns usually mean higher risk. Young investors can typically take more risk because they have time to recover from market downturns.",
+        question: "Why might younger investors take more risk?",
+        options: ["They have less to lose", "They have more time to recover from losses", "They're more intelligent", "Markets are less risky for them"],
+        correct: 1,
+        explanation: "Younger investors have more time before retirement, allowing them to ride out market volatility.",
+      },
+      {
+        content: "Pound-cost averaging means investing a fixed amount regularly (e.g., £200/month) regardless of market conditions. This reduces the impact of market timing and smooths out your purchase price.",
+        question: "What is pound-cost averaging?",
+        options: ["Timing the market", "Investing the same amount regularly", "Only buying when prices fall", "Selling at the right time"],
+        correct: 1,
+        explanation: "Pound-cost averaging means investing consistent amounts regularly, regardless of market conditions.",
+      },
+      {
+        content: "Fees matter! A 1% annual fee might seem small, but over 30 years it can reduce your returns by 25% or more. Look for low-cost index funds with fees below 0.25%.",
+        question: "Why do investment fees matter so much?",
+        options: ["They don't really matter", "They compound and reduce returns significantly", "Higher fees mean better returns", "They're tax deductible"],
+        correct: 1,
+        explanation: "Fees compound over time and can dramatically reduce your long-term investment returns.",
+      },
+    ],
+  },
+  debt: {
+    title: "Debt Destruction",
+    lessons: [
+      {
+        content: "Not all debt is equal. 'Good debt' (mortgages, education) can build wealth or income. 'Bad debt' (credit cards, payday loans) has high interest and funds consumption, not assets.",
+        question: "Which is typically considered 'good debt'?",
+        options: ["Credit card debt", "Payday loans", "A mortgage", "Store credit"],
+        correct: 2,
+        explanation: "Mortgages are generally considered good debt as they help build home equity.",
+      },
+      {
+        content: "The avalanche method: pay minimum on all debts, then put extra money toward the highest interest rate debt first. This saves the most money mathematically.",
+        question: "What debt does the avalanche method target first?",
+        options: ["Smallest balance", "Highest interest rate", "Oldest debt", "Largest balance"],
+        correct: 1,
+        explanation: "The avalanche method targets the highest interest rate debt first to minimize total interest paid.",
+      },
+      {
+        content: "The snowball method: pay minimums on all debts, then put extra money toward the smallest balance first. Quick wins build momentum and motivation, even if it costs more in interest.",
+        question: "What's the main benefit of the snowball method?",
+        options: ["Saves the most money", "Psychological wins and motivation", "Fastest overall", "Lowest minimum payments"],
+        correct: 1,
+        explanation: "The snowball method provides quick wins that build motivation to keep paying off debt.",
+      },
+      {
+        content: "Balance transfers can help - move high-interest debt to a 0% card. But watch out for transfer fees (usually 3%) and ensure you can pay off before the promotional rate ends.",
+        question: "What should you watch out for with balance transfers?",
+        options: ["Nothing, they're risk-free", "Transfer fees and promotional period end", "They improve credit score", "Lower minimum payments"],
+        correct: 1,
+        explanation: "Balance transfers often have fees and promotional rates that end, potentially leading to high interest.",
+      },
+    ],
+  },
+  psychology: {
+    title: "Money Psychology",
+    lessons: [
+      {
+        content: "We often spend emotionally - retail therapy when stressed, impulse buys for dopamine hits. Recognizing your emotional spending triggers is the first step to controlling them.",
+        question: "What is 'retail therapy'?",
+        options: ["Shopping for medicine", "Spending to cope with emotions", "Getting therapy about shopping", "Budget counseling"],
+        correct: 1,
+        explanation: "Retail therapy refers to spending money to improve mood or cope with negative emotions.",
+      },
+      {
+        content: "The hedonic treadmill: we quickly adapt to new purchases and return to our baseline happiness. That new phone brings joy briefly, then becomes normal. Experiences often bring more lasting happiness than things.",
+        question: "What does the hedonic treadmill suggest?",
+        options: ["Exercise makes you happy", "We adapt to purchases and need more", "Spending always increases happiness", "Money buys permanent happiness"],
+        correct: 1,
+        explanation: "The hedonic treadmill shows we adapt to new purchases and return to baseline happiness.",
+      },
+      {
+        content: "Your money mindset often comes from childhood. How your parents talked about (or avoided) money shapes your beliefs. Identifying these beliefs helps you change unhelpful patterns.",
+        question: "Where do money mindsets often originate?",
+        options: ["School education", "Childhood and family", "Social media", "Banks"],
+        correct: 1,
+        explanation: "Our attitudes toward money are often shaped by our family and childhood experiences.",
+      },
+    ],
+  },
+};
+
+function getLearnProgress() {
+  try {
+    const data = localStorage.getItem(LEARN_STORAGE_KEY);
+    return data ? JSON.parse(data) : { completed: {}, points: 0, lastLearnDate: null };
+  } catch {
+    return { completed: {}, points: 0, lastLearnDate: null };
+  }
+}
+
+function saveLearnProgress(progress) {
+  localStorage.setItem(LEARN_STORAGE_KEY, JSON.stringify(progress));
+}
+
+function calculateLearnStreak() {
+  const progress = getLearnProgress();
+  if (!progress.lastLearnDate) return 0;
+
+  const today = new Date().toISOString().split("T")[0];
+  const yesterday = new Date(Date.now() - 86400000).toISOString().split("T")[0];
+
+  if (progress.lastLearnDate === today || progress.lastLearnDate === yesterday) {
+    return progress.streak || 1;
+  }
+  return 0;
+}
+
+function updateLearnUI() {
+  const progress = getLearnProgress();
+  const completedCount = Object.values(progress.completed).reduce((sum, lessons) => sum + lessons.length, 0);
+
+  setTextAll("[data-learn-completed]", completedCount);
+  setTextAll("[data-learn-streak]", calculateLearnStreak());
+  setTextAll("[data-learn-points]", progress.points || 0);
+
+  // Update module progress
+  Object.keys(LEARNING_MODULES).forEach(moduleId => {
+    const module = LEARNING_MODULES[moduleId];
+    const completed = progress.completed[moduleId]?.length || 0;
+    const total = module.lessons.length;
+    const pct = Math.round((completed / total) * 100);
+
+    const progressBar = document.querySelector(`[data-module-progress="${moduleId}"]`);
+    if (progressBar) progressBar.style.width = `${pct}%`;
+
+    const moduleEl = document.querySelector(`[data-module="${moduleId}"]`);
+    if (moduleEl) {
+      const label = moduleEl.querySelector(".module-progress .muted");
+      if (label) label.textContent = `${completed}/${total} lessons`;
+
+      const btn = moduleEl.querySelector("[data-start-module]");
+      if (btn) btn.textContent = completed === 0 ? "Start" : completed === total ? "Review" : "Continue";
+    }
+  });
+}
+
+let currentQuiz = null;
+let currentQuestionIndex = 0;
+
+function startModule(moduleId) {
+  const module = LEARNING_MODULES[moduleId];
+  if (!module) return;
+
+  const progress = getLearnProgress();
+  const completedLessons = progress.completed[moduleId] || [];
+
+  // Find first incomplete lesson, or start from beginning for review
+  let lessonIndex = completedLessons.length;
+  if (lessonIndex >= module.lessons.length) lessonIndex = 0;
+
+  currentQuiz = { moduleId, module, lessonIndex };
+  currentQuestionIndex = 0;
+
+  showLesson(module.lessons[lessonIndex]);
+
+  const modal = document.querySelector("[data-quiz-modal]");
+  if (modal) {
+    modal.hidden = false;
+    document.querySelector("[data-quiz-title]").textContent = module.title;
+    document.querySelector("[data-quiz-current]").textContent = lessonIndex + 1;
+    document.querySelector("[data-quiz-total]").textContent = module.lessons.length;
+  }
+}
+
+function showLesson(lesson) {
+  const lessonEl = document.querySelector("[data-quiz-lesson]");
+  const questionEl = document.querySelector("[data-quiz-question]");
+  const feedbackEl = document.querySelector("[data-quiz-feedback]");
+  const nextBtn = document.querySelector("[data-quiz-next]");
+  const finishBtn = document.querySelector("[data-quiz-finish]");
+
+  if (lessonEl) lessonEl.innerHTML = `<p>${lesson.content}</p>`;
+  if (questionEl) questionEl.hidden = false;
+  if (feedbackEl) feedbackEl.hidden = true;
+  if (nextBtn) nextBtn.hidden = true;
+  if (finishBtn) finishBtn.hidden = true;
+
+  document.querySelector("[data-question-text]").textContent = lesson.question;
+
+  const optionsEl = document.querySelector("[data-quiz-options]");
+  if (optionsEl) {
+    optionsEl.innerHTML = lesson.options
+      .map((opt, i) => `<button class="quiz-option" type="button" data-option="${i}">${opt}</button>`)
+      .join("");
+
+    optionsEl.querySelectorAll(".quiz-option").forEach(btn => {
+      btn.addEventListener("click", () => handleAnswer(parseInt(btn.dataset.option, 10), lesson));
+    });
+  }
+}
+
+function handleAnswer(selectedIndex, lesson) {
+  const isCorrect = selectedIndex === lesson.correct;
+  const optionsEl = document.querySelector("[data-quiz-options]");
+  const feedbackEl = document.querySelector("[data-quiz-feedback]");
+  const questionEl = document.querySelector("[data-quiz-question]");
+
+  // Disable all options and show result
+  optionsEl.querySelectorAll(".quiz-option").forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === lesson.correct) btn.classList.add("correct");
+    else if (i === selectedIndex && !isCorrect) btn.classList.add("incorrect");
+  });
+
+  // Award points
+  const progress = getLearnProgress();
+  if (isCorrect) {
+    progress.points = (progress.points || 0) + 25;
+    state.rewardPoints += 25;
+  } else {
+    progress.points = (progress.points || 0) + 5; // Participation points
+    state.rewardPoints += 5;
+  }
+
+  // Update last learn date and streak
+  const today = new Date().toISOString().split("T")[0];
+  if (progress.lastLearnDate !== today) {
+    progress.streak = progress.lastLearnDate === new Date(Date.now() - 86400000).toISOString().split("T")[0]
+      ? (progress.streak || 0) + 1
+      : 1;
+    progress.lastLearnDate = today;
+  }
+
+  saveLearnProgress(progress);
+  scheduleSave();
+
+  // Show feedback
+  setTimeout(() => {
+    if (questionEl) questionEl.hidden = true;
+    if (feedbackEl) {
+      feedbackEl.hidden = false;
+      document.querySelector("[data-feedback-icon]").textContent = isCorrect ? "🎉" : "📚";
+      document.querySelector("[data-feedback-text]").textContent = isCorrect ? "Correct! +25 points" : "Not quite, but +5 points for learning!";
+      document.querySelector("[data-feedback-explanation]").textContent = lesson.explanation;
+    }
+
+    const module = currentQuiz.module;
+    const isLastLesson = currentQuiz.lessonIndex >= module.lessons.length - 1;
+
+    if (isLastLesson) {
+      document.querySelector("[data-quiz-finish]").hidden = false;
+    } else {
+      document.querySelector("[data-quiz-next]").hidden = false;
+    }
+  }, 800);
+}
+
+function nextLesson() {
+  const progress = getLearnProgress();
+  if (!progress.completed[currentQuiz.moduleId]) {
+    progress.completed[currentQuiz.moduleId] = [];
+  }
+  if (!progress.completed[currentQuiz.moduleId].includes(currentQuiz.lessonIndex)) {
+    progress.completed[currentQuiz.moduleId].push(currentQuiz.lessonIndex);
+  }
+  saveLearnProgress(progress);
+
+  currentQuiz.lessonIndex++;
+  const lesson = currentQuiz.module.lessons[currentQuiz.lessonIndex];
+
+  document.querySelector("[data-quiz-current]").textContent = currentQuiz.lessonIndex + 1;
+  showLesson(lesson);
+}
+
+function finishModule() {
+  const progress = getLearnProgress();
+  if (!progress.completed[currentQuiz.moduleId]) {
+    progress.completed[currentQuiz.moduleId] = [];
+  }
+  if (!progress.completed[currentQuiz.moduleId].includes(currentQuiz.lessonIndex)) {
+    progress.completed[currentQuiz.moduleId].push(currentQuiz.lessonIndex);
+  }
+  saveLearnProgress(progress);
+
+  closeQuizModal();
+  updateLearnUI();
+  updateRewardsUI();
+
+  // Trigger celebration for completing a module
+  const completedCount = progress.completed[currentQuiz.moduleId]?.length || 0;
+  if (completedCount === currentQuiz.module.lessons.length) {
+    triggerCelebration({
+      icon: "🎓",
+      title: "Module Complete!",
+      message: `You've finished ${currentQuiz.module.title}!`,
+      badge: "Knowledge Seeker",
+      badgeDesc: "Completed a learning module",
+    });
+  }
+}
+
+function closeQuizModal() {
+  const modal = document.querySelector("[data-quiz-modal]");
+  if (modal) modal.hidden = true;
+  currentQuiz = null;
+}
+
+function initLearnTab() {
+  // Module start buttons
+  document.querySelectorAll("[data-start-module]").forEach(btn => {
+    btn.addEventListener("click", () => startModule(btn.dataset.startModule));
+  });
+
+  // Quiz close button
+  document.querySelector("[data-quiz-close]")?.addEventListener("click", closeQuizModal);
+  document.querySelector("[data-quiz-next]")?.addEventListener("click", nextLesson);
+  document.querySelector("[data-quiz-finish]")?.addEventListener("click", finishModule);
+
+  updateLearnUI();
+}
+
+// Goal Celebrations & Confetti
+const MILESTONE_THRESHOLDS = [25, 50, 75, 100];
+const CELEBRATION_STORAGE_KEY = "consumerpay_celebrated_milestones";
+
+function getCelebratedMilestones() {
+  try {
+    const data = localStorage.getItem(CELEBRATION_STORAGE_KEY);
+    return data ? JSON.parse(data) : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveCelebratedMilestone(goalName, milestone) {
+  const celebrated = getCelebratedMilestones();
+  if (!celebrated[goalName]) celebrated[goalName] = [];
+  if (!celebrated[goalName].includes(milestone)) {
+    celebrated[goalName].push(milestone);
+  }
+  localStorage.setItem(CELEBRATION_STORAGE_KEY, JSON.stringify(celebrated));
+}
+
+function checkGoalMilestones() {
+  const celebrated = getCelebratedMilestones();
+
+  state.goals.forEach(goal => {
+    if (!goal.target || goal.target === 0) return;
+
+    const progress = Math.round((goal.saved / goal.target) * 100);
+    const goalCelebrated = celebrated[goal.name] || [];
+
+    for (const threshold of MILESTONE_THRESHOLDS) {
+      if (progress >= threshold && !goalCelebrated.includes(threshold)) {
+        saveCelebratedMilestone(goal.name, threshold);
+
+        const badges = {
+          25: { icon: "🌱", badge: "Getting Started", desc: "25% of the way there!" },
+          50: { icon: "🔥", badge: "Halfway Hero", desc: "50% complete - amazing!" },
+          75: { icon: "⭐", badge: "Almost There", desc: "75% - the finish line is in sight!" },
+          100: { icon: "🏆", badge: "Goal Crusher", desc: "100% - You did it!" },
+        };
+
+        const badgeInfo = badges[threshold];
+        triggerCelebration({
+          icon: badgeInfo.icon,
+          title: threshold === 100 ? "Goal Achieved!" : "Milestone Reached!",
+          message: `${goal.name}: ${threshold}% complete!`,
+          badge: badgeInfo.badge,
+          badgeDesc: badgeInfo.desc,
+          progress: `${progress}%`,
+          saved: formatCurrency(goal.saved),
+          remaining: formatCurrency(Math.max(0, goal.target - goal.saved)),
+        });
+
+        // Award bonus points
+        const bonusPoints = threshold === 100 ? 100 : threshold === 75 ? 50 : 25;
+        state.rewardPoints += bonusPoints;
+        scheduleSave();
+
+        break; // Only trigger one celebration at a time
+      }
+    }
+  });
+}
+
+function triggerCelebration(data) {
+  launchConfetti();
+
+  const modal = document.querySelector("[data-celebration-modal]");
+  if (!modal) return;
+
+  document.querySelector("[data-celebration-icon]").textContent = data.icon || "🎉";
+  document.querySelector("[data-celebration-title]").textContent = data.title || "Congratulations!";
+  document.querySelector("[data-celebration-message]").textContent = data.message || "You're making progress!";
+  document.querySelector("[data-badge-name]").textContent = data.badge || "Achievement";
+  document.querySelector("[data-badge-desc]").textContent = data.badgeDesc || "Keep going!";
+
+  if (data.progress) {
+    document.querySelector("[data-celebration-progress]").textContent = data.progress;
+    document.querySelector("[data-celebration-saved]").textContent = data.saved || "£0";
+    document.querySelector("[data-celebration-remaining]").textContent = data.remaining || "£0";
+    document.querySelector("[data-celebration-stats]").style.display = "flex";
+  } else {
+    document.querySelector("[data-celebration-stats]").style.display = "none";
+  }
+
+  modal.hidden = false;
+}
+
+function closeCelebration() {
+  const modal = document.querySelector("[data-celebration-modal]");
+  if (modal) modal.hidden = true;
+}
+
+function launchConfetti() {
+  const container = document.querySelector("[data-confetti-container]");
+  if (!container) return;
+
+  const colors = ["#fbbf24", "#2dd4bf", "#1d3557", "#ef4444", "#a855f7", "#22c55e"];
+  const shapes = ["square", "circle"];
+
+  for (let i = 0; i < 100; i++) {
+    const confetti = document.createElement("div");
+    confetti.className = "confetti";
+    confetti.style.left = `${Math.random() * 100}%`;
+    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.borderRadius = shapes[Math.floor(Math.random() * shapes.length)] === "circle" ? "50%" : "2px";
+    confetti.style.width = `${Math.random() * 10 + 5}px`;
+    confetti.style.height = confetti.style.width;
+    confetti.style.animationDelay = `${Math.random() * 0.5}s`;
+    confetti.style.animationDuration = `${Math.random() * 2 + 2}s`;
+
+    container.appendChild(confetti);
+
+    setTimeout(() => confetti.remove(), 4000);
+  }
+}
+
+function initCelebrations() {
+  document.querySelector("[data-celebration-close]")?.addEventListener("click", closeCelebration);
+  document.querySelector("[data-celebration-share]")?.addEventListener("click", () => {
+    // Simple share functionality
+    if (navigator.share) {
+      navigator.share({
+        title: "I reached a financial milestone!",
+        text: "Making progress on my financial goals with Consumer Pay!",
+        url: window.location.href,
+      });
+    } else {
+      closeCelebration();
+    }
+  });
+}
+
+// Budget Planner
+let plannerOriginalExpenses = {};
+
+function openBudgetPlanner() {
+  const modal = document.querySelector("[data-budget-planner-modal]");
+  if (!modal) return;
+
+  plannerOriginalExpenses = { ...state.expenses };
+  renderPlannerCategories();
+  updatePlannerImpact();
+  modal.hidden = false;
+}
+
+function closeBudgetPlanner() {
+  const modal = document.querySelector("[data-budget-planner-modal]");
+  if (modal) modal.hidden = true;
+}
+
+function resetPlannerChanges() {
+  state.expenses = { ...plannerOriginalExpenses };
+  renderPlannerCategories();
+  updatePlannerImpact();
+}
+
+function applyPlannerChanges() {
+  scheduleSave();
+  updateCategoryTotals();
+  updateBudgetSummary();
+  updateSummary();
+  closeBudgetPlanner();
+}
+
+function renderPlannerCategories() {
+  const container = document.querySelector("[data-planner-categories]");
+  if (!container) return;
+
+  const categories = [
+    { id: "housing", name: "Housing", fields: ["mortgage", "councilTax", "homeInsurance"] },
+    { id: "utilities", name: "Utilities", fields: ["energy", "water", "internet", "streaming"] },
+    { id: "transport", name: "Transport", fields: ["carPayment", "carInsurance", "fuel", "publicTransport"] },
+    { id: "food", name: "Food & Dining", fields: ["groceries", "diningOut", "coffeeSnacks"] },
+    { id: "personal", name: "Personal", fields: ["gym", "clothing", "personalCare", "entertainment", "subscriptions"] },
+  ];
+
+  container.innerHTML = categories.map(cat => {
+    const total = cat.fields.reduce((sum, f) => sum + (state.expenses[f] || 0), 0);
+    const originalTotal = cat.fields.reduce((sum, f) => sum + (plannerOriginalExpenses[f] || 0), 0);
+    const maxValue = Math.max(originalTotal * 2, 1000);
+
+    return `
+      <div class="planner-category">
+        <div class="planner-category-header">
+          <h4>${cat.name}</h4>
+          <span class="planner-category-value">${formatCurrency(total)}</span>
+        </div>
+        <input type="range" class="planner-slider" min="0" max="${maxValue}" value="${total}" data-planner-cat="${cat.id}" data-fields="${cat.fields.join(",")}" />
+      </div>
+    `;
+  }).join("");
+
+  // Attach slider events
+  container.querySelectorAll(".planner-slider").forEach(slider => {
+    slider.addEventListener("input", () => {
+      const fields = slider.dataset.fields.split(",");
+      const originalTotal = fields.reduce((sum, f) => sum + (plannerOriginalExpenses[f] || 0), 0);
+      const newTotal = parseInt(slider.value, 10);
+      const ratio = originalTotal > 0 ? newTotal / originalTotal : 0;
+
+      fields.forEach(field => {
+        state.expenses[field] = Math.round((plannerOriginalExpenses[field] || 0) * ratio);
+      });
+
+      // Update displayed value
+      const valueEl = slider.parentElement.querySelector(".planner-category-value");
+      if (valueEl) valueEl.textContent = formatCurrency(newTotal);
+
+      updatePlannerImpact();
+    });
+  });
+}
+
+function updatePlannerImpact() {
+  const originalExpenses = Object.values(plannerOriginalExpenses).reduce((sum, v) => sum + v, 0);
+  const newExpenses = calculateTotalExpenses();
+  const savingsDiff = originalExpenses - newExpenses;
+
+  const savingsEl = document.querySelector("[data-impact-savings]");
+  if (savingsEl) {
+    savingsEl.textContent = `${savingsDiff >= 0 ? "+" : ""}${formatCurrency(savingsDiff)}`;
+    savingsEl.className = `impact-value ${savingsDiff > 0 ? "positive" : savingsDiff < 0 ? "negative" : ""}`;
+  }
+
+  // Calculate timeline impact
+  const timelineEl = document.querySelector("[data-impact-timeline]");
+  if (timelineEl && state.goals.length > 0) {
+    const goal = state.goals[0];
+    const remaining = (goal.target || 0) - (goal.saved || 0);
+    const originalSurplus = state.income - originalExpenses;
+    const newSurplus = state.income - newExpenses;
+
+    if (remaining > 0 && originalSurplus > 0 && newSurplus > 0) {
+      const originalMonths = Math.ceil(remaining / originalSurplus);
+      const newMonths = Math.ceil(remaining / newSurplus);
+      const diff = originalMonths - newMonths;
+
+      if (diff > 0) timelineEl.textContent = `${diff} months faster`;
+      else if (diff < 0) timelineEl.textContent = `${Math.abs(diff)} months slower`;
+      else timelineEl.textContent = "No change";
+    } else {
+      timelineEl.textContent = "Set a goal to see impact";
+    }
+  }
+
+  // Emergency fund impact
+  const emergencyEl = document.querySelector("[data-impact-emergency]");
+  if (emergencyEl) {
+    const monthlyDiff = savingsDiff;
+    const monthsGained = newExpenses > 0 ? (monthlyDiff / newExpenses).toFixed(1) : 0;
+    emergencyEl.textContent = monthlyDiff >= 0 ? `+${monthsGained} months/year` : `${monthsGained} months/year`;
+  }
+
+  // Render impact chart
+  renderImpactChart(originalExpenses, newExpenses);
+}
+
+function renderImpactChart(original, newVal) {
+  const chartEl = document.querySelector("[data-impact-chart]");
+  if (!chartEl) return;
+
+  const max = Math.max(original, newVal, 1);
+  const originalPct = (original / max) * 100;
+  const newPct = (newVal / max) * 100;
+
+  chartEl.innerHTML = `
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+      <div style="width: 40px; height: ${originalPct}%; background: var(--ink-muted); border-radius: 4px;"></div>
+      <span style="font-size: 0.7rem; color: var(--ink-muted);">Before</span>
+    </div>
+    <div style="display: flex; flex-direction: column; align-items: center; gap: 4px;">
+      <div style="width: 40px; height: ${newPct}%; background: ${newVal < original ? 'var(--mint)' : 'var(--coral)'}; border-radius: 4px;"></div>
+      <span style="font-size: 0.7rem; color: var(--ink-muted);">After</span>
+    </div>
+  `;
+}
+
+function initBudgetPlanner() {
+  document.querySelector("[data-open-planner]")?.addEventListener("click", openBudgetPlanner);
+  document.querySelector("[data-planner-close]")?.addEventListener("click", closeBudgetPlanner);
+  document.querySelector("[data-planner-reset]")?.addEventListener("click", resetPlannerChanges);
+  document.querySelector("[data-planner-apply]")?.addEventListener("click", applyPlannerChanges);
+}
+
+// Hook goal updates to check milestones
+const originalUpdateGoalList = updateGoalList;
+updateGoalList = function() {
+  originalUpdateGoalList();
+  checkGoalMilestones();
+};
+
 // Initialize
 async function init() {
   const localData = loadLocalState();
@@ -2193,6 +2992,12 @@ async function init() {
   showInitialScreen();
   updateSummary();
   updateSmartInsights();
+
+  // Initialize engagement features
+  initMoodTracker();
+  initLearnTab();
+  initCelebrations();
+  initBudgetPlanner();
 
   await loadFxRates();
   updateConverter();

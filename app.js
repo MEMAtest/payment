@@ -664,6 +664,7 @@ function updateSummary() {
   updateCashflowInsights();
   updateVulnerabilityPanel();
   updateAlertList();
+  updateSmartInsights();
 }
 
 function updateGoalList() {
@@ -1767,6 +1768,420 @@ function attachEventListeners() {
   }
 }
 
+// Smart Insights - Expert Advice Database
+const EXPERT_ADVICE = {
+  martinLewis: {
+    name: "Martin Lewis",
+    avatar: "ML",
+    style: "martin",
+    quotes: {
+      emergencyFund: "Always aim for at least 3 months' worth of essential spending in an easy-access savings account. This is your financial cushion against life's surprises.",
+      highDebt: "If you're paying interest on debts, it's almost always worth paying them off before saving. The interest you save is usually higher than the interest you'd earn.",
+      overspending: "Track every penny for a month. You'll be shocked what you're actually spending on. Small daily costs add up to thousands a year.",
+      savingsRatio: "The golden rule: save at least 10% of your take-home pay. If you can't, start with what you can and increase it by 1% every few months.",
+      mortgageTip: "Overpaying your mortgage, even small amounts, can save you thousands in interest and years off your term. Check if your lender allows this penalty-free.",
+      budgeting: "Use the 50/30/20 rule as a starting point: 50% needs, 30% wants, 20% savings. Then adjust to fit your life.",
+      subscriptions: "Do a subscription audit every 3 months. Cancel anything you haven't used in the last month. You can always resubscribe.",
+    },
+  },
+  jlCollins: {
+    name: "JL Collins",
+    avatar: "JL",
+    style: "jl",
+    quotes: {
+      investing: "The stock market is a powerful wealth-building tool. But it doesn't go up in a straight line. You need to stay the course through the rough patches.",
+      simplicity: "Don't make investing complicated. A single low-cost index fund covering the total stock market is all you need to build wealth.",
+      debtFreedom: "Debt is financial cancer. It drains your wealth and keeps you dependent. Getting rid of it should be a top priority.",
+      savings: "Spend less than you earn—invest the surplus—avoid debt. Do this consistently and you'll be wealthy beyond your dreams.",
+      longTerm: "Wealth-building is a marathon, not a sprint. The power of compounding means time in the market beats timing the market.",
+      lifestyle: "Your money can either buy things or buy freedom. Every pound you spend is a pound that can't work for you.",
+      fMotivation: "Financial independence isn't about being rich. It's about having enough so you don't have to worry about money anymore.",
+    },
+  },
+  ramitSethi: {
+    name: "Ramit Sethi",
+    avatar: "RS",
+    style: "ramit",
+    quotes: {
+      automation: "Automate your money. Set up automatic transfers to savings and investments so you never have to think about it.",
+      richLife: "A Rich Life isn't about deprivation. It's about spending extravagantly on the things you love while cutting mercilessly on things you don't.",
+      negotiation: "Negotiate your salary. One 15-minute conversation can be worth more than 5 years of lattes. Focus on the big wins.",
+      consciousSpending: "There are no bad purchases if you've consciously decided what's worth it to you. Guilt-free spending comes from having a plan.",
+      creditCards: "If you pay your credit card in full every month, use it for everything. The rewards add up and you build credit.",
+      investing: "Start investing today, even if it's just £50. The best time to start was 10 years ago. The second best time is now.",
+      increments: "Increase your investments by 1% every time you get a raise. You won't miss it, but in 10 years, you'll have significantly more.",
+    },
+  },
+};
+
+// Financial concern thresholds and analysis
+const CONCERN_THRESHOLDS = {
+  emergencyBuffer: { critical: 1, warning: 3, healthy: 6 },
+  debtToIncomeRatio: { critical: 0.40, warning: 0.25, healthy: 0.15 },
+  savingsRate: { critical: 0, warning: 0.10, healthy: 0.20 },
+  housingCostRatio: { critical: 0.40, warning: 0.30, healthy: 0.25 },
+};
+
+function analyzeFinances() {
+  const snapshot = getFinanceSnapshot();
+  const concerns = [];
+  const opportunities = [];
+
+  const monthlyExpenses = snapshot.expenses;
+  const monthlyIncome = snapshot.income;
+  const currentSavings = snapshot.savings;
+  const surplus = snapshot.surplus;
+  const debtPayments = snapshot.debt;
+
+  // Calculate ratios
+  const bufferMonths = monthlyExpenses > 0 ? currentSavings / monthlyExpenses : 0;
+  const savingsRate = monthlyIncome > 0 ? surplus / monthlyIncome : 0;
+  const debtRatio = monthlyIncome > 0 ? debtPayments / monthlyIncome : 0;
+
+  // Housing costs
+  const housingCosts = calculateCategoryTotal("housing");
+  const housingRatio = monthlyIncome > 0 ? housingCosts / monthlyIncome : 0;
+
+  // Personal spending
+  const personalSpending = calculateCategoryTotal("personal");
+  const foodSpending = calculateCategoryTotal("food");
+  const subscriptions = state.expenses.subscriptions || 0;
+  const streaming = state.expenses.streaming || 0;
+
+  // CONCERNS - Things that need attention
+
+  // 1. Emergency fund check
+  if (bufferMonths < CONCERN_THRESHOLDS.emergencyBuffer.critical) {
+    concerns.push({
+      type: "emergency",
+      severity: "critical",
+      title: "No emergency cushion",
+      description: `You have less than 1 month of expenses saved. This leaves you vulnerable to unexpected costs like car repairs or job loss.`,
+      expert: "martinLewis",
+      quoteKey: "emergencyFund",
+    });
+  } else if (bufferMonths < CONCERN_THRESHOLDS.emergencyBuffer.warning) {
+    concerns.push({
+      type: "emergency",
+      severity: "warning",
+      title: "Emergency fund needs attention",
+      description: `You have ${bufferMonths.toFixed(1)} months of expenses saved. Aim for 3-6 months for security.`,
+      expert: "martinLewis",
+      quoteKey: "emergencyFund",
+    });
+  }
+
+  // 2. Overspending check
+  if (surplus < 0) {
+    concerns.push({
+      type: "overspending",
+      severity: "critical",
+      title: "Spending exceeds income",
+      description: `You're spending ${formatCurrency(Math.abs(surplus))} more than you earn each month. This is unsustainable.`,
+      expert: "martinLewis",
+      quoteKey: "overspending",
+    });
+  } else if (savingsRate < CONCERN_THRESHOLDS.savingsRate.warning && surplus > 0) {
+    concerns.push({
+      type: "savingsRate",
+      severity: "warning",
+      title: "Low savings rate",
+      description: `You're only saving ${(savingsRate * 100).toFixed(0)}% of income. Aim for at least 10-20% to build wealth.`,
+      expert: "martinLewis",
+      quoteKey: "savingsRatio",
+    });
+  }
+
+  // 3. High debt payments
+  if (debtRatio > CONCERN_THRESHOLDS.debtToIncomeRatio.critical) {
+    concerns.push({
+      type: "debt",
+      severity: "critical",
+      title: "Debt payments too high",
+      description: `${(debtRatio * 100).toFixed(0)}% of your income goes to debt payments. This severely limits your financial flexibility.`,
+      expert: "jlCollins",
+      quoteKey: "debtFreedom",
+    });
+  } else if (debtRatio > CONCERN_THRESHOLDS.debtToIncomeRatio.warning) {
+    concerns.push({
+      type: "debt",
+      severity: "warning",
+      title: "Debt payments elevated",
+      description: `${(debtRatio * 100).toFixed(0)}% of income goes to debt. Work on reducing this below 25%.`,
+      expert: "martinLewis",
+      quoteKey: "highDebt",
+    });
+  }
+
+  // 4. High housing costs
+  if (housingRatio > CONCERN_THRESHOLDS.housingCostRatio.critical) {
+    concerns.push({
+      type: "housing",
+      severity: "warning",
+      title: "High housing costs",
+      description: `Housing takes ${(housingRatio * 100).toFixed(0)}% of your income. The recommended maximum is 30%.`,
+      expert: "ramitSethi",
+      quoteKey: "richLife",
+    });
+  }
+
+  // 5. No financial goals
+  if (state.goals.length === 0) {
+    concerns.push({
+      type: "goals",
+      severity: "info",
+      title: "No financial goals set",
+      description: "Setting specific goals gives your money purpose and keeps you motivated.",
+      expert: "jlCollins",
+      quoteKey: "fMotivation",
+    });
+  }
+
+  // OPPORTUNITIES - Things you could improve
+
+  // 1. Subscription audit
+  if (subscriptions + streaming > 100) {
+    opportunities.push({
+      type: "subscriptions",
+      title: "Subscription audit opportunity",
+      description: `You're spending ${formatCurrency(subscriptions + streaming)}/month on subscriptions and streaming. Review which ones you actually use.`,
+      potentialSaving: Math.round((subscriptions + streaming) * 0.3),
+      expert: "martinLewis",
+      quoteKey: "subscriptions",
+    });
+  }
+
+  // 2. High dining out spend
+  const diningOut = state.expenses.diningOut || 0;
+  const coffeeSnacks = state.expenses.coffeeSnacks || 0;
+  if (diningOut + coffeeSnacks > 200) {
+    opportunities.push({
+      type: "dining",
+      title: "Dining spending is high",
+      description: `You spend ${formatCurrency(diningOut + coffeeSnacks)}/month on dining out and coffee. Meal planning could save you 30-50%.`,
+      potentialSaving: Math.round((diningOut + coffeeSnacks) * 0.35),
+      expert: "ramitSethi",
+      quoteKey: "consciousSpending",
+    });
+  }
+
+  // 3. Not investing surplus
+  if (surplus > 300 && currentSavings > monthlyExpenses * 3) {
+    opportunities.push({
+      type: "investing",
+      title: "Ready to invest",
+      description: `With ${formatCurrency(surplus)} monthly surplus and a solid emergency fund, you're ready to start investing for long-term growth.`,
+      potentialGain: Math.round(surplus * 12 * 0.07), // 7% annual return estimate
+      expert: "jlCollins",
+      quoteKey: "simplicity",
+    });
+  }
+
+  // 4. Automation opportunity
+  if (surplus > 0 && !state.goals.some(g => g.monthly > 0)) {
+    opportunities.push({
+      type: "automation",
+      title: "Automate your savings",
+      description: "Set up automatic transfers on payday. Money you don't see, you won't spend.",
+      expert: "ramitSethi",
+      quoteKey: "automation",
+    });
+  }
+
+  // 5. Mortgage overpayment opportunity
+  const mortgage = state.expenses.mortgage || 0;
+  if (mortgage > 0 && surplus > mortgage * 0.1) {
+    opportunities.push({
+      type: "mortgage",
+      title: "Consider mortgage overpayments",
+      description: `Even ${formatCurrency(50)}-${formatCurrency(100)} extra per month can knock years off your mortgage term.`,
+      expert: "martinLewis",
+      quoteKey: "mortgageTip",
+    });
+  }
+
+  return { concerns, opportunities, metrics: { bufferMonths, savingsRate, debtRatio, housingRatio } };
+}
+
+function getRecommendedActions(concerns, opportunities) {
+  const actions = [];
+
+  // Priority order based on concerns
+  concerns.forEach((concern) => {
+    switch (concern.type) {
+      case "emergency":
+        actions.push({
+          priority: 1,
+          action: "Build emergency fund",
+          steps: [
+            "Open a separate easy-access savings account",
+            "Set up an automatic transfer of even £50/month",
+            "Put any windfalls (tax refunds, bonuses) straight into it",
+          ],
+        });
+        break;
+      case "overspending":
+        actions.push({
+          priority: 1,
+          action: "Balance your budget",
+          steps: [
+            "Track every expense for one month",
+            "Identify your top 3 non-essential spending categories",
+            "Cut each by 20% and redirect to savings",
+          ],
+        });
+        break;
+      case "debt":
+        actions.push({
+          priority: 2,
+          action: "Attack your debt",
+          steps: [
+            "List all debts with interest rates",
+            "Pay minimums on all, extra on highest rate",
+            "Consider balance transfer or consolidation",
+          ],
+        });
+        break;
+      case "savingsRate":
+        actions.push({
+          priority: 3,
+          action: "Increase savings rate",
+          steps: [
+            "Aim for 1% increase this month",
+            "When you get a raise, save half of it",
+            "Challenge yourself to one no-spend week",
+          ],
+        });
+        break;
+    }
+  });
+
+  // Add opportunities as lower priority actions
+  opportunities.slice(0, 2).forEach((opp) => {
+    actions.push({
+      priority: 4,
+      action: opp.title,
+      steps: [opp.description],
+    });
+  });
+
+  return actions.sort((a, b) => a.priority - b.priority).slice(0, 4);
+}
+
+function getExpertQuote(expertKey, quoteKey) {
+  const expert = EXPERT_ADVICE[expertKey];
+  if (!expert || !expert.quotes[quoteKey]) return null;
+
+  return {
+    name: expert.name,
+    avatar: expert.avatar,
+    style: expert.style,
+    quote: expert.quotes[quoteKey],
+  };
+}
+
+function updateSmartInsights() {
+  const insightsCard = document.querySelector("[data-widget='insights']");
+  const concernsList = document.querySelector("[data-concerns-list]");
+  const actionsList = document.querySelector("[data-actions-list]");
+  const expertAdvice = document.querySelector("[data-expert-advice]");
+
+  if (!insightsCard) return;
+
+  const { concerns, opportunities, metrics } = analyzeFinances();
+  const actions = getRecommendedActions(concerns, opportunities);
+
+  // Show/hide insights based on whether there's data to analyze
+  const hasData = state.income > 0 || calculateTotalExpenses() > 0;
+  insightsCard.style.display = hasData ? "block" : "none";
+
+  if (!hasData) return;
+
+  // Update concerns
+  if (concernsList) {
+    if (concerns.length === 0) {
+      concernsList.innerHTML = `
+        <div class="concern-item healthy">
+          <span class="concern-icon">✓</span>
+          <div class="concern-content">
+            <h5>Looking good!</h5>
+            <p>No major financial concerns detected. Keep up the great work!</p>
+          </div>
+        </div>
+      `;
+    } else {
+      concernsList.innerHTML = concerns
+        .map((concern) => `
+          <div class="concern-item ${concern.severity}">
+            <span class="concern-icon">${concern.severity === "critical" ? "⚠" : concern.severity === "warning" ? "!" : "i"}</span>
+            <div class="concern-content">
+              <h5>${concern.title}</h5>
+              <p>${concern.description}</p>
+            </div>
+          </div>
+        `)
+        .join("");
+    }
+  }
+
+  // Update actions
+  if (actionsList) {
+    if (actions.length === 0) {
+      actionsList.innerHTML = `<p class="muted">Keep doing what you're doing!</p>`;
+    } else {
+      actionsList.innerHTML = actions
+        .map((action) => `
+          <div class="action-item">
+            <h5>${action.action}</h5>
+            <ul>
+              ${action.steps.map((step) => `<li>${step}</li>`).join("")}
+            </ul>
+          </div>
+        `)
+        .join("");
+    }
+  }
+
+  // Update expert advice - pick relevant quotes
+  if (expertAdvice) {
+    const relevantExperts = [];
+
+    // Get quotes based on user's situation
+    if (concerns.length > 0) {
+      const firstConcern = concerns[0];
+      const quote = getExpertQuote(firstConcern.expert, firstConcern.quoteKey);
+      if (quote) relevantExperts.push(quote);
+    }
+
+    // Add an investing quote if they have surplus
+    if (metrics.bufferMonths >= 3 && state.income - calculateTotalExpenses() > 200) {
+      const investQuote = getExpertQuote("jlCollins", "investing");
+      if (investQuote && !relevantExperts.find((e) => e.name === investQuote.name)) {
+        relevantExperts.push(investQuote);
+      }
+    }
+
+    // Add a lifestyle/mindset quote
+    const lifestyleQuote = getExpertQuote("ramitSethi", "richLife");
+    if (lifestyleQuote && !relevantExperts.find((e) => e.name === lifestyleQuote.name)) {
+      relevantExperts.push(lifestyleQuote);
+    }
+
+    expertAdvice.innerHTML = relevantExperts
+      .slice(0, 3)
+      .map((expert) => `
+        <div class="expert-card">
+          <div class="expert-avatar ${expert.style}">${expert.avatar}</div>
+          <div class="expert-content">
+            <h5>${expert.name}</h5>
+            <p>"${expert.quote}"</p>
+          </div>
+        </div>
+      `)
+      .join("");
+  }
+}
+
 // Initialize
 async function init() {
   const localData = loadLocalState();
@@ -1777,6 +2192,7 @@ async function init() {
   syncFormFromState();
   showInitialScreen();
   updateSummary();
+  updateSmartInsights();
 
   await loadFxRates();
   updateConverter();

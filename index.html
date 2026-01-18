@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Consumer Pay - Smart Financial Planning</title>
+    <title>Consumer Pay - Smart Money Management</title>
     <link rel="stylesheet" href="styles.css" />
     <link rel="manifest" href="manifest.webmanifest" />
     <meta name="theme-color" content="#1d3557" />
@@ -17,7 +17,7 @@
     <div class="page">
       <header class="top-bar">
         <div class="brand">
-          <span class="brand-mark"></span>
+          <img src="icons/app-icon.svg" alt="Consumer Pay" class="brand-mark" />
           <span class="brand-name">Consumer Pay</span>
         </div>
         <div class="top-actions">
@@ -74,28 +74,81 @@
             </div>
             <div class="welcome-visual">
               <div class="hero-card primary">
-                <div class="hero-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                <div class="hero-icon hero-icon-animated">
+                  <svg width="36" height="36" viewBox="0 0 24 24" class="icon-pound-animated">
+                    <defs>
+                      <linearGradient id="hero-pound-grad" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fff" stop-opacity="0.9"/>
+                        <stop offset="100%" stop-color="#fff" stop-opacity="0.7"/>
+                      </linearGradient>
+                    </defs>
+                    <!-- Pound sign -->
+                    <text x="12" y="17" font-family="Arial, sans-serif" font-size="16" font-weight="bold" fill="url(#hero-pound-grad)" text-anchor="middle">£</text>
+                    <!-- Animated coins -->
+                    <circle class="coin coin-1" cx="19" cy="6" r="2.5" fill="#fcd34d" opacity="0.9"/>
+                    <circle class="coin coin-2" cx="5" cy="8" r="2" fill="#fcd34d" opacity="0.7"/>
+                    <circle class="coin coin-3" cx="18" cy="18" r="1.5" fill="#fcd34d" opacity="0.8"/>
+                    <!-- Sparkles -->
+                    <circle class="sparkle sparkle-1" cx="20" cy="4" r="1" fill="#fff"/>
+                    <circle class="sparkle sparkle-2" cx="4" cy="6" r="0.8" fill="#fff"/>
                   </svg>
                 </div>
                 <p class="hero-label">Monthly Take-Home</p>
                 <p class="hero-value">See your real income</p>
               </div>
               <div class="hero-card secondary">
-                <div class="hero-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                <div class="hero-icon hero-icon-animated">
+                  <svg width="36" height="36" viewBox="0 0 24 24" class="icon-projections-animated">
+                    <defs>
+                      <linearGradient id="hero-proj-grad" x1="0%" y1="100%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#fff" stop-opacity="0.6"/>
+                        <stop offset="100%" stop-color="#fff" stop-opacity="1"/>
+                      </linearGradient>
+                    </defs>
+                    <!-- Crystal ball base -->
+                    <ellipse cx="12" cy="20" rx="5" ry="1.5" fill="#fff" opacity="0.3"/>
+                    <!-- Crystal ball -->
+                    <circle cx="12" cy="12" r="8" fill="url(#hero-proj-grad)" opacity="0.2"/>
+                    <circle cx="12" cy="12" r="6" fill="none" stroke="#fff" stroke-width="1.5" opacity="0.8"/>
+                    <!-- Growth chart inside -->
+                    <path class="chart-line" d="M7 15 L10 12 L13 14 L17 8" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <!-- Arrow pointing up -->
+                    <path class="growth-arrow" d="M15 10 L17 8 L17 11" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <!-- Sparkles around ball -->
+                    <circle class="sparkle sparkle-1" cx="19" cy="6" r="1" fill="#fff"/>
+                    <circle class="sparkle sparkle-2" cx="5" cy="8" r="0.8" fill="#fff"/>
+                    <circle class="sparkle sparkle-3" cx="18" cy="16" r="0.6" fill="#fff"/>
                   </svg>
                 </div>
                 <p class="hero-label">Smart Projections</p>
                 <p class="hero-value">30-year forecasting</p>
               </div>
               <div class="hero-card tertiary">
-                <div class="hero-icon">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/>
-                    <circle cx="12" cy="7" r="4"/>
+                <div class="hero-icon hero-icon-animated">
+                  <svg width="36" height="36" viewBox="0 0 24 24" class="icon-personalized-animated">
+                    <!-- Slider tracks (background) -->
+                    <rect x="4" y="5" width="16" height="2" rx="1" fill="#1d3557" opacity="0.2"/>
+                    <rect x="4" y="11" width="16" height="2" rx="1" fill="#1d3557" opacity="0.2"/>
+                    <rect x="4" y="17" width="16" height="2" rx="1" fill="#1d3557" opacity="0.2"/>
+
+                    <!-- Slider fills (animated) -->
+                    <rect class="slider-fill slider-1" x="4" y="5" width="12" height="2" rx="1" fill="#1d3557"/>
+                    <rect class="slider-fill slider-2" x="4" y="11" width="8" height="2" rx="1" fill="#2a9d8f"/>
+                    <rect class="slider-fill slider-3" x="4" y="17" width="14" height="2" rx="1" fill="#ec4899"/>
+
+                    <!-- Slider knobs (animated) -->
+                    <circle class="slider-knob knob-1" cx="16" cy="6" r="3" fill="#1d3557"/>
+                    <circle class="slider-knob knob-2" cx="12" cy="12" r="3" fill="#2a9d8f"/>
+                    <circle class="slider-knob knob-3" cx="18" cy="18" r="3" fill="#ec4899"/>
+
+                    <!-- Knob highlights -->
+                    <circle cx="15" cy="5" r="1" fill="#fff" opacity="0.4"/>
+                    <circle cx="11" cy="11" r="1" fill="#fff" opacity="0.4"/>
+                    <circle cx="17" cy="17" r="1" fill="#fff" opacity="0.4"/>
+
+                    <!-- Sparkles -->
+                    <circle class="sparkle sparkle-1" cx="21" cy="3" r="1" fill="#fcd34d"/>
+                    <circle class="sparkle sparkle-2" cx="2" cy="12" r="0.8" fill="#fcd34d"/>
                   </svg>
                 </div>
                 <p class="hero-label">Personalized</p>
@@ -383,9 +436,20 @@
               <div class="expense-category housing">
                 <div class="category-header">
                   <div class="category-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                      <polyline points="9 22 9 12 15 12 15 22"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="cat-housing-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                        <linearGradient id="cat-housing-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                      </defs>
+                      <path d="M3 10.5L12 3l9 7.5V20a2 2 0 01-2 2H5a2 2 0 01-2-2v-9.5z" fill="url(#cat-housing-pink)"/>
+                      <rect x="9" y="14" width="6" height="8" rx="0.5" fill="#fff" opacity="0.3"/>
+                      <path d="M12 9l-2 2a1.5 1.5 0 102 2 1.5 1.5 0 102-2l-2-2z" fill="#fff" opacity="0.9"/>
+                      <circle cx="18" cy="6" r="0.8" fill="url(#cat-housing-gold)"/>
+                      <circle cx="6" cy="5" r="0.5" fill="url(#cat-housing-gold)"/>
                     </svg>
                   </div>
                   <div class="category-info">
@@ -417,8 +481,18 @@
               <div class="expense-category utilities">
                 <div class="category-header">
                   <div class="category-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="cat-util-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                      </defs>
+                      <ellipse cx="12" cy="8" rx="7" ry="7" fill="url(#cat-util-gold)" opacity="0.2"/>
+                      <path d="M9 21h6M10 17h4" stroke="url(#cat-util-gold)" stroke-width="1.5" stroke-linecap="round"/>
+                      <path d="M12 2a6 6 0 00-4 10.5V15a1 1 0 001 1h6a1 1 0 001-1v-2.5A6 6 0 0012 2z" fill="url(#cat-util-gold)"/>
+                      <circle cx="10" cy="7" r="1" fill="#fff" opacity="0.8"/>
+                      <circle cx="14" cy="9" r="0.6" fill="#fff" opacity="0.6"/>
+                      <path d="M10 8q2 1.5 4 0" stroke="#f59e0b" stroke-width="0.8" stroke-linecap="round" fill="none"/>
                     </svg>
                   </div>
                   <div class="category-info">
@@ -454,10 +528,29 @@
               <div class="expense-category transport">
                 <div class="category-header">
                   <div class="category-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="1" y="3" width="15" height="13" rx="2"/>
-                      <circle cx="6" cy="16" r="2"/><circle cx="12" cy="16" r="2"/>
-                      <path d="M16 8h4l3 5v5h-3M1 12h15"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="cat-trans-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                        <linearGradient id="cat-trans-navy" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d3557"/>
+                        </linearGradient>
+                        <linearGradient id="cat-trans-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                        <linearGradient id="cat-trans-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                      </defs>
+                      <path d="M5 11l2-4h10l2 4" fill="url(#cat-trans-teal)" opacity="0.3"/>
+                      <rect x="3" y="11" width="18" height="6" rx="2" fill="url(#cat-trans-teal)"/>
+                      <circle cx="7" cy="17" r="2" fill="url(#cat-trans-navy)"/>
+                      <circle cx="17" cy="17" r="2" fill="url(#cat-trans-navy)"/>
+                      <circle cx="7" cy="17" r="0.8" fill="#fff" opacity="0.5"/>
+                      <circle cx="17" cy="17" r="0.8" fill="#fff" opacity="0.5"/>
+                      <circle cx="18" cy="12" r="1" fill="url(#cat-trans-gold)"/>
+                      <path d="M1 12h1M1 14h2M1 16h1" stroke="url(#cat-trans-pink)" stroke-width="1" stroke-linecap="round" opacity="0.6"/>
                     </svg>
                   </div>
                   <div class="category-info">
@@ -493,9 +586,21 @@
               <div class="expense-category food">
                 <div class="category-header">
                   <div class="category-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M18 8h1a4 4 0 010 8h-1M2 8h16v9a4 4 0 01-4 4H6a4 4 0 01-4-4V8z"/>
-                      <line x1="6" y1="1" x2="6" y2="4"/><line x1="10" y1="1" x2="10" y2="4"/><line x1="14" y1="1" x2="14" y2="4"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="cat-food-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                        <linearGradient id="cat-food-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                      </defs>
+                      <path d="M6 6h12l-1 14a2 2 0 01-2 2H9a2 2 0 01-2-2L6 6z" fill="url(#cat-food-teal)"/>
+                      <path d="M9 6V4a3 3 0 016 0v2" stroke="url(#cat-food-teal)" stroke-width="2" fill="none"/>
+                      <circle cx="12" cy="13" r="3.5" fill="url(#cat-food-pink)"/>
+                      <path d="M12 10c1-1 2-1 2.5-0.5" stroke="#2a9d8f" stroke-width="1" stroke-linecap="round"/>
+                      <ellipse cx="12" cy="10.5" rx="0.8" ry="1.2" fill="#2a9d8f"/>
+                      <circle cx="10.5" cy="12.5" r="0.5" fill="#fff" opacity="0.5"/>
                     </svg>
                   </div>
                   <div class="category-info">
@@ -527,10 +632,25 @@
               <div class="expense-category family">
                 <div class="category-header">
                   <div class="category-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-                      <circle cx="9" cy="7" r="4"/>
-                      <path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="cat-fam-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                        <linearGradient id="cat-fam-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                        <linearGradient id="cat-fam-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="9" cy="6" r="3.5" fill="url(#cat-fam-pink)"/>
+                      <path d="M9 10c-4 0-6 2.5-6 5.5V20h12v-4.5c0-3-2-5.5-6-5.5z" fill="url(#cat-fam-pink)" opacity="0.85"/>
+                      <circle cx="17" cy="10" r="2.5" fill="url(#cat-fam-gold)"/>
+                      <path d="M17 13c-2.5 0-4 2-4 4v3h8v-3c0-2-1.5-4-4-4z" fill="url(#cat-fam-gold)" opacity="0.85"/>
+                      <circle cx="9" cy="5.5" r="0.5" fill="#fff" opacity="0.5"/>
+                      <circle cx="17" cy="9.5" r="0.4" fill="#fff" opacity="0.5"/>
+                      <circle cx="5" cy="3" r="0.6" fill="url(#cat-fam-teal)"/>
                     </svg>
                   </div>
                   <div class="category-info">
@@ -566,9 +686,25 @@
               <div class="expense-category personal">
                 <div class="category-header">
                   <div class="category-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="cat-pers-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                        <linearGradient id="cat-pers-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                        <linearGradient id="cat-pers-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="7" cy="18" r="3" fill="url(#cat-pers-pink)"/>
+                      <path d="M10 18V6l8-3v12" fill="none" stroke="url(#cat-pers-pink)" stroke-width="2"/>
+                      <circle cx="18" cy="15" r="3" fill="url(#cat-pers-pink)" opacity="0.8"/>
+                      <path d="M14 7l-2 2a1 1 0 101.5 1.5 1 1 0 101.5-1.5l-1-2z" fill="url(#cat-pers-gold)"/>
+                      <circle cx="7" cy="17.5" r="0.5" fill="#fff" opacity="0.5"/>
+                      <circle cx="4" cy="10" r="0.7" fill="url(#cat-pers-gold)"/>
+                      <circle cx="20" cy="8" r="0.5" fill="url(#cat-pers-teal)"/>
                     </svg>
                   </div>
                   <div class="category-info">
@@ -608,9 +744,24 @@
               <div class="expense-category debt">
                 <div class="category-header">
                   <div class="category-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="2" y="5" width="20" height="14" rx="2"/>
-                      <line x1="2" y1="10" x2="22" y2="10"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="cat-debt-navy" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d3557"/>
+                        </linearGradient>
+                        <linearGradient id="cat-debt-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                        <linearGradient id="cat-debt-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                      </defs>
+                      <ellipse cx="7" cy="12" rx="4" ry="5" fill="none" stroke="url(#cat-debt-navy)" stroke-width="3"/>
+                      <ellipse cx="17" cy="12" rx="4" ry="5" fill="none" stroke="url(#cat-debt-navy)" stroke-width="3"/>
+                      <path d="M10 10l4 4M10 14l4-4" stroke="url(#cat-debt-pink)" stroke-width="2" stroke-linecap="round"/>
+                      <circle cx="12" cy="12" r="2" fill="url(#cat-debt-gold)"/>
+                      <circle cx="3" cy="8" r="0.7" fill="url(#cat-debt-gold)"/>
+                      <circle cx="21" cy="16" r="0.7" fill="url(#cat-debt-gold)"/>
                     </svg>
                   </div>
                   <div class="category-info">
@@ -642,9 +793,31 @@
               <div class="expense-category savings">
                 <div class="category-header">
                   <div class="category-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/>
-                      <path d="M2 9v1c0 1.1.9 2 2 2h1"/>
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="cat-sav-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                        <linearGradient id="cat-sav-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                      </defs>
+                      <ellipse cx="11" cy="14" rx="7" ry="5" fill="url(#cat-sav-pink)"/>
+                      <circle cx="16" cy="11" r="3.5" fill="url(#cat-sav-pink)"/>
+                      <ellipse cx="19" cy="12" rx="2" ry="1.3" fill="#fda4af"/>
+                      <circle cx="18" cy="11.8" r="0.5" fill="#db2777"/>
+                      <circle cx="20" cy="11.8" r="0.5" fill="#db2777"/>
+                      <circle cx="16.5" cy="9.5" r="0.8" fill="#1d3557"/>
+                      <circle cx="16.7" cy="9.3" r="0.25" fill="#fff"/>
+                      <ellipse cx="15" cy="7" rx="1" ry="1.5" fill="#db2777" transform="rotate(-15 15 7)"/>
+                      <rect x="8" y="9" width="3" height="1" rx="0.5" fill="#db2777"/>
+                      <ellipse cx="10" cy="6" rx="2" ry="2" fill="url(#cat-sav-gold)"/>
+                      <text x="10" y="7.5" font-family="Arial" font-size="3" font-weight="bold" fill="#92400e" text-anchor="middle">£</text>
+                      <ellipse cx="6" cy="18" rx="1" ry="1.5" fill="#db2777"/>
+                      <ellipse cx="9" cy="19" rx="1" ry="1.5" fill="#db2777"/>
+                      <ellipse cx="13" cy="19" rx="1" ry="1.5" fill="#db2777"/>
+                      <ellipse cx="16" cy="17" rx="1" ry="1.5" fill="#db2777"/>
+                      <path d="M4 13q-2-1-1.5 1t1.5 2" stroke="#db2777" stroke-width="1.5" fill="none" stroke-linecap="round"/>
                     </svg>
                   </div>
                   <div class="category-info">
@@ -722,9 +895,20 @@
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="Emergency buffer" />
                 <div class="goal-icon emergency">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    <path d="M12 8v4M12 16h.01"/>
+                  <svg width="32" height="32" viewBox="0 0 24 24">
+                    <defs>
+                      <linearGradient id="goal-em-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                      </linearGradient>
+                      <linearGradient id="goal-em-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M12 2l8 4v6c0 5.5-3.5 10-8 12-4.5-2-8-6.5-8-12V6l8-4z" fill="url(#goal-em-teal)"/>
+                    <path d="M12 13v5M10 18h4" stroke="#fff" stroke-width="1.5" stroke-linecap="round"/>
+                    <path d="M8 10c0-2 2-4 4-4s4 2 4 4" stroke="#fff" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                    <circle cx="6" cy="4" r="0.8" fill="url(#goal-em-gold)"/>
+                    <circle cx="18" cy="5" r="0.6" fill="url(#goal-em-gold)"/>
                   </svg>
                 </div>
                 <div class="goal-content">
@@ -743,9 +927,22 @@
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="Home deposit" />
                 <div class="goal-icon home">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
-                    <path d="M9 22V12h6v10"/>
+                  <svg width="32" height="32" viewBox="0 0 24 24">
+                    <defs>
+                      <linearGradient id="goal-home-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                      </linearGradient>
+                      <linearGradient id="goal-home-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M4 12l8-7 8 7v8a2 2 0 01-2 2H6a2 2 0 01-2-2v-8z" fill="url(#goal-home-pink)" opacity="0.3"/>
+                    <circle cx="14" cy="8" r="4" fill="url(#goal-home-gold)"/>
+                    <path d="M14 12v8" stroke="url(#goal-home-gold)" stroke-width="2.5" stroke-linecap="round"/>
+                    <path d="M14 16h3M14 19h2" stroke="url(#goal-home-gold)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="14" cy="7" r="1.5" fill="none" stroke="#f59e0b" stroke-width="1"/>
+                    <circle cx="6" cy="6" r="1" fill="url(#goal-home-pink)"/>
+                    <circle cx="8" cy="4" r="0.5" fill="url(#goal-home-gold)"/>
                   </svg>
                 </div>
                 <div class="goal-content">
@@ -764,9 +961,24 @@
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="Family holiday" />
                 <div class="goal-icon holiday">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M2 12h20M12 2a15.3 15.3 0 014 10 15.3 15.3 0 01-4 10 15.3 15.3 0 01-4-10 15.3 15.3 0 014-10z"/>
+                  <svg width="32" height="32" viewBox="0 0 24 24">
+                    <defs>
+                      <linearGradient id="goal-hol-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                      </linearGradient>
+                      <linearGradient id="goal-hol-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                      </linearGradient>
+                      <linearGradient id="goal-hol-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                      </linearGradient>
+                    </defs>
+                    <circle cx="18" cy="6" r="4" fill="url(#goal-hol-gold)"/>
+                    <path d="M17 5l1 1M19 4l1 0.5M20 6l0.5 1" stroke="#fff" stroke-width="0.8" stroke-linecap="round" opacity="0.7"/>
+                    <path d="M2 14l4-2 6 2 8-4 2 1-3 5-7-1-5 3-5-2v-2z" fill="url(#goal-hol-teal)"/>
+                    <path d="M8 12l2-4 2 4" fill="url(#goal-hol-teal)" opacity="0.8"/>
+                    <circle cx="4" cy="19" r="0.6" fill="url(#goal-hol-pink)"/>
+                    <circle cx="14" cy="20" r="0.5" fill="url(#goal-hol-gold)"/>
                   </svg>
                 </div>
                 <div class="goal-content">
@@ -785,9 +997,24 @@
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="Education" />
                 <div class="goal-icon education">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M22 10v6M2 10l10-5 10 5-10 5z"/>
-                    <path d="M6 12v5c0 2 2 3 6 3s6-1 6-3v-5"/>
+                  <svg width="32" height="32" viewBox="0 0 24 24">
+                    <defs>
+                      <linearGradient id="goal-edu-navy" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d3557"/>
+                      </linearGradient>
+                      <linearGradient id="goal-edu-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                      </linearGradient>
+                      <linearGradient id="goal-edu-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M12 3L2 8l10 5 10-5-10-5z" fill="url(#goal-edu-navy)"/>
+                    <path d="M6 10v6c0 2 2.5 4 6 4s6-2 6-4v-6" fill="none" stroke="url(#goal-edu-navy)" stroke-width="2"/>
+                    <path d="M20 8v7" stroke="url(#goal-edu-gold)" stroke-width="2" stroke-linecap="round"/>
+                    <circle cx="20" cy="17" r="2" fill="url(#goal-edu-gold)"/>
+                    <circle cx="5" cy="5" r="0.6" fill="url(#goal-edu-pink)"/>
+                    <circle cx="19" cy="3" r="0.5" fill="url(#goal-edu-pink)"/>
                   </svg>
                 </div>
                 <div class="goal-content">
@@ -806,9 +1033,27 @@
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="New car" />
                 <div class="goal-icon car">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 16H9m10 0h3v-3.15a1 1 0 00-.84-.99L16 11l-2.7-3.6a1 1 0 00-.8-.4H5.24a2 2 0 00-1.8 1.1l-.8 1.63A6 6 0 002 12.42V16h2"/>
-                    <circle cx="6.5" cy="16.5" r="2.5"/><circle cx="16.5" cy="16.5" r="2.5"/>
+                  <svg width="32" height="32" viewBox="0 0 24 24">
+                    <defs>
+                      <linearGradient id="goal-car-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                      </linearGradient>
+                      <linearGradient id="goal-car-navy" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d3557"/>
+                      </linearGradient>
+                      <linearGradient id="goal-car-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M5 11l2.5-4h9l2.5 4" fill="url(#goal-car-teal)" opacity="0.5"/>
+                    <rect x="3" y="11" width="18" height="6" rx="2" fill="url(#goal-car-teal)"/>
+                    <circle cx="7" cy="17" r="2.5" fill="url(#goal-car-navy)"/>
+                    <circle cx="17" cy="17" r="2.5" fill="url(#goal-car-navy)"/>
+                    <circle cx="7" cy="17" r="1" fill="#fff" opacity="0.3"/>
+                    <circle cx="17" cy="17" r="1" fill="#fff" opacity="0.3"/>
+                    <circle cx="5" cy="5" r="2" fill="url(#goal-car-gold)"/>
+                    <path d="M5 7v3" stroke="url(#goal-car-gold)" stroke-width="1.5" stroke-linecap="round"/>
+                    <circle cx="18" cy="13" r="1" fill="url(#goal-car-gold)"/>
                   </svg>
                 </div>
                 <div class="goal-content">
@@ -827,9 +1072,25 @@
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="Retirement" />
                 <div class="goal-icon retirement">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"/>
-                    <path d="M12 6v6l4 2"/>
+                  <svg width="32" height="32" viewBox="0 0 24 24">
+                    <defs>
+                      <linearGradient id="goal-ret-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                      </linearGradient>
+                      <linearGradient id="goal-ret-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                      </linearGradient>
+                      <linearGradient id="goal-ret-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M0 16h24v6H0z" fill="url(#goal-ret-teal)" opacity="0.3"/>
+                    <circle cx="12" cy="10" r="6" fill="url(#goal-ret-gold)"/>
+                    <path d="M8 9l1 1M16 9l-1 1M12 5v2" stroke="#fff" stroke-width="1" stroke-linecap="round" opacity="0.8"/>
+                    <path d="M4 16l3 5h2l-1-5" fill="url(#goal-ret-pink)"/>
+                    <path d="M4 16h5l-1 2H5" fill="url(#goal-ret-pink)" opacity="0.8"/>
+                    <circle cx="18" cy="20" r="1.5" fill="url(#goal-ret-teal)"/>
+                    <circle cx="20" cy="6" r="0.6" fill="url(#goal-ret-pink)"/>
                   </svg>
                 </div>
                 <div class="goal-content">
@@ -848,8 +1109,26 @@
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="Wedding" />
                 <div class="goal-icon wedding">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M20.84 4.61a5.5 5.5 0 00-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 00-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 000-7.78z"/>
+                  <svg width="32" height="32" viewBox="0 0 24 24">
+                    <defs>
+                      <linearGradient id="goal-wed-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                      </linearGradient>
+                      <linearGradient id="goal-wed-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                      </linearGradient>
+                      <linearGradient id="goal-wed-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                      </linearGradient>
+                    </defs>
+                    <circle cx="9" cy="13" r="5" fill="none" stroke="url(#goal-wed-gold)" stroke-width="2.5"/>
+                    <circle cx="15" cy="13" r="5" fill="none" stroke="url(#goal-wed-pink)" stroke-width="2.5"/>
+                    <circle cx="9" cy="11" r="0.8" fill="url(#goal-wed-gold)"/>
+                    <circle cx="15" cy="11" r="0.8" fill="url(#goal-wed-pink)"/>
+                    <path d="M12 3l-1.5 1.5a2 2 0 102.5 2.5 2 2 0 102.5-2.5L12 3z" fill="url(#goal-wed-pink)"/>
+                    <circle cx="5" cy="6" r="0.6" fill="url(#goal-wed-gold)"/>
+                    <circle cx="19" cy="5" r="0.5" fill="url(#goal-wed-gold)"/>
+                    <circle cx="12" cy="20" r="0.7" fill="url(#goal-wed-teal)"/>
                   </svg>
                 </div>
                 <div class="goal-content">
@@ -868,8 +1147,26 @@
               <label class="goal-card" data-goal-card>
                 <input type="checkbox" data-goal-check value="Home improvements" />
                 <div class="goal-icon improvements">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14.7 6.3a1 1 0 000 1.4l1.6 1.6a1 1 0 001.4 0l3.77-3.77a6 6 0 01-7.94 7.94l-6.91 6.91a2.12 2.12 0 01-3-3l6.91-6.91a6 6 0 017.94-7.94l-3.76 3.76z"/>
+                  <svg width="32" height="32" viewBox="0 0 24 24">
+                    <defs>
+                      <linearGradient id="goal-imp-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                      </linearGradient>
+                      <linearGradient id="goal-imp-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                      </linearGradient>
+                      <linearGradient id="goal-imp-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                        <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                      </linearGradient>
+                    </defs>
+                    <path d="M3 12l6-5 6 5v8a1 1 0 01-1 1H4a1 1 0 01-1-1v-8z" fill="url(#goal-imp-teal)" opacity="0.4"/>
+                    <rect x="5" y="14" width="4" height="5" rx="0.5" fill="#fff" opacity="0.5"/>
+                    <rect x="14" y="4" width="6" height="4" rx="1" fill="url(#goal-imp-pink)"/>
+                    <path d="M17 8v4" stroke="#1d3557" stroke-width="1.5"/>
+                    <rect x="15" y="12" width="4" height="8" rx="1" fill="url(#goal-imp-teal)"/>
+                    <circle cx="17" cy="14" r="0.5" fill="#fff" opacity="0.5"/>
+                    <circle cx="20" cy="9" r="0.6" fill="url(#goal-imp-gold)"/>
+                    <circle cx="2" cy="8" r="0.5" fill="url(#goal-imp-gold)"/>
                   </svg>
                 </div>
                 <div class="goal-content">
@@ -969,39 +1266,138 @@
 
             <nav class="app-tabs" aria-label="Primary">
               <button class="nav-item is-active" type="button" data-tab-target="home">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/>
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-home-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                    <linearGradient id="nav-home-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                    <linearGradient id="nav-home-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M3 10.5L12 3l9 7.5V20a2 2 0 01-2 2H5a2 2 0 01-2-2v-9.5z" fill="url(#nav-home-teal)" opacity="0.9"/>
+                  <rect x="10" y="15" width="4" height="5" rx="0.5" fill="url(#nav-home-gold)" opacity="0.8"/>
+                  <path d="M18 4v3" stroke="url(#nav-home-pink)" stroke-width="2" stroke-linecap="round"/>
+                  <ellipse cx="18" cy="2.5" rx="1.5" ry="1" fill="url(#nav-home-pink)" opacity="0.6"/>
+                  <circle cx="7" cy="11" r="1.5" fill="url(#nav-home-gold)" opacity="0.8"/>
                 </svg>
                 Home
               </button>
               <button class="nav-item" type="button" data-tab-target="plan">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-plan-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                    <linearGradient id="nav-plan-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                    <linearGradient id="nav-plan-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="11" r="7" fill="url(#nav-plan-teal)" opacity="0.3"/>
+                  <circle cx="12" cy="11" r="6" stroke="url(#nav-plan-teal)" stroke-width="1.5" fill="none"/>
+                  <path d="M8 20h8l-1-3H9l-1 3z" fill="url(#nav-plan-gold)"/>
+                  <rect x="7" y="20" width="10" height="2" rx="1" fill="url(#nav-plan-gold)" opacity="0.8"/>
+                  <circle cx="10" cy="9" r="1" fill="#fff" opacity="0.9"/>
+                  <path d="M9 13l2-3 2 2 2-4" stroke="url(#nav-plan-pink)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="6" cy="6" r="1" fill="url(#nav-plan-gold)"/>
+                  <circle cx="18" cy="7" r="0.7" fill="url(#nav-plan-gold)"/>
                 </svg>
                 Plan
               </button>
               <button class="nav-item" type="button" data-tab-target="goals">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-goals-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                    <linearGradient id="nav-goals-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                    </linearGradient>
+                    <linearGradient id="nav-goals-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="12" r="9" fill="url(#nav-goals-pink)" opacity="0.2"/>
+                  <circle cx="12" cy="12" r="6" fill="#fff" opacity="0.5"/>
+                  <circle cx="12" cy="12" r="3" fill="url(#nav-goals-pink)"/>
+                  <path d="M19 5l-6 6" stroke="url(#nav-goals-teal)" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M19 5l-3 0.5 0.5 2.5" fill="url(#nav-goals-teal)"/>
+                  <circle cx="5" cy="5" r="1" fill="url(#nav-goals-gold)"/>
+                  <circle cx="19" cy="18" r="0.8" fill="url(#nav-goals-gold)"/>
                 </svg>
                 Goals
               </button>
               <button class="nav-item" type="button" data-tab-target="rewards">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-rewards-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                    <linearGradient id="nav-rewards-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                    </linearGradient>
+                    <linearGradient id="nav-rewards-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M8 21h8M12 17v4" stroke="url(#nav-rewards-gold)" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M7 4h10v7a5 5 0 01-10 0V4z" fill="url(#nav-rewards-gold)"/>
+                  <path d="M7 4H5a2 2 0 00-2 2v1a3 3 0 003 3h1" fill="url(#nav-rewards-gold)" opacity="0.7"/>
+                  <path d="M17 4h2a2 2 0 012 2v1a3 3 0 01-3 3h-1" fill="url(#nav-rewards-gold)" opacity="0.7"/>
+                  <ellipse cx="12" cy="4" rx="4" ry="1" fill="#fff" opacity="0.4"/>
+                  <circle cx="5" cy="2" r="1" fill="url(#nav-rewards-pink)"/>
+                  <circle cx="19" cy="3" r="0.8" fill="url(#nav-rewards-teal)"/>
+                  <rect x="6" y="1" width="1.5" height="3" rx="0.5" fill="url(#nav-rewards-teal)" transform="rotate(-20 6 2)"/>
                 </svg>
                 Rewards
               </button>
               <button class="nav-item" type="button" data-tab-target="family">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/>
-                  <circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-family-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                    <linearGradient id="nav-family-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                    </linearGradient>
+                    <linearGradient id="nav-family-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="6" r="3" fill="url(#nav-family-teal)"/>
+                  <path d="M12 10c-4 0-6 2-6 5v3h12v-3c0-3-2-5-6-5z" fill="url(#nav-family-teal)" opacity="0.8"/>
+                  <circle cx="5" cy="9" r="2.5" fill="url(#nav-family-pink)"/>
+                  <path d="M5 12c-2.5 0-4 1.5-4 4v2h5v-4c0-1 0.5-2 1-2h-2z" fill="url(#nav-family-pink)" opacity="0.8"/>
+                  <circle cx="19" cy="9" r="2.5" fill="url(#nav-family-gold)"/>
+                  <path d="M19 12c2.5 0 4 1.5 4 4v2h-5v-4c0-1-0.5-2-1-2h2z" fill="url(#nav-family-gold)" opacity="0.8"/>
+                  <circle cx="12" cy="5.5" r="0.5" fill="#fff" opacity="0.6"/>
                 </svg>
                 Family
               </button>
               <button class="nav-item" type="button" data-tab-target="profile">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-profile-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                    <linearGradient id="nav-profile-navy" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d3557"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="12" r="10" fill="url(#nav-profile-navy)" opacity="0.1"/>
+                  <circle cx="12" cy="9" r="4" fill="url(#nav-profile-teal)"/>
+                  <path d="M4 20c0-4 3.5-7 8-7s8 3 8 7" fill="url(#nav-profile-teal)" opacity="0.8"/>
+                  <circle cx="10.5" cy="8" r="0.7" fill="#1d3557"/>
+                  <circle cx="13.5" cy="8" r="0.7" fill="#1d3557"/>
+                  <path d="M10 10.5q2 1.5 4 0" stroke="#1d3557" stroke-width="0.8" stroke-linecap="round" fill="none"/>
+                  <circle cx="10.7" cy="7.8" r="0.25" fill="#fff"/>
+                  <circle cx="13.7" cy="7.8" r="0.25" fill="#fff"/>
                 </svg>
                 Profile
               </button>
@@ -1011,8 +1407,21 @@
               <div class="panel-grid">
                 <div class="panel-card metric-card">
                   <div class="metric-icon surplus-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                    <svg width="28" height="28" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="metric-surplus-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                        <linearGradient id="metric-surplus-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="8" cy="16" r="3" fill="url(#metric-surplus-gold)"/>
+                      <text x="8" y="17.5" font-family="Arial" font-size="3.5" font-weight="bold" fill="#92400e" text-anchor="middle">£</text>
+                      <circle cx="12" cy="12" r="3" fill="url(#metric-surplus-gold)" opacity="0.9"/>
+                      <circle cx="16" cy="8" r="3" fill="url(#metric-surplus-gold)" opacity="0.8"/>
+                      <path d="M6 10l4-4 4 4 4-4" stroke="url(#metric-surplus-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="18" cy="4" r="0.8" fill="url(#metric-surplus-teal)"/>
                     </svg>
                   </div>
                   <p class="card-title">Monthly Surplus</p>
@@ -1021,8 +1430,19 @@
                 </div>
                 <div class="panel-card metric-card">
                   <div class="metric-icon buffer-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    <svg width="28" height="28" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="metric-buffer-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                        <linearGradient id="metric-buffer-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                      </defs>
+                      <path d="M12 2l8 4v6c0 5.5-3.5 10-8 12-4.5-2-8-6.5-8-12V6l8-4z" fill="url(#metric-buffer-teal)"/>
+                      <path d="M12 7l-2 2a2 2 0 103 3 2 2 0 103-3l-4-2z" fill="url(#metric-buffer-pink)"/>
+                      <circle cx="6" cy="5" r="0.6" fill="url(#metric-buffer-pink)"/>
+                      <circle cx="18" cy="6" r="0.5" fill="url(#metric-buffer-pink)"/>
                     </svg>
                   </div>
                   <p class="card-title">Buffer Health</p>
@@ -1031,8 +1451,25 @@
                 </div>
                 <div class="panel-card metric-card">
                   <div class="metric-icon score-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    <svg width="28" height="28" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="metric-score-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                        <linearGradient id="metric-score-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                        <linearGradient id="metric-score-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="12" cy="14" r="8" fill="url(#metric-score-teal)" opacity="0.2"/>
+                      <path d="M4 14a8 8 0 0116 0" fill="none" stroke="url(#metric-score-teal)" stroke-width="3" stroke-linecap="round"/>
+                      <path d="M4 14a8 8 0 0112.5-1" fill="none" stroke="url(#metric-score-gold)" stroke-width="3" stroke-linecap="round"/>
+                      <circle cx="12" cy="14" r="2" fill="url(#metric-score-gold)"/>
+                      <path d="M12 14l4-5" stroke="url(#metric-score-pink)" stroke-width="2" stroke-linecap="round"/>
+                      <circle cx="18" cy="6" r="1" fill="url(#metric-score-gold)"/>
+                      <circle cx="6" cy="8" r="0.6" fill="url(#metric-score-pink)"/>
                     </svg>
                   </div>
                   <p class="card-title">Financial Score</p>
@@ -1064,8 +1501,24 @@
                 </div>
                 <div class="panel-card metric-card">
                   <div class="metric-icon rewards-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                    <svg width="28" height="28" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="metric-reward-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                        <linearGradient id="metric-reward-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                        <linearGradient id="metric-reward-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="12" cy="10" r="7" fill="url(#metric-reward-gold)"/>
+                      <path d="M8 21l4-3 4 3V12H8v9z" fill="url(#metric-reward-pink)"/>
+                      <path d="M12 5l1.5 3h3l-2.5 2 1 3-3-2-3 2 1-3-2.5-2h3z" fill="#fff" opacity="0.9"/>
+                      <circle cx="5" cy="5" r="0.8" fill="url(#metric-reward-teal)"/>
+                      <circle cx="19" cy="6" r="0.6" fill="url(#metric-reward-teal)"/>
+                      <circle cx="4" cy="15" r="0.5" fill="url(#metric-reward-pink)"/>
                     </svg>
                   </div>
                   <p class="card-title">Rewards</p>
@@ -1198,15 +1651,15 @@
                   </div>
                 </div>
 
-                <div class="panel-card smart-alerts-card" data-widget="alerts">
+                <div class="panel-card smart-alerts-card" data-widget="alerts" role="region" aria-label="Smart Alerts">
                   <h3>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                       <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
                     </svg>
                     Smart Alerts
-                    <span class="alert-badge" data-alert-count></span>
+                    <span class="alert-badge" data-alert-count aria-label="Alert count"></span>
                   </h3>
-                  <ul class="alert-list" data-alert-list></ul>
+                  <ul class="alert-list" data-alert-list role="list" aria-live="polite"></ul>
                 </div>
 
                 <div class="panel-card bills-card" data-widget="bills">
@@ -1227,6 +1680,47 @@
                     </svg>
                     Add Bill
                   </button>
+                </div>
+
+                <div class="panel-card statement-import-card" data-widget="statements" role="region" aria-label="Bank Statement Import">
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+                    </svg>
+                    Import Statement
+                  </h3>
+                  <p class="muted" style="margin-bottom: 12px;">Auto-categorize transactions from your bank</p>
+                  <div class="statement-drop-zone" data-statement-dropzone>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <p>Drop CSV file here or</p>
+                    <label class="btn small outline">
+                      Browse
+                      <input type="file" accept=".csv" data-statement-file hidden />
+                    </label>
+                  </div>
+                  <div class="statement-preview" data-statement-preview style="display: none;">
+                    <div class="statement-summary">
+                      <div class="statement-stat">
+                        <span class="stat-label">Transactions</span>
+                        <span class="stat-value" data-statement-count>0</span>
+                      </div>
+                      <div class="statement-stat">
+                        <span class="stat-label">Income</span>
+                        <span class="stat-value positive" data-statement-income>£0</span>
+                      </div>
+                      <div class="statement-stat">
+                        <span class="stat-label">Spending</span>
+                        <span class="stat-value negative" data-statement-spending>£0</span>
+                      </div>
+                    </div>
+                    <div class="statement-categories" data-statement-categories></div>
+                    <div class="statement-actions">
+                      <button type="button" class="btn small outline" data-statement-clear>Clear</button>
+                      <button type="button" class="btn small primary" data-statement-apply>Apply to Budget</button>
+                    </div>
+                  </div>
                 </div>
 
                 <div class="panel-card protection-check-card" data-widget="vulnerabilities" data-protection-check>
@@ -1265,18 +1759,16 @@
                   </div>
                 </div>
 
-                <div class="panel-card" data-widget="quickwins">
+                <div class="panel-card quick-actions-card" data-widget="quickwins">
                   <h3>
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                       <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
                     </svg>
-                    Quick Wins
+                    One-Click Actions
                   </h3>
-                  <div class="quick-grid">
-                    <button type="button" class="pill">Find lost balances</button>
-                    <button type="button" class="pill">Review subscriptions</button>
-                    <button type="button" class="pill">Auto-save surplus</button>
-                    <button type="button" class="pill">Investment check</button>
+                  <p class="muted" style="margin-bottom: 16px;">Quick financial moves with one tap</p>
+                  <div class="quick-actions-grid" data-quick-actions>
+                    <!-- Dynamically populated -->
                   </div>
                 </div>
 
@@ -1682,6 +2174,22 @@
           </div>
         </section>
       </main>
+    </div>
+
+    <!-- Action Result Modal -->
+    <div class="action-modal-overlay" data-action-modal style="display: none;" role="dialog" aria-modal="true" aria-labelledby="action-modal-title">
+      <div class="action-modal">
+        <div class="action-modal-icon" data-action-modal-icon aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+        </div>
+        <h3 id="action-modal-title" data-action-modal-title>Action Complete</h3>
+        <p data-action-modal-message></p>
+        <div class="action-modal-details" data-action-modal-details></div>
+        <button type="button" class="btn btn-primary" data-action-modal-close>Got it</button>
+      </div>
     </div>
 
     <script src="app-config.js" defer></script>

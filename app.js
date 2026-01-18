@@ -741,6 +741,7 @@ function saveLocalState() {
   try {
     const payload = serializeState();
     localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+    clearUnsavedChanges();
   } catch (error) {
     console.warn("Failed to save to localStorage:", error.message);
     // Show user notification if storage is full
@@ -758,6 +759,7 @@ let currentCashflowData = null;
 let cashflowMeta = null;
 
 function scheduleSave() {
+  markUnsavedChanges();
   clearTimeout(saveTimer);
   saveTimer = setTimeout(saveLocalState, 250);
 
@@ -979,19 +981,198 @@ function claimOffer(offerId) {
 
 function getBadgeIcon(iconName) {
   const icons = {
-    target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
-    "pie-chart": '<path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/>',
-    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
-    "shield-check": '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M9 12l2 2 4-4"/>',
-    flame: '<path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/>',
-    fire: '<path d="M8.5 14.5A2.5 2.5 0 0011 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 11-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 002.5 2.5z"/>',
-    crown: '<path d="M2 4l3 12h14l3-12-6 7-4-7-4 7-6-7zm3 16h14"/>',
-    trophy: '<path d="M6 9H4.5a2.5 2.5 0 010-5H6"/><path d="M18 9h1.5a2.5 2.5 0 000-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 1012 0V2z"/>',
-    "broken-chain": '<path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71"/>',
-    "piggy-bank": '<path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/>',
-    rocket: '<path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 00-2.91-.09z"/><path d="M12 15l-3-3a22 22 0 012-3.95A12.88 12.88 0 0122 2c0 2.72-.78 7.5-6 11a22.35 22.35 0 01-4 2z"/><path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 0 5 0"/><path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5"/>',
-    "calendar-check": '<rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/><path d="M9 16l2 2 4-4"/>',
-    award: '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89L17 22l-5-3-5 3 1.523-9.11"/>',
+    target: `
+      <defs>
+        <linearGradient id="bdg-pink-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+        <linearGradient id="bdg-gold-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="bdg-teal-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="12" r="10" fill="url(#bdg-pink-${iconName})" opacity="0.2"/>
+      <circle cx="12" cy="12" r="7" fill="#fff" opacity="0.4"/>
+      <circle cx="12" cy="12" r="4" fill="url(#bdg-pink-${iconName})" opacity="0.6"/>
+      <circle cx="12" cy="12" r="1.5" fill="url(#bdg-pink-${iconName})"/>
+      <path d="M18 4l-5 7" stroke="url(#bdg-teal-${iconName})" stroke-width="2" stroke-linecap="round"/>
+      <path d="M18 4l2-2M20 4l-2 2M18 2l2 2" stroke="url(#bdg-gold-${iconName})" stroke-width="1.5" stroke-linecap="round"/>`,
+    "pie-chart": `
+      <defs>
+        <linearGradient id="bdg-teal-pie" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+        <linearGradient id="bdg-gold-pie" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="bdg-pink-pie" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="14" r="8" fill="url(#bdg-teal-pie)" opacity="0.3"/>
+      <path d="M12 6v8l6 4" fill="url(#bdg-teal-pie)"/>
+      <path d="M12 6a8 8 0 00-6.9 4" fill="url(#bdg-pink-pie)"/>
+      <path d="M5.1 10A8 8 0 0012 22a8 8 0 006.9-12" fill="url(#bdg-gold-pie)" opacity="0.7"/>
+      <path d="M7 4l2 3h6l2-3-2.5 2L12 2l-2.5 4L7 4z" fill="url(#bdg-gold-pie)"/>`,
+    shield: `
+      <defs>
+        <linearGradient id="bdg-teal-sh" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+        <linearGradient id="bdg-gold-sh" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+      </defs>
+      <path d="M3 8c3 0 4 4 9 4s6-4 9-4v10c-3 0-4 2-9 2s-6-2-9-2V8z" fill="none" stroke="url(#bdg-teal-sh)" stroke-width="2"/>
+      <path d="M3 12h18M6 8v10M12 8v10M18 8v10" stroke="url(#bdg-teal-sh)" stroke-width="1" opacity="0.5"/>
+      <circle cx="8" cy="6" r="2" fill="url(#bdg-gold-sh)"/>
+      <circle cx="14" cy="4" r="2" fill="url(#bdg-gold-sh)"/>`,
+    "shield-check": `
+      <defs>
+        <linearGradient id="bdg-gold-shc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+      </defs>
+      <path d="M12 2l9 4v6c0 6-4 10-9 12-5-2-9-6-9-12V6l9-4z" fill="url(#bdg-gold-shc)"/>
+      <path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="8" cy="7" r="0.8" fill="#fff" opacity="0.5"/>`,
+    flame: `
+      <defs>
+        <linearGradient id="bdg-gold-fl" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="bdg-pink-fl" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+      </defs>
+      <path d="M12 2c-4 4-6 6-6 10a6 6 0 0012 0c0-4-2-6-6-10z" fill="url(#bdg-gold-fl)"/>
+      <path d="M12 6c-2 2-3 3-3 5a3 3 0 006 0c0-2-1-3-3-5z" fill="url(#bdg-pink-fl)" opacity="0.7"/>
+      <text x="12" y="16" font-family="Arial" font-size="8" font-weight="bold" fill="#fff" text-anchor="middle">7</text>`,
+    fire: `
+      <defs>
+        <linearGradient id="bdg-pink-fr" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+        <linearGradient id="bdg-gold-fr" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+      </defs>
+      <path d="M12 1c-5 5-7 7-7 12a7 7 0 0014 0c0-5-2-7-7-12z" fill="url(#bdg-pink-fr)"/>
+      <path d="M12 5c-2.5 2.5-4 4-4 7a4 4 0 008 0c0-3-1.5-4.5-4-7z" fill="url(#bdg-gold-fr)"/>
+      <text x="12" y="16" font-family="Arial" font-size="6" font-weight="bold" fill="#1d3557" text-anchor="middle">30</text>`,
+    crown: `
+      <defs>
+        <linearGradient id="bdg-gold-cr" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="bdg-pink-cr" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="12" cy="16" rx="7" ry="5" fill="url(#bdg-gold-cr)"/>
+      <path d="M5 16V11a7 7 0 0114 0v5" fill="url(#bdg-gold-cr)" opacity="0.9"/>
+      <path d="M8 4c0 0 4-3 8 0" stroke="url(#bdg-pink-cr)" stroke-width="3" stroke-linecap="round"/>
+      <path d="M12 1v5" stroke="url(#bdg-pink-cr)" stroke-width="3" stroke-linecap="round"/>
+      <ellipse cx="12" cy="1" rx="2" ry="1" fill="url(#bdg-pink-cr)"/>`,
+    trophy: `
+      <defs>
+        <linearGradient id="bdg-gold-tr" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="bdg-teal-tr" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+      </defs>
+      <path d="M7 4h10v7a5 5 0 01-10 0V4z" fill="url(#bdg-gold-tr)"/>
+      <path d="M7 6H5a2 2 0 000 4h2M17 6h2a2 2 0 010 4h-2" fill="url(#bdg-gold-tr)" opacity="0.7"/>
+      <path d="M10 15v3h4v-3" fill="url(#bdg-gold-tr)"/>
+      <rect x="8" y="18" width="8" height="3" rx="1" fill="url(#bdg-teal-tr)"/>
+      <circle cx="9" cy="7" r="1" fill="#fff" opacity="0.5"/>`,
+    "broken-chain": `
+      <defs>
+        <linearGradient id="bdg-navy-bc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d3557"/>
+        </linearGradient>
+        <linearGradient id="bdg-gold-bc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="bdg-pink-bc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="6" cy="14" rx="3" ry="4" fill="none" stroke="url(#bdg-navy-bc)" stroke-width="2.5"/>
+      <ellipse cx="18" cy="14" rx="3" ry="4" fill="none" stroke="url(#bdg-navy-bc)" stroke-width="2.5"/>
+      <path d="M12 4v12" stroke="url(#bdg-gold-bc)" stroke-width="2.5"/>
+      <path d="M10 4l2-2 2 2" fill="url(#bdg-gold-bc)"/>
+      <path d="M9 12l6 4M9 16l6-4" stroke="url(#bdg-pink-bc)" stroke-width="2" stroke-linecap="round"/>`,
+    "piggy-bank": `
+      <defs>
+        <linearGradient id="bdg-pink-pg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+        <linearGradient id="bdg-navy-pg" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d3557"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="11" cy="14" rx="7" ry="5" fill="url(#bdg-pink-pg)"/>
+      <circle cx="16" cy="11" r="3.5" fill="url(#bdg-pink-pg)"/>
+      <ellipse cx="19" cy="12" rx="1.8" ry="1.2" fill="#fda4af"/>
+      <circle cx="18.5" cy="11.8" r="0.4" fill="#db2777"/>
+      <circle cx="19.8" cy="11.8" r="0.4" fill="#db2777"/>
+      <ellipse cx="15" cy="8" rx="1" ry="1.3" fill="#db2777" transform="rotate(-15 15 8)"/>
+      <rect x="8" y="10" width="3" height="1" rx="0.5" fill="#db2777"/>
+      <circle cx="14" cy="9.5" r="2" fill="none" stroke="url(#bdg-navy-pg)" stroke-width="1"/>
+      <circle cx="18" cy="9.5" r="2" fill="none" stroke="url(#bdg-navy-pg)" stroke-width="1"/>
+      <path d="M16 9.5h-2M12 10h-1" stroke="url(#bdg-navy-pg)" stroke-width="0.8"/>`,
+    rocket: `
+      <defs>
+        <linearGradient id="bdg-teal-rk" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+        <linearGradient id="bdg-pink-rk" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+        <linearGradient id="bdg-gold-rk" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+      </defs>
+      <path d="M12 2l7 3.5v5.5c0 5-3 9-7 11-4-2-7-6-7-11V5.5L12 2z" fill="url(#bdg-teal-rk)"/>
+      <path d="M12 7c-1 0-2 1-2 2v4l2 3 2-3V9c0-1-1-2-2-2z" fill="url(#bdg-pink-rk)"/>
+      <path d="M10 13l-1.5 2M14 13l1.5 2" stroke="url(#bdg-gold-rk)" stroke-width="1.5" stroke-linecap="round"/>
+      <ellipse cx="12" cy="17" rx="1.5" ry="2" fill="url(#bdg-gold-rk)"/>
+      <circle cx="12" cy="9" r="1" fill="#fff" opacity="0.7"/>`,
+    "calendar-check": `
+      <defs>
+        <linearGradient id="bdg-teal-cc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+        <linearGradient id="bdg-gold-cc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+      </defs>
+      <rect x="4" y="5" width="16" height="16" rx="2" fill="url(#bdg-teal-cc)"/>
+      <path d="M4 10h16" stroke="#fff" stroke-width="1" opacity="0.3"/>
+      <path d="M8 3v4M16 3v4" stroke="url(#bdg-teal-cc)" stroke-width="2" stroke-linecap="round"/>
+      <path d="M8 1l1.5 2h5l1.5-2-2 1.5L12 0l-2 2.5L8 1z" fill="url(#bdg-gold-cc)"/>
+      <path d="M8 14l2 2 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+    award: `
+      <defs>
+        <linearGradient id="bdg-gold-aw" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="bdg-pink-aw" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+        <linearGradient id="bdg-teal-aw" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+      </defs>
+      <path d="M8 21l4-3 4 3V10H8v11z" fill="url(#bdg-pink-aw)"/>
+      <circle cx="12" cy="9" r="7" fill="url(#bdg-gold-aw)"/>
+      <path d="M12 4l5 2.5v3.5c0 3-2 5-5 6-3-1-5-3-5-6V6.5L12 4z" fill="url(#bdg-teal-aw)"/>
+      <path d="M10 9l1.5 1.5 3-3" stroke="#fff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>`,
   };
   return icons[iconName] || icons.target;
 }
@@ -1011,9 +1192,6 @@ function getOfferIcon(iconName) {
 }
 
 function updateRewardsUI() {
-  // Handle daily check-in
-  handleDailyCheckIn();
-
   // Update basic displays
   setTextAll("[data-rewards-points]", state.rewardPoints || 0);
   setTextAll("[data-rewards-streak]", state.rewardStreak || 0);
@@ -2174,15 +2352,112 @@ function generateSmartAlerts() {
 
 function getAlertIcon(iconName) {
   const icons = {
-    calendar: '<path d="M19 4H5a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2V6a2 2 0 00-2-2zM16 2v4M8 2v4M3 10h18"/>',
-    "alert-triangle": '<path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>',
-    "piggy-bank": '<path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2h0V5z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/>',
-    shield: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>',
-    "shield-alert": '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M12 8v4"/><path d="M12 16h.01"/>',
-    flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"/><line x1="4" y1="22" x2="4" y2="15"/>',
-    "check-circle": '<path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>',
-    clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
-    scissors: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/>',
+    calendar: `
+      <defs>
+        <linearGradient id="al-teal-cal" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+        <linearGradient id="al-gold-cal" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+      </defs>
+      <rect x="3" y="5" width="14" height="14" rx="2" fill="url(#al-teal-cal)"/>
+      <path d="M7 3v4M13 3v4M3 10h14" stroke="url(#al-teal-cal)" stroke-width="2" stroke-linecap="round"/>
+      <path d="M18 10a4 4 0 00-4 4v2h8v-2a4 4 0 00-4-4z" fill="url(#al-gold-cal)"/>
+      <circle cx="18" cy="10" r="1.5" fill="url(#al-gold-cal)"/>`,
+    "alert-triangle": `
+      <defs>
+        <linearGradient id="al-pink-tri" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+      </defs>
+      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z" fill="url(#al-pink-tri)"/>
+      <path d="M12 9v4M12 16h.01" stroke="#fff" stroke-width="2" stroke-linecap="round"/>`,
+    "piggy-bank": `
+      <defs>
+        <linearGradient id="al-pink-pig" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="11" cy="14" rx="7" ry="5" fill="url(#al-pink-pig)" opacity="0.7"/>
+      <circle cx="16" cy="11" r="3.5" fill="url(#al-pink-pig)" opacity="0.7"/>
+      <ellipse cx="19" cy="12" rx="1.8" ry="1.2" fill="#fda4af"/>
+      <circle cx="16.5" cy="9.5" r="0.8" fill="#1d3557"/>
+      <path d="M15 11.5q2-1 4 0" stroke="#1d3557" stroke-width="0.8" stroke-linecap="round" fill="none"/>`,
+    shield: `
+      <defs>
+        <linearGradient id="al-teal-sh" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+      </defs>
+      <path d="M12 2l8 4v6c0 5.5-3.5 10-8 12-4.5-2-8-6.5-8-12V6l8-4z" fill="url(#al-teal-sh)"/>
+      <path d="M9 12l2 2 4-4" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+    "shield-alert": `
+      <defs>
+        <linearGradient id="al-teal-sha" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+        <linearGradient id="al-pink-sha" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+      </defs>
+      <path d="M12 2l8 4v6c0 5.5-3.5 10-8 12-4.5-2-8-6.5-8-12V6l8-4z" fill="url(#al-teal-sha)"/>
+      <path d="M12 8v4M12 16h.01" stroke="url(#al-pink-sha)" stroke-width="2" stroke-linecap="round"/>`,
+    flag: `
+      <defs>
+        <linearGradient id="al-teal-fl" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+        <linearGradient id="al-navy-fl" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d3557"/>
+        </linearGradient>
+        <linearGradient id="al-gold-fl" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+      </defs>
+      <path d="M5 4v18" stroke="url(#al-navy-fl)" stroke-width="2" stroke-linecap="round"/>
+      <path d="M5 4h12l-3 5 3 5H5" fill="url(#al-teal-fl)"/>
+      <circle cx="3" cy="3" r="1" fill="url(#al-gold-fl)"/>
+      <circle cx="19" cy="6" r="0.8" fill="url(#al-gold-fl)"/>`,
+    "check-circle": `
+      <defs>
+        <linearGradient id="al-teal-ch" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+        <linearGradient id="al-gold-ch" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="12" r="10" fill="url(#al-teal-ch)"/>
+      <circle cx="8.5" cy="10" r="1.2" fill="#1d3557"/>
+      <circle cx="15.5" cy="10" r="1.2" fill="#1d3557"/>
+      <path d="M8 15c2 2 6 2 8 0" stroke="#1d3557" stroke-width="1.5" stroke-linecap="round" fill="none"/>
+      <path d="M8 12l2.5 2.5L16 9" stroke="url(#al-gold-ch)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`,
+    clock: `
+      <defs>
+        <linearGradient id="al-navy-cl" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d3557"/>
+        </linearGradient>
+        <linearGradient id="al-gold-cl" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="12" r="10" fill="url(#al-navy-cl)" opacity="0.2"/>
+      <circle cx="12" cy="12" r="9" fill="none" stroke="url(#al-navy-cl)" stroke-width="2"/>
+      <path d="M12 6v6l4 2" stroke="url(#al-gold-cl)" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="1.5" fill="url(#al-gold-cl)"/>`,
+    scissors: `
+      <defs>
+        <linearGradient id="al-teal-sc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+        <linearGradient id="al-pink-sc" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+      </defs>
+      <circle cx="6" cy="6" r="3" fill="url(#al-teal-sc)"/>
+      <circle cx="6" cy="18" r="3" fill="url(#al-teal-sc)"/>
+      <path d="M20 4l-12 12M14.5 14.5L20 20M8.12 8.12L12 12" stroke="url(#al-pink-sc)" stroke-width="2" stroke-linecap="round"/>`,
   };
   return icons[iconName] || icons.calendar;
 }
@@ -2384,6 +2659,870 @@ function showAddBillModal() {
   scheduleSave();
   updateBillsList();
   updateAlertList();
+}
+
+// One-Click Actions System
+const QUICK_ACTIONS = {
+  "auto-save": {
+    name: "Auto-Save Surplus",
+    icon: "piggy-bank",
+    description: "Distribute your surplus to savings goals",
+  },
+  "subscription-audit": {
+    name: "Subscription Audit",
+    icon: "scissors",
+    description: "Review subscriptions for potential savings",
+  },
+  "round-up": {
+    name: "Round-Up Savings",
+    icon: "trending-up",
+    description: "Calculate potential round-up savings",
+  },
+  "emergency-boost": {
+    name: "Emergency Fund Boost",
+    icon: "shield-plus",
+    description: "Quick top-up your emergency fund",
+  },
+  "goal-boost": {
+    name: "Goal Boost",
+    icon: "zap",
+    description: "Add a one-time boost to your top goal",
+  },
+  "debt-snowball": {
+    name: "Debt Payoff Plan",
+    icon: "trending-down",
+    description: "Calculate fastest debt payoff strategy",
+  },
+};
+
+function executeQuickAction(actionId) {
+  // Check cooldown to prevent point farming
+  if (!canExecuteAction(actionId)) {
+    const remaining = getCooldownRemaining(actionId);
+    return {
+      success: false,
+      title: "Action on Cooldown",
+      message: `Please wait ${remaining} seconds before using this action again.`,
+      type: "warning",
+    };
+  }
+
+  const snapshot = getFinanceSnapshot();
+  let result;
+
+  switch (actionId) {
+    case "auto-save":
+      result = executeAutoSave(snapshot);
+      break;
+    case "subscription-audit":
+      result = executeSubscriptionAudit();
+      break;
+    case "round-up":
+      result = executeRoundUpCalculator(snapshot);
+      break;
+    case "emergency-boost":
+      result = executeEmergencyBoost(snapshot);
+      break;
+    case "goal-boost":
+      result = executeGoalBoost(snapshot);
+      break;
+    case "debt-snowball":
+      result = executeDebtSnowball(snapshot);
+      break;
+    default:
+      return { success: false, message: "Unknown action" };
+  }
+
+  // Record execution if successful (triggers cooldown)
+  if (result.success) {
+    recordActionExecution(actionId);
+  }
+
+  return result;
+}
+
+function executeAutoSave(snapshot) {
+  const surplus = snapshot.surplus;
+  if (surplus <= 0) {
+    return {
+      success: false,
+      title: "No Surplus Available",
+      message: "Your expenses currently match or exceed your income. Try reducing expenses first.",
+      type: "warning",
+    };
+  }
+
+  const activeGoals = (state.goals || []).filter((g) => g.autoAllocate && g.target > g.saved);
+  if (activeGoals.length === 0) {
+    return {
+      success: false,
+      title: "No Active Goals",
+      message: "Create a goal with auto-allocate enabled to use this feature.",
+      type: "info",
+    };
+  }
+
+  // Calculate and apply allocation
+  const allocations = calculateSuggestedAllocation(state.goals, surplus);
+  let totalAllocated = 0;
+  const allocationDetails = [];
+
+  allocations.forEach((alloc) => {
+    const goal = state.goals.find((g) => g.id === alloc.goalId);
+    if (goal) {
+      goal.monthly = alloc.suggested;
+      totalAllocated += alloc.suggested;
+      allocationDetails.push({ name: goal.name, amount: alloc.suggested });
+    }
+  });
+
+  scheduleSave();
+  updateGoalList();
+  awardPoints(25, "Auto-save action");
+
+  return {
+    success: true,
+    title: "Surplus Allocated!",
+    message: `${formatCurrency(totalAllocated)}/month distributed across ${allocationDetails.length} goal(s).`,
+    type: "success",
+    details: allocationDetails.map((a) => `${a.name}: ${formatCurrency(a.amount)}/month`),
+  };
+}
+
+function executeSubscriptionAudit() {
+  const subscriptions = (state.bills || []).filter((b) => b.category === "subscription" && b.active);
+
+  if (subscriptions.length === 0) {
+    return {
+      success: false,
+      title: "No Subscriptions Found",
+      message: "Add your subscriptions to the Bills section to audit them.",
+      type: "info",
+    };
+  }
+
+  const totalMonthly = subscriptions.reduce((sum, s) => sum + s.amount, 0);
+  const annualCost = totalMonthly * 12;
+
+  // Find potential savings (subscriptions that might be duplicates or unused)
+  const suggestions = [];
+  const categories = {};
+
+  subscriptions.forEach((sub) => {
+    const key = sub.name.toLowerCase();
+    if (!categories[key]) categories[key] = [];
+    categories[key].push(sub);
+  });
+
+  // Suggest review for high-cost subscriptions
+  subscriptions.forEach((sub) => {
+    if (sub.amount > 20) {
+      suggestions.push({
+        name: sub.name,
+        amount: sub.amount,
+        suggestion: "Review if still needed - high monthly cost",
+      });
+    }
+  });
+
+  // Calculate potential if cancelled
+  const potentialSavings = Math.round(totalMonthly * 0.2); // Assume 20% could be cut
+
+  awardPoints(15, "Subscription audit");
+
+  return {
+    success: true,
+    title: "Subscription Audit Complete",
+    message: `You spend ${formatCurrency(totalMonthly)}/month (${formatCurrency(annualCost)}/year) on ${subscriptions.length} subscription(s).`,
+    type: "info",
+    details: [
+      `Potential annual savings: ${formatCurrency(potentialSavings * 12)} (if you cut 20%)`,
+      ...subscriptions.map((s) => `${s.name}: ${formatCurrency(s.amount)}/month`),
+    ],
+    suggestions,
+  };
+}
+
+function executeRoundUpCalculator(snapshot) {
+  // Calculate potential round-up savings based on expenses
+  const monthlyExpenses = snapshot.expenses;
+  const estimatedTransactions = Math.round(monthlyExpenses / 25); // Assume avg £25 per transaction
+
+  // Average round-up is about 50p per transaction
+  const avgRoundUp = 0.5;
+  const monthlyRoundUp = Math.round(estimatedTransactions * avgRoundUp);
+  const yearlyRoundUp = monthlyRoundUp * 12;
+
+  awardPoints(10, "Round-up calculator");
+
+  return {
+    success: true,
+    title: "Round-Up Potential",
+    message: `Based on your spending, round-ups could save you ${formatCurrency(monthlyRoundUp)}/month.`,
+    type: "success",
+    details: [
+      `Estimated transactions: ~${estimatedTransactions}/month`,
+      `Average round-up: ~50p per transaction`,
+      `Monthly round-up savings: ${formatCurrency(monthlyRoundUp)}`,
+      `Annual round-up savings: ${formatCurrency(yearlyRoundUp)}`,
+    ],
+  };
+}
+
+function executeEmergencyBoost(snapshot) {
+  const surplus = snapshot.surplus;
+  const suggestedBoost = Math.max(50, Math.round(surplus * 0.1)); // 10% of surplus or £50 min
+
+  if (surplus <= 0) {
+    return {
+      success: false,
+      title: "No Surplus for Boost",
+      message: "You need positive surplus to boost your emergency fund.",
+      type: "warning",
+    };
+  }
+
+  const boostAmount = prompt(`Add to emergency fund (suggested: £${suggestedBoost}):`);
+  if (boostAmount === null) {
+    return { success: false, title: "Cancelled", message: "Action cancelled.", type: "info" };
+  }
+
+  const amount = parseFloat(boostAmount);
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return { success: false, title: "Invalid Amount", message: "Please enter a valid positive number.", type: "warning" };
+  }
+
+  // Cap at reasonable maximum (10x monthly expenses or £100k)
+  const maxBoost = Math.max(100000, (snapshot.expenses || 0) * 10);
+  const safeAmount = Math.min(amount, maxBoost);
+
+  state.savings = (state.savings || 0) + safeAmount;
+  scheduleSave();
+  refreshUI();
+  awardPoints(20, "Emergency fund boost");
+  checkAllBadges();
+
+  const newBuffer = snapshot.expenses > 0 ? state.savings / snapshot.expenses : 0;
+
+  return {
+    success: true,
+    title: "Emergency Fund Boosted!",
+    message: `Added ${formatCurrency(safeAmount)} to your emergency fund.`,
+    type: "success",
+    details: [
+      `New total: ${formatCurrency(state.savings)}`,
+      `Buffer: ${newBuffer.toFixed(1)} months of expenses`,
+    ],
+  };
+}
+
+function executeGoalBoost(snapshot) {
+  const goals = (state.goals || []).filter((g) => g.target > g.saved);
+
+  if (goals.length === 0) {
+    return {
+      success: false,
+      title: "No Active Goals",
+      message: "Create a goal to use this feature.",
+      type: "info",
+    };
+  }
+
+  // Find highest priority goal
+  const topGoal = [...goals].sort((a, b) => (a.priority || 99) - (b.priority || 99))[0];
+  const remaining = topGoal.target - topGoal.saved;
+  const suggestedBoost = Math.min(remaining, Math.max(25, Math.round(snapshot.surplus * 0.1)));
+
+  const boostAmount = prompt(
+    `Boost "${topGoal.name}" (${formatCurrency(remaining)} remaining).\nSuggested: £${suggestedBoost}`
+  );
+  if (boostAmount === null) {
+    return { success: false, title: "Cancelled", message: "Action cancelled.", type: "info" };
+  }
+
+  const amount = parseFloat(boostAmount);
+  if (!Number.isFinite(amount) || amount <= 0) {
+    return { success: false, title: "Invalid Amount", message: "Please enter a valid positive number.", type: "warning" };
+  }
+
+  // Cap at remaining amount needed for goal
+  const safeAmount = Math.min(amount, remaining);
+
+  topGoal.saved = topGoal.saved + safeAmount;
+  scheduleSave();
+  updateGoalList();
+  awardPoints(20, "Goal boost");
+  checkAllBadges();
+
+  const progress = Math.round((topGoal.saved / topGoal.target) * 100);
+
+  return {
+    success: true,
+    title: "Goal Boosted!",
+    message: `Added ${formatCurrency(safeAmount)} to "${topGoal.name}".`,
+    type: "success",
+    details: [
+      `New saved: ${formatCurrency(topGoal.saved)} / ${formatCurrency(topGoal.target)}`,
+      `Progress: ${progress}%`,
+      topGoal.saved >= topGoal.target ? "Goal completed!" : `${formatCurrency(topGoal.target - topGoal.saved)} remaining`,
+    ],
+  };
+}
+
+function executeDebtSnowball(snapshot) {
+  const debtFields = ["creditCards", "personalLoans", "otherDebt"];
+  const debts = debtFields
+    .map((field) => ({
+      name: field.replace(/([A-Z])/g, " $1").trim(),
+      amount: state.expenses[field] || 0,
+    }))
+    .filter((d) => d.amount > 0);
+
+  if (debts.length === 0) {
+    return {
+      success: true,
+      title: "No Debt Payments Found",
+      message: "You have no debt payments recorded. Great job staying debt-free!",
+      type: "success",
+    };
+  }
+
+  const totalMonthlyDebt = debts.reduce((sum, d) => sum + d.amount, 0);
+  const surplus = Math.max(0, snapshot.surplus);
+
+  // Snowball: smallest payment first (since we only have monthly payments, not balances)
+  const snowball = [...debts].sort((a, b) => a.amount - b.amount);
+
+  // Suggest putting 30% of surplus toward extra debt payments
+  const extraPayment = Math.round(surplus * 0.3);
+
+  awardPoints(15, "Debt analysis");
+
+  return {
+    success: true,
+    title: "Debt Snowball Plan",
+    message: `Focus on smallest debt first while paying minimums on others.`,
+    type: "info",
+    details: [
+      `Total monthly debt payments: ${formatCurrency(totalMonthlyDebt)}`,
+      extraPayment > 0 ? `Suggested extra payment: ${formatCurrency(extraPayment)}/month (30% of surplus)` : null,
+      `Attack order (smallest first):`,
+      ...snowball.map((d, i) => `${i + 1}. ${d.name}: ${formatCurrency(d.amount)}/month`),
+      surplus > 0
+        ? `Tip: Add extra payments to your smallest debt first for quick wins!`
+        : "Tip: Find ways to increase income or cut expenses to free up debt payoff funds.",
+    ].filter(Boolean),
+  };
+}
+
+function getQuickActionIcon(iconName) {
+  const icons = {
+    "piggy-bank": `
+      <defs>
+        <linearGradient id="qa-pink-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+        <linearGradient id="qa-gold-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+      </defs>
+      <ellipse cx="11" cy="14" rx="7" ry="5" fill="url(#qa-pink-${iconName})"/>
+      <circle cx="16" cy="11" r="3.5" fill="url(#qa-pink-${iconName})"/>
+      <ellipse cx="19" cy="12" rx="1.8" ry="1.2" fill="#fda4af"/>
+      <circle cx="16.5" cy="9.5" r="0.8" fill="#1d3557"/>
+      <rect x="8" y="10" width="3" height="1" rx="0.5" fill="#db2777"/>
+      <circle cx="5" cy="6" r="2" fill="url(#qa-gold-${iconName})"/>
+      <path d="M6 8l3 3" stroke="#2a9d8f" stroke-width="0.8" stroke-linecap="round" stroke-dasharray="1 1"/>`,
+    scissors: `
+      <defs>
+        <linearGradient id="qa-teal-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+        <linearGradient id="qa-navy-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d3557"/>
+        </linearGradient>
+      </defs>
+      <rect x="3" y="4" width="12" height="16" rx="2" fill="url(#qa-navy-${iconName})" opacity="0.2"/>
+      <path d="M6 8h6M6 11h4M6 14h5" stroke="url(#qa-navy-${iconName})" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="16" cy="12" r="4" fill="none" stroke="url(#qa-teal-${iconName})" stroke-width="2"/>
+      <path d="M19 15l3 3" stroke="url(#qa-teal-${iconName})" stroke-width="2.5" stroke-linecap="round"/>`,
+    "trending-up": `
+      <defs>
+        <linearGradient id="qa-gold2-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="qa-teal2-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+      </defs>
+      <circle cx="6" cy="18" r="3" fill="url(#qa-gold2-${iconName})"/>
+      <circle cx="12" cy="14" r="3" fill="url(#qa-gold2-${iconName})" opacity="0.9"/>
+      <circle cx="18" cy="10" r="3" fill="url(#qa-gold2-${iconName})" opacity="0.8"/>
+      <path d="M4 12c0-4 3-8 8-8s8 4 8 8" fill="none" stroke="url(#qa-teal2-${iconName})" stroke-width="2" stroke-linecap="round"/>
+      <path d="M17 4l3 0-1 3" fill="url(#qa-teal2-${iconName})"/>`,
+    "shield-plus": `
+      <defs>
+        <linearGradient id="qa-teal3-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+        <linearGradient id="qa-pink2-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+      </defs>
+      <path d="M12 2l8 4v6c0 5.5-3.5 10-8 12-4.5-2-8-6.5-8-12V6l8-4z" fill="url(#qa-teal3-${iconName})"/>
+      <path d="M12 7c-1 0-2 1-2 2v4l2 3 2-3V9c0-1-1-2-2-2z" fill="url(#qa-pink2-${iconName})"/>
+      <ellipse cx="12" cy="17" rx="1.5" ry="2" fill="#fcd34d"/>`,
+    zap: `
+      <defs>
+        <linearGradient id="qa-gold3-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+        </linearGradient>
+        <linearGradient id="qa-pink3-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+        </linearGradient>
+      </defs>
+      <circle cx="12" cy="12" r="9" fill="url(#qa-pink3-${iconName})" opacity="0.2"/>
+      <circle cx="12" cy="12" r="3" fill="url(#qa-pink3-${iconName})" opacity="0.6"/>
+      <path d="M13 2l-3 8h4l-3 10 7-11h-5l4-7h-4z" fill="url(#qa-gold3-${iconName})"/>`,
+    "trending-down": `
+      <defs>
+        <linearGradient id="qa-teal4-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+        </linearGradient>
+        <linearGradient id="qa-navy2-${iconName}" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d3557"/>
+        </linearGradient>
+      </defs>
+      <path d="M2 18l20-8" stroke="url(#qa-navy2-${iconName})" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+      <circle cx="18" cy="12" r="2.5" fill="url(#qa-teal4-${iconName})" opacity="0.5"/>
+      <circle cx="13" cy="14" r="3.5" fill="url(#qa-teal4-${iconName})" opacity="0.7"/>
+      <circle cx="6" cy="17" r="5" fill="url(#qa-teal4-${iconName})"/>
+      <circle cx="5" cy="15" r="1" fill="#fff" opacity="0.5"/>`,
+  };
+  return icons[iconName] || icons.zap;
+}
+
+function updateQuickActions() {
+  const container = document.querySelector("[data-quick-actions]");
+  if (!container) return;
+
+  container.innerHTML = Object.entries(QUICK_ACTIONS)
+    .map(
+      ([id, action]) => `
+      <button type="button" class="quick-action-btn" data-action="${escapeHtml(id)}">
+        <div class="quick-action-icon">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            ${getQuickActionIcon(action.icon)}
+          </svg>
+        </div>
+        <div class="quick-action-info">
+          <span class="quick-action-name">${escapeHtml(action.name)}</span>
+          <span class="quick-action-desc">${escapeHtml(action.description)}</span>
+        </div>
+        <svg class="quick-action-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"/>
+        </svg>
+      </button>
+    `
+    )
+    .join("");
+
+  // Attach click handlers
+  container.querySelectorAll("[data-action]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const actionId = btn.dataset.action;
+      const result = executeQuickAction(actionId);
+      showActionResult(result);
+    });
+  });
+}
+
+function showActionResult(result) {
+  const modal = document.querySelector("[data-action-modal]");
+  if (!modal) {
+    // Fallback to alert if modal doesn't exist
+    let message = `${result.title}\n\n${result.message}`;
+    if (result.details) {
+      message += "\n\n" + result.details.join("\n");
+    }
+    alert(message);
+    return;
+  }
+
+  const titleEl = modal.querySelector("[data-action-modal-title]");
+  const messageEl = modal.querySelector("[data-action-modal-message]");
+  const detailsEl = modal.querySelector("[data-action-modal-details]");
+  const iconEl = modal.querySelector("[data-action-modal-icon]");
+
+  if (titleEl) titleEl.textContent = result.title;
+  if (messageEl) messageEl.textContent = result.message;
+
+  if (iconEl) {
+    iconEl.className = `action-modal-icon ${result.type || "info"}`;
+  }
+
+  if (detailsEl && result.details && result.details.length > 0) {
+    detailsEl.innerHTML = result.details
+      .map((d) => {
+        // Handle both string and object formats
+        if (typeof d === "string") {
+          return `<div class="action-detail-item"><span class="action-detail-label">${escapeHtml(d)}</span></div>`;
+        }
+        return `
+          <div class="action-detail-item">
+            <span class="action-detail-label">${escapeHtml(d.label)}</span>
+            <span class="action-detail-value ${d.positive ? "positive" : d.negative ? "negative" : ""}">${escapeHtml(d.value)}</span>
+          </div>
+        `;
+      })
+      .join("");
+    detailsEl.style.display = "block";
+  } else if (detailsEl) {
+    detailsEl.innerHTML = "";
+  }
+
+  modal.style.display = "flex";
+
+  // Close handler
+  const closeBtn = modal.querySelector("[data-action-modal-close]");
+  if (closeBtn) {
+    closeBtn.onclick = () => (modal.style.display = "none");
+  }
+  modal.onclick = (e) => {
+    if (e.target === modal) modal.style.display = "none";
+  };
+}
+
+// ============================================
+// BANK STATEMENT IMPORT
+// ============================================
+
+const TRANSACTION_CATEGORIES = {
+  groceries: {
+    name: "Groceries",
+    color: "#22c55e",
+    keywords: ["tesco", "sainsbury", "asda", "aldi", "lidl", "morrisons", "waitrose", "co-op", "ocado", "grocery"],
+    expenseKey: "groceries",
+  },
+  utilities: {
+    name: "Utilities",
+    color: "#3b82f6",
+    keywords: ["british gas", "edf", "eon", "octopus", "bulb", "scottish power", "water", "electric", "gas bill", "thames"],
+    expenseKey: "utilities",
+  },
+  transport: {
+    name: "Transport",
+    color: "#f59e0b",
+    keywords: ["tfl", "uber", "bolt", "shell", "bp", "esso", "petrol", "fuel", "train", "rail", "bus", "parking"],
+    expenseKey: "transport",
+  },
+  entertainment: {
+    name: "Entertainment",
+    color: "#8b5cf6",
+    keywords: ["netflix", "spotify", "amazon prime", "disney", "cinema", "theatre", "pub", "bar", "restaurant", "deliveroo", "uber eats", "just eat"],
+    expenseKey: "entertainment",
+  },
+  shopping: {
+    name: "Shopping",
+    color: "#ec4899",
+    keywords: ["amazon", "ebay", "asos", "primark", "h&m", "zara", "next", "john lewis", "argos", "currys"],
+    expenseKey: "clothing",
+  },
+  subscriptions: {
+    name: "Subscriptions",
+    color: "#06b6d4",
+    keywords: ["subscription", "membership", "gym", "apple", "google", "microsoft", "adobe"],
+    expenseKey: "subscriptions",
+  },
+  housing: {
+    name: "Housing",
+    color: "#64748b",
+    keywords: ["rent", "mortgage", "council tax", "landlord", "letting"],
+    expenseKey: "rent",
+  },
+  insurance: {
+    name: "Insurance",
+    color: "#14b8a6",
+    keywords: ["insurance", "aviva", "direct line", "admiral", "compare the market"],
+    expenseKey: "insurance",
+  },
+  income: {
+    name: "Income",
+    color: "#16a34a",
+    keywords: ["salary", "wages", "payroll", "refund", "transfer in", "interest"],
+    isIncome: true,
+  },
+  other: {
+    name: "Other",
+    color: "#94a3b8",
+    keywords: [],
+    expenseKey: "miscellaneous",
+  },
+};
+
+let parsedStatement = null;
+
+function parseCSVLine(line) {
+  const result = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      result.push(current.trim());
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  result.push(current.trim());
+  return result;
+}
+
+function categorizeTransaction(description) {
+  const descLower = description.toLowerCase();
+
+  for (const [key, category] of Object.entries(TRANSACTION_CATEGORIES)) {
+    if (key === "other") continue;
+    if (category.keywords.some((kw) => descLower.includes(kw))) {
+      return key;
+    }
+  }
+  return "other";
+}
+
+function parseStatementCSV(csvText) {
+  const lines = csvText.split(/\r?\n/).filter((l) => l.trim());
+  if (lines.length < 2) return null;
+
+  // Try to detect header row and column positions
+  const header = lines[0].toLowerCase();
+  const columns = parseCSVLine(lines[0]);
+
+  let dateCol = columns.findIndex((c) => /date/i.test(c));
+  let descCol = columns.findIndex((c) => /description|narrative|details|reference/i.test(c));
+  let amountCol = columns.findIndex((c) => /amount|value|sum/i.test(c));
+  let creditCol = columns.findIndex((c) => /credit|paid in|money in/i.test(c));
+  let debitCol = columns.findIndex((c) => /debit|paid out|money out/i.test(c));
+
+  // Fallback defaults for common UK bank formats
+  if (dateCol === -1) dateCol = 0;
+  if (descCol === -1) descCol = columns.length > 3 ? 1 : 0;
+  if (amountCol === -1 && creditCol === -1 && debitCol === -1) {
+    amountCol = columns.length - 1;
+  }
+
+  const transactions = [];
+
+  for (let i = 1; i < lines.length; i++) {
+    const row = parseCSVLine(lines[i]);
+    if (row.length < 2) continue;
+
+    const description = row[descCol] || "";
+    let amount = 0;
+
+    if (creditCol !== -1 && debitCol !== -1) {
+      const credit = parseFloat((row[creditCol] || "").replace(/[^0-9.-]/g, "")) || 0;
+      const debit = parseFloat((row[debitCol] || "").replace(/[^0-9.-]/g, "")) || 0;
+      amount = credit - debit;
+    } else if (amountCol !== -1) {
+      amount = parseFloat((row[amountCol] || "").replace(/[^0-9.-]/g, "")) || 0;
+    }
+
+    if (description && amount !== 0) {
+      const category = categorizeTransaction(description);
+      transactions.push({
+        date: row[dateCol] || "",
+        description: description.slice(0, 100),
+        amount,
+        category,
+        isIncome: amount > 0,
+      });
+    }
+  }
+
+  return transactions;
+}
+
+function analyzeStatement(transactions) {
+  const summary = {
+    totalIncome: 0,
+    totalSpending: 0,
+    count: transactions.length,
+    categories: {},
+  };
+
+  transactions.forEach((t) => {
+    if (t.isIncome) {
+      summary.totalIncome += t.amount;
+    } else {
+      summary.totalSpending += Math.abs(t.amount);
+    }
+
+    if (!summary.categories[t.category]) {
+      summary.categories[t.category] = 0;
+    }
+    summary.categories[t.category] += Math.abs(t.amount);
+  });
+
+  return summary;
+}
+
+function displayStatementPreview(transactions) {
+  const dropzone = document.querySelector("[data-statement-dropzone]");
+  const preview = document.querySelector("[data-statement-preview]");
+  if (!dropzone || !preview) return;
+
+  const summary = analyzeStatement(transactions);
+
+  dropzone.style.display = "none";
+  preview.style.display = "block";
+
+  const countEl = document.querySelector("[data-statement-count]");
+  const incomeEl = document.querySelector("[data-statement-income]");
+  const spendingEl = document.querySelector("[data-statement-spending]");
+  const categoriesEl = document.querySelector("[data-statement-categories]");
+
+  if (countEl) countEl.textContent = summary.count;
+  if (incomeEl) incomeEl.textContent = formatCurrency(summary.totalIncome);
+  if (spendingEl) spendingEl.textContent = formatCurrency(summary.totalSpending);
+
+  if (categoriesEl) {
+    const sortedCats = Object.entries(summary.categories)
+      .filter(([k]) => k !== "income")
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6);
+
+    categoriesEl.innerHTML = sortedCats
+      .map(
+        ([key, amount]) => `
+        <div class="statement-category">
+          <span class="statement-category-name">
+            <span class="statement-category-dot" style="background: ${TRANSACTION_CATEGORIES[key]?.color || "#94a3b8"}"></span>
+            ${escapeHtml(TRANSACTION_CATEGORIES[key]?.name || key)}
+          </span>
+          <span class="statement-category-amount">${formatCurrency(amount)}</span>
+        </div>
+      `
+      )
+      .join("");
+  }
+
+  parsedStatement = { transactions, summary };
+}
+
+function applyStatementToBudget() {
+  if (!parsedStatement) return;
+
+  const { summary } = parsedStatement;
+  let appliedCount = 0;
+
+  // Apply spending categories to expenses
+  Object.entries(summary.categories).forEach(([catKey, amount]) => {
+    const cat = TRANSACTION_CATEGORIES[catKey];
+    if (cat && cat.expenseKey && state.expenses.hasOwnProperty(cat.expenseKey)) {
+      // Average monthly (assume statement is ~1 month)
+      state.expenses[cat.expenseKey] = Math.round(amount);
+      appliedCount++;
+    }
+  });
+
+  scheduleSave();
+  refreshUI();
+  awardPoints(50, "Statement import");
+
+  showActionResult({
+    success: true,
+    title: "Budget Updated!",
+    message: `Applied ${appliedCount} spending categories from your statement.`,
+    type: "success",
+    details: [
+      `Total income detected: ${formatCurrency(summary.totalIncome)}`,
+      `Total spending: ${formatCurrency(summary.totalSpending)}`,
+      "Review your budget breakdown to fine-tune.",
+    ],
+  });
+
+  clearStatementImport();
+}
+
+function clearStatementImport() {
+  parsedStatement = null;
+  const dropzone = document.querySelector("[data-statement-dropzone]");
+  const preview = document.querySelector("[data-statement-preview]");
+  const fileInput = document.querySelector("[data-statement-file]");
+
+  if (dropzone) dropzone.style.display = "block";
+  if (preview) preview.style.display = "none";
+  if (fileInput) fileInput.value = "";
+}
+
+function handleStatementFile(file) {
+  if (!file || !file.name.endsWith(".csv")) {
+    alert("Please upload a CSV file");
+    return;
+  }
+
+  if (file.size > 5 * 1024 * 1024) {
+    alert("File too large. Maximum 5MB allowed.");
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    const text = e.target.result;
+    const transactions = parseStatementCSV(text);
+
+    if (!transactions || transactions.length === 0) {
+      alert("Could not parse transactions from this file. Please check the format.");
+      return;
+    }
+
+    displayStatementPreview(transactions);
+  };
+  reader.onerror = () => alert("Error reading file");
+  reader.readAsText(file);
+}
+
+// ============================================
+// SECURITY: Action Cooldowns
+// ============================================
+
+const actionCooldowns = {};
+const ACTION_COOLDOWN_MS = 60000; // 1 minute cooldown
+
+function canExecuteAction(actionId) {
+  const lastExec = actionCooldowns[actionId];
+  if (!lastExec) return true;
+  return Date.now() - lastExec >= ACTION_COOLDOWN_MS;
+}
+
+function recordActionExecution(actionId) {
+  actionCooldowns[actionId] = Date.now();
+}
+
+function getCooldownRemaining(actionId) {
+  const lastExec = actionCooldowns[actionId];
+  if (!lastExec) return 0;
+  const remaining = ACTION_COOLDOWN_MS - (Date.now() - lastExec);
+  return Math.max(0, Math.ceil(remaining / 1000));
+}
+
+// ============================================
+// SECURITY: Beforeunload Save Handler
+// ============================================
+
+let hasUnsavedChanges = false;
+
+function markUnsavedChanges() {
+  hasUnsavedChanges = true;
+}
+
+function clearUnsavedChanges() {
+  hasUnsavedChanges = false;
 }
 
 // Monte Carlo simulation
@@ -3080,6 +4219,56 @@ function attachEventListeners() {
       }
     });
   }
+
+  // Statement import handlers
+  const statementDropzone = document.querySelector("[data-statement-dropzone]");
+  const statementFileInput = document.querySelector("[data-statement-file]");
+  const statementApply = document.querySelector("[data-statement-apply]");
+  const statementClear = document.querySelector("[data-statement-clear]");
+
+  if (statementDropzone) {
+    statementDropzone.addEventListener("dragover", (e) => {
+      e.preventDefault();
+      statementDropzone.classList.add("drag-over");
+    });
+
+    statementDropzone.addEventListener("dragleave", () => {
+      statementDropzone.classList.remove("drag-over");
+    });
+
+    statementDropzone.addEventListener("drop", (e) => {
+      e.preventDefault();
+      statementDropzone.classList.remove("drag-over");
+      const file = e.dataTransfer.files[0];
+      if (file) handleStatementFile(file);
+    });
+
+    statementDropzone.addEventListener("click", () => {
+      statementFileInput?.click();
+    });
+  }
+
+  if (statementFileInput) {
+    statementFileInput.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) handleStatementFile(file);
+    });
+  }
+
+  if (statementApply) {
+    statementApply.addEventListener("click", applyStatementToBudget);
+  }
+
+  if (statementClear) {
+    statementClear.addEventListener("click", clearStatementImport);
+  }
+
+  // Beforeunload handler to prevent data loss
+  window.addEventListener("beforeunload", (e) => {
+    if (hasUnsavedChanges) {
+      saveLocalState();
+    }
+  });
 }
 
 // Initialize
@@ -3092,6 +4281,9 @@ async function init() {
   syncFormFromState();
   showInitialScreen();
   updateSummary();
+  updateQuickActions();
+  handleDailyCheckIn();
+  updateRewardsUI();
 
   await loadFxRates();
   updateConverter();

@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- Playful CP Monogram - Stacked Coins Character -->
+  <defs>
+    <linearGradient id="gold1" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="50%" style="stop-color:#fcd34d"/>
+      <stop offset="100%" style="stop-color:#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="gold2" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" style="stop-color:#f59e0b"/>
+      <stop offset="50%" style="stop-color:#fbbf24"/>
+      <stop offset="100%" style="stop-color:#f59e0b"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Background circle -->
+  <circle cx="60" cy="60" r="56" fill="#1d3557"/>
+
+  <!-- Stacked coin C shape -->
+  <ellipse cx="45" cy="85" rx="25" ry="8" fill="#b45309"/>
+  <ellipse cx="45" cy="82" rx="25" ry="8" fill="url(#gold2)"/>
+
+  <ellipse cx="45" cy="70" rx="25" ry="8" fill="#b45309"/>
+  <ellipse cx="45" cy="67" rx="25" ry="8" fill="url(#gold1)"/>
+
+  <ellipse cx="45" cy="55" rx="25" ry="8" fill="#b45309"/>
+  <ellipse cx="45" cy="52" rx="25" ry="8" fill="url(#gold2)"/>
+
+  <ellipse cx="45" cy="40" rx="25" ry="8" fill="#b45309"/>
+  <ellipse cx="45" cy="37" rx="25" ry="8" fill="url(#gold1)"/>
+
+  <!-- P shape coin (tilted, flying off) -->
+  <g transform="rotate(-20, 85, 35)">
+    <ellipse cx="85" cy="38" rx="20" ry="6" fill="#b45309"/>
+    <ellipse cx="85" cy="35" rx="20" ry="6" fill="url(#gold1)"/>
+    <!-- P on the coin -->
+    <text x="85" y="40" font-family="Arial Black, sans-serif" font-size="18" font-weight="900" fill="#1d3557" text-anchor="middle">P</text>
+  </g>
+
+  <!-- Flying coin with C -->
+  <g transform="rotate(15, 90, 70)">
+    <ellipse cx="88" cy="68" rx="16" ry="5" fill="#b45309"/>
+    <ellipse cx="88" cy="65" rx="16" ry="5" fill="url(#gold2)"/>
+    <text x="88" y="70" font-family="Arial Black, sans-serif" font-size="14" font-weight="900" fill="#1d3557" text-anchor="middle">C</text>
+  </g>
+
+  <!-- Happy face on top coin stack -->
+  <circle cx="38" cy="35" r="3" fill="#1d3557"/>
+  <circle cx="52" cy="35" r="3" fill="#1d3557"/>
+  <path d="M40 42 Q45 47 50 42" stroke="#1d3557" stroke-width="2" stroke-linecap="round" fill="none"/>
+
+  <!-- Sparkles -->
+  <circle cx="100" cy="25" r="4" fill="#2dd4bf"/>
+  <circle cx="108" cy="35" r="2" fill="#2dd4bf"/>
+  <circle cx="15" cy="50" r="3" fill="#2dd4bf"/>
+</svg>

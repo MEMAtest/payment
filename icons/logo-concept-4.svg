@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <!-- Playful CP Monogram - Wild & Outlandish -->
+  <defs>
+    <linearGradient id="wildGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#a855f7"/>
+      <stop offset="50%" style="stop-color:#ec4899"/>
+      <stop offset="100%" style="stop-color:#f43f5e"/>
+    </linearGradient>
+    <linearGradient id="popGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="100%" style="stop-color:#fb923c"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Crazy background - tilted rounded square -->
+  <rect x="10" y="10" width="100" height="100" rx="28" fill="#1d3557" transform="rotate(8, 60, 60)"/>
+
+  <!-- Electric C - with a lightning bolt vibe -->
+  <path d="M55 28
+           L35 55
+           L48 55
+           L32 92
+           L70 58
+           L52 58
+           L68 28
+           Z"
+        fill="url(#popGrad)"/>
+
+  <!-- Bold chunky P -->
+  <rect x="60" y="25" width="16" height="70" rx="8" fill="url(#wildGrad)"/>
+  <circle cx="76" cy="45" r="22" fill="url(#wildGrad)"/>
+  <circle cx="78" cy="43" r="10" fill="#1d3557"/>
+
+  <!-- Crazy googly eye -->
+  <circle cx="78" cy="43" r="10" fill="#fff"/>
+  <circle cx="82" cy="41" r="5" fill="#1d3557"/>
+  <circle cx="83" cy="39" r="2" fill="#fff"/>
+
+  <!-- Wild sparkles and shapes -->
+  <polygon points="98,20 102,28 110,28 104,34 106,42 98,37 90,42 92,34 86,28 94,28" fill="#fbbf24"/>
+  <circle cx="20" cy="85" r="6" fill="#2dd4bf"/>
+  <circle cx="28" cy="78" r="3" fill="#2dd4bf"/>
+
+  <!-- Motion lines -->
+  <path d="M15 40 L8 40" stroke="#2dd4bf" stroke-width="3" stroke-linecap="round"/>
+  <path d="M18 48 L10 50" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round"/>
+  <path d="M17 32 L11 28" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round"/>
+</svg>

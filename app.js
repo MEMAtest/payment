@@ -3013,6 +3013,14 @@ async function init() {
 // ============================================================
 
 const IMPORT_STORAGE_KEY = "consumerpay_import_history";
+const MAX_IMPORT_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
+
+// HTML escape function to prevent XSS
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
 
 // Merchant to category mapping for smart categorization
 const MERCHANT_CATEGORIES = {
@@ -3041,13 +3049,13 @@ const MERCHANT_CATEGORIES = {
   bt: "internet", sky: "internet", virgin: "internet", ee: "internet",
   vodafone: "internet", three: "internet", o2: "internet", plusnet: "internet",
   netflix: "streaming", spotify: "streaming", apple: "streaming", disney: "streaming",
-  amazon: "streaming", "prime video": "streaming", youtube: "streaming",
+  "prime video": "streaming", youtube: "streaming",
 
   // Housing
   rightmove: "mortgage", zoopla: "mortgage", "direct debit": "mortgage",
   council: "councilTax", aviva: "homeInsurance", "direct line": "homeInsurance",
 
-  // Personal
+  // Personal & Shopping
   amazon: "entertainment", ebay: "entertainment", argos: "entertainment",
   john: "clothing", next: "clothing", primark: "clothing", asos: "clothing",
   zara: "clothing", "h&m": "clothing", boots: "personalCare", superdrug: "personalCare",
@@ -3105,7 +3113,7 @@ const BANK_FORMATS = {
   lloyds: {
     dateCol: "Transaction Date",
     descCol: "Transaction Description",
-    amountCol: "Debit Amount",
+    debitCol: "Debit Amount",
     creditCol: "Credit Amount",
     dateFormat: "DD/MM/YYYY",
     delimiter: ","
@@ -3202,8 +3210,15 @@ async function handleFiles(files) {
   importedTransactions = [];
 
   for (const file of files) {
-    document.querySelector("[data-import-filename]").textContent = file.name;
-    updateProgress(0, `Processing ${file.name}...`);
+    const filenameEl = document.querySelector("[data-import-filename]");
+    if (filenameEl) filenameEl.textContent = file.name;
+    updateProgress(0, `Processing ${escapeHtml(file.name)}...`);
+
+    // File size validation
+    if (file.size > MAX_IMPORT_FILE_SIZE) {
+      updateProgress(100, `File ${escapeHtml(file.name)} exceeds 10MB limit. Please use a smaller file.`);
+      continue;
+    }
 
     try {
       const ext = file.name.split(".").pop().toLowerCase();
@@ -3221,7 +3236,7 @@ async function handleFiles(files) {
 
     } catch (error) {
       console.error("Error parsing file:", error);
-      updateProgress(100, `Error parsing ${file.name}: ${error.message}`);
+      updateProgress(100, `Error parsing ${escapeHtml(file.name)}: ${escapeHtml(error.message)}`);
     }
   }
 
@@ -3267,7 +3282,10 @@ async function parseCSV(file) {
 
         const transactions = [];
         for (let i = 1; i < lines.length; i++) {
-          updateProgress(20 + (i / lines.length) * 60, `Parsing row ${i} of ${lines.length - 1}...`);
+          // Throttle progress updates (every 50 rows) to prevent UI freeze
+          if (i % 50 === 0 || i === lines.length - 1) {
+            updateProgress(20 + (i / lines.length) * 60, `Parsing row ${i} of ${lines.length - 1}...`);
+          }
 
           const values = parseCSVLine(lines[i]);
           if (values.length < headers.length) continue;
@@ -3594,7 +3612,8 @@ function detectRecurringPayments(transactions) {
       // Check if amounts are similar (within 10%)
       const amounts = group.map((tx) => Math.abs(tx.amount));
       const avg = amounts.reduce((a, b) => a + b, 0) / amounts.length;
-      const allSimilar = amounts.every((a) => Math.abs(a - avg) / avg < 0.1);
+      // Guard against division by zero
+      const allSimilar = avg > 0 && amounts.every((a) => Math.abs(a - avg) / avg < 0.1);
 
       if (allSimilar) {
         group.forEach((tx) => {
@@ -3658,21 +3677,21 @@ function renderTransactions() {
 
   list.innerHTML = filtered.map((tx) => {
     const categoryOptions = Object.keys(state.expenses).map((key) =>
-      `<option value="${key}" ${tx.category === key ? "selected" : ""}>${formatExpenseLabel(key)}</option>`
+      `<option value="${key}" ${tx.category === key ? "selected" : ""}>${escapeHtml(formatExpenseLabel(key))}</option>`
     ).join("");
 
     return `
-      <div class="transaction-item ${tx.type} ${tx.isRecurring ? "recurring" : ""}" data-tx-id="${tx.id}">
-        <input type="checkbox" class="transaction-checkbox" ${tx.selected ? "checked" : ""} data-tx-checkbox="${tx.id}">
+      <div class="transaction-item ${tx.type} ${tx.isRecurring ? "recurring" : ""}" data-tx-id="${escapeHtml(tx.id)}">
+        <input type="checkbox" class="transaction-checkbox" ${tx.selected ? "checked" : ""} data-tx-checkbox="${escapeHtml(tx.id)}">
         <div class="transaction-details">
-          <span class="transaction-name">${tx.description}</span>
+          <span class="transaction-name">${escapeHtml(tx.description)}</span>
           <div class="transaction-meta">
-            <span>${formatDateDisplay(tx.date)}</span>
+            <span>${escapeHtml(formatDateDisplay(tx.date))}</span>
             ${tx.isRecurring ? '<span class="recurring-badge">Recurring</span>' : ""}
           </div>
         </div>
         <div class="transaction-category">
-          <select data-tx-category="${tx.id}">
+          <select data-tx-category="${escapeHtml(tx.id)}">
             <option value="">Uncategorized</option>
             ${categoryOptions}
           </select>
@@ -3800,7 +3819,15 @@ function renderImportHistory() {
   const list = document.querySelector("[data-import-history-list]");
   if (!list) return;
 
-  const history = JSON.parse(localStorage.getItem(IMPORT_STORAGE_KEY) || "[]");
+  let history = [];
+  try {
+    const stored = localStorage.getItem(IMPORT_STORAGE_KEY);
+    const parsed = JSON.parse(stored || "[]");
+    if (Array.isArray(parsed)) history = parsed;
+  } catch (e) {
+    console.warn("Invalid import history, resetting");
+    localStorage.removeItem(IMPORT_STORAGE_KEY);
+  }
 
   if (history.length === 0) {
     list.innerHTML = '<p class="muted">No imports yet. Upload a file to get started.</p>';
@@ -3810,8 +3837,8 @@ function renderImportHistory() {
   list.innerHTML = history.map((entry) => `
     <div class="import-history-item">
       <div class="import-history-info">
-        <strong>${entry.filename}</strong>
-        <span class="muted">${formatDateDisplay(entry.date)}</span>
+        <strong>${escapeHtml(entry.filename || 'Unknown')}</strong>
+        <span class="muted">${escapeHtml(formatDateDisplay(entry.date))}</span>
       </div>
       <div class="import-history-stats">
         <span>${entry.transactionCount} transactions</span>

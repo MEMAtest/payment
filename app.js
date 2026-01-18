@@ -3008,5 +3008,825 @@ async function init() {
   setTimeout(updateMonteCarlo, 500);
 }
 
+// ============================================================
+// STATEMENT IMPORT FEATURE
+// ============================================================
+
+const IMPORT_STORAGE_KEY = "consumerpay_import_history";
+
+// Merchant to category mapping for smart categorization
+const MERCHANT_CATEGORIES = {
+  // Groceries
+  tesco: "groceries", sainsburys: "groceries", asda: "groceries", aldi: "groceries",
+  lidl: "groceries", morrisons: "groceries", waitrose: "groceries", coop: "groceries",
+  iceland: "groceries", ocado: "groceries", marks: "groceries",
+
+  // Dining
+  mcdonalds: "diningOut", "mcdonald's": "diningOut", "burger king": "diningOut",
+  kfc: "diningOut", subway: "diningOut", nandos: "diningOut", "nando's": "diningOut",
+  starbucks: "coffeeSnacks", costa: "coffeeSnacks", pret: "coffeeSnacks",
+  greggs: "coffeeSnacks", deliveroo: "diningOut", "uber eats": "diningOut",
+  "just eat": "diningOut",
+
+  // Transport
+  uber: "publicTransport", bolt: "publicTransport", tfl: "publicTransport",
+  oyster: "publicTransport", trainline: "publicTransport", national: "publicTransport",
+  shell: "fuel", bp: "fuel", esso: "fuel", texaco: "fuel", "ev charging": "fuel",
+  tesla: "fuel", gridserve: "fuel", ionity: "fuel",
+
+  // Utilities
+  british: "energy", edf: "energy", octopus: "energy", ovo: "energy",
+  bulb: "energy", scottish: "energy", sse: "energy", "e.on": "energy",
+  thames: "water", severn: "water", united: "water", anglian: "water",
+  bt: "internet", sky: "internet", virgin: "internet", ee: "internet",
+  vodafone: "internet", three: "internet", o2: "internet", plusnet: "internet",
+  netflix: "streaming", spotify: "streaming", apple: "streaming", disney: "streaming",
+  amazon: "streaming", "prime video": "streaming", youtube: "streaming",
+
+  // Housing
+  rightmove: "mortgage", zoopla: "mortgage", "direct debit": "mortgage",
+  council: "councilTax", aviva: "homeInsurance", "direct line": "homeInsurance",
+
+  // Personal
+  amazon: "entertainment", ebay: "entertainment", argos: "entertainment",
+  john: "clothing", next: "clothing", primark: "clothing", asos: "clothing",
+  zara: "clothing", "h&m": "clothing", boots: "personalCare", superdrug: "personalCare",
+  gym: "gym", puregym: "gym", "the gym": "gym", nuffield: "gym", david: "gym",
+
+  // Subscriptions
+  subscription: "subscriptions", membership: "subscriptions", monthly: "subscriptions",
+
+  // Family
+  nursery: "childcare", childminder: "childcare", childcare: "childcare",
+  school: "schoolCosts", uniform: "schoolCosts",
+
+  // Debt
+  loan: "personalLoans", credit: "creditCards", barclaycard: "creditCards",
+  amex: "creditCards", "american express": "creditCards",
+};
+
+// UK Bank CSV formats
+const BANK_FORMATS = {
+  monzo: {
+    dateCol: "Date",
+    descCol: "Name",
+    amountCol: "Amount",
+    dateFormat: "DD/MM/YYYY",
+    delimiter: ","
+  },
+  starling: {
+    dateCol: "Date",
+    descCol: "Counter Party",
+    amountCol: "Amount (GBP)",
+    dateFormat: "DD/MM/YYYY",
+    delimiter: ","
+  },
+  hsbc: {
+    dateCol: "Date",
+    descCol: "Description",
+    amountCol: "Amount",
+    dateFormat: "DD/MM/YYYY",
+    delimiter: ","
+  },
+  barclays: {
+    dateCol: "Date",
+    descCol: "Memo",
+    amountCol: "Amount",
+    dateFormat: "DD/MM/YYYY",
+    delimiter: ","
+  },
+  natwest: {
+    dateCol: "Date",
+    descCol: "Description",
+    amountCol: "Value",
+    dateFormat: "DD/MM/YYYY",
+    delimiter: ","
+  },
+  lloyds: {
+    dateCol: "Transaction Date",
+    descCol: "Transaction Description",
+    amountCol: "Debit Amount",
+    creditCol: "Credit Amount",
+    dateFormat: "DD/MM/YYYY",
+    delimiter: ","
+  },
+  santander: {
+    dateCol: "Date",
+    descCol: "Description",
+    amountCol: "Amount",
+    dateFormat: "DD/MM/YYYY",
+    delimiter: ","
+  },
+  revolut: {
+    dateCol: "Started Date",
+    descCol: "Description",
+    amountCol: "Amount",
+    dateFormat: "YYYY-MM-DD",
+    delimiter: ","
+  }
+};
+
+// Current import state
+let importedTransactions = [];
+let currentFilter = "all";
+
+// Initialize import functionality
+function initStatementImport() {
+  const dropzone = document.querySelector("[data-import-dropzone]");
+  const fileInput = document.querySelector("[data-import-file]");
+  const modal = document.querySelector("[data-import-modal]");
+
+  if (!dropzone || !fileInput) return;
+
+  // Click to upload
+  dropzone.addEventListener("click", () => fileInput.click());
+
+  // File selection
+  fileInput.addEventListener("change", (e) => {
+    if (e.target.files.length > 0) {
+      handleFiles(e.target.files);
+    }
+  });
+
+  // Drag and drop
+  dropzone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    dropzone.classList.add("dragover");
+  });
+
+  dropzone.addEventListener("dragleave", () => {
+    dropzone.classList.remove("dragover");
+  });
+
+  dropzone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    dropzone.classList.remove("dragover");
+    if (e.dataTransfer.files.length > 0) {
+      handleFiles(e.dataTransfer.files);
+    }
+  });
+
+  // Modal controls
+  document.querySelector("[data-import-close]")?.addEventListener("click", closeImportModal);
+  document.querySelector("[data-import-cancel]")?.addEventListener("click", closeImportModal);
+  document.querySelector("[data-import-apply]")?.addEventListener("click", applyImportedTransactions);
+  document.querySelector("[data-import-select-all]")?.addEventListener("click", selectAllTransactions);
+  document.querySelector("[data-import-deselect-all]")?.addEventListener("click", deselectAllTransactions);
+
+  // Filter buttons
+  document.querySelectorAll("[data-filter]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      currentFilter = btn.dataset.filter;
+      document.querySelectorAll("[data-filter]").forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      renderTransactions();
+    });
+  });
+
+  // Load import history
+  renderImportHistory();
+}
+
+// Handle uploaded files
+async function handleFiles(files) {
+  const modal = document.querySelector("[data-import-modal]");
+  const progressEl = document.querySelector("[data-import-progress]");
+  const summaryEl = document.querySelector("[data-import-summary]");
+  const transactionsEl = document.querySelector("[data-import-transactions]");
+
+  modal.hidden = false;
+  progressEl.hidden = false;
+  summaryEl.hidden = true;
+  transactionsEl.style.display = "none";
+
+  importedTransactions = [];
+
+  for (const file of files) {
+    document.querySelector("[data-import-filename]").textContent = file.name;
+    updateProgress(0, `Processing ${file.name}...`);
+
+    try {
+      const ext = file.name.split(".").pop().toLowerCase();
+      let transactions = [];
+
+      if (ext === "csv") {
+        transactions = await parseCSV(file);
+      } else if (ext === "xlsx" || ext === "xls") {
+        transactions = await parseExcel(file);
+      } else if (ext === "pdf") {
+        transactions = await parsePDF(file);
+      }
+
+      importedTransactions = importedTransactions.concat(transactions);
+
+    } catch (error) {
+      console.error("Error parsing file:", error);
+      updateProgress(100, `Error parsing ${file.name}: ${error.message}`);
+    }
+  }
+
+  // Categorize and detect recurring
+  importedTransactions = categorizeTransactions(importedTransactions);
+  importedTransactions = detectRecurringPayments(importedTransactions);
+
+  // Update UI
+  progressEl.hidden = true;
+  summaryEl.hidden = false;
+  transactionsEl.style.display = "flex";
+
+  updateImportSummary();
+  renderTransactions();
+}
+
+// Update progress bar
+function updateProgress(percent, text) {
+  const fill = document.querySelector("[data-progress-fill]");
+  const textEl = document.querySelector("[data-progress-text]");
+  if (fill) fill.style.width = `${percent}%`;
+  if (textEl) textEl.textContent = text;
+}
+
+// Parse CSV file
+async function parseCSV(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        const text = e.target.result;
+        const lines = text.split(/\r?\n/).filter((l) => l.trim());
+        if (lines.length < 2) {
+          resolve([]);
+          return;
+        }
+
+        // Detect bank format from headers
+        const headers = parseCSVLine(lines[0]);
+        const format = detectBankFormat(headers);
+
+        updateProgress(20, "Detected format, parsing transactions...");
+
+        const transactions = [];
+        for (let i = 1; i < lines.length; i++) {
+          updateProgress(20 + (i / lines.length) * 60, `Parsing row ${i} of ${lines.length - 1}...`);
+
+          const values = parseCSVLine(lines[i]);
+          if (values.length < headers.length) continue;
+
+          const row = {};
+          headers.forEach((h, idx) => {
+            row[h.trim()] = values[idx]?.trim() || "";
+          });
+
+          const tx = extractTransaction(row, format);
+          if (tx && tx.amount !== 0) {
+            transactions.push(tx);
+          }
+        }
+
+        updateProgress(90, "Finalizing...");
+        resolve(transactions);
+
+      } catch (err) {
+        reject(err);
+      }
+    };
+    reader.onerror = () => reject(new Error("Failed to read file"));
+    reader.readAsText(file);
+  });
+}
+
+// Parse CSV line handling quoted values
+function parseCSVLine(line) {
+  const result = [];
+  let current = "";
+  let inQuotes = false;
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i];
+    if (char === '"') {
+      inQuotes = !inQuotes;
+    } else if (char === "," && !inQuotes) {
+      result.push(current);
+      current = "";
+    } else {
+      current += char;
+    }
+  }
+  result.push(current);
+  return result;
+}
+
+// Detect bank format from CSV headers
+function detectBankFormat(headers) {
+  const headerStr = headers.join(",").toLowerCase();
+
+  if (headerStr.includes("counter party")) return BANK_FORMATS.starling;
+  if (headerStr.includes("started date")) return BANK_FORMATS.revolut;
+  if (headerStr.includes("transaction description") && headerStr.includes("debit amount")) return BANK_FORMATS.lloyds;
+  if (headerStr.includes("memo")) return BANK_FORMATS.barclays;
+  if (headerStr.includes("value") && headerStr.includes("date")) return BANK_FORMATS.natwest;
+
+  // Default generic format
+  return {
+    dateCol: headers.find((h) => h.toLowerCase().includes("date")) || headers[0],
+    descCol: headers.find((h) => h.toLowerCase().includes("desc") || h.toLowerCase().includes("name") || h.toLowerCase().includes("memo")) || headers[1],
+    amountCol: headers.find((h) => h.toLowerCase().includes("amount") || h.toLowerCase().includes("value")) || headers[2],
+    dateFormat: "DD/MM/YYYY",
+    delimiter: ","
+  };
+}
+
+// Extract transaction from row
+function extractTransaction(row, format) {
+  let date = row[format.dateCol] || Object.values(row)[0];
+  let desc = row[format.descCol] || Object.values(row)[1];
+  let amount = 0;
+
+  // Handle separate debit/credit columns (Lloyds)
+  if (format.creditCol && format.debitCol) {
+    const credit = parseFloat((row[format.creditCol] || "0").replace(/[£,]/g, "")) || 0;
+    const debit = parseFloat((row[format.debitCol] || "0").replace(/[£,]/g, "")) || 0;
+    amount = credit - debit;
+  } else if (format.debitCol) {
+    const debit = parseFloat((row[format.debitCol] || "0").replace(/[£,]/g, "")) || 0;
+    const credit = parseFloat((row[format.creditCol] || "0").replace(/[£,]/g, "")) || 0;
+    amount = credit > 0 ? credit : -debit;
+  } else {
+    amount = parseFloat((row[format.amountCol] || "0").replace(/[£,]/g, "")) || 0;
+  }
+
+  // Parse date
+  const parsedDate = parseDate(date);
+
+  return {
+    id: Math.random().toString(36).substr(2, 9),
+    date: parsedDate,
+    description: desc,
+    amount: amount,
+    type: amount >= 0 ? "income" : "expense",
+    category: null,
+    isRecurring: false,
+    selected: true
+  };
+}
+
+// Parse date from various formats
+function parseDate(dateStr) {
+  if (!dateStr) return new Date().toISOString().split("T")[0];
+
+  // Try common UK format DD/MM/YYYY
+  const ukMatch = dateStr.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  if (ukMatch) {
+    const day = ukMatch[1].padStart(2, "0");
+    const month = ukMatch[2].padStart(2, "0");
+    let year = ukMatch[3];
+    if (year.length === 2) year = "20" + year;
+    return `${year}-${month}-${day}`;
+  }
+
+  // Try ISO format YYYY-MM-DD
+  const isoMatch = dateStr.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
+  if (isoMatch) {
+    return `${isoMatch[1]}-${isoMatch[2].padStart(2, "0")}-${isoMatch[3].padStart(2, "0")}`;
+  }
+
+  // Fallback
+  const d = new Date(dateStr);
+  return isNaN(d) ? new Date().toISOString().split("T")[0] : d.toISOString().split("T")[0];
+}
+
+// Parse Excel file
+async function parseExcel(file) {
+  return new Promise((resolve, reject) => {
+    if (typeof XLSX === "undefined") {
+      reject(new Error("Excel parsing library not loaded"));
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      try {
+        updateProgress(20, "Reading Excel file...");
+
+        const data = new Uint8Array(e.target.result);
+        const workbook = XLSX.read(data, { type: "array" });
+
+        updateProgress(40, "Parsing sheets...");
+
+        const transactions = [];
+        const sheetName = workbook.SheetNames[0];
+        const sheet = workbook.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+        if (rows.length < 2) {
+          resolve([]);
+          return;
+        }
+
+        const headers = rows[0].map((h) => String(h || ""));
+        const format = detectBankFormat(headers);
+
+        for (let i = 1; i < rows.length; i++) {
+          updateProgress(40 + (i / rows.length) * 50, `Processing row ${i}...`);
+
+          const row = {};
+          headers.forEach((h, idx) => {
+            row[h] = rows[i][idx] !== undefined ? String(rows[i][idx]) : "";
+          });
+
+          const tx = extractTransaction(row, format);
+          if (tx && tx.amount !== 0) {
+            transactions.push(tx);
+          }
+        }
+
+        resolve(transactions);
+
+      } catch (err) {
+        reject(err);
+      }
+    };
+    reader.onerror = () => reject(new Error("Failed to read Excel file"));
+    reader.readAsArrayBuffer(file);
+  });
+}
+
+// Parse PDF file (handles unstructured PDFs like Virgin Media bills)
+async function parsePDF(file) {
+  return new Promise(async (resolve, reject) => {
+    if (typeof pdfjsLib === "undefined") {
+      reject(new Error("PDF parsing library not loaded"));
+      return;
+    }
+
+    try {
+      updateProgress(10, "Loading PDF...");
+
+      const arrayBuffer = await file.arrayBuffer();
+      const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+
+      updateProgress(30, "Extracting text...");
+
+      let fullText = "";
+      for (let i = 1; i <= pdf.numPages; i++) {
+        updateProgress(30 + (i / pdf.numPages) * 40, `Reading page ${i} of ${pdf.numPages}...`);
+        const page = await pdf.getPage(i);
+        const textContent = await page.getTextContent();
+        const pageText = textContent.items.map((item) => item.str).join(" ");
+        fullText += pageText + "\n";
+      }
+
+      updateProgress(75, "Extracting transactions...");
+
+      // Extract transactions using pattern matching
+      const transactions = extractTransactionsFromText(fullText);
+
+      updateProgress(95, "Finalizing...");
+      resolve(transactions);
+
+    } catch (err) {
+      reject(err);
+    }
+  });
+}
+
+// Extract transactions from unstructured text (for PDFs like Virgin Media)
+function extractTransactionsFromText(text) {
+  const transactions = [];
+
+  // Pattern for amounts: £X,XXX.XX or £X.XX or -£X.XX
+  const amountPattern = /[-]?£[\d,]+\.?\d{0,2}/g;
+
+  // Pattern for dates
+  const datePattern = /\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}/g;
+
+  // Find all amounts
+  const amounts = text.match(amountPattern) || [];
+  const dates = text.match(datePattern) || [];
+
+  // Extract lines that contain amounts
+  const lines = text.split(/\n|\r/).filter((line) => amountPattern.test(line));
+
+  lines.forEach((line, idx) => {
+    const lineAmounts = line.match(amountPattern);
+    if (!lineAmounts || lineAmounts.length === 0) return;
+
+    // Get the primary amount (usually the last one on the line)
+    const amountStr = lineAmounts[lineAmounts.length - 1];
+    const amount = parseFloat(amountStr.replace(/[£,]/g, "")) || 0;
+
+    if (amount === 0) return;
+
+    // Extract description (text before the amount)
+    let desc = line.replace(amountPattern, "").trim();
+    desc = desc.replace(datePattern, "").trim();
+    desc = desc.replace(/\s+/g, " ").trim();
+
+    // Skip very short or numeric-only descriptions
+    if (desc.length < 3 || /^\d+$/.test(desc)) {
+      desc = "Unknown Transaction";
+    }
+
+    // Try to find a date in this line or nearby
+    const lineDates = line.match(datePattern);
+    const dateStr = lineDates ? lineDates[0] : (dates[idx] || null);
+
+    transactions.push({
+      id: Math.random().toString(36).substr(2, 9),
+      date: parseDate(dateStr),
+      description: desc.substring(0, 100),
+      amount: amount,
+      type: amount >= 0 ? "income" : "expense",
+      category: null,
+      isRecurring: false,
+      selected: true
+    });
+  });
+
+  // Remove duplicates
+  const seen = new Set();
+  return transactions.filter((tx) => {
+    const key = `${tx.date}-${tx.amount}-${tx.description.substring(0, 20)}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+// Categorize transactions using merchant mapping
+function categorizeTransactions(transactions) {
+  return transactions.map((tx) => {
+    const descLower = tx.description.toLowerCase();
+
+    for (const [keyword, category] of Object.entries(MERCHANT_CATEGORIES)) {
+      if (descLower.includes(keyword)) {
+        tx.category = category;
+        break;
+      }
+    }
+
+    return tx;
+  });
+}
+
+// Detect recurring payments
+function detectRecurringPayments(transactions) {
+  // Group by similar descriptions
+  const groups = {};
+
+  transactions.forEach((tx) => {
+    // Normalize description for grouping
+    const normalized = tx.description.toLowerCase()
+      .replace(/\d+/g, "")
+      .replace(/\s+/g, " ")
+      .trim()
+      .substring(0, 30);
+
+    if (!groups[normalized]) {
+      groups[normalized] = [];
+    }
+    groups[normalized].push(tx);
+  });
+
+  // Mark as recurring if similar transaction appears 2+ times with similar amounts
+  Object.values(groups).forEach((group) => {
+    if (group.length >= 2) {
+      // Check if amounts are similar (within 10%)
+      const amounts = group.map((tx) => Math.abs(tx.amount));
+      const avg = amounts.reduce((a, b) => a + b, 0) / amounts.length;
+      const allSimilar = amounts.every((a) => Math.abs(a - avg) / avg < 0.1);
+
+      if (allSimilar) {
+        group.forEach((tx) => {
+          tx.isRecurring = true;
+        });
+      }
+    }
+  });
+
+  return transactions;
+}
+
+// Update import summary stats
+function updateImportSummary() {
+  const total = importedTransactions.length;
+  const income = importedTransactions
+    .filter((tx) => tx.type === "income")
+    .reduce((sum, tx) => sum + tx.amount, 0);
+  const expense = importedTransactions
+    .filter((tx) => tx.type === "expense")
+    .reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+  const recurring = importedTransactions.filter((tx) => tx.isRecurring).length;
+
+  document.querySelector("[data-import-total]").textContent = total;
+  document.querySelector("[data-import-income]").textContent = formatCurrency(income);
+  document.querySelector("[data-import-expense]").textContent = formatCurrency(expense);
+  document.querySelector("[data-import-recurring]").textContent = recurring;
+}
+
+// Render transactions in the modal
+function renderTransactions() {
+  const list = document.querySelector("[data-transaction-list]");
+  if (!list) return;
+
+  // Filter transactions
+  let filtered = importedTransactions;
+  if (currentFilter === "income") {
+    filtered = importedTransactions.filter((tx) => tx.type === "income");
+  } else if (currentFilter === "expense") {
+    filtered = importedTransactions.filter((tx) => tx.type === "expense");
+  } else if (currentFilter === "recurring") {
+    filtered = importedTransactions.filter((tx) => tx.isRecurring);
+  } else if (currentFilter === "uncategorized") {
+    filtered = importedTransactions.filter((tx) => !tx.category);
+  }
+
+  if (filtered.length === 0) {
+    list.innerHTML = `
+      <div class="import-empty">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+        <p>No transactions match this filter</p>
+      </div>
+    `;
+    return;
+  }
+
+  // Sort by date descending
+  filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+  list.innerHTML = filtered.map((tx) => {
+    const categoryOptions = Object.keys(state.expenses).map((key) =>
+      `<option value="${key}" ${tx.category === key ? "selected" : ""}>${formatExpenseLabel(key)}</option>`
+    ).join("");
+
+    return `
+      <div class="transaction-item ${tx.type} ${tx.isRecurring ? "recurring" : ""}" data-tx-id="${tx.id}">
+        <input type="checkbox" class="transaction-checkbox" ${tx.selected ? "checked" : ""} data-tx-checkbox="${tx.id}">
+        <div class="transaction-details">
+          <span class="transaction-name">${tx.description}</span>
+          <div class="transaction-meta">
+            <span>${formatDateDisplay(tx.date)}</span>
+            ${tx.isRecurring ? '<span class="recurring-badge">Recurring</span>' : ""}
+          </div>
+        </div>
+        <div class="transaction-category">
+          <select data-tx-category="${tx.id}">
+            <option value="">Uncategorized</option>
+            ${categoryOptions}
+          </select>
+        </div>
+        <span class="transaction-amount ${tx.amount >= 0 ? "positive" : "negative"}">
+          ${tx.amount >= 0 ? "+" : ""}${formatCurrency(tx.amount)}
+        </span>
+      </div>
+    `;
+  }).join("");
+
+  // Attach event listeners
+  list.querySelectorAll("[data-tx-checkbox]").forEach((checkbox) => {
+    checkbox.addEventListener("change", (e) => {
+      const txId = e.target.dataset.txCheckbox;
+      const tx = importedTransactions.find((t) => t.id === txId);
+      if (tx) tx.selected = e.target.checked;
+    });
+  });
+
+  list.querySelectorAll("[data-tx-category]").forEach((select) => {
+    select.addEventListener("change", (e) => {
+      const txId = e.target.dataset.txCategory;
+      const tx = importedTransactions.find((t) => t.id === txId);
+      if (tx) tx.category = e.target.value || null;
+    });
+  });
+}
+
+// Format expense key as label
+function formatExpenseLabel(key) {
+  return key.replace(/([A-Z])/g, " $1").replace(/^./, (str) => str.toUpperCase());
+}
+
+// Format date for display
+function formatDateDisplay(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString("en-GB", { day: "numeric", month: "short", year: "numeric" });
+}
+
+// Select/deselect all transactions
+function selectAllTransactions() {
+  importedTransactions.forEach((tx) => tx.selected = true);
+  renderTransactions();
+}
+
+function deselectAllTransactions() {
+  importedTransactions.forEach((tx) => tx.selected = false);
+  renderTransactions();
+}
+
+// Apply imported transactions to the app's expenses
+function applyImportedTransactions() {
+  const selectedTx = importedTransactions.filter((tx) => tx.selected && tx.category && tx.type === "expense");
+
+  if (selectedTx.length === 0) {
+    alert("Please select transactions with categories to apply.");
+    return;
+  }
+
+  // Aggregate expenses by category
+  const categoryTotals = {};
+  selectedTx.forEach((tx) => {
+    if (!categoryTotals[tx.category]) {
+      categoryTotals[tx.category] = 0;
+    }
+    categoryTotals[tx.category] += Math.abs(tx.amount);
+  });
+
+  // Calculate monthly averages if we have multiple months
+  const dates = selectedTx.map((tx) => new Date(tx.date));
+  const minDate = new Date(Math.min(...dates));
+  const maxDate = new Date(Math.max(...dates));
+  const monthSpan = Math.max(1, (maxDate - minDate) / (1000 * 60 * 60 * 24 * 30));
+
+  // Apply to state
+  Object.entries(categoryTotals).forEach(([category, total]) => {
+    const monthlyAvg = Math.round(total / monthSpan);
+    if (state.expenses[category] !== undefined) {
+      state.expenses[category] = monthlyAvg;
+      // Update the form input
+      const input = document.querySelector(`[data-expense="${category}"]`);
+      if (input) input.value = monthlyAvg;
+    }
+  });
+
+  // Save import to history
+  saveImportHistory({
+    filename: document.querySelector("[data-import-filename]").textContent,
+    date: new Date().toISOString(),
+    transactionCount: selectedTx.length,
+    totalAmount: Object.values(categoryTotals).reduce((a, b) => a + b, 0)
+  });
+
+  // Update app
+  saveLocalState();
+  updateSummary();
+  updateSmartInsights();
+
+  closeImportModal();
+
+  // Show confirmation
+  alert(`Successfully imported ${selectedTx.length} transactions into your budget!`);
+}
+
+// Close import modal
+function closeImportModal() {
+  const modal = document.querySelector("[data-import-modal]");
+  if (modal) modal.hidden = true;
+  importedTransactions = [];
+  currentFilter = "all";
+}
+
+// Save import to history
+function saveImportHistory(entry) {
+  const history = JSON.parse(localStorage.getItem(IMPORT_STORAGE_KEY) || "[]");
+  history.unshift(entry);
+  // Keep only last 10 imports
+  localStorage.setItem(IMPORT_STORAGE_KEY, JSON.stringify(history.slice(0, 10)));
+  renderImportHistory();
+}
+
+// Render import history
+function renderImportHistory() {
+  const list = document.querySelector("[data-import-history-list]");
+  if (!list) return;
+
+  const history = JSON.parse(localStorage.getItem(IMPORT_STORAGE_KEY) || "[]");
+
+  if (history.length === 0) {
+    list.innerHTML = '<p class="muted">No imports yet. Upload a file to get started.</p>';
+    return;
+  }
+
+  list.innerHTML = history.map((entry) => `
+    <div class="import-history-item">
+      <div class="import-history-info">
+        <strong>${entry.filename}</strong>
+        <span class="muted">${formatDateDisplay(entry.date)}</span>
+      </div>
+      <div class="import-history-stats">
+        <span>${entry.transactionCount} transactions</span>
+        <span>${formatCurrency(entry.totalAmount)}</span>
+      </div>
+    </div>
+  `).join("");
+}
+
+// ============================================================
+// END STATEMENT IMPORT FEATURE
+// ============================================================
+
 attachEventListeners();
 init();
+
+// Initialize statement import after DOM is ready
+document.addEventListener("DOMContentLoaded", initStatementImport);

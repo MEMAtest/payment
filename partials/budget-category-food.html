@@ -1,0 +1,45 @@
+<div class="expense-category food">
+                <div class="category-header">
+                  <div class="category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="cat-food-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                        <linearGradient id="cat-food-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                      </defs>
+                      <path d="M6 6h12l-1 14a2 2 0 01-2 2H9a2 2 0 01-2-2L6 6z" fill="url(#cat-food-teal)"/>
+                      <path d="M9 6V4a3 3 0 016 0v2" stroke="url(#cat-food-teal)" stroke-width="2" fill="none"/>
+                      <circle cx="12" cy="13" r="3.5" fill="url(#cat-food-pink)"/>
+                      <path d="M12 10c1-1 2-1 2.5-0.5" stroke="#2a9d8f" stroke-width="1" stroke-linecap="round"/>
+                      <ellipse cx="12" cy="10.5" rx="0.8" ry="1.2" fill="#2a9d8f"/>
+                      <circle cx="10.5" cy="12.5" r="0.5" fill="#fff" opacity="0.5"/>
+                    </svg>
+                  </div>
+                  <div class="category-info">
+                    <h4>Food & Groceries</h4>
+                    <p class="category-total" data-category-total="food">£0</p>
+                  </div>
+                  <button class="category-toggle" type="button" data-toggle-category="food">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="category-items" data-category-items="food">
+                  <label class="expense-item">
+                    <span>Groceries</span>
+                    <input type="number" min="0" placeholder="400" data-expense="groceries" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Dining Out</span>
+                    <input type="number" min="0" placeholder="100" data-expense="diningOut" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Coffee & Snacks</span>
+                    <input type="number" min="0" placeholder="50" data-expense="coffeeSnacks" />
+                  </label>
+                </div>
+              </div>

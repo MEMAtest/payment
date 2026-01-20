@@ -1,0 +1,47 @@
+<div class="expense-category savings">
+                <div class="category-header">
+                  <div class="category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="cat-sav-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                        <linearGradient id="cat-sav-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                      </defs>
+                      <ellipse cx="11" cy="14" rx="7" ry="5" fill="url(#cat-sav-pink)"/>
+                      <circle cx="16" cy="11" r="3.5" fill="url(#cat-sav-pink)"/>
+                      <ellipse cx="19" cy="12" rx="2" ry="1.3" fill="#fda4af"/>
+                      <circle cx="18" cy="11.8" r="0.5" fill="#db2777"/>
+                      <circle cx="20" cy="11.8" r="0.5" fill="#db2777"/>
+                      <circle cx="16.5" cy="9.5" r="0.8" fill="#1d3557"/>
+                      <circle cx="16.7" cy="9.3" r="0.25" fill="#fff"/>
+                      <ellipse cx="15" cy="7" rx="1" ry="1.5" fill="#db2777" transform="rotate(-15 15 7)"/>
+                      <rect x="8" y="9" width="3" height="1" rx="0.5" fill="#db2777"/>
+                      <ellipse cx="10" cy="6" rx="2" ry="2" fill="url(#cat-sav-gold)"/>
+                      <text x="10" y="7.5" font-family="Arial" font-size="3" font-weight="bold" fill="#92400e" text-anchor="middle">£</text>
+                      <ellipse cx="6" cy="18" rx="1" ry="1.5" fill="#db2777"/>
+                      <ellipse cx="9" cy="19" rx="1" ry="1.5" fill="#db2777"/>
+                      <ellipse cx="13" cy="19" rx="1" ry="1.5" fill="#db2777"/>
+                      <ellipse cx="16" cy="17" rx="1" ry="1.5" fill="#db2777"/>
+                      <path d="M4 13q-2-1-1.5 1t1.5 2" stroke="#db2777" stroke-width="1.5" fill="none" stroke-linecap="round"/>
+                    </svg>
+                  </div>
+                  <div class="category-info">
+                    <h4>Current Savings</h4>
+                    <p class="category-total" data-category-total="savings">£0</p>
+                  </div>
+                  <button class="category-toggle" type="button" data-toggle-category="savings">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="category-items" data-category-items="savings">
+                  <label class="expense-item">
+                    <span>Emergency Fund (current balance)</span>
+                    <input type="number" min="0" placeholder="5000" data-field="savings" />
+                  </label>
+                </div>
+              </div>

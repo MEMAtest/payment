@@ -1,0 +1,135 @@
+/* Responsive */
+@media (max-width: 900px) {
+  .welcome-hero {
+    grid-template-columns: 1fr;
+    text-align: center;
+    min-height: auto;
+  }
+
+  .welcome-content {
+    max-width: 100%;
+  }
+
+  .feature-pills {
+    justify-content: center;
+  }
+
+  .welcome-visual {
+    max-width: 400px;
+    margin: 0 auto;
+  }
+
+  .breakdown-visual {
+    grid-template-columns: 1fr;
+    gap: 24px;
+  }
+
+  .panel-card.wide {
+    grid-column: span 1;
+  }
+
+  .plan-actions {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .action-preview {
+    text-align: left;
+  }
+}
+
+@media (max-width: 980px) {
+  .simulator-shell {
+    grid-template-columns: 1fr;
+  }
+
+  .sim-results-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .sim-card.wide {
+    grid-column: span 1;
+  }
+
+  .currency-hero {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .flow {
+    padding: 16px 5vw 60px;
+  }
+
+  .screen-card {
+    padding: 24px;
+  }
+
+  .goal-card {
+    grid-template-columns: auto 1fr;
+    gap: 12px;
+  }
+
+  .goal-card .goal-icon {
+    grid-row: 1 / 3;
+  }
+
+  .goal-target-wrap {
+    text-align: left;
+  }
+
+  .converter-row {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .swap {
+    justify-self: center;
+  }
+
+  .simulator-hero {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .simulator-hero-summary {
+    width: 100%;
+  }
+
+  .currency-select-row {
+    grid-template-columns: 1fr;
+  }
+
+  .currency-swap {
+    --swap-rotate: 90deg;
+    justify-self: center;
+  }
+
+  .app-tabs {
+    justify-content: center;
+  }
+
+  .nav-item span {
+    display: none;
+  }
+
+  .expense-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .expense-item input {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

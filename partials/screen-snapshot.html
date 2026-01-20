@@ -1,0 +1,120 @@
+<section class="screen" data-screen="snapshot">
+          <div class="screen-card salary-card">
+            <div class="screen-header">
+              <span class="step-badge">Step 2 of 4</span>
+              <h2>Your UK Salary Calculator</h2>
+              <p class="muted">
+                Enter your annual salary and we'll calculate your monthly take-home pay after tax and National Insurance.
+              </p>
+            </div>
+
+            <div class="salary-calculator">
+              <div class="salary-input-section">
+                <label class="salary-label">
+                  <span class="label-text">Annual Gross Salary</span>
+                  <div class="salary-input-wrap">
+                    <span class="currency-symbol">£</span>
+                    <input type="number" min="0" step="1000" placeholder="45000" data-field="annualSalary" class="salary-input" />
+                    <span class="per-year">per year</span>
+                  </div>
+                </label>
+
+                <label class="tax-code-label">
+                  <span class="label-text">Tax Code <span class="optional">(optional)</span></span>
+                  <div class="tax-code-input-wrap">
+                    <input type="text" placeholder="1257L" data-field="taxCode" class="tax-code-input" maxlength="10" />
+                    <span class="tax-code-hint" data-tax-code-hint>Found on your payslip</span>
+                  </div>
+                </label>
+
+                <div class="tax-options">
+                  <label class="toggle-option">
+                    <input type="checkbox" data-field="studentLoan" />
+                    <span>Student Loan (Plan 2)</span>
+                  </label>
+                  <label class="toggle-option">
+                    <input type="checkbox" data-field="pensionContrib" />
+                    <span>Pension (5%)</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="salary-breakdown" data-salary-breakdown>
+                <div class="breakdown-header">
+                  <h3>Your Monthly Breakdown</h3>
+                  <p class="muted">Based on 2024/25 UK tax rates</p>
+                </div>
+
+                <div class="breakdown-visual">
+                  <div class="salary-ring" data-salary-ring>
+                    <svg viewBox="0 0 200 200" class="ring-svg">
+                      <circle cx="100" cy="100" r="80" class="ring-bg"/>
+                      <circle cx="100" cy="100" r="80" class="ring-tax" data-ring-tax/>
+                      <circle cx="100" cy="100" r="80" class="ring-ni" data-ring-ni/>
+                      <circle cx="100" cy="100" r="80" class="ring-take-home" data-ring-takehome/>
+                    </svg>
+                    <div class="ring-center">
+                      <p class="ring-label">Take Home</p>
+                      <p class="ring-value" data-monthly-takehome>£0</p>
+                      <p class="ring-subtext">per month</p>
+                    </div>
+                  </div>
+
+                  <div class="breakdown-details">
+                    <div class="breakdown-row gross">
+                      <span class="breakdown-label">Gross Monthly</span>
+                      <span class="breakdown-value" data-monthly-gross>£0</span>
+                    </div>
+                    <div class="breakdown-row deduction">
+                      <span class="breakdown-label">
+                        <span class="color-dot tax"></span>
+                        Income Tax
+                      </span>
+                      <span class="breakdown-value" data-monthly-tax>-£0</span>
+                    </div>
+                    <div class="breakdown-row deduction">
+                      <span class="breakdown-label">
+                        <span class="color-dot ni"></span>
+                        National Insurance
+                      </span>
+                      <span class="breakdown-value" data-monthly-ni>-£0</span>
+                    </div>
+                    <div class="breakdown-row deduction" data-student-loan-row style="display:none;">
+                      <span class="breakdown-label">
+                        <span class="color-dot student"></span>
+                        Student Loan
+                      </span>
+                      <span class="breakdown-value" data-monthly-student>-£0</span>
+                    </div>
+                    <div class="breakdown-row deduction" data-pension-row style="display:none;">
+                      <span class="breakdown-label">
+                        <span class="color-dot pension"></span>
+                        Pension (5%)
+                      </span>
+                      <span class="breakdown-value" data-monthly-pension>-£0</span>
+                    </div>
+                    <div class="breakdown-row takehome">
+                      <span class="breakdown-label">
+                        <span class="color-dot takehome"></span>
+                        Net Take-Home
+                      </span>
+                      <span class="breakdown-value" data-monthly-net>£0</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="tax-band-indicator" data-tax-band>
+                  <span class="band-label">Tax Band:</span>
+                  <span class="band-value" data-band-name>Basic Rate (20%)</span>
+                </div>
+              </div>
+            </div>
+
+            <div class="screen-actions">
+              <button class="btn ghost" type="button" data-back>Back</button>
+              <button class="btn primary" type="button" data-next>
+                Continue to Budget
+              </button>
+            </div>
+          </div>
+        </section>

@@ -1,0 +1,53 @@
+<div class="expense-category family">
+                <div class="category-header">
+                  <div class="category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="cat-fam-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                        <linearGradient id="cat-fam-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                        <linearGradient id="cat-fam-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="9" cy="6" r="3.5" fill="url(#cat-fam-pink)"/>
+                      <path d="M9 10c-4 0-6 2.5-6 5.5V20h12v-4.5c0-3-2-5.5-6-5.5z" fill="url(#cat-fam-pink)" opacity="0.85"/>
+                      <circle cx="17" cy="10" r="2.5" fill="url(#cat-fam-gold)"/>
+                      <path d="M17 13c-2.5 0-4 2-4 4v3h8v-3c0-2-1.5-4-4-4z" fill="url(#cat-fam-gold)" opacity="0.85"/>
+                      <circle cx="9" cy="5.5" r="0.5" fill="#fff" opacity="0.5"/>
+                      <circle cx="17" cy="9.5" r="0.4" fill="#fff" opacity="0.5"/>
+                      <circle cx="5" cy="3" r="0.6" fill="url(#cat-fam-teal)"/>
+                    </svg>
+                  </div>
+                  <div class="category-info">
+                    <h4>Family & Children</h4>
+                    <p class="category-total" data-category-total="family">£0</p>
+                  </div>
+                  <button class="category-toggle" type="button" data-toggle-category="family">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="category-items" data-category-items="family">
+                  <label class="expense-item">
+                    <span>Childcare / Nursery</span>
+                    <input type="number" min="0" placeholder="800" data-expense="childcare" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Kids Activities & Clubs</span>
+                    <input type="number" min="0" placeholder="150" data-expense="kidsActivities" />
+                  </label>
+                  <label class="expense-item">
+                    <span>School Costs</span>
+                    <input type="number" min="0" placeholder="50" data-expense="schoolCosts" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Kids Clothing</span>
+                    <input type="number" min="0" placeholder="40" data-expense="kidsClothing" />
+                  </label>
+                </div>
+              </div>

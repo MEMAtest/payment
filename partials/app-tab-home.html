@@ -1,0 +1,383 @@
+<div class="tab-panel is-active" data-tab="home">
+              <div class="panel-grid">
+                <div class="panel-card metric-card">
+                  <div class="metric-icon surplus-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="metric-surplus-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                        <linearGradient id="metric-surplus-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="8" cy="16" r="3" fill="url(#metric-surplus-gold)"/>
+                      <text x="8" y="17.5" font-family="Arial" font-size="3.5" font-weight="bold" fill="#92400e" text-anchor="middle">£</text>
+                      <circle cx="12" cy="12" r="3" fill="url(#metric-surplus-gold)" opacity="0.9"/>
+                      <circle cx="16" cy="8" r="3" fill="url(#metric-surplus-gold)" opacity="0.8"/>
+                      <path d="M6 10l4-4 4 4 4-4" stroke="url(#metric-surplus-teal)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <circle cx="18" cy="4" r="0.8" fill="url(#metric-surplus-teal)"/>
+                    </svg>
+                  </div>
+                  <p class="card-title">Monthly Surplus</p>
+                  <p class="card-value" data-app-surplus>£0</p>
+                  <p class="muted">Auto-allocated to goals</p>
+                </div>
+                <div class="panel-card metric-card">
+                  <div class="metric-icon buffer-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="metric-buffer-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                        <linearGradient id="metric-buffer-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                      </defs>
+                      <path d="M12 2l8 4v6c0 5.5-3.5 10-8 12-4.5-2-8-6.5-8-12V6l8-4z" fill="url(#metric-buffer-teal)"/>
+                      <path d="M12 7l-2 2a2 2 0 103 3 2 2 0 103-3l-4-2z" fill="url(#metric-buffer-pink)"/>
+                      <circle cx="6" cy="5" r="0.6" fill="url(#metric-buffer-pink)"/>
+                      <circle cx="18" cy="6" r="0.5" fill="url(#metric-buffer-pink)"/>
+                    </svg>
+                  </div>
+                  <p class="card-title">Buffer Health</p>
+                  <p class="card-value" data-app-buffer>0 months</p>
+                  <p class="muted">Target: 3-6 months</p>
+                </div>
+                <div class="panel-card metric-card">
+                  <div class="metric-icon score-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="metric-score-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                        <linearGradient id="metric-score-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                        <linearGradient id="metric-score-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="12" cy="14" r="8" fill="url(#metric-score-teal)" opacity="0.2"/>
+                      <path d="M4 14a8 8 0 0116 0" fill="none" stroke="url(#metric-score-teal)" stroke-width="3" stroke-linecap="round"/>
+                      <path d="M4 14a8 8 0 0112.5-1" fill="none" stroke="url(#metric-score-gold)" stroke-width="3" stroke-linecap="round"/>
+                      <circle cx="12" cy="14" r="2" fill="url(#metric-score-gold)"/>
+                      <path d="M12 14l4-5" stroke="url(#metric-score-pink)" stroke-width="2" stroke-linecap="round"/>
+                      <circle cx="18" cy="6" r="1" fill="url(#metric-score-gold)"/>
+                      <circle cx="6" cy="8" r="0.6" fill="url(#metric-score-pink)"/>
+                    </svg>
+                  </div>
+                  <p class="card-title">Financial Score</p>
+                  <p class="card-value">
+                    <span data-confidence-total>80</span> / 100
+                  </p>
+                  <div class="confidence-breakdown">
+                    <div class="confidence-row">
+                      <span>Base</span>
+                      <span data-confidence-base>50</span>
+                    </div>
+                    <div class="confidence-row">
+                      <span>Buffer</span>
+                      <span data-confidence-buffer>+0</span>
+                    </div>
+                    <div class="confidence-row">
+                      <span>Goals</span>
+                      <span data-confidence-goals>+0</span>
+                    </div>
+                    <div class="confidence-row">
+                      <span>Cashflow</span>
+                      <span data-confidence-cashflow>+0</span>
+                    </div>
+                    <div class="confidence-row">
+                      <span>Debt</span>
+                      <span data-confidence-debt>0</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel-card metric-card">
+                  <div class="metric-icon rewards-icon">
+                    <svg width="28" height="28" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="metric-reward-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                        <linearGradient id="metric-reward-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                        </linearGradient>
+                        <linearGradient id="metric-reward-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                        </linearGradient>
+                      </defs>
+                      <circle cx="12" cy="10" r="7" fill="url(#metric-reward-gold)"/>
+                      <path d="M8 21l4-3 4 3V12H8v9z" fill="url(#metric-reward-pink)"/>
+                      <path d="M12 5l1.5 3h3l-2.5 2 1 3-3-2-3 2 1-3-2.5-2h3z" fill="#fff" opacity="0.9"/>
+                      <circle cx="5" cy="5" r="0.8" fill="url(#metric-reward-teal)"/>
+                      <circle cx="19" cy="6" r="0.6" fill="url(#metric-reward-teal)"/>
+                      <circle cx="4" cy="15" r="0.5" fill="url(#metric-reward-pink)"/>
+                    </svg>
+                  </div>
+                  <p class="card-title">Rewards</p>
+                  <p class="card-value">
+                    <span data-rewards-points>620</span> pts
+                  </p>
+                  <p class="muted">Keep saving to earn more!</p>
+                </div>
+              </div>
+
+              <div class="panel-row">
+                <div class="panel-card dashboard-builder">
+                  <h3>Dashboard Builder</h3>
+                  <p class="muted">Customise your view</p>
+                  <div class="toggle-grid">
+                    <label class="toggle-pill">
+                      <input type="checkbox" data-dashboard-toggle value="cashflow" checked />
+                      <span>Cash Flow</span>
+                    </label>
+                    <label class="toggle-pill">
+                      <input type="checkbox" data-dashboard-toggle value="alerts" checked />
+                      <span>Alerts</span>
+                    </label>
+                    <label class="toggle-pill">
+                      <input type="checkbox" data-dashboard-toggle value="vulnerabilities" checked />
+                      <span>Risk Radar</span>
+                    </label>
+                    <label class="toggle-pill">
+                      <input type="checkbox" data-dashboard-toggle value="quickwins" checked />
+                      <span>Quick Wins</span>
+                    </label>
+                    <label class="toggle-pill">
+                      <input type="checkbox" data-dashboard-toggle value="spark" checked />
+                      <span>Daily Tip</span>
+                    </label>
+                  </div>
+                </div>
+                <div class="panel-card">
+                  <h3>Income vs Expenses</h3>
+                  <div class="bar-compare">
+                    <div class="bar-track">
+                      <span>Income</span>
+                      <div class="bar-fill income" data-income-bar>
+                        <span data-income-label>£0</span>
+                      </div>
+                    </div>
+                    <div class="bar-track">
+                      <span>Expenses</span>
+                      <div class="bar-fill expense" data-expense-bar>
+                        <span data-expense-label>£0</span>
+                      </div>
+                    </div>
+                    <div class="bar-track">
+                      <span>Savings</span>
+                      <div class="bar-fill saving" data-saving-bar>
+                        <span data-saving-label>£0</span>
+                      </div>
+                    </div>
+                  </div>
+                  <p class="muted" data-income-summary>
+                    Balance your income and expenses for financial health.
+                  </p>
+                </div>
+              </div>
+
+              <div class="dashboard-grid" data-dashboard-grid>
+                <div class="panel-card wide" data-widget="cashflow">
+                  <div class="panel-head">
+                    <div>
+                      <h3>Cash Flow Forecast</h3>
+                      <p class="muted">
+                        Track your projected balance over time
+                      </p>
+                    </div>
+                    <div class="scenario-controls">
+                      <label>
+                        Scenario
+                        <select data-scenario-select>
+                          <option value="baseline" selected>Baseline</option>
+                          <option value="optimistic">Optimistic</option>
+                          <option value="conservative">Conservative</option>
+                          <option value="stress">Stress Test</option>
+                          <option value="custom">Custom</option>
+                        </select>
+                      </label>
+                      <label>
+                        Months
+                        <input type="number" min="6" max="36" value="12" data-cashflow-months />
+                      </label>
+                    </div>
+                  </div>
+                  <div class="scenario-custom" data-scenario-custom>
+                    <label>
+                      Income change (%)
+                      <input type="number" step="0.5" value="0" data-scenario-income />
+                    </label>
+                    <label>
+                      Expense change (%)
+                      <input type="number" step="0.5" value="0" data-scenario-expense />
+                    </label>
+                  </div>
+                  <div class="chart-wrap" data-cashflow-chart></div>
+                  <div class="chart-legend">
+                    <span class="legend-item">
+                      <span class="legend-dot balance"></span>
+                      Projected Balance
+                    </span>
+                    <span class="legend-item">
+                      <span class="legend-dot net positive"></span>
+                      Monthly Surplus
+                    </span>
+                    <span class="legend-item">
+                      <span class="legend-dot net negative"></span>
+                      Monthly Deficit
+                    </span>
+                  </div>
+                  <div class="chart-metrics">
+                    <div class="chart-metric">
+                      <p class="metric-label">Avg Monthly</p>
+                      <p class="metric-value" data-cashflow-average>£0</p>
+                    </div>
+                    <div class="chart-metric">
+                      <p class="metric-label">Lowest Point</p>
+                      <p class="metric-value" data-cashflow-low>£0</p>
+                    </div>
+                    <div class="chart-metric">
+                      <p class="metric-label">Risk Months</p>
+                      <p class="metric-value" data-cashflow-risk>0</p>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel-card smart-alerts-card" data-widget="alerts" role="region" aria-label="Smart Alerts">
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+                    </svg>
+                    Smart Alerts
+                    <span class="alert-badge" data-alert-count aria-label="Alert count"></span>
+                  </h3>
+                  <ul class="alert-list" data-alert-list role="list" aria-live="polite"></ul>
+                </div>
+
+                <div class="panel-card bills-card" data-widget="bills">
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                    </svg>
+                    Recurring Bills
+                  </h3>
+                  <div class="bills-summary">
+                    <span class="bills-label">Monthly total</span>
+                    <span class="bills-total" data-bills-total>£0</span>
+                  </div>
+                  <ul class="bills-list" data-bills-list></ul>
+                  <button type="button" class="btn small outline" data-add-bill>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add Bill
+                  </button>
+                </div>
+
+                <div class="panel-card statement-import-card" data-widget="statements" role="region" aria-label="Bank Statement Import">
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                      <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/>
+                    </svg>
+                    Import Statement
+                  </h3>
+                  <p class="muted" style="margin-bottom: 12px;">Auto-categorize transactions from your bank</p>
+                  <div class="statement-drop-zone" data-statement-dropzone>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/>
+                    </svg>
+                    <p>Drop CSV file here or</p>
+                    <label class="btn small outline">
+                      Browse
+                      <input type="file" accept=".csv" data-statement-file hidden />
+                    </label>
+                  </div>
+                  <div class="statement-preview" data-statement-preview style="display: none;">
+                    <div class="statement-summary">
+                      <div class="statement-stat">
+                        <span class="stat-label">Transactions</span>
+                        <span class="stat-value" data-statement-count>0</span>
+                      </div>
+                      <div class="statement-stat">
+                        <span class="stat-label">Income</span>
+                        <span class="stat-value positive" data-statement-income>£0</span>
+                      </div>
+                      <div class="statement-stat">
+                        <span class="stat-label">Spending</span>
+                        <span class="stat-value negative" data-statement-spending>£0</span>
+                      </div>
+                    </div>
+                    <div class="statement-categories" data-statement-categories></div>
+                    <div class="statement-actions">
+                      <button type="button" class="btn small outline" data-statement-clear>Clear</button>
+                      <button type="button" class="btn small primary" data-statement-apply>Apply to Budget</button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="panel-card protection-check-card" data-widget="vulnerabilities" data-protection-check>
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Protection Check
+                  </h3>
+
+                  <div class="protection-gauge">
+                    <div class="gauge-ring">
+                      <svg viewBox="0 0 100 100">
+                        <circle class="gauge-bg" cx="50" cy="50" r="42" />
+                        <circle class="gauge-fill" cx="50" cy="50" r="42" data-protection-gauge-fill />
+                      </svg>
+                      <div class="gauge-center">
+                        <span class="gauge-value" data-protection-score>0</span>
+                        <span class="gauge-max">/100</span>
+                      </div>
+                    </div>
+                    <p class="protection-label" data-protection-label>Calculating...</p>
+                  </div>
+
+                  <div class="protection-categories" data-protection-categories>
+                  </div>
+
+                  <div class="protection-section">
+                    <h4>Issues</h4>
+                    <ul class="protection-issues" data-protection-issues></ul>
+                  </div>
+
+                  <div class="protection-section">
+                    <h4>Recommendations</h4>
+                    <ul class="protection-tips" data-protection-tips></ul>
+                  </div>
+                </div>
+
+                <div class="panel-card quick-actions-card" data-widget="quickwins">
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                    One-Click Actions
+                  </h3>
+                  <p class="muted" style="margin-bottom: 16px;">Quick financial moves with one tap</p>
+                  <div class="quick-actions-grid" data-quick-actions>
+                    <!-- Dynamically populated -->
+                  </div>
+                </div>
+
+                <div class="panel-card" data-widget="spark">
+                  <h3>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                    </svg>
+                    Daily Money Tip
+                  </h3>
+                  <p class="spark-quote">
+                    "Small upgrades beat big delays. Increase your auto-save by 1% today."
+                  </p>
+                  <p class="muted">Personalized to your goals</p>
+                </div>
+              </div>
+            </div>

@@ -1,0 +1,221 @@
+<section class="screen" data-screen="app">
+          <div class="app-shell">
+            <header class="app-header">
+              <div>
+                <p class="app-greeting">
+                  Welcome back, <span data-user-name>Friend</span>
+                </p>
+                <p class="muted">Your financial command center</p>
+              </div>
+              <div class="status-pill">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                </svg>
+                Score <span data-app-confidence>80</span>
+              </div>
+            </header>
+
+            <nav class="app-tabs" aria-label="Primary">
+              <button class="nav-item is-active" type="button" data-tab-target="home">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-home-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                    <linearGradient id="nav-home-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                    <linearGradient id="nav-home-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M3 10.5L12 3l9 7.5V20a2 2 0 01-2 2H5a2 2 0 01-2-2v-9.5z" fill="url(#nav-home-teal)" opacity="0.9"/>
+                  <rect x="10" y="15" width="4" height="5" rx="0.5" fill="url(#nav-home-gold)" opacity="0.8"/>
+                  <path d="M18 4v3" stroke="url(#nav-home-pink)" stroke-width="2" stroke-linecap="round"/>
+                  <ellipse cx="18" cy="2.5" rx="1.5" ry="1" fill="url(#nav-home-pink)" opacity="0.6"/>
+                  <circle cx="7" cy="11" r="1.5" fill="url(#nav-home-gold)" opacity="0.8"/>
+                </svg>
+                Home
+              </button>
+              <button class="nav-item" type="button" data-tab-target="plan">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-plan-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                    <linearGradient id="nav-plan-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                    <linearGradient id="nav-plan-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="11" r="7" fill="url(#nav-plan-teal)" opacity="0.3"/>
+                  <circle cx="12" cy="11" r="6" stroke="url(#nav-plan-teal)" stroke-width="1.5" fill="none"/>
+                  <path d="M8 20h8l-1-3H9l-1 3z" fill="url(#nav-plan-gold)"/>
+                  <rect x="7" y="20" width="10" height="2" rx="1" fill="url(#nav-plan-gold)" opacity="0.8"/>
+                  <circle cx="10" cy="9" r="1" fill="#fff" opacity="0.9"/>
+                  <path d="M9 13l2-3 2 2 2-4" stroke="url(#nav-plan-pink)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="6" cy="6" r="1" fill="url(#nav-plan-gold)"/>
+                  <circle cx="18" cy="7" r="0.7" fill="url(#nav-plan-gold)"/>
+                </svg>
+                Plan
+              </button>
+              <button class="nav-item" type="button" data-tab-target="simulator">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-sim-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                    <linearGradient id="nav-sim-coral" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f9a8d4"/><stop offset="100%" stop-color="#e76f51"/>
+                    </linearGradient>
+                  </defs>
+                  <rect x="4" y="4" width="16" height="16" rx="4" fill="url(#nav-sim-teal)" opacity="0.25"/>
+                  <rect x="6" y="6" width="12" height="12" rx="3" fill="url(#nav-sim-teal)" opacity="0.6"/>
+                  <circle cx="9" cy="9" r="1" fill="#fff"/>
+                  <circle cx="15" cy="9" r="1" fill="#fff"/>
+                  <circle cx="12" cy="12" r="1" fill="#fff"/>
+                  <circle cx="9" cy="15" r="1" fill="#fff"/>
+                  <circle cx="15" cy="15" r="1" fill="#fff"/>
+                  <path d="M6 4h4" stroke="url(#nav-sim-coral)" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                Simulator
+              </button>
+              <button class="nav-item" type="button" data-tab-target="currency">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-currency-navy" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#1d3557"/><stop offset="100%" stop-color="#3b82f6"/>
+                    </linearGradient>
+                    <linearGradient id="nav-currency-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="12" r="9" fill="url(#nav-currency-navy)" opacity="0.2"/>
+                  <path d="M7 10h7a3 3 0 013 3v1" stroke="url(#nav-currency-navy)" stroke-width="1.8" stroke-linecap="round"/>
+                  <polyline points="15 9 18 13 14 13" fill="none" stroke="url(#nav-currency-gold)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M17 14h-7a3 3 0 01-3-3v-1" stroke="url(#nav-currency-navy)" stroke-width="1.8" stroke-linecap="round"/>
+                  <polyline points="9 15 6 11 10 11" fill="none" stroke="url(#nav-currency-gold)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Currency
+              </button>
+              <button class="nav-item" type="button" data-tab-target="goals">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-goals-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                    <linearGradient id="nav-goals-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                    </linearGradient>
+                    <linearGradient id="nav-goals-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="12" r="9" fill="url(#nav-goals-pink)" opacity="0.2"/>
+                  <circle cx="12" cy="12" r="6" fill="#fff" opacity="0.5"/>
+                  <circle cx="12" cy="12" r="3" fill="url(#nav-goals-pink)"/>
+                  <path d="M19 5l-6 6" stroke="url(#nav-goals-teal)" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M19 5l-3 0.5 0.5 2.5" fill="url(#nav-goals-teal)"/>
+                  <circle cx="5" cy="5" r="1" fill="url(#nav-goals-gold)"/>
+                  <circle cx="19" cy="18" r="0.8" fill="url(#nav-goals-gold)"/>
+                </svg>
+                Goals
+              </button>
+              <button class="nav-item" type="button" data-tab-target="rewards">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-rewards-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                    <linearGradient id="nav-rewards-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                    </linearGradient>
+                    <linearGradient id="nav-rewards-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                  </defs>
+                  <path d="M8 21h8M12 17v4" stroke="url(#nav-rewards-gold)" stroke-width="2" stroke-linecap="round"/>
+                  <path d="M7 4h10v7a5 5 0 01-10 0V4z" fill="url(#nav-rewards-gold)"/>
+                  <path d="M7 4H5a2 2 0 00-2 2v1a3 3 0 003 3h1" fill="url(#nav-rewards-gold)" opacity="0.7"/>
+                  <path d="M17 4h2a2 2 0 012 2v1a3 3 0 01-3 3h-1" fill="url(#nav-rewards-gold)" opacity="0.7"/>
+                  <ellipse cx="12" cy="4" rx="4" ry="1" fill="#fff" opacity="0.4"/>
+                  <circle cx="5" cy="2" r="1" fill="url(#nav-rewards-pink)"/>
+                  <circle cx="19" cy="3" r="0.8" fill="url(#nav-rewards-teal)"/>
+                  <rect x="6" y="1" width="1.5" height="3" rx="0.5" fill="url(#nav-rewards-teal)" transform="rotate(-20 6 2)"/>
+                </svg>
+                Rewards
+              </button>
+              <button class="nav-item" type="button" data-tab-target="family">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-family-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                    <linearGradient id="nav-family-pink" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#f472b6"/><stop offset="100%" stop-color="#ec4899"/>
+                    </linearGradient>
+                    <linearGradient id="nav-family-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="6" r="3" fill="url(#nav-family-teal)"/>
+                  <path d="M12 10c-4 0-6 2-6 5v3h12v-3c0-3-2-5-6-5z" fill="url(#nav-family-teal)" opacity="0.8"/>
+                  <circle cx="5" cy="9" r="2.5" fill="url(#nav-family-pink)"/>
+                  <path d="M5 12c-2.5 0-4 1.5-4 4v2h5v-4c0-1 0.5-2 1-2h-2z" fill="url(#nav-family-pink)" opacity="0.8"/>
+                  <circle cx="19" cy="9" r="2.5" fill="url(#nav-family-gold)"/>
+                  <path d="M19 12c2.5 0 4 1.5 4 4v2h-5v-4c0-1-0.5-2-1-2h2z" fill="url(#nav-family-gold)" opacity="0.8"/>
+                  <circle cx="12" cy="5.5" r="0.5" fill="#fff" opacity="0.6"/>
+                </svg>
+                Family
+              </button>
+              <button class="nav-item" type="button" data-tab-target="profile">
+                <svg class="nav-icon" width="20" height="20" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="nav-profile-teal" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#5eead4"/><stop offset="100%" stop-color="#2a9d8f"/>
+                    </linearGradient>
+                    <linearGradient id="nav-profile-navy" x1="0%" y1="0%" x2="100%" y2="100%">
+                      <stop offset="0%" stop-color="#3b82f6"/><stop offset="100%" stop-color="#1d3557"/>
+                    </linearGradient>
+                  </defs>
+                  <circle cx="12" cy="12" r="10" fill="url(#nav-profile-navy)" opacity="0.1"/>
+                  <circle cx="12" cy="9" r="4" fill="url(#nav-profile-teal)"/>
+                  <path d="M4 20c0-4 3.5-7 8-7s8 3 8 7" fill="url(#nav-profile-teal)" opacity="0.8"/>
+                  <circle cx="10.5" cy="8" r="0.7" fill="#1d3557"/>
+                  <circle cx="13.5" cy="8" r="0.7" fill="#1d3557"/>
+                  <path d="M10 10.5q2 1.5 4 0" stroke="#1d3557" stroke-width="0.8" stroke-linecap="round" fill="none"/>
+                  <circle cx="10.7" cy="7.8" r="0.25" fill="#fff"/>
+                  <circle cx="13.7" cy="7.8" r="0.25" fill="#fff"/>
+                </svg>
+                Profile
+              </button>
+            </nav>
+
+                        <div data-include="partials/app-tab-home.html"></div>
+
+
+                        <div data-include="partials/app-tab-plan.html"></div>
+
+
+                        <div data-include="partials/app-tab-simulator.html"></div>
+
+
+                        <div data-include="partials/app-tab-currency.html"></div>
+
+
+                        <div data-include="partials/app-tab-goals.html"></div>
+
+
+                        <div data-include="partials/app-tab-rewards.html"></div>
+
+
+                        <div data-include="partials/app-tab-family.html"></div>
+
+
+                        <div data-include="partials/app-tab-profile.html"></div>
+
+
+          </div>
+        </section>

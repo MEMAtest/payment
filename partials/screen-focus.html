@@ -1,0 +1,103 @@
+<section class="screen" data-screen="focus">
+          <div class="screen-card">
+            <div class="screen-header">
+              <span class="step-badge">Step 1 of 4</span>
+              <h2>Let's personalise your experience</h2>
+              <p class="muted">
+                Tell us a bit about yourself so we can tailor your financial plan.
+              </p>
+            </div>
+            <div class="form-grid">
+              <label>
+                What should we call you?
+                <input type="text" placeholder="Your first name" data-field="name" />
+              </label>
+              <div>
+                <p class="field-label">What's your main financial focus?</p>
+                <div class="choice-group" data-choice-group="focus">
+                  <button type="button" data-value="saving">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.7-1 2-2h2v-4h-2c0-1-.5-1.5-1-2V5z"/>
+                      <path d="M2 9v1c0 1.1.9 2 2 2h1"/>
+                    </svg>
+                    Save more
+                  </button>
+                  <button type="button" data-value="investing">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                    </svg>
+                    Start investing
+                  </button>
+                  <button type="button" data-value="protection">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Protect family
+                  </button>
+                  <button type="button" data-value="income">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                    </svg>
+                    Grow income
+                  </button>
+                </div>
+              </div>
+              <div>
+                <p class="field-label">How far ahead are you planning?</p>
+                <div class="choice-group" data-choice-group="horizon">
+                  <button type="button" data-value="short">0-2 years</button>
+                  <button type="button" data-value="mid">2-7 years</button>
+                  <button type="button" data-value="long">7+ years</button>
+                </div>
+              </div>
+              <div>
+                <p class="field-label">What's your money style?</p>
+                <div class="choice-group persona-group" data-choice-group="persona">
+                  <button type="button" data-value="builder">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                      <rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>
+                    </svg>
+                    Builder
+                  </button>
+                  <button type="button" data-value="balancer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><path d="M8 12h8M12 8v8"/>
+                    </svg>
+                    Balancer
+                  </button>
+                  <button type="button" data-value="protector">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Protector
+                  </button>
+                  <button type="button" data-value="explorer">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"/>
+                    </svg>
+                    Explorer
+                  </button>
+                </div>
+                <div class="persona-preview">
+                  <p class="persona-label">Your money personality</p>
+                  <h3 data-persona-title>Builder</h3>
+                  <p data-persona-copy>
+                    You like structure, measurable goals, and automated progress.
+                  </p>
+                  <div class="persona-tags" data-persona-tags>
+                    <span>Goal focused</span>
+                    <span>Auto save</span>
+                    <span>Long term clarity</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="screen-actions">
+              <button class="btn ghost" type="button" data-back>Back</button>
+              <button class="btn primary" type="button" data-next>
+                Continue
+              </button>
+            </div>
+          </div>
+        </section>

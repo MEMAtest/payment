@@ -1,0 +1,52 @@
+@import url("https://fonts.googleapis.com/css2?family=Fraunces:wght@400;600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap");
+
+:root {
+  --ink: #182327;
+  --ink-muted: #44565d;
+  --paper: #fbf5ee;
+  --sand: #f3e6d5;
+  --sea: #2a9d8f;
+  --sea-light: rgba(42, 157, 143, 0.15);
+  --coral: #e76f51;
+  --coral-light: rgba(231, 111, 81, 0.15);
+  --sun: #f4b83f;
+  --sun-light: rgba(244, 184, 63, 0.2);
+  --leaf: #6a994e;
+  --navy: #1d3557;
+  --navy-light: rgba(29, 53, 87, 0.1);
+  --sky: #dceaf2;
+  --white: #ffffff;
+  --purple: #7c3aed;
+  --purple-light: rgba(124, 58, 237, 0.15);
+  --radius: 18px;
+  --radius-lg: 24px;
+  --shadow: 0 20px 50px rgba(20, 35, 38, 0.12);
+  --shadow-soft: 0 12px 30px rgba(20, 35, 38, 0.08);
+  --shadow-hover: 0 24px 60px rgba(20, 35, 38, 0.16);
+  --display-font: "Fraunces", "Iowan Old Style", "Palatino Linotype", serif;
+  --body-font: "Space Grotesk", "Trebuchet MS", sans-serif;
+  --tab-active-bg: var(--navy);
+  --tab-active-text: var(--white);
+  --tab-inactive-bg: transparent;
+  --tab-inactive-text: var(--ink);
+  --tab-border: rgba(24, 35, 39, 0.12);
+  --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: var(--body-font);
+  color: var(--ink);
+  background: linear-gradient(135deg, #fef0e1 0%, #fdf7f1 40%, #e6f2ee 100%);
+  min-height: 100vh;
+}
+
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}

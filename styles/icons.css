@@ -1,0 +1,304 @@
+/* Icon Container Sizing */
+.icon-xs { width: 16px; height: 16px; }
+.icon-sm { width: 20px; height: 20px; }
+.icon-md { width: 24px; height: 24px; }
+.icon-lg { width: 32px; height: 32px; }
+.icon-xl { width: 40px; height: 40px; }
+.icon-2xl { width: 48px; height: 48px; }
+
+/* Icon Base Styling */
+.fun-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.fun-icon svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Navigation Icon Styling */
+.nav-item .fun-icon {
+  width: 22px;
+  height: 22px;
+}
+
+.nav-item:hover .fun-icon {
+  transform: scale(1.15) translateY(-2px);
+}
+
+.nav-item.active .fun-icon {
+  transform: scale(1.1);
+  filter: drop-shadow(0 2px 4px rgba(42, 157, 143, 0.3));
+}
+
+/* Category Icon Styling */
+.category-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(255,255,255,0.6));
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+}
+
+.category-icon-wrap:hover {
+  transform: rotate(-5deg) scale(1.08);
+  box-shadow: 0 4px 12px rgba(42, 157, 143, 0.2);
+}
+
+.category-icon-wrap svg {
+  width: 28px;
+  height: 28px;
+}
+
+/* Goal Icon Styling */
+.goal-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: linear-gradient(145deg, #f8fafc, #e2e8f0);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.goal-icon:hover {
+  transform: translateY(-4px) rotate(3deg);
+  box-shadow: 0 8px 24px rgba(42, 157, 143, 0.2);
+}
+
+.goal-icon svg {
+  width: 36px;
+  height: 36px;
+}
+
+/* Dashboard Metric Icon Styling */
+.metric-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, rgba(255,255,255,0.95), rgba(248,250,252,0.8));
+  box-shadow: 0 3px 10px rgba(0,0,0,0.06);
+  transition: all 0.3s ease;
+}
+
+.metric-icon:hover {
+  transform: scale(1.1);
+}
+
+.metric-icon svg {
+  width: 32px;
+  height: 32px;
+}
+
+/* Quick Action Icon Styling */
+.action-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 14px;
+  background: linear-gradient(145deg, #ffffff, #f1f5f9);
+  box-shadow: 0 4px 14px rgba(0,0,0,0.08);
+  transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.action-icon:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 8px 24px rgba(244, 114, 182, 0.25);
+}
+
+.action-icon svg {
+  width: 36px;
+  height: 36px;
+}
+
+/* Reward Badge Styling */
+.badge-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+  box-shadow: 0 4px 16px rgba(0,0,0,0.1);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.badge-icon svg {
+  width: 44px;
+  height: 44px;
+  transition: all 0.3s ease;
+}
+
+/* Unlocked Badge State */
+.badge-icon.unlocked {
+  background: linear-gradient(145deg, #fef3c7, #fcd34d);
+  box-shadow: 0 4px 20px rgba(252, 211, 77, 0.4);
+  animation: badge-glow 2s ease-in-out infinite;
+}
+
+.badge-icon.unlocked:hover {
+  transform: scale(1.15) rotate(5deg);
+  box-shadow: 0 8px 32px rgba(252, 211, 77, 0.5);
+}
+
+.badge-icon.unlocked::after {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  background: linear-gradient(45deg, #fcd34d, #f59e0b, #fcd34d);
+  opacity: 0;
+  z-index: -1;
+  transition: opacity 0.3s ease;
+}
+
+.badge-icon.unlocked:hover::after {
+  opacity: 0.5;
+  animation: badge-ring-spin 3s linear infinite;
+}
+
+/* Locked Badge State */
+.badge-icon.locked {
+  background: linear-gradient(145deg, #e2e8f0, #cbd5e1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+}
+
+.badge-icon.locked svg {
+  opacity: 0.4;
+  filter: grayscale(100%);
+}
+
+.badge-icon.locked:hover {
+  transform: scale(1.05);
+}
+
+.badge-icon.locked::before {
+  content: '🔒';
+  position: absolute;
+  bottom: -4px;
+  right: -4px;
+  font-size: 16px;
+  filter: drop-shadow(0 1px 2px rgba(0,0,0,0.2));
+}
+
+/* Alert Icon Styling */
+.alert-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #ffffff, #f8fafc);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+}
+
+.alert-icon svg {
+  width: 28px;
+  height: 28px;
+}
+
+.alert-icon.warning {
+  background: linear-gradient(135deg, #fef3c7, #fde68a);
+}
+
+.alert-icon.danger {
+  background: linear-gradient(135deg, #fee2e2, #fecaca);
+}
+
+.alert-icon.success {
+  background: linear-gradient(135deg, #d1fae5, #a7f3d0);
+}
+
+.alert-icon.info {
+  background: linear-gradient(135deg, #dbeafe, #bfdbfe);
+}
+
+/* Icon Animations */
+@keyframes badge-glow {
+  0%, 100% { box-shadow: 0 4px 20px rgba(252, 211, 77, 0.4); }
+  50% { box-shadow: 0 4px 30px rgba(252, 211, 77, 0.6); }
+}
+
+@keyframes badge-ring-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+@keyframes icon-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes icon-wiggle {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-5deg); }
+  75% { transform: rotate(5deg); }
+}
+
+@keyframes icon-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+/* Icon Hover Effect Classes */
+.icon-bounce:hover {
+  animation: icon-bounce 0.5s ease;
+}
+
+.icon-wiggle:hover {
+  animation: icon-wiggle 0.4s ease;
+}
+
+.icon-pulse:hover {
+  animation: icon-pulse 0.4s ease;
+}
+
+/* Progress Ring for Goal Icons */
+.goal-progress-ring {
+  position: absolute;
+  top: -4px;
+  left: -4px;
+  width: calc(100% + 8px);
+  height: calc(100% + 8px);
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.goal-progress-ring circle {
+  fill: none;
+  stroke-width: 3;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.goal-progress-ring .track {
+  stroke: rgba(0,0,0,0.08);
+}
+
+.goal-progress-ring .progress {
+  stroke: var(--sea);
+  stroke-dasharray: 100;
+  stroke-dashoffset: calc(100 - var(--progress, 0));
+  transition: stroke-dashoffset 0.5s ease;
+}

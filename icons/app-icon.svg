@@ -1,58 +1,69 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Consumer Pay - Smart Money Management">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" role="img" aria-label="Consumer Pay">
+  <!-- Rocket Piggy - Fun & Outlandish -->
   <defs>
-    <linearGradient id="piggy-body" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#f472b6"/>
-      <stop offset="100%" stop-color="#ec4899"/>
+    <linearGradient id="pigGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f472b6"/>
+      <stop offset="100%" style="stop-color:#ec4899"/>
     </linearGradient>
-    <linearGradient id="coin-shine" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fcd34d"/>
-      <stop offset="100%" stop-color="#f59e0b"/>
+    <linearGradient id="flameGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#fbbf24"/>
+      <stop offset="40%" style="stop-color:#f97316"/>
+      <stop offset="100%" style="stop-color:#ef4444"/>
     </linearGradient>
-    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#1d3557"/>
-      <stop offset="100%" stop-color="#2a9d8f"/>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1d3557"/>
+      <stop offset="100%" style="stop-color:#0f172a"/>
     </linearGradient>
   </defs>
 
   <!-- Background -->
-  <rect width="128" height="128" rx="28" fill="url(#bg-gradient)"/>
+  <rect x="4" y="4" width="112" height="112" rx="28" fill="url(#bgGrad)"/>
+
+  <!-- Rocket flames -->
+  <ellipse cx="60" cy="105" rx="18" ry="10" fill="#fbbf24" opacity="0.3"/>
+  <path d="M45 85 Q38 100 45 110 Q52 95 60 110 Q68 95 75 110 Q82 100 75 85"
+        fill="url(#flameGrad)"/>
+  <path d="M50 88 Q47 98 52 105 Q56 95 60 105 Q64 95 68 105 Q73 98 70 88"
+        fill="#fbbf24"/>
 
   <!-- Piggy body -->
-  <ellipse cx="62" cy="72" rx="36" ry="28" fill="url(#piggy-body)"/>
+  <ellipse cx="60" cy="55" rx="35" ry="30" fill="url(#pigGrad)"/>
 
-  <!-- Piggy head -->
-  <circle cx="88" cy="58" r="18" fill="url(#piggy-body)"/>
+  <!-- Piggy snout -->
+  <ellipse cx="60" cy="62" rx="14" ry="10" fill="#fb7185"/>
+  <circle cx="55" cy="62" r="3" fill="#ec4899"/>
+  <circle cx="65" cy="62" r="3" fill="#ec4899"/>
 
-  <!-- Ear -->
-  <ellipse cx="82" cy="42" rx="6" ry="8" fill="#db2777" transform="rotate(-15 82 42)"/>
+  <!-- Piggy ears -->
+  <ellipse cx="35" cy="32" rx="10" ry="12" fill="url(#pigGrad)" transform="rotate(-20, 35, 32)"/>
+  <ellipse cx="35" cy="32" rx="6" ry="8" fill="#fb7185" transform="rotate(-20, 35, 32)"/>
+  <ellipse cx="85" cy="32" rx="10" ry="12" fill="url(#pigGrad)" transform="rotate(20, 85, 32)"/>
+  <ellipse cx="85" cy="32" rx="6" ry="8" fill="#fb7185" transform="rotate(20, 85, 32)"/>
 
-  <!-- Snout -->
-  <ellipse cx="102" cy="62" rx="10" ry="7" fill="#fda4af"/>
-  <circle cx="99" cy="61" r="2" fill="#db2777"/>
-  <circle cx="105" cy="61" r="2" fill="#db2777"/>
+  <!-- Piggy eyes - excited! -->
+  <circle cx="47" cy="45" r="8" fill="#fff"/>
+  <circle cx="73" cy="45" r="8" fill="#fff"/>
+  <circle cx="49" cy="44" r="4" fill="#1d3557"/>
+  <circle cx="75" cy="44" r="4" fill="#1d3557"/>
+  <circle cx="50" cy="43" r="1.5" fill="#fff"/>
+  <circle cx="76" cy="43" r="1.5" fill="#fff"/>
 
-  <!-- Eye -->
-  <circle cx="90" cy="54" r="4" fill="#1d3557"/>
-  <circle cx="91" cy="53" r="1.5" fill="#fff"/>
+  <!-- Coin slot on top -->
+  <rect x="52" y="22" width="16" height="4" rx="2" fill="#1d3557"/>
 
-  <!-- Coin slot -->
-  <rect x="48" y="44" width="16" height="4" rx="2" fill="#db2777"/>
+  <!-- Coin going in! -->
+  <ellipse cx="60" cy="18" rx="8" ry="3" fill="#fbbf24"/>
+  <ellipse cx="60" cy="16" rx="8" ry="3" fill="#fcd34d"/>
 
-  <!-- Coin going in -->
-  <ellipse cx="56" cy="36" rx="10" ry="10" fill="url(#coin-shine)"/>
-  <text x="56" y="40" font-family="Arial, sans-serif" font-size="12" font-weight="bold" fill="#92400e" text-anchor="middle">£</text>
+  <!-- Speed lines -->
+  <path d="M18 70 L8 70" stroke="#2dd4bf" stroke-width="3" stroke-linecap="round"/>
+  <path d="M20 80 L12 82" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round"/>
+  <path d="M20 60 L12 58" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round"/>
+  <path d="M102 70 L112 70" stroke="#2dd4bf" stroke-width="3" stroke-linecap="round"/>
+  <path d="M100 80 L108 82" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round"/>
+  <path d="M100 60 L108 58" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round"/>
 
-  <!-- Sparkles -->
-  <circle cx="38" cy="32" r="3" fill="#fcd34d" opacity="0.9"/>
-  <circle cx="28" cy="48" r="2" fill="#fcd34d" opacity="0.7"/>
-  <circle cx="44" cy="24" r="2" fill="#fff" opacity="0.8"/>
-
-  <!-- Legs -->
-  <ellipse cx="42" cy="96" rx="6" ry="8" fill="#db2777"/>
-  <ellipse cx="58" cy="98" rx="6" ry="8" fill="#db2777"/>
-  <ellipse cx="74" cy="98" rx="6" ry="8" fill="#db2777"/>
-  <ellipse cx="88" cy="94" rx="6" ry="8" fill="#db2777"/>
-
-  <!-- Curly tail -->
-  <path d="M26 68 Q18 62 20 72 Q22 82 28 76" stroke="#db2777" stroke-width="4" fill="none" stroke-linecap="round"/>
+  <!-- Stars/sparkles -->
+  <polygon points="20,25 22,30 27,30 23,34 25,39 20,36 15,39 17,34 13,30 18,30" fill="#fbbf24"/>
+  <polygon points="100,20 101,23 104,23 102,25 103,28 100,26 97,28 98,25 96,23 99,23" fill="#fbbf24"/>
 </svg>

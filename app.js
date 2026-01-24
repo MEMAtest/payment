@@ -181,6 +181,15 @@ const defaultState = {
 
   // === FINANCIAL HEALTH TRACKING ===
   healthScoreHistory: [],  // Array of {date, score, breakdown}
+
+  // === PHASE 1: BILL CALENDAR ===
+  bills: [],  // Array of {id, name, amount, category, dueDay, frequency, isPaid, lastPaidDate}
+
+  // === PHASE 1: MANUAL TRANSACTIONS ===
+  transactions: [],  // Array of {id, date, amount, category, description, type, paymentMethod}
+
+  // === PHASE 1: DEBT PAYOFF ===
+  debts: [],  // Array of {id, name, balance, interestRate, minPayment, category}
 };
 
 const state = {
@@ -191,6 +200,9 @@ const state = {
   creditScore: { ...defaultState.creditScore },
   insurance: { ...defaultState.insurance },
   healthScoreHistory: [],
+  bills: [],
+  transactions: [],
+  debts: [],
 };
 const deviceId = getDeviceId();
 
@@ -6808,8 +6820,1008 @@ function renderImportHistory() {
 // END STATEMENT IMPORT FEATURE
 // ============================================================
 
+// ============================================================
+// PHASE 1: BILL CALENDAR & REMINDERS
+// ============================================================
+
+const BILLS_STORAGE_KEY = "consumerpay_bills_v1";
+let currentCalendarDate = new Date();
+
+const BILL_ICONS = {
+  utilities: "⚡",
+  subscriptions: "📺",
+  insurance: "🛡️",
+  loans: "💳",
+  housing: "🏠",
+  transport: "🚗",
+  other: "📄"
+};
+
+function loadBills() {
+  try {
+    const stored = localStorage.getItem(BILLS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveBills(bills) {
+  localStorage.setItem(BILLS_STORAGE_KEY, JSON.stringify(bills));
+  state.bills = bills;
+  scheduleSave();
+}
+
+function generateBillId() {
+  return "bill_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+}
+
+function getBillDueDate(bill, month, year) {
+  const dueDay = Math.min(bill.dueDay, new Date(year, month + 1, 0).getDate());
+  return new Date(year, month, dueDay);
+}
+
+function getBillStatus(bill) {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const dueDate = getBillDueDate(bill, today.getMonth(), today.getFullYear());
+  const diffDays = Math.ceil((dueDate - today) / (1000 * 60 * 60 * 24));
+
+  if (bill.isPaid) return { status: "paid", label: "Paid", class: "paid" };
+  if (diffDays < 0) return { status: "overdue", label: "Overdue", class: "overdue" };
+  if (diffDays === 0) return { status: "today", label: "Due Today", class: "overdue" };
+  if (diffDays === 1) return { status: "tomorrow", label: "Tomorrow", class: "tomorrow" };
+  if (diffDays <= 7) return { status: "this-week", label: `${diffDays} days`, class: "this-week" };
+  return { status: "upcoming", label: `${diffDays} days`, class: "" };
+}
+
+function renderBillsCalendar() {
+  const grid = document.querySelector("[data-calendar-grid]");
+  const monthLabel = document.querySelector("[data-calendar-month]");
+  if (!grid || !monthLabel) return;
+
+  const bills = loadBills();
+  const year = currentCalendarDate.getFullYear();
+  const month = currentCalendarDate.getMonth();
+  const today = new Date();
+
+  monthLabel.textContent = new Date(year, month).toLocaleDateString("en-GB", {
+    month: "long",
+    year: "numeric"
+  });
+
+  const firstDay = new Date(year, month, 1);
+  const lastDay = new Date(year, month + 1, 0);
+  const startDay = (firstDay.getDay() + 6) % 7; // Monday = 0
+
+  const days = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+  let html = days.map(d => `<div class="calendar-day-header">${d}</div>`).join("");
+
+  // Previous month days
+  const prevMonth = new Date(year, month, 0);
+  for (let i = startDay - 1; i >= 0; i--) {
+    html += `<div class="calendar-day other-month">${prevMonth.getDate() - i}</div>`;
+  }
+
+  // Current month days
+  for (let day = 1; day <= lastDay.getDate(); day++) {
+    const isToday = today.getDate() === day && today.getMonth() === month && today.getFullYear() === year;
+    const billsOnDay = bills.filter(b => b.dueDay === day);
+    const hasBills = billsOnDay.length > 0;
+    const allPaid = hasBills && billsOnDay.every(b => b.isPaid);
+
+    let classes = "calendar-day";
+    if (isToday) classes += " today";
+    if (hasBills) classes += " has-bills";
+    if (allPaid) classes += " all-paid";
+
+    html += `<div class="${classes}" data-day="${day}">
+      ${day}
+      ${hasBills ? '<span class="bill-dot"></span>' : ""}
+    </div>`;
+  }
+
+  // Next month days
+  const remainingDays = 42 - (startDay + lastDay.getDate());
+  for (let i = 1; i <= remainingDays; i++) {
+    html += `<div class="calendar-day other-month">${i}</div>`;
+  }
+
+  grid.innerHTML = html;
+}
+
+function renderBillsSummary() {
+  const bills = loadBills();
+  const totalEl = document.querySelector("[data-bills-total]");
+  const paidEl = document.querySelector("[data-bills-paid]");
+  const remainingEl = document.querySelector("[data-bills-remaining]");
+
+  const total = bills.reduce((sum, b) => sum + (b.amount || 0), 0);
+  const paid = bills.filter(b => b.isPaid).reduce((sum, b) => sum + (b.amount || 0), 0);
+  const remaining = total - paid;
+
+  if (totalEl) totalEl.textContent = formatCurrency(total);
+  if (paidEl) paidEl.textContent = formatCurrency(paid);
+  if (remainingEl) remainingEl.textContent = formatCurrency(remaining);
+}
+
+function renderUpcomingBills() {
+  const container = document.querySelector("[data-bills-upcoming]");
+  if (!container) return;
+
+  const bills = loadBills();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  const upcoming = bills
+    .filter(b => !b.isPaid)
+    .map(b => ({
+      ...b,
+      dueDate: getBillDueDate(b, today.getMonth(), today.getFullYear()),
+      statusInfo: getBillStatus(b)
+    }))
+    .filter(b => {
+      const diffDays = Math.ceil((b.dueDate - today) / (1000 * 60 * 60 * 24));
+      return diffDays <= 7 && diffDays >= 0;
+    })
+    .sort((a, b) => a.dueDate - b.dueDate);
+
+  if (upcoming.length === 0) {
+    container.innerHTML = '<p class="muted">No bills due this week</p>';
+    return;
+  }
+
+  container.innerHTML = upcoming.map(bill => `
+    <div class="bill-item ${bill.statusInfo.class}" data-bill-id="${escapeHtml(bill.id)}">
+      <div class="bill-icon ${escapeHtml(bill.category)}">${escapeHtml(BILL_ICONS[bill.category] || "📄")}</div>
+      <div class="bill-info">
+        <div class="bill-name">${escapeHtml(bill.name)}</div>
+        <div class="bill-meta">${escapeHtml(bill.frequency)} • Due ${bill.dueDate.toLocaleDateString("en-GB", { weekday: "short", day: "numeric" })}</div>
+      </div>
+      <div class="bill-amount">${formatCurrency(bill.amount)}</div>
+      <div class="bill-status">
+        <span class="bill-due-badge ${bill.statusInfo.class}">${escapeHtml(bill.statusInfo.label)}</span>
+        <button class="bill-check" type="button" data-mark-paid="${escapeHtml(bill.id)}" title="Mark as paid">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+  `).join("");
+
+  // Attach event listeners
+  container.querySelectorAll("[data-mark-paid]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-mark-paid");
+      markBillAsPaid(id);
+    });
+  });
+}
+
+function renderAllBills() {
+  const container = document.querySelector("[data-bills-all]");
+  if (!container) return;
+
+  const bills = loadBills();
+
+  if (bills.length === 0) {
+    container.innerHTML = '<p class="muted">No bills added yet.</p>';
+    return;
+  }
+
+  const sortedBills = [...bills].sort((a, b) => a.dueDay - b.dueDay);
+
+  container.innerHTML = sortedBills.map(bill => {
+    const statusInfo = getBillStatus(bill);
+    return `
+      <div class="bill-item ${statusInfo.class} ${bill.isPaid ? "paid" : ""}" data-bill-id="${escapeHtml(bill.id)}">
+        <div class="bill-icon ${escapeHtml(bill.category)}">${escapeHtml(BILL_ICONS[bill.category] || "📄")}</div>
+        <div class="bill-info">
+          <div class="bill-name">${escapeHtml(bill.name)}</div>
+          <div class="bill-meta">${escapeHtml(bill.frequency)} • Due on ${bill.dueDay}${getOrdinalSuffix(bill.dueDay)}</div>
+        </div>
+        <div class="bill-amount">${formatCurrency(bill.amount)}</div>
+        <div class="bill-actions">
+          <button class="btn ghost small" type="button" data-edit-bill="${escapeHtml(bill.id)}">Edit</button>
+          <button class="btn ghost small" type="button" data-delete-bill="${escapeHtml(bill.id)}">Delete</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Attach event listeners
+  container.querySelectorAll("[data-edit-bill]").forEach(btn => {
+    btn.addEventListener("click", () => openBillModal(btn.getAttribute("data-edit-bill")));
+  });
+
+  container.querySelectorAll("[data-delete-bill]").forEach(btn => {
+    btn.addEventListener("click", () => deleteBill(btn.getAttribute("data-delete-bill")));
+  });
+}
+
+function getOrdinalSuffix(n) {
+  const s = ["th", "st", "nd", "rd"];
+  const v = n % 100;
+  return s[(v - 20) % 10] || s[v] || s[0];
+}
+
+function markBillAsPaid(billId) {
+  const bills = loadBills();
+  const bill = bills.find(b => b.id === billId);
+  if (bill) {
+    bill.isPaid = true;
+    bill.lastPaidDate = new Date().toISOString();
+    saveBills(bills);
+    updateBillsUI();
+  }
+}
+
+function deleteBill(billId) {
+  if (!confirm("Delete this bill?")) return;
+  const bills = loadBills().filter(b => b.id !== billId);
+  saveBills(bills);
+  updateBillsUI();
+}
+
+function openBillModal(billId = null) {
+  const modal = document.querySelector("[data-bill-modal]");
+  const title = document.querySelector("[data-bill-modal-title]");
+  const form = document.querySelector("[data-bill-form]");
+  if (!modal || !form) return;
+
+  form.reset();
+  document.querySelector("[data-bill-id]").value = "";
+
+  if (billId) {
+    const bills = loadBills();
+    const bill = bills.find(b => b.id === billId);
+    if (bill) {
+      title.textContent = "Edit Bill";
+      document.querySelector("[data-bill-id]").value = bill.id;
+      document.querySelector("[data-bill-name]").value = bill.name;
+      document.querySelector("[data-bill-amount]").value = bill.amount;
+      document.querySelector("[data-bill-category]").value = bill.category;
+      document.querySelector("[data-bill-due-day]").value = bill.dueDay;
+      document.querySelector("[data-bill-frequency]").value = bill.frequency;
+    }
+  } else {
+    title.textContent = "Add New Bill";
+  }
+
+  modal.hidden = false;
+}
+
+function closeBillModal() {
+  const modal = document.querySelector("[data-bill-modal]");
+  if (modal) modal.hidden = true;
+}
+
+function saveBillFromForm() {
+  const id = document.querySelector("[data-bill-id]").value;
+  const name = document.querySelector("[data-bill-name]").value.trim();
+  const amount = parseFloat(document.querySelector("[data-bill-amount]").value) || 0;
+  const category = document.querySelector("[data-bill-category]").value;
+  const dueDay = parseInt(document.querySelector("[data-bill-due-day]").value) || 1;
+  const frequency = document.querySelector("[data-bill-frequency]").value;
+
+  if (!name || amount <= 0 || dueDay < 1 || dueDay > 31) {
+    alert("Please fill in all required fields correctly.");
+    return;
+  }
+
+  const bills = loadBills();
+
+  if (id) {
+    const index = bills.findIndex(b => b.id === id);
+    if (index !== -1) {
+      bills[index] = { ...bills[index], name, amount, category, dueDay, frequency };
+    }
+  } else {
+    bills.push({
+      id: generateBillId(),
+      name,
+      amount,
+      category,
+      dueDay,
+      frequency,
+      isPaid: false,
+      lastPaidDate: null
+    });
+  }
+
+  saveBills(bills);
+  closeBillModal();
+  updateBillsUI();
+}
+
+function updateBillsUI() {
+  renderBillsCalendar();
+  renderBillsSummary();
+  renderUpcomingBills();
+  renderAllBills();
+}
+
+function initBillCalendar() {
+  // Load bills into state
+  state.bills = loadBills();
+
+  // Add Bill button
+  document.querySelector("[data-add-bill]")?.addEventListener("click", () => openBillModal());
+
+  // Close modal buttons
+  document.querySelectorAll("[data-close-bill-modal]").forEach(btn => {
+    btn.addEventListener("click", closeBillModal);
+  });
+
+  // Form submission
+  document.querySelector("[data-bill-form]")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    saveBillFromForm();
+  });
+
+  // Calendar navigation
+  document.querySelector("[data-calendar-prev]")?.addEventListener("click", () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() - 1);
+    renderBillsCalendar();
+  });
+
+  document.querySelector("[data-calendar-next]")?.addEventListener("click", () => {
+    currentCalendarDate.setMonth(currentCalendarDate.getMonth() + 1);
+    renderBillsCalendar();
+  });
+
+  // Initial render
+  updateBillsUI();
+
+  // Reset paid status at start of new month
+  checkBillsMonthReset();
+}
+
+function checkBillsMonthReset() {
+  const bills = loadBills();
+  const today = new Date();
+  const currentMonth = `${today.getFullYear()}-${today.getMonth()}`;
+
+  bills.forEach(bill => {
+    if (bill.lastPaidDate) {
+      const paidDate = new Date(bill.lastPaidDate);
+      const paidMonth = `${paidDate.getFullYear()}-${paidDate.getMonth()}`;
+      if (paidMonth !== currentMonth && bill.frequency === "monthly") {
+        bill.isPaid = false;
+      }
+    }
+  });
+
+  saveBills(bills);
+}
+
+// ============================================================
+// PHASE 1: DEBT PAYOFF PLANNER
+// ============================================================
+
+const DEBTS_STORAGE_KEY = "consumerpay_debts_v1";
+let currentDebtStrategy = "avalanche";
+let extraMonthlyPayment = 0;
+
+const DEBT_ICONS = {
+  "credit-card": "💳",
+  "personal-loan": "📋",
+  "car-finance": "🚗",
+  "student-loan": "🎓",
+  "overdraft": "🏦",
+  "other": "📄"
+};
+
+function loadDebts() {
+  try {
+    const stored = localStorage.getItem(DEBTS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveDebts(debts) {
+  localStorage.setItem(DEBTS_STORAGE_KEY, JSON.stringify(debts));
+  state.debts = debts;
+  scheduleSave();
+}
+
+function generateDebtId() {
+  return "debt_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+}
+
+function calculateDebtPayoff(debts, strategy, extraPayment = 0) {
+  if (debts.length === 0) return { months: 0, totalInterest: 0, schedule: [] };
+
+  // Deep clone debts for calculation
+  let workingDebts = debts.map(d => ({
+    ...d,
+    currentBalance: d.balance,
+    totalInterest: 0,
+    paidOff: false,
+    payoffMonth: 0
+  }));
+
+  // Sort by strategy
+  if (strategy === "avalanche") {
+    workingDebts.sort((a, b) => b.interestRate - a.interestRate);
+  } else {
+    workingDebts.sort((a, b) => a.balance - b.balance);
+  }
+
+  const schedule = [];
+  let month = 0;
+  const maxMonths = 360; // 30 years max
+
+  while (workingDebts.some(d => !d.paidOff) && month < maxMonths) {
+    month++;
+    let extraAvailable = extraPayment;
+
+    // Apply interest and minimum payments
+    workingDebts.forEach(debt => {
+      if (debt.paidOff) return;
+
+      // Monthly interest
+      const monthlyRate = debt.interestRate / 100 / 12;
+      const interest = debt.currentBalance * monthlyRate;
+      debt.currentBalance += interest;
+      debt.totalInterest += interest;
+
+      // Minimum payment
+      const payment = Math.min(debt.minPayment, debt.currentBalance);
+      debt.currentBalance -= payment;
+
+      if (debt.currentBalance <= 0.01) {
+        debt.paidOff = true;
+        debt.payoffMonth = month;
+        debt.currentBalance = 0;
+      }
+    });
+
+    // Apply extra payment to first non-paid-off debt
+    for (const debt of workingDebts) {
+      if (debt.paidOff || extraAvailable <= 0) continue;
+
+      const payment = Math.min(extraAvailable, debt.currentBalance);
+      debt.currentBalance -= payment;
+      extraAvailable -= payment;
+
+      if (debt.currentBalance <= 0.01) {
+        debt.paidOff = true;
+        debt.payoffMonth = month;
+        debt.currentBalance = 0;
+        // Add freed-up minimum payment to extra
+        extraAvailable += debt.minPayment;
+      }
+    }
+
+    schedule.push({
+      month,
+      debts: workingDebts.map(d => ({
+        name: d.name,
+        balance: d.currentBalance,
+        paidOff: d.paidOff
+      }))
+    });
+  }
+
+  const totalInterest = workingDebts.reduce((sum, d) => sum + d.totalInterest, 0);
+
+  return {
+    months: month,
+    totalInterest,
+    schedule,
+    debtDetails: workingDebts
+  };
+}
+
+function renderDebtSummary() {
+  const debts = loadDebts();
+  const totalEl = document.querySelector("[data-debt-total]");
+  const monthlyEl = document.querySelector("[data-debt-monthly]");
+  const dateEl = document.querySelector("[data-debt-free-date]");
+
+  const total = debts.reduce((sum, d) => sum + (d.balance || 0), 0);
+  const monthly = debts.reduce((sum, d) => sum + (d.minPayment || 0), 0);
+
+  if (totalEl) totalEl.textContent = formatCurrency(total);
+  if (monthlyEl) monthlyEl.textContent = formatCurrency(monthly);
+
+  if (dateEl) {
+    if (debts.length === 0) {
+      dateEl.textContent = "--";
+    } else {
+      const payoff = calculateDebtPayoff(debts, currentDebtStrategy, extraMonthlyPayment);
+      const freeDate = new Date();
+      freeDate.setMonth(freeDate.getMonth() + payoff.months);
+      dateEl.textContent = freeDate.toLocaleDateString("en-GB", { month: "short", year: "numeric" });
+    }
+  }
+}
+
+function renderDebtList() {
+  const container = document.querySelector("[data-debt-list]");
+  if (!container) return;
+
+  const debts = loadDebts();
+
+  if (debts.length === 0) {
+    container.innerHTML = '<p class="muted">No debts added. Add your debts to create a payoff plan.</p>';
+    return;
+  }
+
+  const totalDebt = debts.reduce((sum, d) => sum + d.balance, 0);
+
+  container.innerHTML = debts.map(debt => {
+    const paidPercent = totalDebt > 0 ? ((totalDebt - debt.balance) / totalDebt * 100) : 0;
+    return `
+      <div class="debt-item" data-debt-id="${escapeHtml(debt.id)}">
+        <div class="debt-item-icon ${escapeHtml(debt.category)}">${escapeHtml(DEBT_ICONS[debt.category] || "📄")}</div>
+        <div class="debt-item-info">
+          <h4>${escapeHtml(debt.name)}</h4>
+          <div class="debt-item-meta">Min payment: ${formatCurrency(debt.minPayment)}/month</div>
+        </div>
+        <div class="debt-item-balance">
+          <div class="balance">${formatCurrency(debt.balance)}</div>
+          <div class="rate">${debt.interestRate}% APR</div>
+        </div>
+        <div class="debt-item-actions">
+          <button class="btn ghost small" type="button" data-edit-debt="${escapeHtml(debt.id)}">Edit</button>
+          <button class="btn ghost small" type="button" data-delete-debt="${escapeHtml(debt.id)}">Delete</button>
+        </div>
+      </div>
+    `;
+  }).join("");
+
+  // Attach event listeners
+  container.querySelectorAll("[data-edit-debt]").forEach(btn => {
+    btn.addEventListener("click", () => openDebtModal(btn.getAttribute("data-edit-debt")));
+  });
+
+  container.querySelectorAll("[data-delete-debt]").forEach(btn => {
+    btn.addEventListener("click", () => deleteDebt(btn.getAttribute("data-delete-debt")));
+  });
+}
+
+function renderDebtChart() {
+  const container = document.querySelector("[data-debt-chart]");
+  if (!container) return;
+
+  const debts = loadDebts();
+
+  if (debts.length === 0) {
+    container.innerHTML = '<p class="muted">Add debts to see your payoff timeline</p>';
+    return;
+  }
+
+  const payoff = calculateDebtPayoff(debts, currentDebtStrategy, extraMonthlyPayment);
+
+  if (payoff.months === 0) {
+    container.innerHTML = '<p class="muted">Unable to calculate payoff timeline</p>';
+    return;
+  }
+
+  // Create SVG chart
+  const width = 600;
+  const height = 200;
+  const padding = 40;
+  const chartWidth = width - padding * 2;
+  const chartHeight = height - padding * 2;
+
+  const totalDebt = debts.reduce((sum, d) => sum + d.balance, 0);
+  const step = Math.max(1, Math.floor(payoff.months / 12));
+  const points = payoff.schedule.filter((_, i) => i % step === 0 || i === payoff.schedule.length - 1);
+
+  const xScale = (i) => padding + (i / (points.length - 1)) * chartWidth;
+  const yScale = (val) => height - padding - (val / totalDebt) * chartHeight;
+
+  // Create path
+  let pathD = `M ${xScale(0)} ${yScale(totalDebt)}`;
+  points.forEach((point, i) => {
+    const totalRemaining = point.debts.reduce((sum, d) => sum + d.balance, 0);
+    pathD += ` L ${xScale(i)} ${yScale(totalRemaining)}`;
+  });
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}">
+      <!-- Grid lines -->
+      <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--border)" stroke-width="1"/>
+      <line x1="${padding}" y1="${padding}" x2="${padding}" y2="${height - padding}" stroke="var(--border)" stroke-width="1"/>
+
+      <!-- Debt line -->
+      <path d="${pathD}" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+
+      <!-- Labels -->
+      <text x="${padding}" y="${height - 10}" font-size="12" fill="var(--muted)">Now</text>
+      <text x="${width - padding}" y="${height - 10}" font-size="12" fill="var(--muted)" text-anchor="end">${payoff.months} months</text>
+      <text x="${padding - 10}" y="${padding + 5}" font-size="12" fill="var(--muted)" text-anchor="end">${formatCurrency(totalDebt)}</text>
+      <text x="${padding - 10}" y="${height - padding}" font-size="12" fill="var(--muted)" text-anchor="end">£0</text>
+    </svg>
+  `;
+}
+
+function renderStrategyComparison() {
+  const container = document.querySelector("[data-strategy-comparison]");
+  if (!container) return;
+
+  const debts = loadDebts();
+
+  if (debts.length < 2) {
+    container.hidden = true;
+    return;
+  }
+
+  const avalanche = calculateDebtPayoff(debts, "avalanche", extraMonthlyPayment);
+  const snowball = calculateDebtPayoff(debts, "snowball", extraMonthlyPayment);
+  const savings = snowball.totalInterest - avalanche.totalInterest;
+
+  document.querySelector("[data-avalanche-interest]").textContent = formatCurrency(avalanche.totalInterest);
+  document.querySelector("[data-snowball-interest]").textContent = formatCurrency(snowball.totalInterest);
+  document.querySelector("[data-avalanche-time]").textContent = `${avalanche.months} months`;
+  document.querySelector("[data-snowball-time]").textContent = `${snowball.months} months`;
+  document.querySelector("[data-avalanche-savings]").textContent = savings > 0 ? formatCurrency(savings) : "Best option";
+  document.querySelector("[data-snowball-savings]").textContent = savings <= 0 ? formatCurrency(-savings) : "--";
+
+  container.hidden = false;
+}
+
+function renderExtraPaymentImpact() {
+  const container = document.querySelector("[data-extra-impact]");
+  if (!container) return;
+
+  const debts = loadDebts();
+
+  if (debts.length === 0 || extraMonthlyPayment <= 0) {
+    container.innerHTML = '<p class="muted">Add an extra payment to see how much faster you\'ll be debt-free</p>';
+    return;
+  }
+
+  const withoutExtra = calculateDebtPayoff(debts, currentDebtStrategy, 0);
+  const withExtra = calculateDebtPayoff(debts, currentDebtStrategy, extraMonthlyPayment);
+
+  const monthsSaved = withoutExtra.months - withExtra.months;
+  const interestSaved = withoutExtra.totalInterest - withExtra.totalInterest;
+
+  container.innerHTML = `
+    <p>By paying an extra <strong>${formatCurrency(extraMonthlyPayment)}/month</strong>:</p>
+    <p>You'll be debt-free <span class="impact-highlight">${monthsSaved} months earlier</span></p>
+    <p>You'll save <span class="impact-highlight">${formatCurrency(interestSaved)}</span> in interest</p>
+  `;
+}
+
+function openDebtModal(debtId = null) {
+  const modal = document.querySelector("[data-debt-modal]");
+  const title = document.querySelector("[data-debt-modal-title]");
+  const form = document.querySelector("[data-debt-form]");
+  if (!modal || !form) return;
+
+  form.reset();
+  document.querySelector("[data-debt-id]").value = "";
+
+  if (debtId) {
+    const debts = loadDebts();
+    const debt = debts.find(d => d.id === debtId);
+    if (debt) {
+      title.textContent = "Edit Debt";
+      document.querySelector("[data-debt-id]").value = debt.id;
+      document.querySelector("[data-debt-name]").value = debt.name;
+      document.querySelector("[data-debt-balance]").value = debt.balance;
+      document.querySelector("[data-debt-rate]").value = debt.interestRate;
+      document.querySelector("[data-debt-min-payment]").value = debt.minPayment;
+      document.querySelector("[data-debt-category]").value = debt.category;
+    }
+  } else {
+    title.textContent = "Add New Debt";
+  }
+
+  modal.hidden = false;
+}
+
+function closeDebtModal() {
+  const modal = document.querySelector("[data-debt-modal]");
+  if (modal) modal.hidden = true;
+}
+
+function saveDebtFromForm() {
+  const id = document.querySelector("[data-debt-id]").value;
+  const name = document.querySelector("[data-debt-name]").value.trim();
+  const balance = parseFloat(document.querySelector("[data-debt-balance]").value) || 0;
+  const interestRate = parseFloat(document.querySelector("[data-debt-rate]").value) || 0;
+  const minPayment = parseFloat(document.querySelector("[data-debt-min-payment]").value) || 0;
+  const category = document.querySelector("[data-debt-category]").value;
+
+  if (!name || balance <= 0 || minPayment <= 0) {
+    alert("Please fill in all required fields correctly.");
+    return;
+  }
+
+  const debts = loadDebts();
+
+  if (id) {
+    const index = debts.findIndex(d => d.id === id);
+    if (index !== -1) {
+      debts[index] = { ...debts[index], name, balance, interestRate, minPayment, category };
+    }
+  } else {
+    debts.push({
+      id: generateDebtId(),
+      name,
+      balance,
+      interestRate,
+      minPayment,
+      category
+    });
+  }
+
+  saveDebts(debts);
+  closeDebtModal();
+  updateDebtsUI();
+}
+
+function deleteDebt(debtId) {
+  if (!confirm("Delete this debt?")) return;
+  const debts = loadDebts().filter(d => d.id !== debtId);
+  saveDebts(debts);
+  updateDebtsUI();
+}
+
+function updateDebtsUI() {
+  renderDebtSummary();
+  renderDebtList();
+  renderDebtChart();
+  renderStrategyComparison();
+  renderExtraPaymentImpact();
+}
+
+function initDebtPayoff() {
+  state.debts = loadDebts();
+
+  // Add Debt button
+  document.querySelector("[data-add-debt]")?.addEventListener("click", () => openDebtModal());
+
+  // Close modal buttons
+  document.querySelectorAll("[data-close-debt-modal]").forEach(btn => {
+    btn.addEventListener("click", closeDebtModal);
+  });
+
+  // Form submission
+  document.querySelector("[data-debt-form]")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    saveDebtFromForm();
+  });
+
+  // Strategy toggle
+  document.querySelectorAll("[data-strategy]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-strategy]").forEach(b => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      currentDebtStrategy = btn.getAttribute("data-strategy");
+      updateDebtsUI();
+    });
+  });
+
+  // Extra payment input
+  document.querySelector("[data-extra-payment]")?.addEventListener("input", (e) => {
+    extraMonthlyPayment = parseFloat(e.target.value) || 0;
+    updateDebtsUI();
+  });
+
+  // Initial render
+  updateDebtsUI();
+}
+
+// ============================================================
+// PHASE 1: MANUAL TRANSACTION ENTRY
+// ============================================================
+
+const TRANSACTIONS_STORAGE_KEY = "consumerpay_transactions_v1";
+let currentTransactionType = "expense";
+
+const CATEGORY_ICONS = {
+  mortgage: "🏠", councilTax: "🏛️", homeInsurance: "🔒",
+  energy: "⚡", water: "💧", internet: "📶",
+  fuel: "⛽", publicTransport: "🚌", carInsurance: "🚗",
+  groceries: "🛒", diningOut: "🍽️", coffeeSnacks: "☕",
+  clothing: "👕", personalCare: "💅", entertainment: "🎬",
+  subscriptions: "📺", gym: "💪", other: "📄"
+};
+
+function loadTransactions() {
+  try {
+    const stored = localStorage.getItem(TRANSACTIONS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveTransactions(transactions) {
+  localStorage.setItem(TRANSACTIONS_STORAGE_KEY, JSON.stringify(transactions));
+  state.transactions = transactions;
+  scheduleSave();
+}
+
+function generateTransactionId() {
+  return "txn_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+}
+
+function addTransaction(transaction) {
+  const transactions = loadTransactions();
+  transactions.unshift({
+    id: generateTransactionId(),
+    ...transaction,
+    createdAt: new Date().toISOString()
+  });
+  saveTransactions(transactions);
+  updateTransactionsUI();
+}
+
+function deleteTransaction(id) {
+  const transactions = loadTransactions().filter(t => t.id !== id);
+  saveTransactions(transactions);
+  updateTransactionsUI();
+}
+
+function renderTransactionsSummary() {
+  const transactions = loadTransactions();
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const monthTransactions = transactions.filter(t => {
+    const txnDate = new Date(t.date);
+    return txnDate.getMonth() === currentMonth && txnDate.getFullYear() === currentYear;
+  });
+
+  const spending = monthTransactions
+    .filter(t => t.type === "expense")
+    .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+  const income = monthTransactions
+    .filter(t => t.type === "income")
+    .reduce((sum, t) => sum + (t.amount || 0), 0);
+
+  const net = income - spending;
+
+  const spendingEl = document.querySelector("[data-month-spending]");
+  const incomeEl = document.querySelector("[data-month-income]");
+  const netEl = document.querySelector("[data-month-net]");
+
+  if (spendingEl) spendingEl.textContent = formatCurrency(spending);
+  if (incomeEl) incomeEl.textContent = formatCurrency(income);
+  if (netEl) {
+    netEl.textContent = formatCurrency(Math.abs(net));
+    netEl.className = `balance-value ${net >= 0 ? "positive" : "negative"}`;
+    netEl.textContent = (net >= 0 ? "+" : "-") + formatCurrency(Math.abs(net));
+  }
+}
+
+function renderTransactionsList(filterCategory = "all") {
+  const container = document.querySelector("[data-transactions-list]");
+  if (!container) return;
+
+  let transactions = loadTransactions();
+
+  if (filterCategory !== "all") {
+    transactions = transactions.filter(t => t.category === filterCategory);
+  }
+
+  // Show last 20 transactions
+  transactions = transactions.slice(0, 20);
+
+  if (transactions.length === 0) {
+    container.innerHTML = '<p class="muted">No transactions yet. Add your first transaction above.</p>';
+    return;
+  }
+
+  container.innerHTML = transactions.map(txn => {
+    const icon = CATEGORY_ICONS[txn.category] || "📄";
+    const date = new Date(txn.date);
+    const formattedDate = date.toLocaleDateString("en-GB", { day: "numeric", month: "short" });
+
+    return `
+      <div class="transaction-item" data-txn-id="${escapeHtml(txn.id)}">
+        <div class="transaction-icon ${txn.type}">${escapeHtml(icon)}</div>
+        <div class="transaction-info">
+          <div class="transaction-desc">${escapeHtml(txn.description || txn.category)}</div>
+          <div class="transaction-meta">${formattedDate} • ${escapeHtml(txn.paymentMethod || "card")}</div>
+        </div>
+        <div class="transaction-amount ${txn.type}">
+          ${txn.type === "expense" ? "-" : "+"}${formatCurrency(txn.amount)}
+        </div>
+        <button class="btn ghost small" type="button" data-delete-txn="${escapeHtml(txn.id)}">×</button>
+      </div>
+    `;
+  }).join("");
+
+  // Attach delete handlers
+  container.querySelectorAll("[data-delete-txn]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (confirm("Delete this transaction?")) {
+        deleteTransaction(btn.getAttribute("data-delete-txn"));
+      }
+    });
+  });
+}
+
+function updateTransactionsUI() {
+  renderTransactionsSummary();
+  renderTransactionsList();
+}
+
+function initTransactions() {
+  state.transactions = loadTransactions();
+
+  // Set default date to today
+  const dateInput = document.querySelector("[data-txn-date]");
+  if (dateInput) {
+    dateInput.value = new Date().toISOString().split("T")[0];
+  }
+
+  // Transaction type toggle
+  document.querySelectorAll("[data-txn-type]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("[data-txn-type]").forEach(b => b.classList.remove("is-active"));
+      btn.classList.add("is-active");
+      currentTransactionType = btn.getAttribute("data-txn-type");
+    });
+  });
+
+  // Save transaction
+  document.querySelector("[data-save-transaction]")?.addEventListener("click", () => {
+    const amount = parseFloat(document.querySelector("[data-txn-amount]")?.value) || 0;
+    const category = document.querySelector("[data-txn-category]")?.value || "other";
+    const date = document.querySelector("[data-txn-date]")?.value || new Date().toISOString().split("T")[0];
+    const paymentMethod = document.querySelector("[data-txn-method]")?.value || "card";
+    const description = document.querySelector("[data-txn-description]")?.value?.trim() || "";
+
+    if (amount <= 0) {
+      alert("Please enter a valid amount");
+      return;
+    }
+
+    addTransaction({
+      amount,
+      category,
+      date,
+      paymentMethod,
+      description,
+      type: currentTransactionType
+    });
+
+    // Reset form
+    document.querySelector("[data-txn-amount]").value = "";
+    document.querySelector("[data-txn-description]").value = "";
+    document.querySelector("[data-txn-date]").value = new Date().toISOString().split("T")[0];
+  });
+
+  // Add button in header
+  document.querySelector("[data-add-transaction]")?.addEventListener("click", () => {
+    document.querySelector("[data-txn-amount]")?.focus();
+  });
+
+  // Category filter
+  document.querySelector("[data-txn-filter-category]")?.addEventListener("change", (e) => {
+    renderTransactionsList(e.target.value);
+  });
+
+  // Initial render
+  updateTransactionsUI();
+}
+
+// ============================================================
+// END PHASE 1 FEATURES
+// ============================================================
+
 attachEventListeners();
 init();
 
-// Initialize statement import after DOM is ready
-document.addEventListener("DOMContentLoaded", initStatementImport);
+// Initialize features after DOM is ready
+document.addEventListener("DOMContentLoaded", () => {
+  initStatementImport();
+  initBillCalendar();
+  initDebtPayoff();
+  initTransactions();
+});

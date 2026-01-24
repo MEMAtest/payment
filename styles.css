@@ -5905,3 +5905,877 @@ textarea {
     transition-duration: 0.01ms !important;
   }
 }
+
+/* ============================================================
+   PHASE 1: BILL CALENDAR & REMINDERS
+   ============================================================ */
+
+.bills-panel {
+  margin-top: 24px;
+}
+
+.bills-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.bills-header h3 {
+  margin: 0;
+}
+
+.bills-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.summary-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.summary-label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.summary-value {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+}
+
+.summary-value.positive {
+  color: var(--positive);
+}
+
+.summary-value.negative {
+  color: var(--negative);
+}
+
+.summary-value.warning {
+  color: var(--warning, #f59e0b);
+}
+
+/* Calendar */
+.bills-calendar {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.calendar-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.calendar-header h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 4px;
+}
+
+.calendar-day-header {
+  text-align: center;
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--muted);
+  padding: 8px 4px;
+  text-transform: uppercase;
+}
+
+.calendar-day {
+  aspect-ratio: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: background 0.15s;
+  position: relative;
+  min-height: 40px;
+}
+
+.calendar-day:hover {
+  background: var(--surface-hover, rgba(0,0,0,0.05));
+}
+
+.calendar-day.other-month {
+  color: var(--muted);
+  opacity: 0.5;
+}
+
+.calendar-day.today {
+  background: var(--primary);
+  color: white;
+  font-weight: 600;
+}
+
+.calendar-day.has-bills {
+  background: rgba(229, 62, 62, 0.1);
+  border: 1px solid var(--negative);
+}
+
+.calendar-day.has-bills.all-paid {
+  background: rgba(72, 187, 120, 0.1);
+  border: 1px solid var(--positive);
+}
+
+.calendar-day .bill-dot {
+  position: absolute;
+  bottom: 4px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--negative);
+}
+
+.calendar-day.all-paid .bill-dot {
+  background: var(--positive);
+}
+
+/* Bills Lists */
+.bills-upcoming,
+.bills-all {
+  margin-top: 24px;
+}
+
+.bills-upcoming h4,
+.bills-all h4 {
+  margin-bottom: 12px;
+  font-size: 14px;
+  color: var(--muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.bills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bill-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  transition: box-shadow 0.15s;
+}
+
+.bill-item:hover {
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.bill-item.overdue {
+  border-color: var(--negative);
+  background: rgba(229, 62, 62, 0.05);
+}
+
+.bill-item.due-soon {
+  border-color: var(--warning, #f59e0b);
+  background: rgba(245, 158, 11, 0.05);
+}
+
+.bill-item.paid {
+  opacity: 0.7;
+}
+
+.bill-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.bill-icon.utilities { background: #dbeafe; }
+.bill-icon.subscriptions { background: #fce7f3; }
+.bill-icon.insurance { background: #d1fae5; }
+.bill-icon.loans { background: #fee2e2; }
+.bill-icon.housing { background: #e0e7ff; }
+.bill-icon.transport { background: #fef3c7; }
+.bill-icon.other { background: #f3f4f6; }
+
+.bill-info {
+  min-width: 0;
+}
+
+.bill-name {
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.bill-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.bill-amount {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.bill-status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bill-due-badge {
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-weight: 600;
+}
+
+.bill-due-badge.overdue {
+  background: var(--negative);
+  color: white;
+}
+
+.bill-due-badge.tomorrow {
+  background: var(--warning, #f59e0b);
+  color: white;
+}
+
+.bill-due-badge.this-week {
+  background: #3b82f6;
+  color: white;
+}
+
+.bill-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.bill-check {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  background: transparent;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s;
+}
+
+.bill-check:hover {
+  border-color: var(--positive);
+}
+
+.bill-check.checked {
+  background: var(--positive);
+  border-color: var(--positive);
+  color: white;
+}
+
+/* Bill Modal */
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-overlay[hidden] {
+  display: none;
+}
+
+.modal-content {
+  background: var(--card);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 480px;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid var(--border);
+}
+
+.modal-header h3 {
+  margin: 0;
+}
+
+.bill-form,
+.debt-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+/* ============================================================
+   PHASE 1: DEBT PAYOFF PLANNER
+   ============================================================ */
+
+.debt-panel {
+  margin-top: 24px;
+}
+
+.debt-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.debt-summary {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.debt-strategy {
+  margin: 24px 0;
+}
+
+.debt-strategy h4 {
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.strategy-toggle {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.strategy-btn {
+  padding: 16px;
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  background: var(--surface);
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.15s;
+}
+
+.strategy-btn:hover {
+  border-color: var(--primary);
+}
+
+.strategy-btn.is-active {
+  border-color: var(--primary);
+  background: rgba(37, 157, 145, 0.1);
+}
+
+.strategy-btn strong {
+  display: block;
+  margin-bottom: 4px;
+}
+
+.strategy-btn .muted {
+  font-size: 12px;
+}
+
+.extra-payment {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.extra-payment label {
+  margin-bottom: 12px;
+}
+
+.extra-impact {
+  margin-top: 12px;
+  padding: 12px;
+  background: rgba(37, 157, 145, 0.1);
+  border-radius: 8px;
+}
+
+.extra-impact .impact-highlight {
+  font-weight: 700;
+  color: var(--positive);
+}
+
+.debt-chart-container {
+  margin: 24px 0;
+}
+
+.debt-chart-container h4 {
+  margin-bottom: 12px;
+}
+
+.debt-chart {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  min-height: 200px;
+}
+
+.debt-chart svg {
+  width: 100%;
+  height: 200px;
+}
+
+.debt-list-container {
+  margin: 24px 0;
+}
+
+.debt-list-container h4 {
+  margin-bottom: 12px;
+}
+
+.debt-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.debt-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.debt-item-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.debt-item-icon.credit-card { background: #fee2e2; }
+.debt-item-icon.personal-loan { background: #dbeafe; }
+.debt-item-icon.car-finance { background: #fef3c7; }
+.debt-item-icon.student-loan { background: #e0e7ff; }
+.debt-item-icon.overdraft { background: #fce7f3; }
+.debt-item-icon.other { background: #f3f4f6; }
+
+.debt-item-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 16px;
+}
+
+.debt-item-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.debt-item-balance {
+  text-align: right;
+}
+
+.debt-item-balance .balance {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--negative);
+}
+
+.debt-item-balance .rate {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.debt-item-progress {
+  width: 100px;
+}
+
+.debt-progress-bar {
+  height: 8px;
+  background: var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.debt-progress-bar span {
+  display: block;
+  height: 100%;
+  background: var(--positive);
+  border-radius: 4px;
+  transition: width 0.3s;
+}
+
+.debt-item-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Strategy Comparison Table */
+.strategy-comparison {
+  margin-top: 24px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+}
+
+.strategy-comparison h4 {
+  margin-bottom: 16px;
+}
+
+.comparison-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.comparison-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  gap: 12px;
+  padding: 12px;
+  border-radius: 8px;
+}
+
+.comparison-row.header {
+  background: var(--surface);
+  font-weight: 600;
+  font-size: 14px;
+}
+
+.comparison-row:not(.header) {
+  background: rgba(0,0,0,0.02);
+}
+
+.comparison-row span:first-child {
+  color: var(--muted);
+}
+
+.comparison-row .positive {
+  color: var(--positive);
+  font-weight: 600;
+}
+
+/* ============================================================
+   PHASE 1: MANUAL TRANSACTION ENTRY
+   ============================================================ */
+
+.transactions-section {
+  margin-top: 32px;
+  padding-top: 32px;
+  border-top: 1px solid var(--border);
+}
+
+.transactions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.transactions-header h3 {
+  margin: 0;
+}
+
+.quick-transaction-form {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  margin: 20px 0;
+}
+
+.transaction-type-toggle {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.type-btn {
+  flex: 1;
+  padding: 12px;
+  border: 2px solid var(--border);
+  border-radius: 8px;
+  background: transparent;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.type-btn:hover {
+  border-color: var(--primary);
+}
+
+.type-btn.is-active[data-txn-type="expense"] {
+  background: rgba(229, 62, 62, 0.1);
+  border-color: var(--negative);
+  color: var(--negative);
+}
+
+.type-btn.is-active[data-txn-type="income"] {
+  background: rgba(72, 187, 120, 0.1);
+  border-color: var(--positive);
+  color: var(--positive);
+}
+
+.transaction-inputs {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.transaction-inputs label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.transaction-inputs input,
+.transaction-inputs select {
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+label.full-width {
+  margin-bottom: 16px;
+}
+
+label.full-width input {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+}
+
+.btn.full-width {
+  width: 100%;
+}
+
+/* Running Balance */
+.running-balance {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 20px 0;
+}
+
+.balance-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+}
+
+.balance-label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 4px;
+}
+
+.balance-value {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.balance-value.positive {
+  color: var(--positive);
+}
+
+.balance-value.negative {
+  color: var(--negative);
+}
+
+/* Recent Transactions */
+.recent-transactions {
+  margin-top: 24px;
+}
+
+.transactions-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.transactions-list-header h4 {
+  margin: 0;
+}
+
+.transaction-filters select {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  font-size: 13px;
+}
+
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.transaction-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.transaction-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 18px;
+}
+
+.transaction-icon.expense {
+  background: rgba(229, 62, 62, 0.1);
+}
+
+.transaction-icon.income {
+  background: rgba(72, 187, 120, 0.1);
+}
+
+.transaction-info {
+  min-width: 0;
+}
+
+.transaction-desc {
+  font-weight: 500;
+  margin-bottom: 2px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.transaction-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.transaction-amount {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.transaction-amount.expense {
+  color: var(--negative);
+}
+
+.transaction-amount.income {
+  color: var(--positive);
+}
+
+.transaction-actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* Mobile Responsive for Phase 1 */
+@media (max-width: 768px) {
+  .bills-summary,
+  .debt-summary,
+  .running-balance {
+    grid-template-columns: 1fr;
+  }
+
+  .calendar-grid {
+    gap: 2px;
+  }
+
+  .calendar-day {
+    font-size: 12px;
+    min-height: 32px;
+  }
+
+  .bill-item {
+    grid-template-columns: auto 1fr;
+  }
+
+  .bill-status {
+    grid-column: 1 / -1;
+    margin-top: 8px;
+    justify-content: flex-end;
+  }
+
+  .strategy-toggle {
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-inputs {
+    grid-template-columns: 1fr;
+  }
+
+  .debt-item {
+    grid-template-columns: auto 1fr;
+  }
+
+  .debt-item-balance,
+  .debt-item-progress {
+    grid-column: 2;
+  }
+
+  .comparison-row {
+    grid-template-columns: 1fr;
+    gap: 4px;
+  }
+}

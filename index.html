@@ -1568,6 +1568,265 @@
                   </div>
                 </div>
               </div>
+
+              <!-- Bill Calendar & Reminders -->
+              <div class="panel-card bills-panel">
+                <div class="bills-header">
+                  <h3>Bill Calendar</h3>
+                  <button class="btn small primary" type="button" data-add-bill>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add Bill
+                  </button>
+                </div>
+                <p class="muted">Track upcoming bills and never miss a payment</p>
+
+                <!-- Monthly Summary -->
+                <div class="bills-summary">
+                  <div class="summary-card">
+                    <span class="summary-label">Total Due</span>
+                    <span class="summary-value" data-bills-total>£0</span>
+                  </div>
+                  <div class="summary-card">
+                    <span class="summary-label">Paid</span>
+                    <span class="summary-value positive" data-bills-paid>£0</span>
+                  </div>
+                  <div class="summary-card">
+                    <span class="summary-label">Remaining</span>
+                    <span class="summary-value warning" data-bills-remaining>£0</span>
+                  </div>
+                </div>
+
+                <!-- Calendar View -->
+                <div class="bills-calendar">
+                  <div class="calendar-header">
+                    <button class="btn ghost small" type="button" data-calendar-prev>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="15 18 9 12 15 6"/>
+                      </svg>
+                    </button>
+                    <h4 data-calendar-month>January 2026</h4>
+                    <button class="btn ghost small" type="button" data-calendar-next>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"/>
+                      </svg>
+                    </button>
+                  </div>
+                  <div class="calendar-grid" data-calendar-grid>
+                    <!-- Calendar days populated by JS -->
+                  </div>
+                </div>
+
+                <!-- Upcoming Bills List -->
+                <div class="bills-upcoming">
+                  <h4>Upcoming This Week</h4>
+                  <div class="bills-list" data-bills-upcoming>
+                    <p class="muted">No bills added yet. Add your first bill to get started.</p>
+                  </div>
+                </div>
+
+                <!-- All Bills List -->
+                <div class="bills-all">
+                  <h4>All Bills</h4>
+                  <div class="bills-list" data-bills-all>
+                    <p class="muted">No bills added yet.</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add/Edit Bill Modal -->
+              <div class="modal-overlay" data-bill-modal hidden>
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h3 data-bill-modal-title>Add New Bill</h3>
+                    <button class="btn ghost" type="button" data-close-bill-modal>×</button>
+                  </div>
+                  <form class="bill-form" data-bill-form>
+                    <input type="hidden" data-bill-id />
+                    <label>
+                      Bill Name
+                      <input type="text" placeholder="e.g. Netflix, Council Tax" data-bill-name required />
+                    </label>
+                    <label>
+                      Amount (£)
+                      <input type="number" min="0" step="0.01" placeholder="0.00" data-bill-amount required />
+                    </label>
+                    <label>
+                      Category
+                      <select data-bill-category>
+                        <option value="utilities">Utilities</option>
+                        <option value="subscriptions">Subscriptions</option>
+                        <option value="insurance">Insurance</option>
+                        <option value="loans">Loans & Credit</option>
+                        <option value="housing">Housing</option>
+                        <option value="transport">Transport</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </label>
+                    <label>
+                      Due Day of Month
+                      <input type="number" min="1" max="31" placeholder="1-31" data-bill-due-day required />
+                    </label>
+                    <label>
+                      Frequency
+                      <select data-bill-frequency>
+                        <option value="monthly">Monthly</option>
+                        <option value="weekly">Weekly</option>
+                        <option value="quarterly">Quarterly</option>
+                        <option value="annually">Annually</option>
+                      </select>
+                    </label>
+                    <div class="modal-actions">
+                      <button type="button" class="btn ghost" data-close-bill-modal>Cancel</button>
+                      <button type="submit" class="btn primary">Save Bill</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+
+              <!-- Debt Payoff Planner -->
+              <div class="panel-card debt-panel">
+                <div class="debt-header">
+                  <h3>Debt Payoff Planner</h3>
+                  <button class="btn small primary" type="button" data-add-debt>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add Debt
+                  </button>
+                </div>
+                <p class="muted">Create a strategy to become debt-free faster</p>
+
+                <!-- Debt Summary -->
+                <div class="debt-summary">
+                  <div class="summary-card">
+                    <span class="summary-label">Total Debt</span>
+                    <span class="summary-value negative" data-debt-total>£0</span>
+                  </div>
+                  <div class="summary-card">
+                    <span class="summary-label">Monthly Payments</span>
+                    <span class="summary-value" data-debt-monthly>£0</span>
+                  </div>
+                  <div class="summary-card">
+                    <span class="summary-label">Debt-Free Date</span>
+                    <span class="summary-value positive" data-debt-free-date>--</span>
+                  </div>
+                </div>
+
+                <!-- Strategy Toggle -->
+                <div class="debt-strategy">
+                  <h4>Payoff Strategy</h4>
+                  <div class="strategy-toggle">
+                    <button class="strategy-btn is-active" type="button" data-strategy="avalanche">
+                      <strong>Avalanche</strong>
+                      <span class="muted">Highest interest first</span>
+                    </button>
+                    <button class="strategy-btn" type="button" data-strategy="snowball">
+                      <strong>Snowball</strong>
+                      <span class="muted">Smallest balance first</span>
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Extra Payment Calculator -->
+                <div class="extra-payment">
+                  <label>
+                    Extra Monthly Payment (£)
+                    <input type="number" min="0" step="10" value="0" data-extra-payment />
+                  </label>
+                  <div class="extra-impact" data-extra-impact>
+                    <p class="muted">Add an extra payment to see how much faster you'll be debt-free</p>
+                  </div>
+                </div>
+
+                <!-- Debt Payoff Timeline Chart -->
+                <div class="debt-chart-container">
+                  <h4>Payoff Timeline</h4>
+                  <div class="debt-chart" data-debt-chart>
+                    <p class="muted">Add debts to see your payoff timeline</p>
+                  </div>
+                </div>
+
+                <!-- Debt List -->
+                <div class="debt-list-container">
+                  <h4>Your Debts</h4>
+                  <div class="debt-list" data-debt-list>
+                    <p class="muted">No debts added. Add your debts to create a payoff plan.</p>
+                  </div>
+                </div>
+
+                <!-- Strategy Comparison -->
+                <div class="strategy-comparison" data-strategy-comparison hidden>
+                  <h4>Strategy Comparison</h4>
+                  <div class="comparison-table">
+                    <div class="comparison-row header">
+                      <span></span>
+                      <span>Avalanche</span>
+                      <span>Snowball</span>
+                    </div>
+                    <div class="comparison-row">
+                      <span>Total Interest</span>
+                      <span data-avalanche-interest>£0</span>
+                      <span data-snowball-interest>£0</span>
+                    </div>
+                    <div class="comparison-row">
+                      <span>Payoff Time</span>
+                      <span data-avalanche-time>0 months</span>
+                      <span data-snowball-time>0 months</span>
+                    </div>
+                    <div class="comparison-row">
+                      <span>You Save</span>
+                      <span class="positive" data-avalanche-savings>£0</span>
+                      <span data-snowball-savings>--</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Add/Edit Debt Modal -->
+              <div class="modal-overlay" data-debt-modal hidden>
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h3 data-debt-modal-title>Add New Debt</h3>
+                    <button class="btn ghost" type="button" data-close-debt-modal>×</button>
+                  </div>
+                  <form class="debt-form" data-debt-form>
+                    <input type="hidden" data-debt-id />
+                    <label>
+                      Debt Name
+                      <input type="text" placeholder="e.g. Credit Card, Car Loan" data-debt-name required />
+                    </label>
+                    <label>
+                      Current Balance (£)
+                      <input type="number" min="0" step="0.01" placeholder="0.00" data-debt-balance required />
+                    </label>
+                    <label>
+                      Interest Rate (% APR)
+                      <input type="number" min="0" max="100" step="0.1" placeholder="0.0" data-debt-rate required />
+                    </label>
+                    <label>
+                      Minimum Monthly Payment (£)
+                      <input type="number" min="0" step="1" placeholder="0" data-debt-min-payment required />
+                    </label>
+                    <label>
+                      Category
+                      <select data-debt-category>
+                        <option value="credit-card">Credit Card</option>
+                        <option value="personal-loan">Personal Loan</option>
+                        <option value="car-finance">Car Finance</option>
+                        <option value="student-loan">Student Loan</option>
+                        <option value="overdraft">Overdraft</option>
+                        <option value="other">Other</option>
+                      </select>
+                    </label>
+                    <div class="modal-actions">
+                      <button type="button" class="btn ghost" data-close-debt-modal>Cancel</button>
+                      <button type="submit" class="btn primary">Save Debt</button>
+                    </div>
+                  </form>
+                </div>
+              </div>
             </div>
 
             <div class="tab-panel" data-tab="goals">
@@ -1848,6 +2107,124 @@
                 <h4>Recent Imports</h4>
                 <div class="import-history-list" data-import-history-list>
                   <p class="muted">No imports yet. Upload a file to get started.</p>
+                </div>
+              </div>
+
+              <!-- Manual Transaction Entry -->
+              <div class="transactions-section">
+                <div class="transactions-header">
+                  <h3>Quick Add Transaction</h3>
+                  <button class="btn small primary" type="button" data-add-transaction>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                    </svg>
+                    Add
+                  </button>
+                </div>
+                <p class="muted">Log cash spending and other transactions between imports</p>
+
+                <!-- Quick Add Form -->
+                <div class="quick-transaction-form" data-quick-transaction-form>
+                  <div class="transaction-type-toggle">
+                    <button class="type-btn is-active" type="button" data-txn-type="expense">Expense</button>
+                    <button class="type-btn" type="button" data-txn-type="income">Income</button>
+                  </div>
+                  <div class="transaction-inputs">
+                    <label>
+                      Amount (£)
+                      <input type="number" min="0" step="0.01" placeholder="0.00" data-txn-amount />
+                    </label>
+                    <label>
+                      Category
+                      <select data-txn-category>
+                        <optgroup label="Housing">
+                          <option value="mortgage">Mortgage/Rent</option>
+                          <option value="councilTax">Council Tax</option>
+                          <option value="homeInsurance">Home Insurance</option>
+                        </optgroup>
+                        <optgroup label="Utilities">
+                          <option value="energy">Energy</option>
+                          <option value="water">Water</option>
+                          <option value="internet">Internet</option>
+                        </optgroup>
+                        <optgroup label="Transport">
+                          <option value="fuel">Fuel</option>
+                          <option value="publicTransport">Public Transport</option>
+                          <option value="carInsurance">Car Insurance</option>
+                        </optgroup>
+                        <optgroup label="Food & Drink">
+                          <option value="groceries" selected>Groceries</option>
+                          <option value="diningOut">Dining Out</option>
+                          <option value="coffeeSnacks">Coffee/Snacks</option>
+                        </optgroup>
+                        <optgroup label="Personal">
+                          <option value="clothing">Clothing</option>
+                          <option value="personalCare">Personal Care</option>
+                          <option value="entertainment">Entertainment</option>
+                          <option value="subscriptions">Subscriptions</option>
+                          <option value="gym">Gym</option>
+                        </optgroup>
+                        <optgroup label="Other">
+                          <option value="other">Other</option>
+                        </optgroup>
+                      </select>
+                    </label>
+                    <label>
+                      Date
+                      <input type="date" data-txn-date />
+                    </label>
+                    <label>
+                      Payment Method
+                      <select data-txn-method>
+                        <option value="cash">Cash</option>
+                        <option value="card" selected>Card</option>
+                        <option value="bank-transfer">Bank Transfer</option>
+                        <option value="direct-debit">Direct Debit</option>
+                      </select>
+                    </label>
+                  </div>
+                  <label class="full-width">
+                    Description (optional)
+                    <input type="text" placeholder="e.g. Weekly shop at Tesco" data-txn-description />
+                  </label>
+                  <button class="btn primary full-width" type="button" data-save-transaction>
+                    Save Transaction
+                  </button>
+                </div>
+
+                <!-- Running Balance -->
+                <div class="running-balance">
+                  <div class="balance-card">
+                    <span class="balance-label">This Month's Spending</span>
+                    <span class="balance-value negative" data-month-spending>£0</span>
+                  </div>
+                  <div class="balance-card">
+                    <span class="balance-label">This Month's Income</span>
+                    <span class="balance-value positive" data-month-income>£0</span>
+                  </div>
+                  <div class="balance-card">
+                    <span class="balance-label">Net</span>
+                    <span class="balance-value" data-month-net>£0</span>
+                  </div>
+                </div>
+
+                <!-- Recent Transactions -->
+                <div class="recent-transactions">
+                  <div class="transactions-list-header">
+                    <h4>Recent Transactions</h4>
+                    <div class="transaction-filters">
+                      <select data-txn-filter-category>
+                        <option value="all">All Categories</option>
+                        <option value="groceries">Groceries</option>
+                        <option value="diningOut">Dining Out</option>
+                        <option value="transport">Transport</option>
+                        <option value="entertainment">Entertainment</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div class="transactions-list" data-transactions-list>
+                    <p class="muted">No transactions yet. Add your first transaction above.</p>
+                  </div>
                 </div>
               </div>
             </div>

@@ -3358,6 +3358,288 @@
                 </div>
               </div>
 
+              <!-- Phase 4: Tax Planning Tools -->
+              <div class="panel-card wide tax-planning-card">
+                <div class="tax-header">
+                  <div>
+                    <h3>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                      </svg>
+                      Tax Allowances Tracker
+                    </h3>
+                    <p class="muted">Monitor your annual tax-free allowances (2024/25)</p>
+                  </div>
+                </div>
+
+                <!-- Tax Allowances Grid -->
+                <div class="tax-allowances-grid">
+                  <!-- ISA Allowance -->
+                  <div class="allowance-card isa">
+                    <div class="allowance-header">
+                      <span class="allowance-icon">💰</span>
+                      <div class="allowance-title">
+                        <h4>ISA Allowance</h4>
+                        <span class="allowance-limit">£20,000/year</span>
+                      </div>
+                    </div>
+                    <div class="allowance-progress">
+                      <div class="progress-bar">
+                        <span class="progress-fill" data-isa-progress style="width: 0%"></span>
+                      </div>
+                      <div class="progress-values">
+                        <span class="used" data-isa-used>£0 used</span>
+                        <span class="remaining" data-isa-remaining>£20,000 remaining</span>
+                      </div>
+                    </div>
+                    <div class="allowance-inputs">
+                      <label>
+                        Cash ISA contributions
+                        <input type="number" min="0" step="100" placeholder="0" data-tax-input="cashIsaContrib" />
+                      </label>
+                      <label>
+                        S&S ISA contributions
+                        <input type="number" min="0" step="100" placeholder="0" data-tax-input="stocksIsaContrib" />
+                      </label>
+                    </div>
+                    <p class="allowance-tip">Tip: Use your ISA allowance to shelter savings from tax</p>
+                  </div>
+
+                  <!-- Capital Gains Allowance -->
+                  <div class="allowance-card cgt">
+                    <div class="allowance-header">
+                      <span class="allowance-icon">📈</span>
+                      <div class="allowance-title">
+                        <h4>Capital Gains</h4>
+                        <span class="allowance-limit">£3,000/year</span>
+                      </div>
+                    </div>
+                    <div class="allowance-progress">
+                      <div class="progress-bar">
+                        <span class="progress-fill" data-cgt-progress style="width: 0%"></span>
+                      </div>
+                      <div class="progress-values">
+                        <span class="used" data-cgt-used>£0 gains</span>
+                        <span class="remaining" data-cgt-remaining>£3,000 tax-free</span>
+                      </div>
+                    </div>
+                    <div class="allowance-inputs">
+                      <label>
+                        Realised gains this year
+                        <input type="number" min="0" step="100" placeholder="0" data-tax-input="capitalGains" />
+                      </label>
+                    </div>
+                    <p class="allowance-tip">Gains above £3k taxed at 10% (basic) or 20% (higher)</p>
+                  </div>
+
+                  <!-- Dividend Allowance -->
+                  <div class="allowance-card dividend">
+                    <div class="allowance-header">
+                      <span class="allowance-icon">💵</span>
+                      <div class="allowance-title">
+                        <h4>Dividend Allowance</h4>
+                        <span class="allowance-limit">£500/year</span>
+                      </div>
+                    </div>
+                    <div class="allowance-progress">
+                      <div class="progress-bar">
+                        <span class="progress-fill" data-dividend-progress style="width: 0%"></span>
+                      </div>
+                      <div class="progress-values">
+                        <span class="used" data-dividend-used>£0 received</span>
+                        <span class="remaining" data-dividend-remaining>£500 tax-free</span>
+                      </div>
+                    </div>
+                    <div class="allowance-inputs">
+                      <label>
+                        Dividends received this year
+                        <input type="number" min="0" step="10" placeholder="0" data-tax-input="dividends" />
+                      </label>
+                    </div>
+                    <p class="allowance-tip">Above £500 taxed at 8.75% (basic) to 39.35% (additional)</p>
+                  </div>
+
+                  <!-- Personal Savings Allowance -->
+                  <div class="allowance-card savings">
+                    <div class="allowance-header">
+                      <span class="allowance-icon">🏦</span>
+                      <div class="allowance-title">
+                        <h4>Savings Interest</h4>
+                        <span class="allowance-limit" data-psa-limit>£1,000/year</span>
+                      </div>
+                    </div>
+                    <div class="allowance-progress">
+                      <div class="progress-bar">
+                        <span class="progress-fill" data-psa-progress style="width: 0%"></span>
+                      </div>
+                      <div class="progress-values">
+                        <span class="used" data-psa-used>£0 interest</span>
+                        <span class="remaining" data-psa-remaining>£1,000 tax-free</span>
+                      </div>
+                    </div>
+                    <div class="allowance-inputs">
+                      <label>
+                        Interest earned this year
+                        <input type="number" min="0" step="10" placeholder="0" data-tax-input="savingsInterest" />
+                      </label>
+                    </div>
+                    <p class="allowance-tip">Basic rate: £1k allowance, Higher rate: £500</p>
+                  </div>
+                </div>
+
+                <!-- Tax Year Progress -->
+                <div class="tax-year-progress">
+                  <div class="year-info">
+                    <span class="year-label">Tax Year 2024/25</span>
+                    <span class="year-dates">6 April 2024 - 5 April 2025</span>
+                  </div>
+                  <div class="year-countdown" data-tax-year-countdown>
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Phase 4: Retirement Calculator -->
+              <div class="panel-card wide retirement-card">
+                <div class="retirement-header">
+                  <div>
+                    <h3>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                      </svg>
+                      Retirement Planner
+                    </h3>
+                    <p class="muted">Plan your financial independence</p>
+                  </div>
+                </div>
+
+                <!-- Retirement Inputs -->
+                <div class="retirement-inputs">
+                  <div class="input-group">
+                    <label>
+                      Current Age
+                      <input type="number" min="18" max="80" value="30" data-retire-input="currentAge" />
+                    </label>
+                    <label>
+                      Target Retirement Age
+                      <input type="number" min="50" max="80" value="65" data-retire-input="retireAge" />
+                    </label>
+                    <label>
+                      Current Pension Pot
+                      <input type="number" min="0" step="1000" placeholder="0" data-retire-input="pensionPot" />
+                    </label>
+                  </div>
+                  <div class="input-group">
+                    <label>
+                      Monthly Pension Contribution
+                      <input type="number" min="0" step="50" placeholder="0" data-retire-input="monthlyContrib" />
+                    </label>
+                    <label>
+                      Employer Contribution (%)
+                      <input type="number" min="0" max="100" value="3" data-retire-input="employerContrib" />
+                    </label>
+                    <label>
+                      Expected Annual Return (%)
+                      <input type="number" min="0" max="15" step="0.5" value="5" data-retire-input="expectedReturn" />
+                    </label>
+                  </div>
+                </div>
+
+                <!-- Retirement Projections -->
+                <div class="retirement-projections">
+                  <div class="projection-card main">
+                    <span class="projection-label">Projected Pension at Retirement</span>
+                    <span class="projection-value" data-projected-pension>£0</span>
+                    <span class="projection-note" data-pension-years>in 0 years</span>
+                  </div>
+                  <div class="projection-grid">
+                    <div class="projection-card">
+                      <span class="projection-label">Monthly Income (4% drawdown)</span>
+                      <span class="projection-value" data-monthly-drawdown>£0</span>
+                    </div>
+                    <div class="projection-card">
+                      <span class="projection-label">State Pension (estimate)</span>
+                      <span class="projection-value" data-state-pension>£221/week</span>
+                    </div>
+                    <div class="projection-card">
+                      <span class="projection-label">Total Monthly Retirement</span>
+                      <span class="projection-value positive" data-total-retirement>£0</span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Pension Gap Analysis -->
+                <div class="pension-gap-section">
+                  <h4>Pension Gap Analysis</h4>
+                  <div class="pension-gap">
+                    <div class="gap-current">
+                      <span class="gap-label">Current Monthly Expenses</span>
+                      <span class="gap-value" data-current-expenses>£0</span>
+                    </div>
+                    <div class="gap-arrow">→</div>
+                    <div class="gap-retirement">
+                      <span class="gap-label">Projected Retirement Income</span>
+                      <span class="gap-value" data-retirement-income>£0</span>
+                    </div>
+                    <div class="gap-result" data-pension-gap-result>
+                      <!-- Populated by JS -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- FIRE Calculator -->
+                <div class="fire-section">
+                  <div class="fire-header">
+                    <h4>
+                      <span class="fire-icon">🔥</span>
+                      FIRE Calculator
+                    </h4>
+                    <span class="fire-subtitle">Financial Independence, Retire Early</span>
+                  </div>
+                  <div class="fire-inputs">
+                    <label>
+                      Target Annual Spending in Retirement
+                      <input type="number" min="0" step="1000" placeholder="30000" data-fire-input="annualSpending" />
+                    </label>
+                    <label>
+                      Current Investments/Savings
+                      <input type="number" min="0" step="1000" placeholder="0" data-fire-input="currentSavings" />
+                    </label>
+                    <label>
+                      Monthly Savings Rate
+                      <input type="number" min="0" step="100" placeholder="0" data-fire-input="monthlySavings" />
+                    </label>
+                  </div>
+                  <div class="fire-results">
+                    <div class="fire-target">
+                      <span class="fire-label">FIRE Target (25x expenses)</span>
+                      <span class="fire-value" data-fire-target>£0</span>
+                    </div>
+                    <div class="fire-progress-container">
+                      <div class="fire-progress-bar">
+                        <span class="fire-progress-fill" data-fire-progress style="width: 0%"></span>
+                      </div>
+                      <span class="fire-percent" data-fire-percent>0%</span>
+                    </div>
+                    <div class="fire-timeline">
+                      <span class="timeline-label">Years to FIRE:</span>
+                      <span class="timeline-value" data-fire-years>--</span>
+                    </div>
+                    <div class="fire-age" data-fire-age>
+                      <!-- Populated by JS -->
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Retirement Scenarios -->
+                <div class="retirement-scenarios">
+                  <h4>Retirement Age Comparison</h4>
+                  <div class="scenarios-grid" data-retirement-scenarios>
+                    <!-- Populated by JS -->
+                  </div>
+                </div>
+              </div>
+
               <!-- Smart Tips -->
               <div class="tips-section">
                 <div class="tips-header">

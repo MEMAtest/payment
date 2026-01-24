@@ -1,0 +1,309 @@
+/* Rewards v2 */
+.rewards-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 768px) {
+  .rewards-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.rewards-level-card {
+  background: linear-gradient(135deg, var(--navy) 0%, #2d4a6f 100%);
+  color: var(--white);
+}
+
+.rewards-level-card h3 {
+  color: var(--white);
+}
+
+.level-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.level-badge {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #ffd700 0%, #ffb347 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 15px rgba(255, 215, 0, 0.4);
+}
+
+.level-number {
+  font-family: var(--display-font);
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--navy);
+}
+
+.level-info h3 {
+  margin: 0 0 4px;
+  font-size: 1.25rem;
+}
+
+.level-points {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.1rem;
+}
+
+.level-progress-bar {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.level-progress-fill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease-out;
+}
+
+.level-progress-text {
+  margin: 0;
+  font-size: 0.85rem;
+  opacity: 0.8;
+}
+
+.rewards-streak-card {
+  text-align: center;
+}
+
+.streak-value {
+  font-family: var(--display-font);
+  font-size: 3rem;
+  font-weight: 700;
+  color: var(--coral);
+  margin: 0 0 16px;
+}
+
+.streak-display {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.streak-day {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--sand);
+  transition: all var(--transition);
+}
+
+.streak-day.active {
+  background: linear-gradient(135deg, var(--coral) 0%, #ff8a65 100%);
+  box-shadow: 0 2px 8px rgba(231, 111, 81, 0.4);
+}
+
+.rewards-badges-card {
+  grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+  .rewards-badges-card {
+    grid-column: span 1;
+  }
+}
+
+.badges-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.badge-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 8px;
+  background: var(--paper);
+  border-radius: 12px;
+  text-align: center;
+  transition: all var(--transition);
+}
+
+.badge-item.locked {
+  opacity: 0.4;
+  filter: grayscale(1);
+}
+
+.badge-item.unlocked {
+  background: var(--sea-light);
+}
+
+.badge-item.unlocked .badge-icon {
+  color: var(--sea);
+}
+
+.badge-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  color: var(--ink-muted);
+}
+
+.badge-name {
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--ink);
+  margin-bottom: 4px;
+}
+
+.badge-points {
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+}
+
+.badge-item.unlocked .badge-points {
+  color: var(--sea);
+  font-weight: 600;
+}
+
+.rewards-offers-card {
+  grid-column: span 2;
+}
+
+@media (max-width: 768px) {
+  .rewards-offers-card {
+    grid-column: span 1;
+  }
+}
+
+.offers-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.offer-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--paper);
+  border-radius: 12px;
+  transition: all var(--transition);
+}
+
+.offer-item:hover {
+  background: var(--sand);
+}
+
+.offer-item.claimed {
+  opacity: 0.6;
+}
+
+.offer-item.locked {
+  opacity: 0.5;
+}
+
+.offer-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.offer-icon.travel {
+  background: var(--sea-light);
+  color: var(--sea);
+}
+
+.offer-icon.groceries {
+  background: rgba(106, 153, 78, 0.15);
+  color: var(--leaf);
+}
+
+.offer-icon.wellness {
+  background: var(--purple-light);
+  color: var(--purple);
+}
+
+.offer-icon.food {
+  background: var(--sun-light);
+  color: #b8860b;
+}
+
+.offer-icon.entertainment {
+  background: var(--coral-light);
+  color: var(--coral);
+}
+
+.offer-icon.insurance {
+  background: var(--navy-light);
+  color: var(--navy);
+}
+
+.offer-icon.education {
+  background: rgba(69, 123, 157, 0.15);
+  color: #457b9d;
+}
+
+.offer-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.offer-name {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--ink);
+  margin: 0 0 2px;
+}
+
+.offer-partner {
+  font-size: 0.85rem;
+  color: var(--ink-muted);
+  margin: 0;
+}
+
+.offer-action {
+  flex-shrink: 0;
+}
+
+.offer-action .btn {
+  min-width: 80px;
+}
+
+.offer-action .btn.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.offer-claimed {
+  font-size: 0.85rem;
+  color: var(--sea);
+  font-weight: 600;
+  padding: 6px 12px;
+  background: var(--sea-light);
+  border-radius: 6px;
+}
+
+/* Rewards */
+.rewards-main .pill-row span {
+  background: var(--purple-light);
+  color: var(--purple);
+}

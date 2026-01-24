@@ -1,0 +1,229 @@
+<div class="tab-panel" data-tab="plan">
+              <div class="panel-grid">
+                <div class="panel-card">
+                  <h3>Future Lab</h3>
+                  <p class="muted">
+                    AI-powered scenario planning
+                  </p>
+                  <div class="chat-stack" data-future-chat>
+                    <div class="chat-bubble">
+                      <p class="chat-title">You</p>
+                      <p data-future-user>Can we pause investing for 6 months?</p>
+                    </div>
+                    <div class="chat-bubble response">
+                      <p class="chat-title">Consumer Pay</p>
+                      <p data-future-response>
+                        That delays your goal by 4 months, but keeps the buffer
+                        intact. Want to see alternatives?
+                      </p>
+                    </div>
+                  </div>
+                  <div class="future-form" data-future-form>
+                    <label>
+                      Ask a question
+                      <textarea rows="2" placeholder="e.g. What if I pause investing for 6 months?" data-future-question></textarea>
+                    </label>
+                    <div class="future-grid">
+                      <label>
+                        Scenario type
+                        <select data-future-type>
+                          <option value="pause_investing" selected>Pause contributions</option>
+                          <option value="income_drop">Income drop</option>
+                          <option value="income_boost">Income boost</option>
+                          <option value="expense_spike">Expense spike</option>
+                          <option value="one_off">One-off expense</option>
+                        </select>
+                      </label>
+                      <label>
+                        Goal focus
+                        <select data-future-goal></select>
+                      </label>
+                      <label>
+                        <span data-future-months-label>Duration (months)</span>
+                        <input type="number" min="1" max="24" value="6" data-future-months />
+                      </label>
+                      <label>
+                        <span data-future-amount-label>Amount (£)</span>
+                        <input type="number" min="0" step="50" value="250" data-future-amount />
+                      </label>
+                    </div>
+                    <button class="btn secondary" type="button" data-future-run>
+                      Run Scenario
+                    </button>
+                  </div>
+                  <div class="future-output">
+                    <p class="card-title">Scenario Impact</p>
+                    <p class="muted" data-future-summary>
+                      Set your scenario, then click Run Scenario.
+                    </p>
+                    <div class="chart-metrics future-metrics">
+                      <div>
+                        <p class="metric-label">Balance Impact</p>
+                        <p class="metric-value" data-future-balance>£0</p>
+                      </div>
+                      <div>
+                        <p class="metric-label">Risk Months</p>
+                        <p class="metric-value" data-future-risk>0</p>
+                      </div>
+                      <div>
+                        <p class="metric-label">Goal Timing</p>
+                        <p class="metric-value" data-future-delay>--</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+                <div class="panel-card monte-panel is-hidden">
+                  <h3>Monte Carlo Simulator</h3>
+                  <p class="muted">Run thousands of scenarios to see your probability of success</p>
+                  <form class="monte-form monte-grid" data-monte-form>
+                    <label>
+                      Starting balance
+                      <input type="number" min="0" step="100" value="2500" data-monte-start />
+                    </label>
+                    <label>
+                      Monthly contribution
+                      <input type="number" min="1" value="350" data-monte-monthly />
+                    </label>
+                    <label>
+                      Contribution growth (%/yr)
+                      <input type="number" step="0.1" value="2" data-monte-growth />
+                    </label>
+                    <label>
+                      Years
+                      <input type="number" min="1" max="40" value="20" data-monte-years />
+                    </label>
+                    <label>
+                      Risk profile
+                      <select data-monte-risk>
+                        <option value="cautious">Cautious</option>
+                        <option value="balanced" selected>Balanced</option>
+                        <option value="growth">Growth</option>
+                        <option value="custom">Custom</option>
+                      </select>
+                    </label>
+                    <label>
+                      Expected return (%)
+                      <input type="number" step="0.1" value="6" data-monte-return />
+                    </label>
+                    <label>
+                      Volatility (%)
+                      <input type="number" step="0.1" value="10" data-monte-vol />
+                    </label>
+                    <label>
+                      Inflation (%)
+                      <input type="number" step="0.1" value="2.5" data-monte-inflation />
+                    </label>
+                    <label>
+                      Annual fee (%)
+                      <input type="number" step="0.1" value="0.6" data-monte-fee />
+                    </label>
+                    <label>
+                      Target value
+                      <input type="number" min="0" step="100" value="100000" data-monte-target />
+                    </label>
+                    <label>
+                      Simulations
+                      <input type="number" min="100" max="5000" step="50" value="500" data-monte-runs />
+                    </label>
+                    <button class="btn primary full" type="button" data-monte-run>
+                      Run Simulation
+                    </button>
+                  </form>
+                  <div class="monte-results">
+                    <div class="monte-output" data-monte-output>
+                      Projected range: £0 - £0
+                    </div>
+                    <div class="monte-stats">
+                      <div>
+                        <p class="metric-label">Simulations</p>
+                        <p class="metric-value" data-monte-sims>500</p>
+                      </div>
+                      <div>
+                        <p class="metric-label">Hit Target</p>
+                        <p class="metric-value" data-monte-hit>0%</p>
+                      </div>
+                      <div>
+                        <p class="metric-label">Real Return</p>
+                        <p class="metric-value" data-monte-real>0%</p>
+                      </div>
+                    </div>
+                    <p class="muted" data-assumptions-updated>Assumptions updated: --</p>
+                    <div class="monte-chart-wrap">
+                      <h4>Distribution of Outcomes</h4>
+                      <div class="monte-bars" data-monte-bars></div>
+                      <div class="monte-percentiles">
+                        <span class="percentile p10" data-monte-p10>10th: £0</span>
+                        <span class="percentile p50" data-monte-p50>50th: £0</span>
+                        <span class="percentile p90" data-monte-p90>90th: £0</span>
+                      </div>
+                    </div>
+                    <div class="monte-report" data-monte-report style="display: none;">
+                      <h4>Simulation Report</h4>
+                      <div class="report-content" data-report-content></div>
+                      <button class="btn ghost" type="button" data-download-report>
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                        </svg>
+                        Download Report
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="panel-row">
+                <div class="panel-card converter-card is-hidden">
+                  <h3>Currency Converter</h3>
+                  <label>
+                    Amount
+                    <input type="number" min="0" value="120" data-converter-amount />
+                  </label>
+                  <div class="converter-row">
+                    <label>
+                      From
+                      <select data-converter-from>
+                        <option value="GBP">GBP</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="NGN">NGN</option>
+                        <option value="GHS">GHS</option>
+                        <option value="ZAR">ZAR</option>
+                        <option value="KES">KES</option>
+                        <option value="CAD">CAD</option>
+                      </select>
+                    </label>
+                    <button class="swap" type="button" aria-label="Swap currencies" data-converter-swap>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/>
+                        <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
+                      </svg>
+                    </button>
+                    <label>
+                      To
+                      <select data-converter-to>
+                        <option value="USD">USD</option>
+                        <option value="GBP">GBP</option>
+                        <option value="EUR">EUR</option>
+                        <option value="NGN">NGN</option>
+                        <option value="GHS">GHS</option>
+                        <option value="ZAR">ZAR</option>
+                        <option value="KES">KES</option>
+                        <option value="CAD">CAD</option>
+                      </select>
+                    </label>
+                  </div>
+                  <div class="converter-output" data-converter-output></div>
+                  <p class="muted" data-fx-updated>Rates updated: --</p>
+                </div>
+                <div class="panel-card">
+                  <h3>Value Finder</h3>
+                  <p>
+                    We alert you to better value on big purchases and surface hidden fees.
+                  </p>
+                  <div class="pill-row">
+                    <span>Lost balance scan</span>
+                    <span>Income booster</span>
+                    <span>Price alerts</span>
+                  </div>
+                </div>
+              </div>
+            </div>

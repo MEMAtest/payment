@@ -1,0 +1,58 @@
+<div class="tab-panel" data-tab="currency">
+              <div class="currency-hero">
+                <div class="currency-hero-copy">
+                  <p class="eyebrow">Currency</p>
+                  <h2>Global Currency Hub</h2>
+                  <p>
+                    Compare, swap, and track the value of your money across the world in seconds.
+                  </p>
+                </div>
+                <div class="currency-converter-card">
+                  <div class="currency-input-row">
+                    <label>
+                      Amount
+                      <input class="currency-amount" type="number" min="0" step="0.01" value="120" data-currency-amount />
+                    </label>
+                  </div>
+                  <div class="currency-select-row">
+                    <div class="currency-select">
+                      <span class="flag-pill" data-currency-flag-from>GB</span>
+                      <select data-currency-from></select>
+                    </div>
+                    <button class="currency-swap" type="button" aria-label="Swap currencies" data-currency-swap>
+                      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 014-4h14"/>
+                        <polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 01-4 4H3"/>
+                      </svg>
+                    </button>
+                    <div class="currency-select">
+                      <span class="flag-pill" data-currency-flag-to>US</span>
+                      <select data-currency-to></select>
+                    </div>
+                  </div>
+                  <div class="currency-output">
+                    <p class="currency-result" data-currency-result>--</p>
+                    <p class="currency-rate" data-currency-rate>1 GBP = -- USD</p>
+                    <p class="currency-updated" data-currency-updated>Rates updated: --</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="panel-row currency-row">
+                <div class="panel-card">
+                  <h3>Quick Conversions</h3>
+                  <div class="quick-grid" data-currency-quick></div>
+                </div>
+                <div class="panel-card">
+                  <h3>Multi-Currency Comparison</h3>
+                  <div class="comparison-grid" data-currency-compare></div>
+                </div>
+                <div class="panel-card rate-alert">
+                  <h3>Rate Alerts</h3>
+                  <p class="muted">
+                    Get notified when your target rate hits. Coming soon for premium members.
+                  </p>
+                  <button class="btn ghost" type="button" disabled>Enable Alerts</button>
+                </div>
+              </div>
+            </div>

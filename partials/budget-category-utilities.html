@@ -1,0 +1,46 @@
+<div class="expense-category utilities">
+                <div class="category-header">
+                  <div class="category-icon">
+                    <svg width="24" height="24" viewBox="0 0 24 24">
+                      <defs>
+                        <linearGradient id="cat-util-gold" x1="0%" y1="0%" x2="100%" y2="100%">
+                          <stop offset="0%" stop-color="#fcd34d"/><stop offset="100%" stop-color="#f59e0b"/>
+                        </linearGradient>
+                      </defs>
+                      <ellipse cx="12" cy="8" rx="7" ry="7" fill="url(#cat-util-gold)" opacity="0.2"/>
+                      <path d="M9 21h6M10 17h4" stroke="url(#cat-util-gold)" stroke-width="1.5" stroke-linecap="round"/>
+                      <path d="M12 2a6 6 0 00-4 10.5V15a1 1 0 001 1h6a1 1 0 001-1v-2.5A6 6 0 0012 2z" fill="url(#cat-util-gold)"/>
+                      <circle cx="10" cy="7" r="1" fill="#fff" opacity="0.8"/>
+                      <circle cx="14" cy="9" r="0.6" fill="#fff" opacity="0.6"/>
+                      <path d="M10 8q2 1.5 4 0" stroke="#f59e0b" stroke-width="0.8" stroke-linecap="round" fill="none"/>
+                    </svg>
+                  </div>
+                  <div class="category-info">
+                    <h4>Utilities & Bills</h4>
+                    <p class="category-total" data-category-total="utilities">£0</p>
+                  </div>
+                  <button class="category-toggle" type="button" data-toggle-category="utilities">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="category-items" data-category-items="utilities">
+                  <label class="expense-item">
+                    <span>Gas & Electric</span>
+                    <input type="number" min="0" placeholder="150" data-expense="energy" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Water</span>
+                    <input type="number" min="0" placeholder="40" data-expense="water" />
+                  </label>
+                  <label class="expense-item">
+                    <span>Internet & Phone</span>
+                    <input type="number" min="0" placeholder="60" data-expense="internet" />
+                  </label>
+                  <label class="expense-item">
+                    <span>TV & Streaming</span>
+                    <input type="number" min="0" placeholder="30" data-expense="streaming" />
+                  </label>
+                </div>
+              </div>

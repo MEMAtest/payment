@@ -1,0 +1,233 @@
+<div class="tab-panel" data-tab="simulator">
+              <div class="panel-card simulator-hero">
+                <div>
+                  <p class="eyebrow">Simulator</p>
+                  <h2>Monte Carlo Strategy Lab</h2>
+                  <p class="muted">
+                    Explore thousands of possible futures and uncover the probability of hitting your goals.
+                  </p>
+                </div>
+                <div class="simulator-hero-summary">
+                  <div>
+                    <p class="metric-label">Runs</p>
+                    <p class="metric-value" data-sim-runs>500</p>
+                  </div>
+                  <div>
+                    <p class="metric-label">Hit Rate</p>
+                    <p class="metric-value" data-sim-hit>0%</p>
+                  </div>
+                  <div>
+                    <p class="metric-label">Horizon</p>
+                    <p class="metric-value" data-sim-years-label>20 yrs</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="simulator-shell">
+                <div class="simulator-steps">
+                  <div class="simulator-progress">
+                    <span data-sim-progress></span>
+                  </div>
+                  <button class="sim-step is-active" type="button" data-sim-step="1">1. Starting Point</button>
+                  <button class="sim-step" type="button" data-sim-step="2">2. Strategy</button>
+                  <button class="sim-step" type="button" data-sim-step="3">3. Goals</button>
+                  <button class="sim-step" type="button" data-sim-step="4">4. Results</button>
+                </div>
+
+                <div class="simulator-panels">
+                  <div class="simulator-panel is-active" data-sim-panel="1">
+                    <h3>Starting Point</h3>
+                    <p class="muted">Set your baseline investments and contribution rhythm.</p>
+                    <div class="sim-form-grid">
+                      <label>
+                        Current balance
+                        <input type="number" min="0" step="100" value="2500" data-sim-start />
+                      </label>
+                      <label>
+                        Monthly contribution
+                        <input type="number" min="0" step="25" value="350" data-sim-monthly />
+                      </label>
+                      <label>
+                        Contribution growth (% per year)
+                        <input type="number" step="0.5" value="2" data-sim-growth />
+                      </label>
+                    </div>
+                    <div class="simulator-actions">
+                      <button class="btn primary" type="button" data-sim-next>Next: Strategy</button>
+                    </div>
+                  </div>
+
+                  <div class="simulator-panel" data-sim-panel="2">
+                    <h3>Strategy</h3>
+                    <p class="muted">Choose how you want the portfolio to behave in markets.</p>
+                    <div class="risk-grid">
+                      <label class="risk-card is-active" data-sim-risk-card>
+                        <input type="radio" name="sim-risk" value="cautious" checked data-sim-risk />
+                        <div>
+                          <span class="risk-title">Cautious</span>
+                          <span class="risk-desc">4.5% return · 6% volatility</span>
+                        </div>
+                      </label>
+                      <label class="risk-card" data-sim-risk-card>
+                        <input type="radio" name="sim-risk" value="balanced" data-sim-risk />
+                        <div>
+                          <span class="risk-title">Balanced</span>
+                          <span class="risk-desc">6% return · 10% volatility</span>
+                        </div>
+                      </label>
+                      <label class="risk-card" data-sim-risk-card>
+                        <input type="radio" name="sim-risk" value="growth" data-sim-risk />
+                        <div>
+                          <span class="risk-title">Growth</span>
+                          <span class="risk-desc">8% return · 14% volatility</span>
+                        </div>
+                      </label>
+                      <label class="risk-card" data-sim-risk-card>
+                        <input type="radio" name="sim-risk" value="custom" data-sim-risk />
+                        <div>
+                          <span class="risk-title">Custom</span>
+                          <span class="risk-desc">Set your own assumptions</span>
+                        </div>
+                        <div class="risk-custom">
+                          <div>
+                            <span>Expected return (%)</span>
+                            <input type="number" step="0.1" value="6" data-sim-return />
+                          </div>
+                          <div>
+                            <span>Volatility (%)</span>
+                            <input type="number" step="0.1" value="10" data-sim-vol />
+                          </div>
+                        </div>
+                      </label>
+                    </div>
+                    <div class="simulator-actions">
+                      <button class="btn ghost" type="button" data-sim-back>Back</button>
+                      <button class="btn primary" type="button" data-sim-next>Next: Goals</button>
+                    </div>
+                  </div>
+
+                  <div class="simulator-panel" data-sim-panel="3">
+                    <h3>Goals</h3>
+                    <p class="muted">Define the future you want to reach.</p>
+                    <div class="sim-form-grid">
+                      <label class="range-label">
+                        Time horizon
+                        <input type="range" min="5" max="40" value="20" data-sim-years />
+                        <span class="range-value" data-sim-years-value>20 years</span>
+                      </label>
+                      <label>
+                        Target amount
+                        <input type="number" min="0" step="1000" value="100000" data-sim-target />
+                      </label>
+                    </div>
+                    <details class="sim-advanced">
+                      <summary>Advanced assumptions</summary>
+                      <div class="sim-form-grid">
+                        <label>
+                          Inflation (%)
+                          <input type="number" step="0.1" value="2.5" data-sim-inflation />
+                        </label>
+                        <label>
+                          Annual fee (%)
+                          <input type="number" step="0.1" value="0.6" data-sim-fee />
+                        </label>
+                        <label>
+                          Simulation runs
+                          <input type="number" min="250" max="10000" step="50" value="500" data-sim-runs-input />
+                        </label>
+                      </div>
+                    </details>
+                    <div class="simulator-actions">
+                      <button class="btn ghost" type="button" data-sim-back>Back</button>
+                      <button class="btn primary" type="button" data-sim-next data-sim-run>Run Simulation</button>
+                    </div>
+                  </div>
+
+                  <div class="simulator-panel" data-sim-panel="4">
+                    <div class="sim-results-header">
+                      <div>
+                        <h3>Results Dashboard</h3>
+                        <p class="muted">
+                          Based on <span data-sim-runs>500</span> simulations over <span data-sim-years-label>20 yrs</span>.
+                        </p>
+                      </div>
+                      <button class="btn secondary" type="button" data-sim-run>Run Simulation</button>
+                    </div>
+
+                    <div class="sim-results-grid">
+                      <div class="sim-card gauge-card">
+                        <h4>Probability of Success</h4>
+                        <div class="probability-gauge" data-probability-gauge>
+                          <svg viewBox="0 0 140 140" aria-hidden="true">
+                            <circle class="gauge-bg" cx="70" cy="70" r="56"></circle>
+                            <circle class="gauge-progress" cx="70" cy="70" r="56" data-gauge-progress></circle>
+                          </svg>
+                          <div class="gauge-center">
+                            <span class="gauge-value" data-gauge-value>0%</span>
+                            <span class="gauge-label">Hit rate</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="sim-card metric-highlight">
+                        <h4>Key Outcomes</h4>
+                        <div class="metric-card-grid">
+                          <div class="metric-card">
+                            <p class="metric-label">Worst Case (10th)</p>
+                            <p class="metric-value" data-sim-p10>£0</p>
+                          </div>
+                          <div class="metric-card highlight">
+                            <p class="metric-label">Median (50th)</p>
+                            <p class="metric-value" data-sim-p50>£0</p>
+                          </div>
+                          <div class="metric-card">
+                            <p class="metric-label">Best Case (90th)</p>
+                            <p class="metric-value" data-sim-p90>£0</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="sim-card wide">
+                        <h4>Distribution of Outcomes</h4>
+                        <div class="sim-histogram" data-sim-histogram></div>
+                        <p class="muted">Target line shows the goal threshold.</p>
+                      </div>
+
+                      <div class="sim-card wide">
+                        <h4>Future Range (Fan Chart)</h4>
+                        <div class="fan-chart-wrap">
+                          <svg class="fan-chart" data-sim-fan aria-hidden="true"></svg>
+                        </div>
+                      </div>
+
+                      <div class="sim-card">
+                        <h4>Insights</h4>
+                        <div class="insight-grid">
+                          <div>
+                            <p class="metric-label">Total Contributions</p>
+                            <p class="metric-value" data-sim-contrib>£0</p>
+                          </div>
+                          <div>
+                            <p class="metric-label">Expected Growth</p>
+                            <p class="metric-value" data-sim-growth>£0</p>
+                          </div>
+                          <div>
+                            <p class="metric-label">Shortfall Risk</p>
+                            <p class="metric-value" data-sim-shortfall>0%</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="sim-card advice-card" data-sim-advice>
+                        <h4 data-sim-advice-title>Simulation Advice</h4>
+                        <p data-sim-advice-body>Run a simulation to unlock personalized guidance.</p>
+                      </div>
+                    </div>
+
+                    <div class="simulator-actions">
+                      <button class="btn ghost" type="button" data-sim-back>Back</button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>

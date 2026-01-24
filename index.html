@@ -1853,54 +1853,407 @@
             </div>
 
             <div class="tab-panel" data-tab="profile">
-              <div class="panel-grid">
-                <div class="panel-card">
-                  <h3>Money Persona</h3>
-                  <p class="card-value" data-profile-persona>Builder</p>
-                  <p class="muted" data-profile-copy>
-                    Structure and automation keep you on track.
-                  </p>
-                  <div class="persona-tags" data-profile-tags></div>
-                </div>
-                <div class="panel-card">
-                  <h3>Update Your Details</h3>
-                  <p class="muted">
-                    Changes here refresh all calculations.
-                  </p>
-                  <div class="form-grid compact">
-                    <label>
-                      Annual Salary
-                      <input type="number" min="0" data-field="annualSalary" />
-                    </label>
-                    <label>
-                      Total Savings
-                      <input type="number" min="0" data-field="savings" />
-                    </label>
-                    <label>
-                      Rewards Points
-                      <input type="number" min="0" data-field="rewardPoints" />
-                    </label>
-                    <label>
-                      Streak Days
-                      <input type="number" min="0" data-field="rewardStreak" />
-                    </label>
+              <!-- Financial Health Score Hero -->
+              <div class="health-score-hero">
+                <div class="health-score-ring">
+                  <svg viewBox="0 0 120 120" class="score-ring-svg">
+                    <circle cx="60" cy="60" r="52" class="score-ring-bg"/>
+                    <circle cx="60" cy="60" r="52" class="score-ring-fill" data-health-ring/>
+                  </svg>
+                  <div class="score-ring-center">
+                    <span class="score-value" data-health-score>0</span>
+                    <span class="score-max">/ 100</span>
                   </div>
                 </div>
-                <div class="panel-card">
-                  <h3>Learning Feed</h3>
-                  <p class="spark-quote">
-                    "Build the buffer first. Then invest with confidence."
-                  </p>
-                  <p class="muted">Matched to your focus area</p>
+                <div class="health-score-info">
+                  <h2>Your Financial Health Score</h2>
+                  <p class="health-status" data-health-status>Getting started</p>
+                  <p class="muted">Based on 5 key financial pillars. Updated as you enter your details.</p>
                 </div>
-                <div class="panel-card">
-                  <h3>Protection Check</h3>
-                  <p>
-                    Review your family coverage gaps.
-                  </p>
-                  <button class="btn secondary" type="button">
-                    Start Review
+              </div>
+
+              <!-- Health Score Breakdown -->
+              <div class="health-breakdown">
+                <div class="health-pillar" data-pillar="emergency">
+                  <div class="pillar-header">
+                    <span class="pillar-icon">🛡️</span>
+                    <span class="pillar-name">Emergency Buffer</span>
+                    <span class="pillar-score" data-pillar-score="emergency">0/25</span>
+                  </div>
+                  <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="emergency"></div></div>
+                  <p class="pillar-tip" data-pillar-tip="emergency">Add your savings to see your emergency cover</p>
+                </div>
+                <div class="health-pillar" data-pillar="debt">
+                  <div class="pillar-header">
+                    <span class="pillar-icon">📊</span>
+                    <span class="pillar-name">Debt-to-Income</span>
+                    <span class="pillar-score" data-pillar-score="debt">0/25</span>
+                  </div>
+                  <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="debt"></div></div>
+                  <p class="pillar-tip" data-pillar-tip="debt">Enter your debts to calculate your ratio</p>
+                </div>
+                <div class="health-pillar" data-pillar="savings">
+                  <div class="pillar-header">
+                    <span class="pillar-icon">💰</span>
+                    <span class="pillar-name">Savings Rate</span>
+                    <span class="pillar-score" data-pillar-score="savings">0/20</span>
+                  </div>
+                  <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="savings"></div></div>
+                  <p class="pillar-tip" data-pillar-tip="savings">Your surplus as % of income</p>
+                </div>
+                <div class="health-pillar" data-pillar="credit">
+                  <div class="pillar-header">
+                    <span class="pillar-icon">💳</span>
+                    <span class="pillar-name">Credit Utilization</span>
+                    <span class="pillar-score" data-pillar-score="credit">0/15</span>
+                  </div>
+                  <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="credit"></div></div>
+                  <p class="pillar-tip" data-pillar-tip="credit">Add your credit score details below</p>
+                </div>
+                <div class="health-pillar" data-pillar="protection">
+                  <div class="pillar-header">
+                    <span class="pillar-icon">🏥</span>
+                    <span class="pillar-name">Protection Cover</span>
+                    <span class="pillar-score" data-pillar-score="protection">0/15</span>
+                  </div>
+                  <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="protection"></div></div>
+                  <p class="pillar-tip" data-pillar-tip="protection">Review your insurance coverage</p>
+                </div>
+              </div>
+
+              <!-- Net Worth Section -->
+              <div class="networth-section">
+                <div class="networth-header">
+                  <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                    </svg>
+                    Your Net Worth
+                  </h3>
+                  <div class="networth-total">
+                    <span class="networth-label">Total</span>
+                    <span class="networth-value" data-networth-total>£0</span>
+                  </div>
+                </div>
+
+                <div class="networth-bars">
+                  <div class="networth-bar assets-bar">
+                    <span class="bar-label">Assets</span>
+                    <div class="bar-track"><div class="bar-fill" data-assets-fill></div></div>
+                    <span class="bar-value" data-assets-total>£0</span>
+                  </div>
+                  <div class="networth-bar liabilities-bar">
+                    <span class="bar-label">Liabilities</span>
+                    <div class="bar-track"><div class="bar-fill" data-liabilities-fill></div></div>
+                    <span class="bar-value" data-liabilities-total>£0</span>
+                  </div>
+                </div>
+
+                <!-- Assets Accordion -->
+                <div class="networth-accordion">
+                  <button class="accordion-trigger" type="button" data-accordion="assets">
+                    <span class="accordion-icon">💎</span>
+                    <span class="accordion-title">Assets - What You Own</span>
+                    <span class="accordion-value" data-assets-total-small>£0</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="accordion-chevron">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
                   </button>
+                  <div class="accordion-content" data-accordion-content="assets">
+                    <div class="asset-group">
+                      <h4>Cash & Savings</h4>
+                      <p class="group-help">Money you can access quickly - current accounts, savings, ISAs</p>
+                      <div class="form-grid compact">
+                        <label>
+                          Current & Savings Accounts
+                          <input type="number" min="0" placeholder="5000" data-asset="cashSavings" />
+                        </label>
+                        <label>
+                          Cash ISA Balance
+                          <input type="number" min="0" placeholder="10000" data-asset="cashISA" />
+                        </label>
+                      </div>
+                    </div>
+                    <div class="asset-group">
+                      <h4>Investments</h4>
+                      <p class="group-help">Stocks, shares, ISAs, and other investments</p>
+                      <div class="form-grid compact">
+                        <label>
+                          Stocks & Shares ISA
+                          <input type="number" min="0" placeholder="15000" data-asset="stocksISA" />
+                        </label>
+                        <label>
+                          General Investments
+                          <input type="number" min="0" placeholder="5000" data-asset="generalInvestments" />
+                        </label>
+                        <label>
+                          Cryptocurrency
+                          <input type="number" min="0" placeholder="1000" data-asset="crypto" />
+                        </label>
+                      </div>
+                    </div>
+                    <div class="asset-group">
+                      <h4>Pension</h4>
+                      <p class="group-help">Total value of all your pension pots (check your statements or pension provider)</p>
+                      <div class="form-grid compact">
+                        <label>
+                          Total Pension Value
+                          <input type="number" min="0" placeholder="50000" data-asset="pensionValue" />
+                        </label>
+                      </div>
+                    </div>
+                    <div class="asset-group">
+                      <h4>Property & Vehicles</h4>
+                      <p class="group-help">Estimated current market value of property you own</p>
+                      <div class="form-grid compact">
+                        <label>
+                          Primary Home Value
+                          <input type="number" min="0" placeholder="300000" data-asset="propertyValue" />
+                        </label>
+                        <label>
+                          Other Property Value
+                          <input type="number" min="0" placeholder="0" data-asset="otherPropertyValue" />
+                        </label>
+                        <label>
+                          Vehicle(s) Value
+                          <input type="number" min="0" placeholder="8000" data-asset="vehicleValue" />
+                        </label>
+                        <label>
+                          Other Assets
+                          <input type="number" min="0" placeholder="0" data-asset="otherAssets" />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Liabilities Accordion -->
+                <div class="networth-accordion">
+                  <button class="accordion-trigger" type="button" data-accordion="liabilities">
+                    <span class="accordion-icon">📉</span>
+                    <span class="accordion-title">Liabilities - What You Owe</span>
+                    <span class="accordion-value" data-liabilities-total-small>£0</span>
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="accordion-chevron">
+                      <polyline points="6 9 12 15 18 9"/>
+                    </svg>
+                  </button>
+                  <div class="accordion-content" data-accordion-content="liabilities">
+                    <div class="asset-group">
+                      <h4>Mortgages</h4>
+                      <p class="group-help">Outstanding balance remaining on your mortgage(s)</p>
+                      <div class="form-grid compact">
+                        <label>
+                          Primary Mortgage Balance
+                          <input type="number" min="0" placeholder="200000" data-liability="mortgageBalance" />
+                        </label>
+                        <label>
+                          Other Mortgages
+                          <input type="number" min="0" placeholder="0" data-liability="otherMortgages" />
+                        </label>
+                      </div>
+                    </div>
+                    <div class="asset-group">
+                      <h4>Loans & Finance</h4>
+                      <p class="group-help">Outstanding balances on personal loans and car finance</p>
+                      <div class="form-grid compact">
+                        <label>
+                          Personal Loans Balance
+                          <input type="number" min="0" placeholder="0" data-liability="personalLoansBalance" />
+                        </label>
+                        <label>
+                          Car Finance (PCP/HP)
+                          <input type="number" min="0" placeholder="0" data-liability="carFinanceBalance" />
+                        </label>
+                        <label>
+                          Student Loan Balance
+                          <input type="number" min="0" placeholder="0" data-liability="studentLoanBalance" />
+                        </label>
+                      </div>
+                    </div>
+                    <div class="asset-group">
+                      <h4>Credit & Overdrafts</h4>
+                      <p class="group-help">Current balances on credit cards and overdrafts</p>
+                      <div class="form-grid compact">
+                        <label>
+                          Total Credit Card Debt
+                          <input type="number" min="0" placeholder="0" data-liability="creditCardBalance" />
+                        </label>
+                        <label>
+                          Overdraft Used
+                          <input type="number" min="0" placeholder="0" data-liability="overdraftBalance" />
+                        </label>
+                        <label>
+                          Other Debts
+                          <input type="number" min="0" placeholder="0" data-liability="otherDebts" />
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Credit Score Section -->
+              <div class="credit-section">
+                <div class="credit-header">
+                  <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                    </svg>
+                    Credit Score
+                  </h3>
+                </div>
+                <div class="credit-score-card">
+                  <div class="credit-score-display">
+                    <div class="credit-score-gauge">
+                      <div class="gauge-value" data-credit-gauge>
+                        <span class="gauge-number" data-credit-score-display>---</span>
+                        <span class="gauge-label">out of 999</span>
+                      </div>
+                      <div class="gauge-band" data-credit-band>Not set</div>
+                    </div>
+                    <div class="credit-score-input">
+                      <p class="credit-help">Check your score for free at ClearScore, Credit Karma, or MSE Credit Club</p>
+                      <div class="form-grid compact">
+                        <label>
+                          Your Credit Score
+                          <input type="number" min="0" max="999" placeholder="750" data-credit="score" />
+                        </label>
+                        <label>
+                          Score Provider
+                          <select data-credit="provider">
+                            <option value="">Select...</option>
+                            <option value="experian">Experian (0-999)</option>
+                            <option value="equifax">Equifax / ClearScore (0-700)</option>
+                            <option value="transunion">TransUnion / Credit Karma (0-710)</option>
+                          </select>
+                        </label>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="credit-utilization">
+                    <h4>Credit Utilization</h4>
+                    <p class="group-help">Lower is better - aim for under 30% of your available credit</p>
+                    <div class="form-grid compact">
+                      <label>
+                        Total Credit Limit
+                        <input type="number" min="0" placeholder="10000" data-credit="creditLimit" />
+                      </label>
+                      <label>
+                        Credit Currently Used
+                        <input type="number" min="0" placeholder="2000" data-credit="creditUsed" />
+                      </label>
+                    </div>
+                    <div class="utilization-bar">
+                      <div class="utilization-fill" data-utilization-fill></div>
+                      <span class="utilization-percent" data-utilization-percent>0%</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Insurance Coverage Section -->
+              <div class="insurance-section">
+                <div class="insurance-header">
+                  <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                    </svg>
+                    Protection & Insurance
+                  </h3>
+                  <p class="muted">Tick what you have in place</p>
+                </div>
+                <div class="insurance-grid">
+                  <label class="insurance-item">
+                    <input type="checkbox" data-insurance="lifeInsurance" />
+                    <div class="insurance-info">
+                      <span class="insurance-name">Life Insurance</span>
+                      <span class="insurance-desc">Pays out to your family if you die</span>
+                    </div>
+                    <input type="number" min="0" placeholder="Cover amount" class="insurance-amount" data-insurance-amount="lifeInsuranceAmount" />
+                  </label>
+                  <label class="insurance-item">
+                    <input type="checkbox" data-insurance="incomeProtection" />
+                    <div class="insurance-info">
+                      <span class="insurance-name">Income Protection</span>
+                      <span class="insurance-desc">Replaces income if you can't work due to illness</span>
+                    </div>
+                    <input type="number" min="0" max="100" placeholder="% of salary" class="insurance-amount" data-insurance-amount="incomeProtectionPercent" />
+                  </label>
+                  <label class="insurance-item">
+                    <input type="checkbox" data-insurance="criticalIllness" />
+                    <div class="insurance-info">
+                      <span class="insurance-name">Critical Illness</span>
+                      <span class="insurance-desc">Lump sum if diagnosed with serious illness</span>
+                    </div>
+                    <input type="number" min="0" placeholder="Cover amount" class="insurance-amount" data-insurance-amount="criticalIllnessAmount" />
+                  </label>
+                  <label class="insurance-item">
+                    <input type="checkbox" data-insurance="homeContents" />
+                    <div class="insurance-info">
+                      <span class="insurance-name">Home Contents</span>
+                      <span class="insurance-desc">Covers your belongings inside your home</span>
+                    </div>
+                  </label>
+                  <label class="insurance-item">
+                    <input type="checkbox" data-insurance="buildings" />
+                    <div class="insurance-info">
+                      <span class="insurance-name">Buildings Insurance</span>
+                      <span class="insurance-desc">Covers the structure of your home (usually required for mortgages)</span>
+                    </div>
+                  </label>
+                </div>
+              </div>
+
+              <!-- Vulnerability Assessment -->
+              <div class="vulnerability-section">
+                <div class="vulnerability-header">
+                  <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    Vulnerability Check
+                  </h3>
+                  <p class="muted">Areas that need attention based on your financial profile</p>
+                </div>
+                <div class="vulnerability-list" data-vulnerability-list>
+                  <!-- Populated by JavaScript -->
+                </div>
+              </div>
+
+              <!-- Improvement Roadmap -->
+              <div class="roadmap-section">
+                <div class="roadmap-header">
+                  <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                      <polyline points="22 4 12 14.01 9 11.01"/>
+                    </svg>
+                    Your Improvement Roadmap
+                  </h3>
+                  <p class="muted">Prioritized steps to strengthen your financial health</p>
+                </div>
+                <div class="roadmap-list" data-roadmap-list>
+                  <!-- Populated by JavaScript -->
+                </div>
+              </div>
+
+              <!-- Quick Profile Settings -->
+              <div class="profile-settings">
+                <h3>Profile Settings</h3>
+                <div class="form-grid compact">
+                  <label>
+                    Your Name
+                    <input type="text" placeholder="Your name" data-field="name" />
+                  </label>
+                  <label>
+                    Annual Salary
+                    <input type="number" min="0" data-field="annualSalary" />
+                  </label>
+                </div>
+                <div class="profile-persona">
+                  <span class="persona-label">Money Persona:</span>
+                  <span class="persona-value" data-profile-persona>Builder</span>
                 </div>
               </div>
             </div>

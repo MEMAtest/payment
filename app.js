@@ -131,9 +131,67 @@ const defaultState = {
   onboardingComplete: false,
   lastScreen: "welcome",
   updatedAt: 0,
+
+  // === NET WORTH: ASSETS ===
+  assets: {
+    cashSavings: 0,        // Current account + savings accounts
+    cashISA: 0,            // Cash ISAs
+    stocksISA: 0,          // Stocks & Shares ISA
+    generalInvestments: 0, // Non-ISA investments
+    crypto: 0,             // Cryptocurrency
+    pensionValue: 0,       // Total pension pot value
+    propertyValue: 0,      // Primary residence value
+    otherPropertyValue: 0, // Buy-to-let or second home
+    vehicleValue: 0,       // Car(s) value
+    otherAssets: 0,        // Valuables, collectibles, etc.
+  },
+
+  // === NET WORTH: LIABILITIES (Balances, not monthly payments) ===
+  liabilities: {
+    mortgageBalance: 0,    // Outstanding mortgage
+    otherMortgages: 0,     // BTL mortgage balance
+    personalLoansBalance: 0, // Total personal loans outstanding
+    carFinanceBalance: 0,  // PCP/HP outstanding
+    creditCardBalance: 0,  // Total credit card debt
+    overdraftBalance: 0,   // Overdraft used
+    studentLoanBalance: 0, // Student loan outstanding
+    otherDebts: 0,         // Any other debts
+  },
+
+  // === CREDIT SCORE ===
+  creditScore: {
+    score: 0,              // 0-999 (Experian scale)
+    provider: "",          // "experian", "equifax", "transunion"
+    lastUpdated: null,     // ISO date string
+    creditLimit: 0,        // Total available credit
+    creditUsed: 0,         // Total credit used
+  },
+
+  // === INSURANCE COVERAGE ===
+  insurance: {
+    lifeInsurance: false,
+    lifeInsuranceAmount: 0,
+    incomeProtection: false,
+    incomeProtectionPercent: 0,
+    criticalIllness: false,
+    criticalIllnessAmount: 0,
+    homeContents: false,
+    buildings: false,
+  },
+
+  // === FINANCIAL HEALTH TRACKING ===
+  healthScoreHistory: [],  // Array of {date, score, breakdown}
 };
 
-const state = { ...defaultState, expenses: { ...defaultState.expenses } };
+const state = {
+  ...defaultState,
+  expenses: { ...defaultState.expenses },
+  assets: { ...defaultState.assets },
+  liabilities: { ...defaultState.liabilities },
+  creditScore: { ...defaultState.creditScore },
+  insurance: { ...defaultState.insurance },
+  healthScoreHistory: [],
+};
 const deviceId = getDeviceId();
 
 const personaData = {
@@ -482,6 +540,40 @@ function sanitizeState(raw) {
       : defaultState.lastScreen;
   safe.updatedAt = Number(safe.updatedAt) || 0;
 
+  // Sanitize assets
+  safe.assets = { ...defaultState.assets, ...(raw.assets || {}) };
+  Object.keys(defaultState.assets).forEach((key) => {
+    safe.assets[key] = Number(safe.assets[key]) || 0;
+  });
+
+  // Sanitize liabilities
+  safe.liabilities = { ...defaultState.liabilities, ...(raw.liabilities || {}) };
+  Object.keys(defaultState.liabilities).forEach((key) => {
+    safe.liabilities[key] = Number(safe.liabilities[key]) || 0;
+  });
+
+  // Sanitize credit score
+  safe.creditScore = { ...defaultState.creditScore, ...(raw.creditScore || {}) };
+  safe.creditScore.score = Number(safe.creditScore.score) || 0;
+  safe.creditScore.provider = ["experian", "equifax", "transunion"].includes(safe.creditScore.provider)
+    ? safe.creditScore.provider : "";
+  safe.creditScore.creditLimit = Number(safe.creditScore.creditLimit) || 0;
+  safe.creditScore.creditUsed = Number(safe.creditScore.creditUsed) || 0;
+
+  // Sanitize insurance
+  safe.insurance = { ...defaultState.insurance, ...(raw.insurance || {}) };
+  safe.insurance.lifeInsurance = Boolean(safe.insurance.lifeInsurance);
+  safe.insurance.lifeInsuranceAmount = Number(safe.insurance.lifeInsuranceAmount) || 0;
+  safe.insurance.incomeProtection = Boolean(safe.insurance.incomeProtection);
+  safe.insurance.incomeProtectionPercent = Number(safe.insurance.incomeProtectionPercent) || 0;
+  safe.insurance.criticalIllness = Boolean(safe.insurance.criticalIllness);
+  safe.insurance.criticalIllnessAmount = Number(safe.insurance.criticalIllnessAmount) || 0;
+  safe.insurance.homeContents = Boolean(safe.insurance.homeContents);
+  safe.insurance.buildings = Boolean(safe.insurance.buildings);
+
+  // Sanitize health score history
+  safe.healthScoreHistory = Array.isArray(raw.healthScoreHistory) ? raw.healthScoreHistory : [];
+
   return safe;
 }
 
@@ -489,6 +581,11 @@ function applyState(raw, updatedAtOverride) {
   const safe = sanitizeState(raw);
   Object.assign(state, safe);
   state.expenses = { ...safe.expenses };
+  state.assets = { ...safe.assets };
+  state.liabilities = { ...safe.liabilities };
+  state.creditScore = { ...safe.creditScore };
+  state.insurance = { ...safe.insurance };
+  state.healthScoreHistory = [...safe.healthScoreHistory];
   if (updatedAtOverride) state.updatedAt = updatedAtOverride;
 }
 
@@ -1561,6 +1658,7 @@ function attachEventListeners() {
       if (field === "annualSalary") {
         state.annualSalary = Number(el.value) || 0;
         updateSalaryBreakdown();
+        updateFinancialHealth();
       } else if (field === "studentLoan") {
         state.studentLoan = el.checked;
         updateSalaryBreakdown();
@@ -1591,6 +1689,7 @@ function attachEventListeners() {
       state.expenses[key] = Number(el.value) || 0;
       updateCategoryTotals();
       updateBudgetSummary();
+      updateFinancialHealth();
       scheduleSave();
     });
   });
@@ -3006,6 +3105,727 @@ async function init() {
 
   // Initial Monte Carlo
   setTimeout(updateMonteCarlo, 500);
+
+  // Initialize Financial Health Dashboard
+  initFinancialHealthDashboard();
+}
+
+// ============================================================
+// FINANCIAL HEALTH DASHBOARD
+// ============================================================
+
+function initFinancialHealthDashboard() {
+  // Setup accordion triggers
+  document.querySelectorAll("[data-accordion]").forEach(trigger => {
+    trigger.addEventListener("click", () => {
+      const target = trigger.getAttribute("data-accordion");
+      const content = document.querySelector(`[data-accordion-content="${target}"]`);
+      const isActive = trigger.classList.contains("active");
+
+      // Toggle this accordion
+      trigger.classList.toggle("active");
+      if (content) content.classList.toggle("active");
+    });
+  });
+
+  // Setup asset inputs
+  document.querySelectorAll("[data-asset]").forEach(input => {
+    const key = input.getAttribute("data-asset");
+    input.value = state.assets[key] || "";
+    input.addEventListener("input", () => {
+      state.assets[key] = parseFloat(input.value) || 0;
+      scheduleSave();
+      updateFinancialHealth();
+    });
+  });
+
+  // Setup liability inputs
+  document.querySelectorAll("[data-liability]").forEach(input => {
+    const key = input.getAttribute("data-liability");
+    input.value = state.liabilities[key] || "";
+    input.addEventListener("input", () => {
+      state.liabilities[key] = parseFloat(input.value) || 0;
+      scheduleSave();
+      updateFinancialHealth();
+    });
+  });
+
+  // Setup credit score inputs
+  document.querySelectorAll("[data-credit]").forEach(input => {
+    const key = input.getAttribute("data-credit");
+    if (input.tagName === "SELECT") {
+      input.value = state.creditScore[key] || "";
+    } else {
+      input.value = state.creditScore[key] || "";
+    }
+    input.addEventListener("input", () => {
+      if (input.tagName === "SELECT") {
+        state.creditScore[key] = input.value;
+      } else {
+        state.creditScore[key] = parseFloat(input.value) || 0;
+      }
+      state.creditScore.lastUpdated = new Date().toISOString();
+      scheduleSave();
+      updateFinancialHealth();
+    });
+    input.addEventListener("change", () => {
+      if (input.tagName === "SELECT") {
+        state.creditScore[key] = input.value;
+        scheduleSave();
+        updateFinancialHealth();
+      }
+    });
+  });
+
+  // Setup insurance checkboxes and amounts
+  document.querySelectorAll("[data-insurance]").forEach(input => {
+    const key = input.getAttribute("data-insurance");
+    input.checked = state.insurance[key] || false;
+    input.addEventListener("change", () => {
+      state.insurance[key] = input.checked;
+      scheduleSave();
+      updateFinancialHealth();
+    });
+  });
+
+  document.querySelectorAll("[data-insurance-amount]").forEach(input => {
+    const key = input.getAttribute("data-insurance-amount");
+    input.value = state.insurance[key] || "";
+    input.addEventListener("input", () => {
+      state.insurance[key] = parseFloat(input.value) || 0;
+      scheduleSave();
+      updateFinancialHealth();
+    });
+  });
+
+  // Initial update
+  updateFinancialHealth();
+}
+
+// Calculate total assets
+function calculateTotalAssets() {
+  return Object.values(state.assets).reduce((sum, val) => sum + (val || 0), 0);
+}
+
+// Calculate total liabilities
+function calculateTotalLiabilities() {
+  return Object.values(state.liabilities).reduce((sum, val) => sum + (val || 0), 0);
+}
+
+// Calculate net worth
+function calculateNetWorth() {
+  return calculateTotalAssets() - calculateTotalLiabilities();
+}
+
+// Calculate monthly expenses total
+function calculateMonthlyExpenses() {
+  return Object.values(state.expenses).reduce((sum, val) => sum + (val || 0), 0);
+}
+
+// Calculate Emergency Buffer Score (25 points max)
+// Based on months of expenses covered by liquid savings
+function calculateEmergencyScore() {
+  const liquidAssets = (state.assets.cashSavings || 0) + (state.assets.cashISA || 0);
+  const monthlyExpenses = calculateMonthlyExpenses();
+
+  if (monthlyExpenses <= 0) return { score: 0, months: 0, tip: "Enter your monthly expenses to calculate emergency cover" };
+
+  const monthsCovered = liquidAssets / monthlyExpenses;
+
+  // Score: 6+ months = 25, scaled down for less
+  let score = 0;
+  let tip = "";
+
+  if (monthsCovered >= 6) {
+    score = 25;
+    tip = `Excellent! ${monthsCovered.toFixed(1)} months of expenses covered`;
+  } else if (monthsCovered >= 3) {
+    score = Math.round(15 + ((monthsCovered - 3) / 3) * 10);
+    tip = `Good: ${monthsCovered.toFixed(1)} months covered. Aim for 6 months`;
+  } else if (monthsCovered > 0) {
+    score = Math.round((monthsCovered / 3) * 15);
+    tip = `${monthsCovered.toFixed(1)} months covered. Build towards 3-6 months`;
+  } else {
+    tip = "Start building an emergency fund for unexpected expenses";
+  }
+
+  return { score, months: monthsCovered, tip };
+}
+
+// Calculate Debt-to-Income Score (25 points max)
+// Based on monthly debt payments vs income
+function calculateDebtScore() {
+  const monthlyIncome = state.income || 0;
+  const monthlyDebtPayments = (state.expenses.mortgage || 0) +
+    (state.expenses.carPayment || 0) +
+    (state.expenses.creditCards || 0) +
+    (state.expenses.personalLoans || 0) +
+    (state.expenses.otherDebt || 0);
+
+  if (monthlyIncome <= 0) return { score: 0, ratio: 0, tip: "Enter your income to calculate debt ratio" };
+
+  const ratio = (monthlyDebtPayments / monthlyIncome) * 100;
+
+  let score = 0;
+  let tip = "";
+
+  if (ratio <= 20) {
+    score = 25;
+    tip = `Excellent debt ratio: ${ratio.toFixed(0)}% of income`;
+  } else if (ratio <= 35) {
+    score = Math.round(15 + ((35 - ratio) / 15) * 10);
+    tip = `Good: ${ratio.toFixed(0)}% debt-to-income. Under 20% is ideal`;
+  } else if (ratio <= 50) {
+    score = Math.round(5 + ((50 - ratio) / 15) * 10);
+    tip = `${ratio.toFixed(0)}% debt-to-income is manageable but high`;
+  } else {
+    score = Math.max(0, Math.round(5 - ((ratio - 50) / 20) * 5));
+    tip = `${ratio.toFixed(0)}% is high. Focus on reducing debt payments`;
+  }
+
+  return { score, ratio, tip };
+}
+
+// Calculate Savings Rate Score (20 points max)
+// Based on surplus as percentage of income
+function calculateSavingsScore() {
+  const monthlyIncome = state.income || 0;
+  const monthlyExpenses = calculateMonthlyExpenses();
+  const surplus = monthlyIncome - monthlyExpenses;
+
+  if (monthlyIncome <= 0) return { score: 0, rate: 0, tip: "Enter your income to calculate savings rate" };
+
+  const rate = (surplus / monthlyIncome) * 100;
+
+  let score = 0;
+  let tip = "";
+
+  if (rate >= 20) {
+    score = 20;
+    tip = `Excellent! Saving ${rate.toFixed(0)}% of income`;
+  } else if (rate >= 10) {
+    score = Math.round(10 + ((rate - 10) / 10) * 10);
+    tip = `Good: ${rate.toFixed(0)}% savings rate. 20%+ is ideal`;
+  } else if (rate > 0) {
+    score = Math.round((rate / 10) * 10);
+    tip = `${rate.toFixed(0)}% savings rate. Look for ways to increase`;
+  } else {
+    tip = "You're spending more than you earn. Review expenses";
+  }
+
+  return { score, rate, tip };
+}
+
+// Calculate Credit Utilization Score (15 points max)
+// Based on credit used vs credit limit
+function calculateCreditScore() {
+  const { score: creditScore, creditLimit, creditUsed, provider } = state.creditScore;
+
+  // If they have a credit score entered
+  if (creditScore > 0 && provider) {
+    let maxScore = 999;
+    if (provider === "equifax") maxScore = 700;
+    else if (provider === "transunion") maxScore = 710;
+
+    const normalized = (creditScore / maxScore) * 100;
+
+    let score = 0;
+    let band = "Not set";
+    let tip = "";
+
+    if (normalized >= 90) {
+      score = 15;
+      band = "Excellent";
+      tip = "Excellent credit score";
+    } else if (normalized >= 70) {
+      score = 12;
+      band = "Good";
+      tip = "Good credit score - keep it up";
+    } else if (normalized >= 50) {
+      score = 8;
+      band = "Fair";
+      tip = "Fair credit - look for ways to improve";
+    } else {
+      score = 4;
+      band = "Poor";
+      tip = "Work on improving your credit score";
+    }
+
+    // Adjust for utilization if provided
+    if (creditLimit > 0) {
+      const utilization = (creditUsed / creditLimit) * 100;
+      if (utilization <= 30) {
+        // Good utilization - bonus
+      } else if (utilization <= 50) {
+        score = Math.max(0, score - 2);
+        tip = `${utilization.toFixed(0)}% credit utilization - aim for under 30%`;
+      } else {
+        score = Math.max(0, score - 5);
+        tip = `${utilization.toFixed(0)}% utilization is high - pay down balances`;
+      }
+    }
+
+    return { score, band, tip, utilization: creditLimit > 0 ? (creditUsed / creditLimit) * 100 : 0 };
+  }
+
+  // Just utilization without credit score
+  if (creditLimit > 0) {
+    const utilization = (creditUsed / creditLimit) * 100;
+    let score = 0;
+    let tip = "";
+
+    if (utilization <= 10) {
+      score = 15;
+      tip = "Excellent credit utilization";
+    } else if (utilization <= 30) {
+      score = 12;
+      tip = `Good: ${utilization.toFixed(0)}% utilization`;
+    } else if (utilization <= 50) {
+      score = 6;
+      tip = `${utilization.toFixed(0)}% - aim for under 30%`;
+    } else {
+      score = 2;
+      tip = `${utilization.toFixed(0)}% is high - pay down balances`;
+    }
+
+    return { score, band: "Unknown", tip, utilization };
+  }
+
+  return { score: 0, band: "Not set", tip: "Add your credit score to track this pillar", utilization: 0 };
+}
+
+// Calculate Protection Score (15 points max)
+// Based on insurance coverage
+function calculateProtectionScore() {
+  const { lifeInsurance, incomeProtection, criticalIllness, homeContents, buildings } = state.insurance;
+
+  let score = 0;
+  let covered = [];
+  let missing = [];
+
+  // Life insurance (3 points)
+  if (lifeInsurance) {
+    score += 3;
+    covered.push("Life");
+  } else {
+    missing.push("Life insurance");
+  }
+
+  // Income protection (5 points - most important)
+  if (incomeProtection) {
+    score += 5;
+    covered.push("Income");
+  } else {
+    missing.push("Income protection");
+  }
+
+  // Critical illness (3 points)
+  if (criticalIllness) {
+    score += 3;
+    covered.push("Critical illness");
+  } else {
+    missing.push("Critical illness");
+  }
+
+  // Home insurance (2 points each)
+  if (homeContents) {
+    score += 2;
+    covered.push("Contents");
+  }
+  if (buildings) {
+    score += 2;
+    covered.push("Buildings");
+  }
+
+  let tip = "";
+  if (missing.length === 0) {
+    tip = "Great coverage across all protection types";
+  } else if (missing.length <= 2) {
+    tip = `Consider: ${missing.slice(0, 2).join(", ")}`;
+  } else {
+    tip = "Review your protection needs";
+  }
+
+  return { score, covered, missing, tip };
+}
+
+// Calculate overall health score
+function calculateHealthScore() {
+  const emergency = calculateEmergencyScore();
+  const debt = calculateDebtScore();
+  const savings = calculateSavingsScore();
+  const credit = calculateCreditScore();
+  const protection = calculateProtectionScore();
+
+  const total = emergency.score + debt.score + savings.score + credit.score + protection.score;
+
+  let status = "Getting started";
+  if (total >= 85) status = "Excellent financial health";
+  else if (total >= 70) status = "Strong financial position";
+  else if (total >= 50) status = "Good foundation, room to grow";
+  else if (total >= 30) status = "Building momentum";
+  else if (total > 0) status = "Just getting started";
+
+  return {
+    total,
+    status,
+    pillars: { emergency, debt, savings, credit, protection }
+  };
+}
+
+// Detect financial vulnerabilities
+function detectVulnerabilities() {
+  const vulnerabilities = [];
+  const monthlyExpenses = calculateMonthlyExpenses();
+  const monthlyIncome = state.income || 0;
+  const liquidAssets = (state.assets.cashSavings || 0) + (state.assets.cashISA || 0);
+
+  // No emergency fund
+  if (monthlyExpenses > 0 && liquidAssets < monthlyExpenses) {
+    vulnerabilities.push({
+      id: "no-emergency",
+      severity: "critical",
+      icon: "🚨",
+      title: "No Emergency Fund",
+      description: "You have less than 1 month of expenses in accessible savings",
+      action: "Set up automatic transfers to savings",
+      resolved: false
+    });
+  }
+
+  // High credit utilization
+  if (state.creditScore.creditLimit > 0) {
+    const utilization = (state.creditScore.creditUsed / state.creditScore.creditLimit) * 100;
+    if (utilization > 50) {
+      vulnerabilities.push({
+        id: "high-credit",
+        severity: "critical",
+        icon: "💳",
+        title: "High Credit Utilization",
+        description: `Using ${utilization.toFixed(0)}% of available credit. This hurts your credit score.`,
+        action: "Focus on paying down credit card balances",
+        resolved: false
+      });
+    }
+  }
+
+  // Spending more than earning
+  if (monthlyIncome > 0 && monthlyExpenses > monthlyIncome) {
+    vulnerabilities.push({
+      id: "overspending",
+      severity: "critical",
+      icon: "📉",
+      title: "Spending Exceeds Income",
+      description: `Spending £${(monthlyExpenses - monthlyIncome).toFixed(0)} more than you earn each month`,
+      action: "Review expenses and identify cuts",
+      resolved: false
+    });
+  }
+
+  // No income protection
+  if (!state.insurance.incomeProtection && monthlyIncome > 2000) {
+    vulnerabilities.push({
+      id: "no-income-protection",
+      severity: "warning",
+      icon: "🏥",
+      title: "No Income Protection",
+      description: "If you couldn't work due to illness, you'd lose your income",
+      action: "Research income protection insurance options",
+      resolved: false
+    });
+  }
+
+  // No life insurance (if has dependents - we'll assume if mortgage or kids expenses)
+  const hasDependents = (state.expenses.childcare || 0) > 0 ||
+    (state.expenses.kidsActivities || 0) > 0 ||
+    (state.assets.propertyValue || 0) > 0;
+  if (!state.insurance.lifeInsurance && hasDependents) {
+    vulnerabilities.push({
+      id: "no-life-insurance",
+      severity: "warning",
+      icon: "👨‍👩‍👧",
+      title: "No Life Insurance",
+      description: "Your family would be financially vulnerable if something happened to you",
+      action: "Get life insurance quotes to protect your family",
+      resolved: false
+    });
+  }
+
+  // High debt-to-income
+  const monthlyDebt = (state.expenses.mortgage || 0) +
+    (state.expenses.carPayment || 0) +
+    (state.expenses.creditCards || 0) +
+    (state.expenses.personalLoans || 0);
+  if (monthlyIncome > 0 && (monthlyDebt / monthlyIncome) > 0.5) {
+    vulnerabilities.push({
+      id: "high-dti",
+      severity: "warning",
+      icon: "⚖️",
+      title: "High Debt-to-Income Ratio",
+      description: `${((monthlyDebt / monthlyIncome) * 100).toFixed(0)}% of income goes to debt payments`,
+      action: "Consider debt consolidation or snowball method",
+      resolved: false
+    });
+  }
+
+  return vulnerabilities;
+}
+
+// Generate improvement roadmap
+function generateRoadmap() {
+  const roadmap = [];
+  const healthScore = calculateHealthScore();
+  const vulnerabilities = detectVulnerabilities();
+  const monthlyExpenses = calculateMonthlyExpenses();
+  const liquidAssets = (state.assets.cashSavings || 0) + (state.assets.cashISA || 0);
+  const monthsCovered = monthlyExpenses > 0 ? liquidAssets / monthlyExpenses : 0;
+
+  // Priority 1: Fix critical vulnerabilities
+  vulnerabilities.filter(v => v.severity === "critical").forEach((v, i) => {
+    roadmap.push({
+      step: roadmap.length + 1,
+      title: v.title,
+      description: v.action,
+      impact: "+10-15 pts",
+      completed: false
+    });
+  });
+
+  // Priority 2: Build emergency fund if under 3 months
+  if (monthsCovered < 3 && !vulnerabilities.find(v => v.id === "no-emergency")) {
+    roadmap.push({
+      step: roadmap.length + 1,
+      title: "Build Emergency Fund",
+      description: `Save £${(monthlyExpenses * 3 - liquidAssets).toFixed(0)} more for 3-month buffer`,
+      impact: "+5-10 pts",
+      completed: false
+    });
+  }
+
+  // Priority 3: Improve savings rate
+  if (healthScore.pillars.savings.score < 15) {
+    roadmap.push({
+      step: roadmap.length + 1,
+      title: "Increase Savings Rate",
+      description: "Aim to save at least 15-20% of your income each month",
+      impact: "+5-8 pts",
+      completed: false
+    });
+  }
+
+  // Priority 4: Get protection in place
+  if (healthScore.pillars.protection.score < 10) {
+    const missing = healthScore.pillars.protection.missing;
+    if (missing.includes("Income protection")) {
+      roadmap.push({
+        step: roadmap.length + 1,
+        title: "Get Income Protection",
+        description: "Protects your income if you can't work due to illness",
+        impact: "+5 pts",
+        completed: false
+      });
+    }
+  }
+
+  // Priority 5: Credit score improvement
+  if (healthScore.pillars.credit.score < 10 && state.creditScore.score === 0) {
+    roadmap.push({
+      step: roadmap.length + 1,
+      title: "Check Your Credit Score",
+      description: "Get a free score from ClearScore, Credit Karma, or MSE Credit Club",
+      impact: "+3-5 pts",
+      completed: false
+    });
+  }
+
+  // Priority 6: Build towards 6-month emergency fund
+  if (monthsCovered >= 3 && monthsCovered < 6) {
+    roadmap.push({
+      step: roadmap.length + 1,
+      title: "Extend Emergency Fund",
+      description: `Save £${(monthlyExpenses * 6 - liquidAssets).toFixed(0)} more for 6-month buffer`,
+      impact: "+5 pts",
+      completed: false
+    });
+  }
+
+  // Limit to 6 items
+  return roadmap.slice(0, 6);
+}
+
+// Update all Financial Health UI
+function updateFinancialHealth() {
+  const healthScore = calculateHealthScore();
+  const totalAssets = calculateTotalAssets();
+  const totalLiabilities = calculateTotalLiabilities();
+  const netWorth = calculateNetWorth();
+  const vulnerabilities = detectVulnerabilities();
+  const roadmap = generateRoadmap();
+
+  // Update health score hero
+  const scoreEl = document.querySelector("[data-health-score]");
+  const statusEl = document.querySelector("[data-health-status]");
+  const ringEl = document.querySelector("[data-health-ring]");
+
+  if (scoreEl) scoreEl.textContent = healthScore.total;
+  if (statusEl) statusEl.textContent = healthScore.status;
+
+  // Update ring SVG
+  if (ringEl) {
+    const circumference = 2 * Math.PI * 52; // r=52
+    const offset = circumference - (healthScore.total / 100) * circumference;
+    ringEl.style.strokeDashoffset = offset;
+
+    // Color based on score
+    ringEl.classList.remove("good", "warning", "danger");
+    if (healthScore.total >= 70) ringEl.classList.add("good");
+    else if (healthScore.total >= 40) ringEl.classList.add("warning");
+    else ringEl.classList.add("danger");
+  }
+
+  // Update pillars
+  Object.entries(healthScore.pillars).forEach(([key, data]) => {
+    const scoreEl = document.querySelector(`[data-pillar-score="${key}"]`);
+    const fillEl = document.querySelector(`[data-pillar-fill="${key}"]`);
+    const tipEl = document.querySelector(`[data-pillar-tip="${key}"]`);
+
+    const maxScores = { emergency: 25, debt: 25, savings: 20, credit: 15, protection: 15 };
+    const max = maxScores[key];
+
+    if (scoreEl) scoreEl.textContent = `${data.score}/${max}`;
+    if (fillEl) {
+      const percent = (data.score / max) * 100;
+      fillEl.style.width = `${percent}%`;
+      fillEl.classList.remove("warning", "danger");
+      if (percent < 40) fillEl.classList.add("danger");
+      else if (percent < 70) fillEl.classList.add("warning");
+    }
+    if (tipEl) tipEl.textContent = data.tip;
+  });
+
+  // Update net worth
+  const networthTotalEl = document.querySelector("[data-networth-total]");
+  const assetsTotalEl = document.querySelector("[data-assets-total]");
+  const assetsTotalSmallEl = document.querySelector("[data-assets-total-small]");
+  const liabilitiesTotalEl = document.querySelector("[data-liabilities-total]");
+  const liabilitiesTotalSmallEl = document.querySelector("[data-liabilities-total-small]");
+  const assetsFillEl = document.querySelector("[data-assets-fill]");
+  const liabilitiesFillEl = document.querySelector("[data-liabilities-fill]");
+
+  const formatLarge = (val) => {
+    if (Math.abs(val) >= 1000000) return `£${(val / 1000000).toFixed(1)}M`;
+    if (Math.abs(val) >= 1000) return `£${(val / 1000).toFixed(0)}K`;
+    return formatCurrency(val);
+  };
+
+  if (networthTotalEl) {
+    networthTotalEl.textContent = formatLarge(netWorth);
+    networthTotalEl.classList.remove("positive", "negative");
+    if (netWorth > 0) networthTotalEl.classList.add("positive");
+    else if (netWorth < 0) networthTotalEl.classList.add("negative");
+  }
+
+  if (assetsTotalEl) assetsTotalEl.textContent = formatLarge(totalAssets);
+  if (assetsTotalSmallEl) assetsTotalSmallEl.textContent = formatLarge(totalAssets);
+  if (liabilitiesTotalEl) liabilitiesTotalEl.textContent = formatLarge(totalLiabilities);
+  if (liabilitiesTotalSmallEl) liabilitiesTotalSmallEl.textContent = formatLarge(totalLiabilities);
+
+  // Net worth bars - scale relative to max of assets or liabilities
+  const maxBar = Math.max(totalAssets, totalLiabilities, 1);
+  if (assetsFillEl) assetsFillEl.style.width = `${(totalAssets / maxBar) * 100}%`;
+  if (liabilitiesFillEl) liabilitiesFillEl.style.width = `${(totalLiabilities / maxBar) * 100}%`;
+
+  // Update credit score display
+  const creditScoreDisplayEl = document.querySelector("[data-credit-score-display]");
+  const creditBandEl = document.querySelector("[data-credit-band]");
+  const utilizationFillEl = document.querySelector("[data-utilization-fill]");
+  const utilizationPercentEl = document.querySelector("[data-utilization-percent]");
+
+  if (creditScoreDisplayEl) {
+    creditScoreDisplayEl.textContent = state.creditScore.score || "---";
+  }
+  if (creditBandEl) {
+    const creditData = healthScore.pillars.credit;
+    creditBandEl.textContent = creditData.band || "Not set";
+    creditBandEl.classList.remove("excellent", "good", "fair", "poor");
+    if (creditData.band === "Excellent") creditBandEl.classList.add("excellent");
+    else if (creditData.band === "Good") creditBandEl.classList.add("good");
+    else if (creditData.band === "Fair") creditBandEl.classList.add("fair");
+    else if (creditData.band === "Poor") creditBandEl.classList.add("poor");
+  }
+
+  // Credit utilization bar
+  if (state.creditScore.creditLimit > 0) {
+    const utilization = (state.creditScore.creditUsed / state.creditScore.creditLimit) * 100;
+    if (utilizationFillEl) {
+      utilizationFillEl.style.width = `${Math.min(utilization, 100)}%`;
+      utilizationFillEl.classList.remove("warning", "danger");
+      if (utilization > 50) utilizationFillEl.classList.add("danger");
+      else if (utilization > 30) utilizationFillEl.classList.add("warning");
+    }
+    if (utilizationPercentEl) utilizationPercentEl.textContent = `${utilization.toFixed(0)}%`;
+  } else {
+    if (utilizationFillEl) utilizationFillEl.style.width = "0%";
+    if (utilizationPercentEl) utilizationPercentEl.textContent = "0%";
+  }
+
+  // Update vulnerabilities
+  const vulnListEl = document.querySelector("[data-vulnerability-list]");
+  if (vulnListEl) {
+    if (vulnerabilities.length === 0) {
+      vulnListEl.innerHTML = `
+        <div class="vulnerability-empty">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+            <polyline points="22 4 12 14.01 9 11.01"/>
+          </svg>
+          <p>No vulnerabilities detected. Great job!</p>
+        </div>
+      `;
+    } else {
+      vulnListEl.innerHTML = vulnerabilities.map(v => `
+        <div class="vulnerability-item ${v.severity}">
+          <span class="vulnerability-icon">${v.icon}</span>
+          <div class="vulnerability-content">
+            <h4>${v.title}</h4>
+            <p>${v.description}</p>
+            <button class="vulnerability-action" type="button">
+              ${v.action}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"/>
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join("");
+    }
+  }
+
+  // Update roadmap
+  const roadmapListEl = document.querySelector("[data-roadmap-list]");
+  if (roadmapListEl) {
+    if (roadmap.length === 0) {
+      roadmapListEl.innerHTML = `
+        <div class="roadmap-empty">
+          <p>Complete your profile to get personalized recommendations</p>
+        </div>
+      `;
+    } else {
+      roadmapListEl.innerHTML = roadmap.map(item => `
+        <div class="roadmap-item ${item.completed ? 'completed' : ''}">
+          <div class="roadmap-step">${item.step}</div>
+          <div class="roadmap-content">
+            <h4>${item.title}</h4>
+            <p>${item.description}</p>
+          </div>
+          <div class="roadmap-impact">
+            <span class="impact-label">Impact</span>
+            <span class="impact-value">${item.impact}</span>
+          </div>
+        </div>
+      `).join("");
+    }
+  }
 }
 
 // ============================================================

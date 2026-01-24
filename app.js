@@ -3137,6 +3137,9 @@ function scheduleHealthUpdate() {
     // Update score snapshot (will only save on first visit of month)
     takeScoreSnapshot();
     updateScoreHistoryUI();
+    // Update gamification when financial data changes
+    checkAchievements();
+    updateGamificationUI();
   }, 150);
 }
 
@@ -4587,8 +4590,8 @@ function calculatePillarTrend(pillarKey) {
   const recent = history.slice(-3);
   if (recent.length < 2) return { direction: "stable", change: 0 };
 
-  const latest = recent[recent.length - 1].pillars[pillarKey] || 0;
-  const previous = recent[0].pillars[pillarKey] || 0;
+  const latest = recent[recent.length - 1]?.pillars?.[pillarKey] || 0;
+  const previous = recent[0]?.pillars?.[pillarKey] || 0;
   const change = latest - previous;
 
   if (change > 2) return { direction: "up", change };
@@ -5841,8 +5844,11 @@ function triggerConfetti() {
   const container = document.querySelector("[data-confetti-container]");
   if (!container) return;
 
-  // Create confetti pieces
+  // Create confetti pieces using DocumentFragment for better performance
   const colors = ["#259d91", "#f4c542", "#e86c5f", "#9f7aea", "#48bb78"];
+  const fragment = document.createDocumentFragment();
+  const pieces = [];
+
   for (let i = 0; i < 50; i++) {
     const confetti = document.createElement("div");
     confetti.className = "confetti-piece";
@@ -5850,11 +5856,16 @@ function triggerConfetti() {
     confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
     confetti.style.animationDelay = Math.random() * 0.5 + "s";
     confetti.style.animationDuration = (Math.random() * 2 + 2) + "s";
-    container.appendChild(confetti);
-
-    // Remove after animation
-    setTimeout(() => confetti.remove(), 4000);
+    fragment.appendChild(confetti);
+    pieces.push(confetti);
   }
+
+  container.appendChild(fragment); // Single DOM reflow
+
+  // Remove all pieces after animation
+  setTimeout(() => {
+    pieces.forEach(p => p.remove());
+  }, 4000);
 }
 
 // Initialize gamification
@@ -5873,23 +5884,8 @@ function initGamification() {
   // Load challenges
   getCurrentChallenges();
 
-  // Update UI
+  // Update UI (event listeners are attached in updateGamificationUI)
   updateGamificationUI();
-
-  // Setup challenge buttons
-  document.querySelectorAll("[data-accept-challenge]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-accept-challenge");
-      acceptChallenge(id);
-    });
-  });
-
-  document.querySelectorAll("[data-complete-challenge]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      const id = btn.getAttribute("data-complete-challenge");
-      completeChallenge(id);
-    });
-  });
 }
 
 // Update gamification UI elements
@@ -5922,7 +5918,7 @@ function updateGamificationUI() {
     } else {
       badgesListEl.innerHTML = unlockedBadges.map(badge => `
         <div class="badge-item ${badge.tier}">
-          <span class="badge-icon">${badge.icon}</span>
+          <span class="badge-icon">${escapeHtml(badge.icon)}</span>
           <span class="badge-name">${escapeHtml(badge.name)}</span>
         </div>
       `).join("");
@@ -5939,22 +5935,32 @@ function updateGamificationUI() {
   const challengesListEl = document.querySelector("[data-challenges-list]");
   if (challengesListEl) {
     challengesListEl.innerHTML = challenges.active.map(challenge => `
-      <div class="challenge-card ${challenge.status}">
-        <span class="challenge-icon">${challenge.icon}</span>
+      <div class="challenge-card ${['active', 'in-progress', 'completed'].includes(challenge.status) ? challenge.status : 'active'}">
+        <span class="challenge-icon">${escapeHtml(challenge.icon)}</span>
         <div class="challenge-info">
           <h4>${escapeHtml(challenge.name)}</h4>
           <p>${escapeHtml(challenge.description)}</p>
-          <span class="challenge-points">+${challenge.points} pts</span>
+          <span class="challenge-points">+${parseInt(challenge.points) || 0} pts</span>
         </div>
         <div class="challenge-actions">
           ${challenge.status === "active" ? `
-            <button class="btn small" type="button" onclick="acceptChallenge('${challenge.id}')">Accept</button>
+            <button class="btn small" type="button" data-challenge-action="accept" data-challenge-id="${escapeHtml(challenge.id)}">Accept</button>
           ` : challenge.status === "in-progress" ? `
-            <button class="btn small primary" type="button" onclick="completeChallenge('${challenge.id}')">Complete</button>
+            <button class="btn small primary" type="button" data-challenge-action="complete" data-challenge-id="${escapeHtml(challenge.id)}">Complete</button>
           ` : ""}
         </div>
       </div>
     `).join("");
+
+    // Attach event listeners for challenge buttons
+    challengesListEl.querySelectorAll("[data-challenge-action]").forEach(btn => {
+      btn.addEventListener("click", () => {
+        const action = btn.getAttribute("data-challenge-action");
+        const id = btn.getAttribute("data-challenge-id");
+        if (action === "accept") acceptChallenge(id);
+        else if (action === "complete") completeChallenge(id);
+      });
+    });
   }
 }
 

@@ -1658,7 +1658,7 @@ function attachEventListeners() {
       if (field === "annualSalary") {
         state.annualSalary = Number(el.value) || 0;
         updateSalaryBreakdown();
-        updateFinancialHealth();
+        scheduleHealthUpdate();
       } else if (field === "studentLoan") {
         state.studentLoan = el.checked;
         updateSalaryBreakdown();
@@ -1689,7 +1689,7 @@ function attachEventListeners() {
       state.expenses[key] = Number(el.value) || 0;
       updateCategoryTotals();
       updateBudgetSummary();
-      updateFinancialHealth();
+      scheduleHealthUpdate();
       scheduleSave();
     });
   });
@@ -3114,6 +3114,13 @@ async function init() {
 // FINANCIAL HEALTH DASHBOARD
 // ============================================================
 
+// Debounced health update to avoid excessive recalculations on rapid input
+let healthUpdateTimer = null;
+function scheduleHealthUpdate() {
+  clearTimeout(healthUpdateTimer);
+  healthUpdateTimer = setTimeout(updateFinancialHealth, 150);
+}
+
 function initFinancialHealthDashboard() {
   // Setup accordion triggers
   document.querySelectorAll("[data-accordion]").forEach(trigger => {
@@ -3135,7 +3142,7 @@ function initFinancialHealthDashboard() {
     input.addEventListener("input", () => {
       state.assets[key] = parseFloat(input.value) || 0;
       scheduleSave();
-      updateFinancialHealth();
+      scheduleHealthUpdate();
     });
   });
 
@@ -3146,19 +3153,18 @@ function initFinancialHealthDashboard() {
     input.addEventListener("input", () => {
       state.liabilities[key] = parseFloat(input.value) || 0;
       scheduleSave();
-      updateFinancialHealth();
+      scheduleHealthUpdate();
     });
   });
 
   // Setup credit score inputs
   document.querySelectorAll("[data-credit]").forEach(input => {
     const key = input.getAttribute("data-credit");
-    if (input.tagName === "SELECT") {
-      input.value = state.creditScore[key] || "";
-    } else {
-      input.value = state.creditScore[key] || "";
-    }
-    input.addEventListener("input", () => {
+    input.value = state.creditScore[key] || "";
+
+    // Use 'change' for SELECT, 'input' for others to avoid duplicate events
+    const eventType = input.tagName === "SELECT" ? "change" : "input";
+    input.addEventListener(eventType, () => {
       if (input.tagName === "SELECT") {
         state.creditScore[key] = input.value;
       } else {
@@ -3166,14 +3172,7 @@ function initFinancialHealthDashboard() {
       }
       state.creditScore.lastUpdated = new Date().toISOString();
       scheduleSave();
-      updateFinancialHealth();
-    });
-    input.addEventListener("change", () => {
-      if (input.tagName === "SELECT") {
-        state.creditScore[key] = input.value;
-        scheduleSave();
-        updateFinancialHealth();
-      }
+      scheduleHealthUpdate();
     });
   });
 
@@ -3184,7 +3183,7 @@ function initFinancialHealthDashboard() {
     input.addEventListener("change", () => {
       state.insurance[key] = input.checked;
       scheduleSave();
-      updateFinancialHealth();
+      scheduleHealthUpdate();
     });
   });
 
@@ -3194,7 +3193,7 @@ function initFinancialHealthDashboard() {
     input.addEventListener("input", () => {
       state.insurance[key] = parseFloat(input.value) || 0;
       scheduleSave();
-      updateFinancialHealth();
+      scheduleHealthUpdate();
     });
   });
 
@@ -3327,7 +3326,8 @@ function calculateCreditScore() {
     if (provider === "equifax") maxScore = 700;
     else if (provider === "transunion") maxScore = 710;
 
-    const normalized = (creditScore / maxScore) * 100;
+    // Cap at 100% to handle invalid scores
+    const normalized = Math.min(100, (creditScore / maxScore) * 100);
 
     let score = 0;
     let band = "Not set";
@@ -3572,10 +3572,8 @@ function detectVulnerabilities() {
 }
 
 // Generate improvement roadmap
-function generateRoadmap() {
+function generateRoadmap(healthScore, vulnerabilities) {
   const roadmap = [];
-  const healthScore = calculateHealthScore();
-  const vulnerabilities = detectVulnerabilities();
   const monthlyExpenses = calculateMonthlyExpenses();
   const liquidAssets = (state.assets.cashSavings || 0) + (state.assets.cashISA || 0);
   const monthsCovered = monthlyExpenses > 0 ? liquidAssets / monthlyExpenses : 0;
@@ -3660,7 +3658,7 @@ function updateFinancialHealth() {
   const totalLiabilities = calculateTotalLiabilities();
   const netWorth = calculateNetWorth();
   const vulnerabilities = detectVulnerabilities();
-  const roadmap = generateRoadmap();
+  const roadmap = generateRoadmap(healthScore, vulnerabilities);
 
   // Update health score hero
   const scoreEl = document.querySelector("[data-health-score]");
@@ -3783,21 +3781,23 @@ function updateFinancialHealth() {
         </div>
       `;
     } else {
-      vulnListEl.innerHTML = vulnerabilities.map(v => `
-        <div class="vulnerability-item ${v.severity}">
-          <span class="vulnerability-icon">${v.icon}</span>
+      vulnListEl.innerHTML = vulnerabilities.map(v => {
+        const severityClass = ['critical', 'warning'].includes(v.severity) ? v.severity : '';
+        return `
+        <div class="vulnerability-item ${severityClass}">
+          <span class="vulnerability-icon">${escapeHtml(v.icon)}</span>
           <div class="vulnerability-content">
-            <h4>${v.title}</h4>
-            <p>${v.description}</p>
+            <h4>${escapeHtml(v.title)}</h4>
+            <p>${escapeHtml(v.description)}</p>
             <button class="vulnerability-action" type="button">
-              ${v.action}
+              ${escapeHtml(v.action)}
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <polyline points="9 18 15 12 9 6"/>
               </svg>
             </button>
           </div>
         </div>
-      `).join("");
+      `}).join("");
     }
   }
 
@@ -3813,14 +3813,14 @@ function updateFinancialHealth() {
     } else {
       roadmapListEl.innerHTML = roadmap.map(item => `
         <div class="roadmap-item ${item.completed ? 'completed' : ''}">
-          <div class="roadmap-step">${item.step}</div>
+          <div class="roadmap-step">${escapeHtml(String(item.step))}</div>
           <div class="roadmap-content">
-            <h4>${item.title}</h4>
-            <p>${item.description}</p>
+            <h4>${escapeHtml(item.title)}</h4>
+            <p>${escapeHtml(item.description)}</p>
           </div>
           <div class="roadmap-impact">
             <span class="impact-label">Impact</span>
-            <span class="impact-value">${item.impact}</span>
+            <span class="impact-value">${escapeHtml(item.impact)}</span>
           </div>
         </div>
       `).join("");

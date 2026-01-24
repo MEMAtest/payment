@@ -7815,13 +7815,717 @@ function initTransactions() {
 // END PHASE 1 FEATURES
 // ============================================================
 
+// ============================================================
+// PHASE 2: SPENDING LIMITS & ALERTS
+// ============================================================
+
+const LIMITS_STORAGE_KEY = "consumerpay_limits_v1";
+
+const LIMIT_CATEGORIES = {
+  groceries: { icon: "🛒", name: "Groceries" },
+  diningOut: { icon: "🍽️", name: "Dining Out" },
+  coffeeSnacks: { icon: "☕", name: "Coffee/Snacks" },
+  entertainment: { icon: "🎬", name: "Entertainment" },
+  clothing: { icon: "👕", name: "Clothing" },
+  subscriptions: { icon: "📺", name: "Subscriptions" },
+  fuel: { icon: "⛽", name: "Fuel" },
+  publicTransport: { icon: "🚌", name: "Transport" }
+};
+
+function loadSpendingLimits() {
+  try {
+    const stored = localStorage.getItem(LIMITS_STORAGE_KEY);
+    return stored ? JSON.parse(stored) : {};
+  } catch (e) {
+    return {};
+  }
+}
+
+function saveSpendingLimits(limits) {
+  localStorage.setItem(LIMITS_STORAGE_KEY, JSON.stringify(limits));
+}
+
+function getCategorySpending(category) {
+  // Get spending from transactions this month
+  const transactions = loadTransactions();
+  const now = new Date();
+  const currentMonth = now.getMonth();
+  const currentYear = now.getFullYear();
+
+  const monthTransactions = transactions.filter(t => {
+    const txnDate = new Date(t.date);
+    return txnDate.getMonth() === currentMonth &&
+           txnDate.getFullYear() === currentYear &&
+           t.type === "expense" &&
+           t.category === category;
+  });
+
+  // Also include from budget expenses
+  const budgetAmount = state.expenses[category] || 0;
+
+  const transactionTotal = monthTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+
+  return transactionTotal + budgetAmount;
+}
+
+function calculateSafeToSpend() {
+  const limits = loadSpendingLimits();
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const daysRemaining = daysInMonth - now.getDate() + 1;
+
+  // Calculate total remaining budget across all categories with limits
+  let totalRemaining = 0;
+  let hasLimits = false;
+
+  Object.keys(limits).forEach(category => {
+    const limit = limits[category];
+    if (limit > 0) {
+      hasLimits = true;
+      const spent = getCategorySpending(category);
+      const remaining = Math.max(0, limit - spent);
+      totalRemaining += remaining;
+    }
+  });
+
+  if (!hasLimits) {
+    // If no limits set, calculate from income - expenses
+    const monthlyIncome = state.income || 0;
+    const monthlyExpenses = Object.values(state.expenses).reduce((sum, val) => sum + (val || 0), 0);
+    totalRemaining = Math.max(0, monthlyIncome - monthlyExpenses);
+  }
+
+  return Math.round(totalRemaining / daysRemaining);
+}
+
+function getSpendingPace() {
+  const now = new Date();
+  const dayOfMonth = now.getDate();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const expectedPace = dayOfMonth / daysInMonth;
+
+  const limits = loadSpendingLimits();
+  let totalSpent = 0;
+  let totalLimit = 0;
+
+  Object.keys(limits).forEach(category => {
+    const limit = limits[category];
+    if (limit > 0) {
+      totalLimit += limit;
+      totalSpent += getCategorySpending(category);
+    }
+  });
+
+  if (totalLimit === 0) return { status: "on-track", text: "Set limits to track your pace" };
+
+  const actualPace = totalSpent / totalLimit;
+
+  if (actualPace <= expectedPace * 0.9) {
+    return { status: "on-track", text: "On track this week" };
+  } else if (actualPace <= expectedPace * 1.1) {
+    return { status: "warning", text: "Slightly ahead of pace" };
+  } else {
+    return { status: "over-budget", text: "Over budget pace" };
+  }
+}
+
+function renderSpendingLimits() {
+  const grid = document.querySelector("[data-limits-grid]");
+  if (!grid) return;
+
+  const limits = loadSpendingLimits();
+  const categoriesWithLimits = Object.entries(limits).filter(([_, limit]) => limit > 0);
+
+  if (categoriesWithLimits.length === 0) {
+    grid.innerHTML = '<p class="muted">No spending limits set. Click "Manage Limits" to get started.</p>';
+    return;
+  }
+
+  grid.innerHTML = categoriesWithLimits.map(([category, limit]) => {
+    const spent = getCategorySpending(category);
+    const percent = Math.min(100, (spent / limit) * 100);
+    const categoryInfo = LIMIT_CATEGORIES[category] || { icon: "📄", name: category };
+
+    let statusClass = "";
+    let fillClass = "";
+    if (percent >= 100) {
+      statusClass = "exceeded";
+      fillClass = "exceeded";
+    } else if (percent >= 75) {
+      statusClass = "warning";
+      fillClass = "warning";
+    }
+
+    return `
+      <div class="limit-item ${statusClass}">
+        <div class="limit-header">
+          <span class="limit-icon">${escapeHtml(categoryInfo.icon)}</span>
+          <span class="limit-name">${escapeHtml(categoryInfo.name)}</span>
+          ${percent >= 75 ? `<span class="bill-due-badge ${percent >= 100 ? 'overdue' : 'tomorrow'}">${percent >= 100 ? 'Over limit!' : 'Warning'}</span>` : ''}
+        </div>
+        <div class="limit-progress">
+          <div class="limit-bar">
+            <span class="limit-fill ${fillClass}" style="width: ${percent}%"></span>
+          </div>
+          <div class="limit-values">
+            <span class="spent">${formatCurrency(spent)} spent</span>
+            <span class="limit">of ${formatCurrency(limit)}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function updateSpendingLimitsUI() {
+  // Safe to spend
+  const safeEl = document.querySelector("[data-safe-to-spend]");
+  if (safeEl) {
+    const safe = calculateSafeToSpend();
+    safeEl.textContent = formatCurrency(safe);
+    safeEl.className = "safe-amount";
+    if (safe < 10) safeEl.classList.add("danger");
+    else if (safe < 30) safeEl.classList.add("warning");
+  }
+
+  // Spending pace
+  const paceEl = document.querySelector("[data-spending-pace]");
+  if (paceEl) {
+    const pace = getSpendingPace();
+    paceEl.innerHTML = `
+      <div class="pace-indicator ${pace.status}">
+        <span class="pace-icon">${pace.status === "on-track" ? "✓" : pace.status === "warning" ? "⚠" : "⚠"}</span>
+        <span class="pace-text">${escapeHtml(pace.text)}</span>
+      </div>
+    `;
+  }
+
+  renderSpendingLimits();
+}
+
+function openLimitsModal() {
+  const modal = document.querySelector("[data-limits-modal]");
+  if (!modal) return;
+
+  const limits = loadSpendingLimits();
+
+  // Populate inputs
+  Object.keys(LIMIT_CATEGORIES).forEach(category => {
+    const input = document.querySelector(`[data-limit-input="${category}"]`);
+    if (input) {
+      input.value = limits[category] || "";
+    }
+  });
+
+  modal.hidden = false;
+}
+
+function closeLimitsModal() {
+  const modal = document.querySelector("[data-limits-modal]");
+  if (modal) modal.hidden = true;
+}
+
+function saveLimitsFromForm() {
+  const limits = {};
+
+  Object.keys(LIMIT_CATEGORIES).forEach(category => {
+    const input = document.querySelector(`[data-limit-input="${category}"]`);
+    if (input) {
+      const value = parseFloat(input.value) || 0;
+      if (value > 0) {
+        limits[category] = value;
+      }
+    }
+  });
+
+  saveSpendingLimits(limits);
+  closeLimitsModal();
+  updateSpendingLimitsUI();
+}
+
+function initSpendingLimits() {
+  document.querySelector("[data-manage-limits]")?.addEventListener("click", openLimitsModal);
+
+  document.querySelectorAll("[data-close-limits-modal]").forEach(btn => {
+    btn.addEventListener("click", closeLimitsModal);
+  });
+
+  document.querySelector("[data-save-limits]")?.addEventListener("click", saveLimitsFromForm);
+
+  updateSpendingLimitsUI();
+}
+
+// ============================================================
+// PHASE 2: MULTI-INCOME TRACKING
+// ============================================================
+
+const INCOME_SOURCES_KEY = "consumerpay_income_sources_v1";
+
+const INCOME_ICONS = {
+  salary: "💼",
+  freelance: "💻",
+  rental: "🏠",
+  dividends: "📈",
+  interest: "🏦",
+  benefits: "📋",
+  pension: "👴",
+  "side-hustle": "🚀",
+  other: "📄"
+};
+
+function loadIncomeSources() {
+  try {
+    const stored = localStorage.getItem(INCOME_SOURCES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveIncomeSources(sources) {
+  localStorage.setItem(INCOME_SOURCES_KEY, JSON.stringify(sources));
+}
+
+function generateIncomeId() {
+  return "income_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+}
+
+function calculateDiversificationScore(sources) {
+  const totalSources = sources.length + 1; // +1 for primary salary
+  const primarySalary = state.income || 0;
+  const otherIncome = sources.reduce((sum, s) => sum + (s.monthlyAmount || 0), 0);
+  const totalIncome = primarySalary + otherIncome;
+
+  if (totalIncome === 0) return { score: 0, label: "Low", percent: 0 };
+
+  // Calculate concentration ratio (Herfindahl-like)
+  const primaryRatio = primarySalary / totalIncome;
+  const sourceRatios = sources.map(s => (s.monthlyAmount || 0) / totalIncome);
+
+  // If primary is over 90%, low diversification
+  if (primaryRatio > 0.9) {
+    return { score: 1, label: "Low", percent: 15 };
+  } else if (primaryRatio > 0.7) {
+    return { score: 2, label: "Medium", percent: 45 };
+  } else if (primaryRatio > 0.5) {
+    return { score: 3, label: "Good", percent: 70 };
+  } else {
+    return { score: 4, label: "Excellent", percent: 90 };
+  }
+}
+
+function renderIncomeSources() {
+  const container = document.querySelector("[data-income-sources]");
+  if (!container) return;
+
+  const sources = loadIncomeSources();
+  const primarySalary = state.income || 0;
+  const totalOther = sources.reduce((sum, s) => sum + (s.monthlyAmount || 0), 0);
+  const totalIncome = primarySalary + totalOther;
+
+  const primaryPercent = totalIncome > 0 ? Math.round((primarySalary / totalIncome) * 100) : 100;
+
+  let html = `
+    <div class="income-source primary">
+      <div class="source-icon salary">${escapeHtml(INCOME_ICONS.salary)}</div>
+      <div class="source-info">
+        <span class="source-name">Primary Salary</span>
+        <span class="source-meta">Monthly • PAYE</span>
+      </div>
+      <div class="source-amount">${formatCurrency(primarySalary)}</div>
+      <div class="source-percent">${primaryPercent}%</div>
+    </div>
+  `;
+
+  sources.forEach(source => {
+    const percent = totalIncome > 0 ? Math.round((source.monthlyAmount / totalIncome) * 100) : 0;
+    const icon = INCOME_ICONS[source.type] || INCOME_ICONS.other;
+
+    html += `
+      <div class="income-source" data-income-source-id="${escapeHtml(source.id)}">
+        <div class="source-icon ${escapeHtml(source.type)}">${escapeHtml(icon)}</div>
+        <div class="source-info">
+          <span class="source-name">${escapeHtml(source.name)}</span>
+          <span class="source-meta">${escapeHtml(source.frequency)} ${source.taxable ? '• Taxable' : ''}</span>
+        </div>
+        <div class="source-amount">${formatCurrency(source.monthlyAmount)}</div>
+        <div class="source-percent">${percent}%</div>
+        <button class="btn ghost small" type="button" data-delete-income="${escapeHtml(source.id)}">×</button>
+      </div>
+    `;
+  });
+
+  if (sources.length === 0) {
+    html += '<p class="muted add-prompt">Add additional income sources to improve your diversification score</p>';
+  }
+
+  container.innerHTML = html;
+
+  // Attach delete handlers
+  container.querySelectorAll("[data-delete-income]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (confirm("Remove this income source?")) {
+        deleteIncomeSource(btn.getAttribute("data-delete-income"));
+      }
+    });
+  });
+}
+
+function updateIncomeUI() {
+  const sources = loadIncomeSources();
+  const primarySalary = state.income || 0;
+  const totalOther = sources.reduce((sum, s) => sum + (s.monthlyAmount || 0), 0);
+  const totalIncome = primarySalary + totalOther;
+
+  // Total income
+  const totalEl = document.querySelector("[data-total-income]");
+  if (totalEl) totalEl.textContent = formatCurrency(totalIncome);
+
+  // Primary salary display
+  const salaryEl = document.querySelector("[data-primary-salary]");
+  if (salaryEl) salaryEl.textContent = formatCurrency(primarySalary);
+
+  // Diversification
+  const diversification = calculateDiversificationScore(sources);
+  const fillEl = document.querySelector("[data-diversification-fill]");
+  const scoreEl = document.querySelector("[data-diversification-score]");
+
+  if (fillEl) fillEl.style.width = diversification.percent + "%";
+  if (scoreEl) {
+    scoreEl.textContent = diversification.label;
+    scoreEl.className = "diversification-value " + diversification.label.toLowerCase();
+  }
+
+  renderIncomeSources();
+}
+
+function openIncomeModal(incomeId = null) {
+  const modal = document.querySelector("[data-income-modal]");
+  const form = document.querySelector("[data-income-form]");
+  const title = document.querySelector("[data-income-modal-title]");
+  if (!modal || !form) return;
+
+  form.reset();
+  document.querySelector("[data-income-id]").value = "";
+
+  if (incomeId) {
+    const sources = loadIncomeSources();
+    const source = sources.find(s => s.id === incomeId);
+    if (source) {
+      title.textContent = "Edit Income Source";
+      document.querySelector("[data-income-id]").value = source.id;
+      document.querySelector("[data-income-name]").value = source.name;
+      document.querySelector("[data-income-amount]").value = source.monthlyAmount;
+      document.querySelector("[data-income-type]").value = source.type;
+      document.querySelector("[data-income-frequency]").value = source.frequency;
+      document.querySelector("[data-income-taxable]").checked = source.taxable;
+    }
+  } else {
+    title.textContent = "Add Income Source";
+  }
+
+  modal.hidden = false;
+}
+
+function closeIncomeModal() {
+  const modal = document.querySelector("[data-income-modal]");
+  if (modal) modal.hidden = true;
+}
+
+function saveIncomeFromForm() {
+  const id = document.querySelector("[data-income-id]").value;
+  const name = document.querySelector("[data-income-name]").value.trim();
+  const monthlyAmount = parseFloat(document.querySelector("[data-income-amount]").value) || 0;
+  const type = document.querySelector("[data-income-type]").value;
+  const frequency = document.querySelector("[data-income-frequency]").value;
+  const taxable = document.querySelector("[data-income-taxable]").checked;
+
+  if (!name || monthlyAmount <= 0) {
+    alert("Please fill in all required fields.");
+    return;
+  }
+
+  const sources = loadIncomeSources();
+
+  if (id) {
+    const index = sources.findIndex(s => s.id === id);
+    if (index !== -1) {
+      sources[index] = { ...sources[index], name, monthlyAmount, type, frequency, taxable };
+    }
+  } else {
+    sources.push({
+      id: generateIncomeId(),
+      name,
+      monthlyAmount,
+      type,
+      frequency,
+      taxable
+    });
+  }
+
+  saveIncomeSources(sources);
+  closeIncomeModal();
+  updateIncomeUI();
+}
+
+function deleteIncomeSource(id) {
+  const sources = loadIncomeSources().filter(s => s.id !== id);
+  saveIncomeSources(sources);
+  updateIncomeUI();
+}
+
+function initIncomeSources() {
+  document.querySelector("[data-add-income]")?.addEventListener("click", () => openIncomeModal());
+
+  document.querySelectorAll("[data-close-income-modal]").forEach(btn => {
+    btn.addEventListener("click", closeIncomeModal);
+  });
+
+  document.querySelector("[data-income-form]")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    saveIncomeFromForm();
+  });
+
+  updateIncomeUI();
+}
+
+// ============================================================
+// PHASE 2: SPENDING FORECAST
+// ============================================================
+
+function calculateSpendingForecast() {
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const currentDay = now.getDate();
+  const daysRemaining = daysInMonth - currentDay;
+
+  // Current month's spending from transactions
+  const transactions = loadTransactions();
+  const monthTransactions = transactions.filter(t => {
+    const txnDate = new Date(t.date);
+    return txnDate.getMonth() === now.getMonth() &&
+           txnDate.getFullYear() === now.getFullYear() &&
+           t.type === "expense";
+  });
+
+  const spentSoFar = monthTransactions.reduce((sum, t) => sum + (t.amount || 0), 0);
+
+  // Average daily spending
+  const dailyAverage = currentDay > 0 ? spentSoFar / currentDay : 0;
+
+  // Projected remaining spending
+  const projectedRemaining = dailyAverage * daysRemaining;
+
+  // Get upcoming bills
+  const bills = loadBills();
+  const upcomingBills = bills
+    .filter(b => !b.isPaid && b.dueDay > currentDay && b.dueDay <= daysInMonth)
+    .reduce((sum, b) => sum + (b.amount || 0), 0);
+
+  // Total expected spending
+  const expectedSpending = projectedRemaining + upcomingBills;
+
+  // Monthly income
+  const sources = loadIncomeSources();
+  const primaryIncome = state.income || 0;
+  const otherIncome = sources.reduce((sum, s) => sum + (s.monthlyAmount || 0), 0);
+  const totalIncome = primaryIncome + otherIncome;
+
+  // Budget expenses (fixed monthly)
+  const budgetExpenses = Object.values(state.expenses).reduce((sum, val) => sum + (val || 0), 0);
+
+  // Projected balance
+  const projectedBalance = totalIncome - budgetExpenses - spentSoFar - projectedRemaining;
+
+  return {
+    daysRemaining,
+    spentSoFar,
+    dailyAverage,
+    projectedRemaining,
+    upcomingBills,
+    expectedSpending,
+    totalIncome,
+    budgetExpenses,
+    projectedBalance
+  };
+}
+
+function getPaydayStatus(forecast) {
+  // Assume payday is on the last day of the month or 25th
+  const projectedBalance = forecast.projectedBalance;
+
+  if (projectedBalance > 200) {
+    return { status: "positive", text: `Yes, with ${formatCurrency(projectedBalance)} to spare` };
+  } else if (projectedBalance > 0) {
+    return { status: "warning", text: `Yes, but only ${formatCurrency(projectedBalance)} buffer` };
+  } else {
+    return { status: "negative", text: `Risk of shortfall by ${formatCurrency(Math.abs(projectedBalance))}` };
+  }
+}
+
+function renderForecastChart(forecast) {
+  const container = document.querySelector("[data-forecast-chart]");
+  if (!container) return;
+
+  const now = new Date();
+  const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+  const currentDay = now.getDate();
+
+  // Generate daily balance projection
+  const width = 600;
+  const height = 180;
+  const padding = 40;
+  const chartWidth = width - padding * 2;
+  const chartHeight = height - padding * 2;
+
+  const startBalance = forecast.totalIncome - forecast.budgetExpenses;
+  const dailySpend = forecast.dailyAverage;
+
+  const points = [];
+  let balance = startBalance;
+
+  for (let day = 1; day <= daysInMonth; day++) {
+    if (day <= currentDay) {
+      // Actual (calculated backwards from spent so far)
+      balance = startBalance - (forecast.spentSoFar * (day / currentDay));
+    } else {
+      // Projected
+      balance = startBalance - forecast.spentSoFar - (dailySpend * (day - currentDay));
+    }
+    points.push({ day, balance, isProjected: day > currentDay });
+  }
+
+  const maxBalance = Math.max(...points.map(p => p.balance), 0);
+  const minBalance = Math.min(...points.map(p => p.balance), 0);
+  const range = maxBalance - minBalance || 1;
+
+  const xScale = (day) => padding + ((day - 1) / (daysInMonth - 1)) * chartWidth;
+  const yScale = (val) => height - padding - ((val - minBalance) / range) * chartHeight;
+
+  // Create paths
+  let actualPath = `M ${xScale(1)} ${yScale(points[0].balance)}`;
+  let projectedPath = "";
+
+  points.forEach((point, i) => {
+    if (!point.isProjected) {
+      actualPath += ` L ${xScale(point.day)} ${yScale(point.balance)}`;
+    } else if (i > 0 && !points[i - 1].isProjected) {
+      projectedPath = `M ${xScale(points[i - 1].day)} ${yScale(points[i - 1].balance)}`;
+      projectedPath += ` L ${xScale(point.day)} ${yScale(point.balance)}`;
+    } else {
+      projectedPath += ` L ${xScale(point.day)} ${yScale(point.balance)}`;
+    }
+  });
+
+  // Zero line
+  const zeroY = yScale(0);
+
+  container.innerHTML = `
+    <svg viewBox="0 0 ${width} ${height}">
+      <!-- Grid -->
+      <line x1="${padding}" y1="${height - padding}" x2="${width - padding}" y2="${height - padding}" stroke="var(--border)" stroke-width="1"/>
+      <line x1="${padding}" y1="${zeroY}" x2="${width - padding}" y2="${zeroY}" stroke="var(--border)" stroke-width="1" stroke-dasharray="4,4"/>
+
+      <!-- Actual spending line -->
+      <path d="${actualPath}" fill="none" stroke="var(--primary)" stroke-width="3" stroke-linecap="round"/>
+
+      <!-- Projected line -->
+      <path d="${projectedPath}" fill="none" stroke="var(--primary)" stroke-width="2" stroke-dasharray="6,4" stroke-linecap="round" opacity="0.6"/>
+
+      <!-- Today marker -->
+      <line x1="${xScale(currentDay)}" y1="${padding}" x2="${xScale(currentDay)}" y2="${height - padding}" stroke="var(--muted)" stroke-width="1" stroke-dasharray="4,4"/>
+      <text x="${xScale(currentDay)}" y="${padding - 8}" font-size="11" fill="var(--muted)" text-anchor="middle">Today</text>
+
+      <!-- Labels -->
+      <text x="${padding}" y="${height - 10}" font-size="11" fill="var(--muted)">1</text>
+      <text x="${width - padding}" y="${height - 10}" font-size="11" fill="var(--muted)" text-anchor="end">${daysInMonth}</text>
+      <text x="${padding - 5}" y="${yScale(maxBalance) + 4}" font-size="11" fill="var(--muted)" text-anchor="end">${formatCurrency(maxBalance)}</text>
+      <text x="${padding - 5}" y="${zeroY + 4}" font-size="11" fill="var(--muted)" text-anchor="end">£0</text>
+    </svg>
+  `;
+}
+
+function updateForecastUI() {
+  const forecast = calculateSpendingForecast();
+
+  // Projected balance
+  const balanceEl = document.querySelector("[data-forecast-balance]");
+  if (balanceEl) {
+    balanceEl.textContent = formatCurrency(forecast.projectedBalance);
+    balanceEl.className = "forecast-value";
+    if (forecast.projectedBalance > 0) balanceEl.classList.add("positive");
+    else if (forecast.projectedBalance < -100) balanceEl.classList.add("negative");
+    else balanceEl.classList.add("warning");
+  }
+
+  // Forecast indicator
+  const indicatorEl = document.querySelector("[data-forecast-indicator]");
+  if (indicatorEl) {
+    let status, icon, text;
+    if (forecast.projectedBalance > 200) {
+      status = "positive";
+      icon = "✓";
+      text = "You're on track for a surplus";
+    } else if (forecast.projectedBalance > 0) {
+      status = "warning";
+      icon = "⚠";
+      text = "Tight but manageable";
+    } else {
+      status = "negative";
+      icon = "⚠";
+      text = "Projected shortfall this month";
+    }
+    indicatorEl.className = `forecast-indicator ${status}`;
+    indicatorEl.innerHTML = `
+      <span class="indicator-icon">${icon}</span>
+      <span class="indicator-text">${text}</span>
+    `;
+  }
+
+  // Breakdown values
+  const daysEl = document.querySelector("[data-days-remaining]");
+  const spendingEl = document.querySelector("[data-expected-spending]");
+  const billsEl = document.querySelector("[data-upcoming-bills]");
+
+  if (daysEl) daysEl.textContent = forecast.daysRemaining;
+  if (spendingEl) spendingEl.textContent = formatCurrency(forecast.projectedRemaining);
+  if (billsEl) billsEl.textContent = formatCurrency(forecast.upcomingBills);
+
+  // Payday check
+  const paydayAnswer = document.querySelector("[data-payday-answer]");
+  if (paydayAnswer) {
+    const payday = getPaydayStatus(forecast);
+    paydayAnswer.className = `payday-answer ${payday.status}`;
+    paydayAnswer.innerHTML = `
+      <span class="answer-icon">${payday.status === "positive" ? "✓" : payday.status === "warning" ? "⚠" : "✗"}</span>
+      <span class="answer-text">${payday.text}</span>
+    `;
+  }
+
+  // Chart
+  renderForecastChart(forecast);
+}
+
+function initSpendingForecast() {
+  updateForecastUI();
+}
+
+// ============================================================
+// END PHASE 2 FEATURES
+// ============================================================
+
 attachEventListeners();
 init();
 
 // Initialize features after DOM is ready
 document.addEventListener("DOMContentLoaded", () => {
+  // Phase 1
   initStatementImport();
   initBillCalendar();
   initDebtPayoff();
   initTransactions();
+  // Phase 2
+  initSpendingLimits();
+  initIncomeSources();
+  initSpendingForecast();
 });

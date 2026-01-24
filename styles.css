@@ -8557,3 +8557,308 @@ label.full-width input {
     text-align: center;
   }
 }
+
+/* ============================================================
+   NOTIFICATION & CONFIRMATION SYSTEM
+   ============================================================ */
+
+.notification-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  max-width: 400px;
+  pointer-events: none;
+}
+
+.notification {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 18px;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border-left: 4px solid var(--sea);
+  transform: translateX(120%);
+  opacity: 0;
+  transition: transform 0.3s ease, opacity 0.3s ease;
+  pointer-events: auto;
+}
+
+.notification-show {
+  transform: translateX(0);
+  opacity: 1;
+}
+
+.notification-hide {
+  transform: translateX(120%);
+  opacity: 0;
+}
+
+.notification-success {
+  border-left-color: var(--leaf);
+}
+
+.notification-success .notification-icon {
+  color: var(--leaf);
+}
+
+.notification-error {
+  border-left-color: var(--coral);
+}
+
+.notification-error .notification-icon {
+  color: var(--coral);
+}
+
+.notification-warning {
+  border-left-color: var(--sun);
+}
+
+.notification-warning .notification-icon {
+  color: var(--sun);
+}
+
+.notification-info {
+  border-left-color: var(--sea);
+}
+
+.notification-info .notification-icon {
+  color: var(--sea);
+}
+
+.notification-icon {
+  font-size: 18px;
+  font-weight: bold;
+  flex-shrink: 0;
+}
+
+.notification-message {
+  flex: 1;
+  font-size: 14px;
+  color: var(--ink);
+  line-height: 1.4;
+}
+
+.notification-close {
+  background: none;
+  border: none;
+  font-size: 18px;
+  color: var(--ink-muted);
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+}
+
+.notification-close:hover {
+  opacity: 1;
+}
+
+/* Confirmation Modal */
+.confirmation-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(24, 35, 39, 0.5);
+  backdrop-filter: blur(4px);
+  z-index: 10001;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.2s ease;
+}
+
+.confirmation-modal-overlay[hidden] {
+  display: none;
+}
+
+.confirmation-modal {
+  background: var(--white);
+  border-radius: var(--radius-lg);
+  padding: 28px;
+  max-width: 420px;
+  width: 100%;
+  box-shadow: var(--shadow-hover);
+  animation: slideUp 0.25s ease;
+}
+
+.confirmation-title {
+  font-family: var(--display-font);
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 12px;
+  color: var(--ink);
+}
+
+.confirmation-message {
+  font-size: 15px;
+  color: var(--ink-muted);
+  margin: 0 0 24px;
+  line-height: 1.5;
+}
+
+.confirmation-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(20px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Mobile adjustments for notifications */
+@media (max-width: 480px) {
+  .notification-container {
+    left: 12px;
+    right: 12px;
+    max-width: none;
+  }
+
+  .confirmation-modal {
+    padding: 20px;
+  }
+
+  .confirmation-actions {
+    flex-direction: column;
+  }
+
+  .confirmation-actions .btn {
+    width: 100%;
+  }
+}
+
+/* ============================================================
+   ACCESSIBILITY STYLES
+   ============================================================ */
+
+/* Screen reader only - visually hidden but accessible */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Focus visible styles for keyboard navigation */
+*:focus-visible {
+  outline: 3px solid var(--sea);
+  outline-offset: 2px;
+}
+
+button:focus-visible,
+.btn:focus-visible {
+  outline: 3px solid var(--sea);
+  outline-offset: 2px;
+}
+
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: 3px solid var(--sea);
+  outline-offset: 1px;
+  border-color: var(--sea);
+}
+
+/* Skip link for keyboard users */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--navy);
+  color: var(--white);
+  padding: 8px 16px;
+  z-index: 100000;
+  text-decoration: none;
+  border-radius: 0 0 var(--radius) 0;
+  transition: top 0.2s;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* Input validation states */
+.input-invalid {
+  border-color: var(--coral) !important;
+  background-color: rgba(231, 111, 81, 0.05);
+}
+
+.input-invalid:focus {
+  outline-color: var(--coral);
+  box-shadow: 0 0 0 3px rgba(231, 111, 81, 0.2);
+}
+
+/* Reduced motion preference */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .notification {
+    transform: none;
+  }
+
+  .notification-show {
+    opacity: 1;
+  }
+
+  .notification-hide {
+    opacity: 0;
+  }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+  :root {
+    --ink: #000;
+    --ink-muted: #333;
+    --paper: #fff;
+    --sand: #f0f0f0;
+    --sea: #007a6c;
+    --coral: #c00;
+    --navy: #000080;
+  }
+
+  .btn {
+    border: 2px solid currentColor;
+  }
+
+  input,
+  select,
+  textarea {
+    border: 2px solid var(--ink);
+  }
+}

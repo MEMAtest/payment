@@ -14,7 +14,8 @@
     <link rel="apple-touch-icon" href="icons/app-icon.svg" />
   </head>
   <body>
-    <div class="page">
+    <a href="#main-content" class="skip-link">Skip to main content</a>
+    <div class="page" role="application" aria-label="Consumer Pay Financial Planning App">
       <header class="top-bar">
         <div class="brand">
           <span class="brand-mark"></span>
@@ -27,7 +28,7 @@
         </div>
       </header>
 
-      <main class="flow">
+      <main class="flow" id="main-content" role="main">
         <section class="screen is-active" data-screen="welcome">
           <div class="welcome-hero">
             <div class="welcome-content">
@@ -253,7 +254,7 @@
                   <span class="label-text">Annual Gross Salary</span>
                   <div class="salary-input-wrap">
                     <span class="currency-symbol">£</span>
-                    <input type="number" min="0" step="1000" placeholder="45000" data-field="annualSalary" class="salary-input" />
+                    <input type="number" min="0" max="10000000" step="1000" placeholder="45000" data-field="annualSalary" class="salary-input" aria-label="Annual gross salary in pounds" />
                     <span class="per-year">per year</span>
                   </div>
                 </label>
@@ -384,24 +385,24 @@
                     <h4>Housing</h4>
                     <p class="category-total" data-category-total="housing">£0</p>
                   </div>
-                  <button class="category-toggle" type="button" data-toggle-category="housing">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <button class="category-toggle" type="button" data-toggle-category="housing" aria-expanded="false" aria-controls="housing-items" aria-label="Toggle Housing expenses">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
                       <polyline points="6 9 12 15 18 9"/>
                     </svg>
                   </button>
                 </div>
-                <div class="category-items" data-category-items="housing">
+                <div class="category-items" data-category-items="housing" id="housing-items" role="region" aria-label="Housing expense inputs">
                   <label class="expense-item">
                     <span>Mortgage / Rent</span>
-                    <input type="number" min="0" placeholder="1200" data-expense="mortgage" />
+                    <input type="number" min="0" max="100000" placeholder="1200" data-expense="mortgage" aria-describedby="expense-help" />
                   </label>
                   <label class="expense-item">
                     <span>Council Tax</span>
-                    <input type="number" min="0" placeholder="150" data-expense="councilTax" />
+                    <input type="number" min="0" max="100000" placeholder="150" data-expense="councilTax" />
                   </label>
                   <label class="expense-item">
                     <span>Home Insurance</span>
-                    <input type="number" min="0" placeholder="40" data-expense="homeInsurance" />
+                    <input type="number" min="0" max="100000" placeholder="40" data-expense="homeInsurance" />
                   </label>
                 </div>
               </div>

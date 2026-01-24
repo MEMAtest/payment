@@ -264,14 +264,332 @@ function setTextAll(selector, value) {
   });
 }
 
+// ============================================================
+// CUSTOM NOTIFICATION & CONFIRMATION SYSTEM
+// ============================================================
+
+// Notification container - created lazily
+let notificationContainer = null;
+
+function getNotificationContainer() {
+  if (!notificationContainer) {
+    notificationContainer = document.createElement('div');
+    notificationContainer.className = 'notification-container';
+    notificationContainer.setAttribute('role', 'alert');
+    notificationContainer.setAttribute('aria-live', 'polite');
+    document.body.appendChild(notificationContainer);
+  }
+  return notificationContainer;
+}
+
+// Show toast notification (replaces alert() for non-blocking messages)
+function showNotification(message, type = 'info', duration = 4000) {
+  const container = getNotificationContainer();
+
+  const notification = document.createElement('div');
+  notification.className = `notification notification-${type}`;
+  notification.setAttribute('role', 'status');
+
+  const iconMap = {
+    success: '✓',
+    error: '✕',
+    warning: '⚠',
+    info: 'ℹ'
+  };
+
+  notification.innerHTML = `
+    <span class="notification-icon" aria-hidden="true">${iconMap[type] || 'ℹ'}</span>
+    <span class="notification-message">${escapeHtml(message)}</span>
+    <button class="notification-close" type="button" aria-label="Close notification">×</button>
+  `;
+
+  container.appendChild(notification);
+
+  // Trigger animation
+  requestAnimationFrame(() => {
+    notification.classList.add('notification-show');
+  });
+
+  // Close button handler
+  const closeBtn = notification.querySelector('.notification-close');
+  const closeNotification = () => {
+    notification.classList.remove('notification-show');
+    notification.classList.add('notification-hide');
+    setTimeout(() => notification.remove(), 300);
+  };
+
+  closeBtn.addEventListener('click', closeNotification);
+
+  // Auto-dismiss
+  if (duration > 0) {
+    setTimeout(closeNotification, duration);
+  }
+
+  return notification;
+}
+
+// Confirmation modal (replaces confirm())
+let confirmationModal = null;
+let confirmationResolve = null;
+
+function createConfirmationModal() {
+  if (confirmationModal) return confirmationModal;
+
+  confirmationModal = document.createElement('div');
+  confirmationModal.className = 'confirmation-modal-overlay';
+  confirmationModal.hidden = true;
+  confirmationModal.setAttribute('role', 'dialog');
+  confirmationModal.setAttribute('aria-modal', 'true');
+  confirmationModal.setAttribute('aria-labelledby', 'confirm-title');
+
+  confirmationModal.innerHTML = `
+    <div class="confirmation-modal" role="document">
+      <h3 id="confirm-title" class="confirmation-title">Confirm Action</h3>
+      <p class="confirmation-message" data-confirm-message></p>
+      <div class="confirmation-actions">
+        <button class="btn ghost" type="button" data-confirm-cancel>Cancel</button>
+        <button class="btn primary" type="button" data-confirm-ok>Confirm</button>
+      </div>
+    </div>
+  `;
+
+  document.body.appendChild(confirmationModal);
+
+  // Event handlers
+  const cancelBtn = confirmationModal.querySelector('[data-confirm-cancel]');
+  const okBtn = confirmationModal.querySelector('[data-confirm-ok]');
+  const overlay = confirmationModal;
+
+  cancelBtn.addEventListener('click', () => {
+    hideConfirmationModal(false);
+  });
+
+  okBtn.addEventListener('click', () => {
+    hideConfirmationModal(true);
+  });
+
+  // Close on overlay click
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) {
+      hideConfirmationModal(false);
+    }
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !confirmationModal.hidden) {
+      hideConfirmationModal(false);
+    }
+  });
+
+  return confirmationModal;
+}
+
+function hideConfirmationModal(result) {
+  if (confirmationModal) {
+    confirmationModal.hidden = true;
+  }
+  if (confirmationResolve) {
+    confirmationResolve(result);
+    confirmationResolve = null;
+  }
+}
+
+// Promise-based confirmation dialog
+function showConfirmation(message, title = 'Confirm Action', confirmText = 'Confirm', cancelText = 'Cancel') {
+  return new Promise((resolve) => {
+    const modal = createConfirmationModal();
+    confirmationResolve = resolve;
+
+    const messageEl = modal.querySelector('[data-confirm-message]');
+    const titleEl = modal.querySelector('.confirmation-title');
+    const okBtn = modal.querySelector('[data-confirm-ok]');
+    const cancelBtn = modal.querySelector('[data-confirm-cancel]');
+
+    if (messageEl) messageEl.textContent = message;
+    if (titleEl) titleEl.textContent = title;
+    if (okBtn) okBtn.textContent = confirmText;
+    if (cancelBtn) cancelBtn.textContent = cancelText;
+
+    modal.hidden = false;
+
+    // Focus the cancel button for safety
+    setTimeout(() => cancelBtn?.focus(), 50);
+  });
+}
+
+// ============================================================
+// END NOTIFICATION SYSTEM
+// ============================================================
+
+// ============================================================
+// INPUT VALIDATION UTILITIES
+// ============================================================
+
+const VALIDATION_LIMITS = {
+  salary: { min: 0, max: 10000000 },      // Max £10M salary
+  expense: { min: 0, max: 100000 },        // Max £100K per expense
+  amount: { min: 0, max: 10000000 },       // General amount max £10M
+  percentage: { min: 0, max: 100 },
+  months: { min: 1, max: 600 },            // Max 50 years
+  dueDay: { min: 1, max: 31 },
+  interestRate: { min: 0, max: 100 },
+  name: { minLength: 1, maxLength: 100 },
+  description: { minLength: 0, maxLength: 500 }
+};
+
+// Validate and sanitize numeric input
+function validateNumericInput(value, type = 'amount') {
+  const limits = VALIDATION_LIMITS[type] || VALIDATION_LIMITS.amount;
+  const num = parseFloat(value);
+
+  if (isNaN(num)) {
+    return { valid: false, value: 0, error: 'Please enter a valid number' };
+  }
+
+  if (num < limits.min) {
+    return { valid: false, value: limits.min, error: `Value cannot be less than ${limits.min}` };
+  }
+
+  if (num > limits.max) {
+    return { valid: false, value: limits.max, error: `Value cannot exceed ${formatCurrency(limits.max)}` };
+  }
+
+  return { valid: true, value: num, error: null };
+}
+
+// Validate string input
+function validateStringInput(value, type = 'name') {
+  const limits = VALIDATION_LIMITS[type] || VALIDATION_LIMITS.name;
+  const str = String(value || '').trim();
+
+  if (str.length < limits.minLength) {
+    return { valid: false, value: str, error: `Please enter at least ${limits.minLength} character(s)` };
+  }
+
+  if (str.length > limits.maxLength) {
+    return { valid: false, value: str.substring(0, limits.maxLength), error: `Text is too long (max ${limits.maxLength} characters)` };
+  }
+
+  return { valid: true, value: str, error: null };
+}
+
+// Setup input validation with live feedback
+function setupInputValidation(input, type, showFeedback = true) {
+  if (!input) return;
+
+  const limits = VALIDATION_LIMITS[type] || VALIDATION_LIMITS.amount;
+
+  // Set HTML5 validation attributes
+  if (limits.min !== undefined) input.min = limits.min;
+  if (limits.max !== undefined) input.max = limits.max;
+  if (limits.maxLength !== undefined) input.maxLength = limits.maxLength;
+
+  // Add validation feedback
+  if (showFeedback) {
+    input.addEventListener('input', () => {
+      const validation = input.type === 'number'
+        ? validateNumericInput(input.value, type)
+        : validateStringInput(input.value, type);
+
+      if (!validation.valid && validation.error) {
+        input.setCustomValidity(validation.error);
+        input.classList.add('input-invalid');
+        input.setAttribute('aria-invalid', 'true');
+      } else {
+        input.setCustomValidity('');
+        input.classList.remove('input-invalid');
+        input.setAttribute('aria-invalid', 'false');
+      }
+    });
+  }
+}
+
+// ============================================================
+// ACCESSIBILITY HELPERS
+// ============================================================
+
+// Announce message to screen readers
+function announceToScreenReader(message, priority = 'polite') {
+  const announcer = document.getElementById('sr-announcer') || createScreenReaderAnnouncer();
+  announcer.setAttribute('aria-live', priority);
+  announcer.textContent = message;
+
+  // Clear after announcement
+  setTimeout(() => {
+    announcer.textContent = '';
+  }, 1000);
+}
+
+function createScreenReaderAnnouncer() {
+  const announcer = document.createElement('div');
+  announcer.id = 'sr-announcer';
+  announcer.className = 'sr-only';
+  announcer.setAttribute('aria-live', 'polite');
+  announcer.setAttribute('aria-atomic', 'true');
+  document.body.appendChild(announcer);
+  return announcer;
+}
+
+// Trap focus within a modal/dialog
+function trapFocus(element) {
+  const focusableElements = element.querySelectorAll(
+    'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+  );
+  const firstFocusable = focusableElements[0];
+  const lastFocusable = focusableElements[focusableElements.length - 1];
+
+  function handleTabKey(e) {
+    if (e.key !== 'Tab') return;
+
+    if (e.shiftKey) {
+      if (document.activeElement === firstFocusable) {
+        lastFocusable.focus();
+        e.preventDefault();
+      }
+    } else {
+      if (document.activeElement === lastFocusable) {
+        firstFocusable.focus();
+        e.preventDefault();
+      }
+    }
+  }
+
+  element.addEventListener('keydown', handleTabKey);
+  return () => element.removeEventListener('keydown', handleTabKey);
+}
+
+// ============================================================
+// END VALIDATION & ACCESSIBILITY
+// ============================================================
+
+// Secure random ID generation
+function generateSecureId(prefix = '') {
+  if (window.crypto && window.crypto.randomUUID) {
+    return prefix ? `${prefix}-${window.crypto.randomUUID()}` : window.crypto.randomUUID();
+  }
+  // Fallback using crypto.getRandomValues for browsers without randomUUID
+  if (window.crypto && window.crypto.getRandomValues) {
+    const array = new Uint8Array(16);
+    window.crypto.getRandomValues(array);
+    const hex = Array.from(array, b => b.toString(16).padStart(2, '0')).join('');
+    return prefix ? `${prefix}-${hex}` : hex;
+  }
+  // Last resort - throw error rather than use insecure Math.random()
+  throw new Error('Secure random generation not available. Please use a modern browser.');
+}
+
 function getDeviceId() {
   const existing = localStorage.getItem(DEVICE_KEY);
   if (existing) return existing;
-  const generated =
-    (window.crypto && window.crypto.randomUUID && window.crypto.randomUUID()) ||
-    `device-${Math.random().toString(16).slice(2)}`;
-  localStorage.setItem(DEVICE_KEY, generated);
-  return generated;
+  try {
+    const generated = generateSecureId('device');
+    localStorage.setItem(DEVICE_KEY, generated);
+    return generated;
+  } catch (e) {
+    console.error('Failed to generate secure device ID:', e);
+    return 'device-unknown';
+  }
 }
 
 // UK Salary Calculator
@@ -689,12 +1007,12 @@ function updatePersona() {
   setTextAll("[data-profile-copy]", data.copy);
 
   document.querySelectorAll("[data-persona-tags]").forEach((el) => {
-    el.innerHTML = data.tags.map((tag) => `<span>${tag}</span>`).join("");
+    el.innerHTML = data.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
   });
 
   const profileTags = document.querySelector("[data-profile-tags]");
   if (profileTags) {
-    profileTags.innerHTML = data.tags.map((tag) => `<span>${tag}</span>`).join("");
+    profileTags.innerHTML = data.tags.map((tag) => `<span>${escapeHtml(tag)}</span>`).join("");
   }
 }
 
@@ -808,22 +1126,22 @@ function updateGoalList() {
       <div class="goal-item" data-goal-index="${index}">
         <div class="goal-row">
           <div>
-            <p class="card-title">${goal.name}</p>
-            <p class="muted">${timelineLabel}</p>
+            <p class="card-title">${escapeHtml(goal.name)}</p>
+            <p class="muted">${escapeHtml(timelineLabel)}</p>
           </div>
-          <input class="goal-input" type="number" min="0" step="100" placeholder="Target" value="${targetValue}" data-goal-target-input />
+          <input class="goal-input" type="number" min="0" max="10000000" step="100" placeholder="Target" value="${targetValue}" data-goal-target-input aria-label="Target amount for ${escapeHtml(goal.name)}" />
         </div>
         <div class="goal-edit-grid">
           <label>
             Saved so far
-            <input type="number" min="0" step="50" value="${savedValue || ""}" data-goal-saved-input />
+            <input type="number" min="0" max="10000000" step="50" value="${savedValue || ""}" data-goal-saved-input aria-label="Amount saved" />
           </label>
           <label>
             Monthly contribution
-            <input type="number" min="0" step="25" value="${monthlyValue || ""}" data-goal-monthly-input />
+            <input type="number" min="0" max="100000" step="25" value="${monthlyValue || ""}" data-goal-monthly-input aria-label="Monthly contribution" />
           </label>
         </div>
-        <div class="progress"><span style="width: ${progress}%"></span></div>
+        <div class="progress" role="progressbar" aria-valuenow="${progress}" aria-valuemin="0" aria-valuemax="100"><span style="width: ${progress}%"></span></div>
         <p class="muted">${progress}% funded</p>
       </div>
     `;
@@ -1130,7 +1448,7 @@ function updateVulnerabilityPanel() {
     vulnList.innerHTML = '<li class="vuln-item"><span>No major vulnerabilities detected</span><span class="severity low">Good</span></li>';
   } else {
     vulnList.innerHTML = vulns
-      .map((v) => `<li class="vuln-item"><span>${v.text}</span><span class="severity ${v.severity}">${v.severity}</span></li>`)
+      .map((v) => `<li class="vuln-item"><span>${escapeHtml(v.text)}</span><span class="severity ${escapeHtml(v.severity)}">${escapeHtml(v.severity)}</span></li>`)
       .join("");
   }
 
@@ -1162,7 +1480,7 @@ function updateAlertList() {
 
   const upcomingGoals = state.goals.filter((g) => g.target && g.saved >= g.target * 0.9 && g.saved < g.target);
   upcomingGoals.forEach((g) => {
-    alerts.push({ title: `${g.name} almost reached`, date: "Nearly there!", severity: "low" });
+    alerts.push({ title: `${escapeHtml(g.name)} almost reached`, date: "Nearly there!", severity: "low" });
   });
 
   if (alerts.length === 0) {
@@ -1171,12 +1489,12 @@ function updateAlertList() {
     alertList.innerHTML = alerts
       .map(
         (a) => `
-        <li class="alert-item">
+        <li class="alert-item" role="listitem">
           <div>
-            <p class="alert-title">${a.title}</p>
-            <p class="muted">${a.date}</p>
+            <p class="alert-title">${escapeHtml(a.title)}</p>
+            <p class="muted">${escapeHtml(a.date)}</p>
           </div>
-          <span class="severity ${a.severity}">${a.severity}</span>
+          <span class="severity ${escapeHtml(a.severity)}">${escapeHtml(a.severity)}</span>
         </li>
       `
       )
@@ -2223,11 +2541,11 @@ function updateSmartInsights() {
     } else {
       concernsList.innerHTML = concerns
         .map((concern) => `
-          <div class="concern-item ${concern.severity}">
-            <span class="concern-icon">${concern.severity === "critical" ? "⚠" : concern.severity === "warning" ? "!" : "i"}</span>
+          <div class="concern-item ${escapeHtml(concern.severity)}" role="alert">
+            <span class="concern-icon" aria-hidden="true">${concern.severity === "critical" ? "⚠" : concern.severity === "warning" ? "!" : "i"}</span>
             <div class="concern-content">
-              <h5>${concern.title}</h5>
-              <p>${concern.description}</p>
+              <h5>${escapeHtml(concern.title)}</h5>
+              <p>${escapeHtml(concern.description)}</p>
             </div>
           </div>
         `)
@@ -2243,9 +2561,9 @@ function updateSmartInsights() {
       actionsList.innerHTML = actions
         .map((action) => `
           <div class="action-item">
-            <h5>${action.action}</h5>
+            <h5>${escapeHtml(action.action)}</h5>
             <ul>
-              ${action.steps.map((step) => `<li>${step}</li>`).join("")}
+              ${action.steps.map((step) => `<li>${escapeHtml(step)}</li>`).join("")}
             </ul>
           </div>
         `)
@@ -2282,10 +2600,10 @@ function updateSmartInsights() {
       .slice(0, 3)
       .map((expert) => `
         <div class="expert-card">
-          <div class="expert-avatar ${expert.style}">${expert.avatar}</div>
+          <div class="expert-avatar ${escapeHtml(expert.style)}" aria-hidden="true">${escapeHtml(expert.avatar)}</div>
           <div class="expert-content">
-            <h5>${expert.name}</h5>
-            <p>"${expert.quote}"</p>
+            <h5>${escapeHtml(expert.name)}</h5>
+            <p>"${escapeHtml(expert.quote)}"</p>
           </div>
         </div>
       `)
@@ -6163,6 +6481,37 @@ function initStatementImport() {
   renderImportHistory();
 }
 
+// Constants for import validation
+const MAX_TRANSACTIONS_PER_IMPORT = 5000;
+const ALLOWED_MIME_TYPES = {
+  csv: ['text/csv', 'text/plain', 'application/csv', 'application/vnd.ms-excel'],
+  xlsx: ['application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'],
+  xls: ['application/vnd.ms-excel'],
+  pdf: ['application/pdf']
+};
+
+// Validate file type by extension and MIME type
+function validateFileType(file) {
+  const ext = file.name.split(".").pop().toLowerCase();
+  const allowedExts = ['csv', 'xlsx', 'xls', 'pdf'];
+
+  if (!allowedExts.includes(ext)) {
+    return { valid: false, error: `Unsupported file type: .${ext}. Allowed: CSV, Excel, PDF` };
+  }
+
+  // Check MIME type if available (some browsers may not provide it)
+  if (file.type && ALLOWED_MIME_TYPES[ext]) {
+    const expectedTypes = ALLOWED_MIME_TYPES[ext];
+    // Allow empty type as some browsers don't report it correctly
+    if (file.type !== '' && !expectedTypes.includes(file.type)) {
+      console.warn(`MIME type mismatch for ${file.name}: expected ${expectedTypes.join('/')}, got ${file.type}`);
+      // Continue anyway since extension matched - MIME types can be unreliable
+    }
+  }
+
+  return { valid: true, ext };
+}
+
 // Handle uploaded files
 async function handleFiles(files) {
   const modal = document.querySelector("[data-import-modal]");
@@ -6185,26 +6534,48 @@ async function handleFiles(files) {
     // File size validation
     if (file.size > MAX_IMPORT_FILE_SIZE) {
       updateProgress(100, `File ${escapeHtml(file.name)} exceeds 10MB limit. Please use a smaller file.`);
+      showNotification(`File too large: ${file.name}`, 'error');
+      continue;
+    }
+
+    // File type validation
+    const typeValidation = validateFileType(file);
+    if (!typeValidation.valid) {
+      updateProgress(100, typeValidation.error);
+      showNotification(typeValidation.error, 'error');
       continue;
     }
 
     try {
-      const ext = file.name.split(".").pop().toLowerCase();
       let transactions = [];
 
-      if (ext === "csv") {
+      if (typeValidation.ext === "csv") {
         transactions = await parseCSV(file);
-      } else if (ext === "xlsx" || ext === "xls") {
+      } else if (typeValidation.ext === "xlsx" || typeValidation.ext === "xls") {
         transactions = await parseExcel(file);
-      } else if (ext === "pdf") {
+      } else if (typeValidation.ext === "pdf") {
         transactions = await parsePDF(file);
+      }
+
+      // Limit transaction count to prevent memory issues
+      if (transactions.length > MAX_TRANSACTIONS_PER_IMPORT) {
+        showNotification(`File contains ${transactions.length} transactions. Limiting to first ${MAX_TRANSACTIONS_PER_IMPORT}.`, 'warning');
+        transactions = transactions.slice(0, MAX_TRANSACTIONS_PER_IMPORT);
       }
 
       importedTransactions = importedTransactions.concat(transactions);
 
+      // Check total transaction count
+      if (importedTransactions.length > MAX_TRANSACTIONS_PER_IMPORT) {
+        showNotification(`Total transactions exceed limit. Truncating to ${MAX_TRANSACTIONS_PER_IMPORT}.`, 'warning');
+        importedTransactions = importedTransactions.slice(0, MAX_TRANSACTIONS_PER_IMPORT);
+        break;
+      }
+
     } catch (error) {
       console.error("Error parsing file:", error);
       updateProgress(100, `Error parsing ${escapeHtml(file.name)}: ${escapeHtml(error.message)}`);
+      showNotification(`Error parsing file: ${error.message}`, 'error');
     }
   }
 
@@ -6281,24 +6652,56 @@ async function parseCSV(file) {
   });
 }
 
-// Parse CSV line handling quoted values
-function parseCSVLine(line) {
+// Parse CSV line handling quoted values and escaped quotes (RFC 4180 compliant)
+function parseCSVLine(line, maxFieldLength = 10000) {
+  if (!line || typeof line !== 'string') return [];
+
+  // Limit line length to prevent DoS
+  if (line.length > 100000) {
+    console.warn('CSV line too long, truncating');
+    line = line.substring(0, 100000);
+  }
+
   const result = [];
   let current = "";
   let inQuotes = false;
+  let i = 0;
 
-  for (let i = 0; i < line.length; i++) {
+  while (i < line.length) {
     const char = line[i];
-    if (char === '"') {
-      inQuotes = !inQuotes;
-    } else if (char === "," && !inQuotes) {
-      result.push(current);
-      current = "";
+
+    if (inQuotes) {
+      if (char === '"') {
+        // Check for escaped quote (double quote)
+        if (i + 1 < line.length && line[i + 1] === '"') {
+          current += '"';
+          i += 2;
+          continue;
+        } else {
+          // End of quoted field
+          inQuotes = false;
+          i++;
+          continue;
+        }
+      } else {
+        current += char;
+      }
     } else {
-      current += char;
+      if (char === '"') {
+        inQuotes = true;
+      } else if (char === ',' || char === '\t') {
+        // Trim and limit field length
+        result.push(current.trim().substring(0, maxFieldLength));
+        current = "";
+      } else if (char !== '\r') {
+        current += char;
+      }
     }
+    i++;
   }
-  result.push(current);
+
+  // Add the last field
+  result.push(current.trim().substring(0, maxFieldLength));
   return result;
 }
 
@@ -6345,7 +6748,7 @@ function extractTransaction(row, format) {
   const parsedDate = parseDate(date);
 
   return {
-    id: Math.random().toString(36).substr(2, 9),
+    id: generateSecureId('tx'),
     date: parsedDate,
     description: desc,
     amount: amount,
@@ -6518,7 +6921,7 @@ function extractTransactionsFromText(text) {
     const dateStr = lineDates ? lineDates[0] : (dates[idx] || null);
 
     transactions.push({
-      id: Math.random().toString(36).substr(2, 9),
+      id: generateSecureId('pdf'),
       date: parseDate(dateStr),
       description: desc.substring(0, 100),
       amount: amount,
@@ -6716,7 +7119,7 @@ function applyImportedTransactions() {
   const selectedTx = importedTransactions.filter((tx) => tx.selected && tx.category && tx.type === "expense");
 
   if (selectedTx.length === 0) {
-    alert("Please select transactions with categories to apply.");
+    showNotification("Please select transactions with categories to apply.", "warning");
     return;
   }
 
@@ -6762,7 +7165,7 @@ function applyImportedTransactions() {
   closeImportModal();
 
   // Show confirmation
-  alert(`Successfully imported ${selectedTx.length} transactions into your budget!`);
+  showNotification(`Successfully imported ${selectedTx.length} transactions into your budget!`, "success");
 }
 
 // Close import modal
@@ -6853,7 +7256,7 @@ function saveBills(bills) {
 }
 
 function generateBillId() {
-  return "bill_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+  return generateSecureId('bill');
 }
 
 function getBillDueDate(bill, month, year) {
@@ -7057,11 +7460,13 @@ function markBillAsPaid(billId) {
   }
 }
 
-function deleteBill(billId) {
-  if (!confirm("Delete this bill?")) return;
+async function deleteBill(billId) {
+  const confirmed = await showConfirmation("Are you sure you want to delete this bill?", "Delete Bill", "Delete", "Cancel");
+  if (!confirmed) return;
   const bills = loadBills().filter(b => b.id !== billId);
   saveBills(bills);
   updateBillsUI();
+  showNotification("Bill deleted successfully", "success");
 }
 
 function openBillModal(billId = null) {
@@ -7106,7 +7511,7 @@ function saveBillFromForm() {
   const frequency = document.querySelector("[data-bill-frequency]").value;
 
   if (!name || amount <= 0 || dueDay < 1 || dueDay > 31) {
-    alert("Please fill in all required fields correctly.");
+    showNotification("Please fill in all required fields correctly.", "warning");
     return;
   }
 
@@ -7229,7 +7634,7 @@ function saveDebts(debts) {
 }
 
 function generateDebtId() {
-  return "debt_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+  return generateSecureId('debt');
 }
 
 function calculateDebtPayoff(debts, strategy, extraPayment = 0) {
@@ -7533,7 +7938,7 @@ function saveDebtFromForm() {
   const category = document.querySelector("[data-debt-category]").value;
 
   if (!name || balance <= 0 || minPayment <= 0) {
-    alert("Please fill in all required fields correctly.");
+    showNotification("Please fill in all required fields correctly.", "warning");
     return;
   }
 
@@ -7560,11 +7965,13 @@ function saveDebtFromForm() {
   updateDebtsUI();
 }
 
-function deleteDebt(debtId) {
-  if (!confirm("Delete this debt?")) return;
+async function deleteDebt(debtId) {
+  const confirmed = await showConfirmation("Are you sure you want to delete this debt?", "Delete Debt", "Delete", "Cancel");
+  if (!confirmed) return;
   const debts = loadDebts().filter(d => d.id !== debtId);
   saveDebts(debts);
   updateDebtsUI();
+  showNotification("Debt deleted successfully", "success");
 }
 
 function updateDebtsUI() {
@@ -7644,7 +8051,7 @@ function saveTransactions(transactions) {
 }
 
 function generateTransactionId() {
-  return "txn_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+  return generateSecureId('txn');
 }
 
 function addTransaction(transaction) {
@@ -7738,9 +8145,11 @@ function renderTransactionsList(filterCategory = "all") {
 
   // Attach delete handlers
   container.querySelectorAll("[data-delete-txn]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (confirm("Delete this transaction?")) {
+    btn.addEventListener("click", async () => {
+      const confirmed = await showConfirmation("Are you sure you want to delete this transaction?", "Delete Transaction", "Delete", "Cancel");
+      if (confirmed) {
         deleteTransaction(btn.getAttribute("data-delete-txn"));
+        showNotification("Transaction deleted successfully", "success");
       }
     });
   });
@@ -7778,7 +8187,7 @@ function initTransactions() {
     const description = document.querySelector("[data-txn-description]")?.value?.trim() || "";
 
     if (amount <= 0) {
-      alert("Please enter a valid amount");
+      showNotification("Please enter a valid amount", "warning");
       return;
     }
 
@@ -8087,7 +8496,7 @@ function saveIncomeSources(sources) {
 }
 
 function generateIncomeId() {
-  return "income_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+  return generateSecureId('income');
 }
 
 function calculateDiversificationScore(sources) {
@@ -8163,9 +8572,11 @@ function renderIncomeSources() {
 
   // Attach delete handlers
   container.querySelectorAll("[data-delete-income]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (confirm("Remove this income source?")) {
+    btn.addEventListener("click", async () => {
+      const confirmed = await showConfirmation("Are you sure you want to remove this income source?", "Remove Income Source", "Remove", "Cancel");
+      if (confirmed) {
         deleteIncomeSource(btn.getAttribute("data-delete-income"));
+        showNotification("Income source removed", "success");
       }
     });
   });
@@ -8241,7 +8652,7 @@ function saveIncomeFromForm() {
   const taxable = document.querySelector("[data-income-taxable]").checked;
 
   if (!name || monthlyAmount <= 0) {
-    alert("Please fill in all required fields.");
+    showNotification("Please fill in all required fields.", "warning");
     return;
   }
 
@@ -8547,7 +8958,7 @@ function saveHouseholdMembers(members) {
 }
 
 function generateMemberId() {
-  return "member_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+  return generateSecureId('member');
 }
 
 function loadSharedExpenses() {
@@ -8564,7 +8975,7 @@ function saveSharedExpenses(expenses) {
 }
 
 function generateSharedExpenseId() {
-  return "shexp_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+  return generateSecureId('shexp');
 }
 
 function loadSharedGoals() {
@@ -8581,7 +8992,7 @@ function saveSharedGoals(goals) {
 }
 
 function generateSharedGoalId() {
-  return "shgoal_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+  return generateSecureId('shgoal');
 }
 
 function loadSettlements() {
@@ -8639,9 +9050,11 @@ function renderHouseholdMembers() {
 
   // Attach remove handlers
   container.querySelectorAll("[data-remove-member]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (confirm("Remove this household member?")) {
+    btn.addEventListener("click", async () => {
+      const confirmed = await showConfirmation("Are you sure you want to remove this household member?", "Remove Member", "Remove", "Cancel");
+      if (confirmed) {
         removeMember(btn.getAttribute("data-remove-member"));
+        showNotification("Household member removed", "success");
       }
     });
   });
@@ -8692,7 +9105,7 @@ function saveMemberFromForm() {
   const relationship = document.querySelector("[data-member-relationship]")?.value || "partner";
 
   if (!name) {
-    alert("Please enter a name");
+    showNotification("Please enter a name", "warning");
     return;
   }
 
@@ -8815,9 +9228,11 @@ function renderSharedExpenses() {
 
   // Attach delete handlers
   container.querySelectorAll("[data-delete-expense]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (confirm("Remove this shared expense?")) {
+    btn.addEventListener("click", async () => {
+      const confirmed = await showConfirmation("Are you sure you want to remove this shared expense?", "Remove Expense", "Remove", "Cancel");
+      if (confirmed) {
         deleteSharedExpense(btn.getAttribute("data-delete-expense"));
+        showNotification("Shared expense removed", "success");
       }
     });
   });
@@ -8862,7 +9277,7 @@ function saveSharedExpenseFromForm() {
   const frequency = document.querySelector("[data-shared-frequency]")?.value || "monthly";
 
   if (!name || amount <= 0) {
-    alert("Please fill in all required fields");
+    showNotification("Please fill in all required fields", "warning");
     return;
   }
 
@@ -8953,9 +9368,11 @@ function renderSharedGoals() {
 
   // Attach delete handlers
   container.querySelectorAll("[data-delete-goal]").forEach(btn => {
-    btn.addEventListener("click", () => {
-      if (confirm("Remove this shared goal?")) {
+    btn.addEventListener("click", async () => {
+      const confirmed = await showConfirmation("Are you sure you want to remove this shared goal?", "Remove Goal", "Remove", "Cancel");
+      if (confirmed) {
         deleteSharedGoal(btn.getAttribute("data-delete-goal"));
+        showNotification("Shared goal removed", "success");
       }
     });
   });
@@ -8982,7 +9399,7 @@ function saveSharedGoalFromForm() {
   const partnerContrib = parseFloat(document.querySelector("[data-goal-partner-contrib]")?.value) || 0;
 
   if (!name || target <= 0) {
-    alert("Please enter a goal name and target amount");
+    showNotification("Please enter a goal name and target amount", "warning");
     return;
   }
 
@@ -9232,7 +9649,9 @@ function copyReport() {
   const content = document.querySelector("[data-report-preview]")?.textContent;
   if (content) {
     navigator.clipboard.writeText(content).then(() => {
-      alert("Report copied to clipboard!");
+      showNotification("Report copied to clipboard!", "success");
+    }).catch(() => {
+      showNotification("Failed to copy to clipboard", "error");
     });
   }
 }

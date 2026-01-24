@@ -1868,7 +1868,26 @@
                 <div class="health-score-info">
                   <h2>Your Financial Health Score</h2>
                   <p class="health-status" data-health-status>Getting started</p>
+                  <div class="score-trend" data-score-trend>
+                    <!-- Trend indicator populated by JS -->
+                  </div>
                   <p class="muted">Based on 5 key financial pillars. Updated as you enter your details.</p>
+                </div>
+              </div>
+
+              <!-- Year on Year Comparison -->
+              <div class="yoy-section" data-yoy-comparison>
+                <!-- Populated by JavaScript -->
+              </div>
+
+              <!-- Score History Chart -->
+              <div class="score-history-section">
+                <div class="score-history-header">
+                  <h3>Score History</h3>
+                  <div class="milestones-row" data-milestones></div>
+                </div>
+                <div class="score-chart-container" data-score-chart>
+                  <p class="chart-empty">Score history will appear as you track over time</p>
                 </div>
               </div>
 
@@ -1878,6 +1897,7 @@
                   <div class="pillar-header">
                     <span class="pillar-icon">🛡️</span>
                     <span class="pillar-name">Emergency Buffer</span>
+                    <span class="pillar-trend" data-pillar-trend="emergency"></span>
                     <span class="pillar-score" data-pillar-score="emergency">0/25</span>
                   </div>
                   <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="emergency"></div></div>
@@ -1887,6 +1907,7 @@
                   <div class="pillar-header">
                     <span class="pillar-icon">📊</span>
                     <span class="pillar-name">Debt-to-Income</span>
+                    <span class="pillar-trend" data-pillar-trend="debt"></span>
                     <span class="pillar-score" data-pillar-score="debt">0/25</span>
                   </div>
                   <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="debt"></div></div>
@@ -1896,6 +1917,7 @@
                   <div class="pillar-header">
                     <span class="pillar-icon">💰</span>
                     <span class="pillar-name">Savings Rate</span>
+                    <span class="pillar-trend" data-pillar-trend="savings"></span>
                     <span class="pillar-score" data-pillar-score="savings">0/20</span>
                   </div>
                   <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="savings"></div></div>
@@ -1905,6 +1927,7 @@
                   <div class="pillar-header">
                     <span class="pillar-icon">💳</span>
                     <span class="pillar-name">Credit Utilization</span>
+                    <span class="pillar-trend" data-pillar-trend="credit"></span>
                     <span class="pillar-score" data-pillar-score="credit">0/15</span>
                   </div>
                   <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="credit"></div></div>
@@ -1914,6 +1937,7 @@
                   <div class="pillar-header">
                     <span class="pillar-icon">🏥</span>
                     <span class="pillar-name">Protection Cover</span>
+                    <span class="pillar-trend" data-pillar-trend="protection"></span>
                     <span class="pillar-score" data-pillar-score="protection">0/15</span>
                   </div>
                   <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="protection"></div></div>

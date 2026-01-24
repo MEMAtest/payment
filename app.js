@@ -8514,6 +8514,809 @@ function initSpendingForecast() {
 // END PHASE 2 FEATURES
 // ============================================================
 
+// ============================================================
+// PHASE 3: HOUSEHOLD & SHARING
+// ============================================================
+
+const HOUSEHOLD_MEMBERS_KEY = "consumerpay_household_members_v1";
+const SHARED_EXPENSES_KEY = "consumerpay_shared_expenses_v1";
+const SHARED_GOALS_KEY = "consumerpay_shared_goals_v1";
+const SETTLEMENTS_KEY = "consumerpay_settlements_v1";
+
+const EXPENSE_ICONS = {
+  housing: "🏠",
+  utilities: "⚡",
+  groceries: "🛒",
+  subscriptions: "📺",
+  transport: "🚗",
+  dining: "🍽️",
+  other: "📄"
+};
+
+function loadHouseholdMembers() {
+  try {
+    const stored = localStorage.getItem(HOUSEHOLD_MEMBERS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveHouseholdMembers(members) {
+  localStorage.setItem(HOUSEHOLD_MEMBERS_KEY, JSON.stringify(members));
+}
+
+function generateMemberId() {
+  return "member_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+}
+
+function loadSharedExpenses() {
+  try {
+    const stored = localStorage.getItem(SHARED_EXPENSES_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveSharedExpenses(expenses) {
+  localStorage.setItem(SHARED_EXPENSES_KEY, JSON.stringify(expenses));
+}
+
+function generateSharedExpenseId() {
+  return "shexp_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+}
+
+function loadSharedGoals() {
+  try {
+    const stored = localStorage.getItem(SHARED_GOALS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveSharedGoals(goals) {
+  localStorage.setItem(SHARED_GOALS_KEY, JSON.stringify(goals));
+}
+
+function generateSharedGoalId() {
+  return "shgoal_" + Date.now() + "_" + Math.random().toString(36).substr(2, 9);
+}
+
+function loadSettlements() {
+  try {
+    const stored = localStorage.getItem(SETTLEMENTS_KEY);
+    return stored ? JSON.parse(stored) : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+function saveSettlements(settlements) {
+  localStorage.setItem(SETTLEMENTS_KEY, JSON.stringify(settlements));
+}
+
+// Household Members UI
+function renderHouseholdMembers() {
+  const container = document.querySelector("[data-members-list]");
+  if (!container) return;
+
+  const members = loadHouseholdMembers();
+  const yourIncome = state.income || 0;
+  const yourName = state.name || "You";
+
+  let html = `
+    <div class="member-item you">
+      <div class="member-avatar">👤</div>
+      <div class="member-info">
+        <span class="member-name">${escapeHtml(yourName)}</span>
+        <span class="member-role">Primary</span>
+      </div>
+      <div class="member-contribution">${formatCurrency(yourIncome)}/month</div>
+    </div>
+  `;
+
+  members.forEach(member => {
+    html += `
+      <div class="member-item" data-member-id="${escapeHtml(member.id)}">
+        <div class="member-avatar">${member.relationship === "partner" ? "💑" : member.relationship === "family" ? "👨‍👩‍👧" : "🏠"}</div>
+        <div class="member-info">
+          <span class="member-name">${escapeHtml(member.name)}</span>
+          <span class="member-role">${escapeHtml(member.relationship)}</span>
+        </div>
+        <div class="member-contribution">${formatCurrency(member.contribution)}/month</div>
+        <button class="btn ghost small" type="button" data-remove-member="${escapeHtml(member.id)}">×</button>
+      </div>
+    `;
+  });
+
+  if (members.length === 0) {
+    html += '<p class="muted add-member-prompt">Add a partner or housemate to split bills and track shared expenses</p>';
+  }
+
+  container.innerHTML = html;
+
+  // Attach remove handlers
+  container.querySelectorAll("[data-remove-member]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (confirm("Remove this household member?")) {
+        removeMember(btn.getAttribute("data-remove-member"));
+      }
+    });
+  });
+}
+
+function updateHouseholdSummary() {
+  const members = loadHouseholdMembers();
+  const yourIncome = state.income || 0;
+  const memberIncome = members.reduce((sum, m) => sum + (m.contribution || 0), 0);
+  const combinedIncome = yourIncome + memberIncome;
+
+  const sharedExpenses = loadSharedExpenses();
+  const totalShared = sharedExpenses.reduce((sum, e) => sum + (e.amount || 0), 0);
+
+  const yourNetWorth = calculateTotalAssets() - calculateTotalLiabilities();
+
+  document.querySelector("[data-household-income]").textContent = formatCurrency(combinedIncome);
+  document.querySelector("[data-household-expenses]").textContent = formatCurrency(totalShared);
+  document.querySelector("[data-household-networth]").textContent = formatCurrency(yourNetWorth);
+
+  // Update paid by dropdown
+  const paidBySelect = document.querySelector("[data-shared-paid-by]");
+  if (paidBySelect) {
+    const yourName = state.name || "You";
+    paidBySelect.innerHTML = `<option value="you">${escapeHtml(yourName)}</option>`;
+    members.forEach(m => {
+      paidBySelect.innerHTML += `<option value="${escapeHtml(m.id)}">${escapeHtml(m.name)}</option>`;
+    });
+  }
+}
+
+function openMemberModal() {
+  const modal = document.querySelector("[data-member-modal]");
+  if (modal) {
+    document.querySelector("[data-member-form]")?.reset();
+    modal.hidden = false;
+  }
+}
+
+function closeMemberModal() {
+  const modal = document.querySelector("[data-member-modal]");
+  if (modal) modal.hidden = true;
+}
+
+function saveMemberFromForm() {
+  const name = document.querySelector("[data-member-name]")?.value?.trim();
+  const contribution = parseFloat(document.querySelector("[data-member-contribution]")?.value) || 0;
+  const relationship = document.querySelector("[data-member-relationship]")?.value || "partner";
+
+  if (!name) {
+    alert("Please enter a name");
+    return;
+  }
+
+  const members = loadHouseholdMembers();
+  members.push({
+    id: generateMemberId(),
+    name,
+    contribution,
+    relationship
+  });
+
+  saveHouseholdMembers(members);
+  closeMemberModal();
+  updateHouseholdUI();
+}
+
+function removeMember(id) {
+  const members = loadHouseholdMembers().filter(m => m.id !== id);
+  saveHouseholdMembers(members);
+  updateHouseholdUI();
+}
+
+// Shared Expenses UI
+function calculateSplitBalance() {
+  const expenses = loadSharedExpenses();
+  const members = loadHouseholdMembers();
+
+  let youOwe = 0;
+  let youAreOwed = 0;
+
+  expenses.forEach(expense => {
+    const yourShare = expense.amount / 2; // Simple 50/50 for now
+
+    if (expense.paidBy === "you") {
+      youAreOwed += yourShare;
+    } else {
+      youOwe += yourShare;
+    }
+  });
+
+  const net = youAreOwed - youOwe;
+
+  return { youOwe, youAreOwed, net };
+}
+
+function renderSplitSummary() {
+  const container = document.querySelector("[data-split-summary]");
+  if (!container) return;
+
+  const balance = calculateSplitBalance();
+  const members = loadHouseholdMembers();
+
+  if (members.length === 0) {
+    container.innerHTML = `
+      <div class="split-balance">
+        <span class="balance-status">Add household members to split expenses</span>
+      </div>
+    `;
+    return;
+  }
+
+  let status, statusClass;
+  if (Math.abs(balance.net) < 1) {
+    status = "All settled up";
+    statusClass = "settled";
+  } else if (balance.net > 0) {
+    status = `You are owed ${formatCurrency(balance.net)}`;
+    statusClass = "owed";
+  } else {
+    status = `You owe ${formatCurrency(Math.abs(balance.net))}`;
+    statusClass = "owes";
+  }
+
+  container.innerHTML = `
+    <div class="split-balance">
+      <span class="balance-status ${statusClass}">${status}</span>
+    </div>
+  `;
+
+  // Show/hide settle up button
+  const settleBtn = document.querySelector("[data-settle-up]");
+  if (settleBtn) {
+    settleBtn.hidden = Math.abs(balance.net) < 1;
+  }
+}
+
+function renderSharedExpenses() {
+  const container = document.querySelector("[data-shared-expenses]");
+  if (!container) return;
+
+  const expenses = loadSharedExpenses();
+  const members = loadHouseholdMembers();
+
+  if (expenses.length === 0) {
+    container.innerHTML = '<p class="muted">No shared expenses yet. Add your first shared expense to start splitting bills.</p>';
+    return;
+  }
+
+  container.innerHTML = expenses.map(expense => {
+    const icon = EXPENSE_ICONS[expense.category] || "📄";
+    const paidByName = expense.paidBy === "you" ? (state.name || "You") :
+      members.find(m => m.id === expense.paidBy)?.name || "Unknown";
+    const yourShare = expense.amount / 2;
+
+    return `
+      <div class="shared-expense-item" data-expense-id="${escapeHtml(expense.id)}">
+        <div class="expense-icon ${escapeHtml(expense.category)}">${escapeHtml(icon)}</div>
+        <div class="expense-info">
+          <h4>${escapeHtml(expense.name)}</h4>
+          <div class="expense-meta">Paid by ${escapeHtml(paidByName)} • ${escapeHtml(expense.frequency)}</div>
+        </div>
+        <div class="expense-amount">
+          <div class="expense-total">${formatCurrency(expense.amount)}</div>
+          <div class="expense-split">Your share: ${formatCurrency(yourShare)}</div>
+        </div>
+        <button class="btn ghost small" type="button" data-delete-expense="${escapeHtml(expense.id)}">×</button>
+      </div>
+    `;
+  }).join("");
+
+  // Attach delete handlers
+  container.querySelectorAll("[data-delete-expense]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (confirm("Remove this shared expense?")) {
+        deleteSharedExpense(btn.getAttribute("data-delete-expense"));
+      }
+    });
+  });
+}
+
+function openSharedExpenseModal(preset = null) {
+  const modal = document.querySelector("[data-shared-expense-modal]");
+  const form = document.querySelector("[data-shared-expense-form]");
+  if (!modal || !form) return;
+
+  form.reset();
+
+  if (preset) {
+    const presets = {
+      rent: { name: "Monthly Rent/Mortgage", category: "housing", amount: "" },
+      utilities: { name: "Utilities (Energy, Water, Internet)", category: "utilities", amount: "" },
+      groceries: { name: "Weekly Groceries", category: "groceries", amount: "" },
+      streaming: { name: "Streaming Services", category: "subscriptions", amount: "" }
+    };
+
+    const p = presets[preset];
+    if (p) {
+      document.querySelector("[data-shared-name]").value = p.name;
+      document.querySelector("[data-shared-category]").value = p.category;
+    }
+  }
+
+  modal.hidden = false;
+}
+
+function closeSharedExpenseModal() {
+  const modal = document.querySelector("[data-shared-expense-modal]");
+  if (modal) modal.hidden = true;
+}
+
+function saveSharedExpenseFromForm() {
+  const name = document.querySelector("[data-shared-name]")?.value?.trim();
+  const amount = parseFloat(document.querySelector("[data-shared-amount]")?.value) || 0;
+  const category = document.querySelector("[data-shared-category]")?.value || "other";
+  const splitType = document.querySelector("[data-shared-split-type]")?.value || "equal";
+  const paidBy = document.querySelector("[data-shared-paid-by]")?.value || "you";
+  const frequency = document.querySelector("[data-shared-frequency]")?.value || "monthly";
+
+  if (!name || amount <= 0) {
+    alert("Please fill in all required fields");
+    return;
+  }
+
+  const expenses = loadSharedExpenses();
+  expenses.push({
+    id: generateSharedExpenseId(),
+    name,
+    amount,
+    category,
+    splitType,
+    paidBy,
+    frequency,
+    createdAt: new Date().toISOString()
+  });
+
+  saveSharedExpenses(expenses);
+  closeSharedExpenseModal();
+  updateSharedExpensesUI();
+}
+
+function deleteSharedExpense(id) {
+  const expenses = loadSharedExpenses().filter(e => e.id !== id);
+  saveSharedExpenses(expenses);
+  updateSharedExpensesUI();
+}
+
+function updateSharedExpensesUI() {
+  renderSplitSummary();
+  renderSharedExpenses();
+  updateHouseholdSummary();
+}
+
+// Shared Goals UI
+function renderSharedGoals() {
+  const container = document.querySelector("[data-shared-goals]");
+  if (!container) return;
+
+  const goals = loadSharedGoals();
+
+  if (goals.length === 0) {
+    container.innerHTML = `
+      <div class="shared-goal-placeholder">
+        <div class="goal-icon">🎯</div>
+        <p>Create shared goals like holiday funds, home improvements, or emergency savings</p>
+        <button class="btn secondary" type="button" data-add-shared-goal>Create First Goal</button>
+      </div>
+    `;
+
+    container.querySelector("[data-add-shared-goal]")?.addEventListener("click", openSharedGoalModal);
+    return;
+  }
+
+  container.innerHTML = goals.map(goal => {
+    const totalContrib = (goal.yourContrib || 0) + (goal.partnerContrib || 0);
+    const monthsToGoal = totalContrib > 0 ? Math.ceil((goal.target - (goal.saved || 0)) / totalContrib) : 0;
+    const progress = goal.target > 0 ? Math.min(100, ((goal.saved || 0) / goal.target) * 100) : 0;
+
+    return `
+      <div class="shared-goal-item" data-goal-id="${escapeHtml(goal.id)}">
+        <div class="goal-header">
+          <div class="goal-title">
+            <span class="goal-emoji">🎯</span>
+            <h4>${escapeHtml(goal.name)}</h4>
+          </div>
+          <div class="goal-target">
+            <span class="target-amount">${formatCurrency(goal.target)}</span>
+            ${goal.targetDate ? `<span class="target-date">by ${new Date(goal.targetDate).toLocaleDateString("en-GB", { month: "short", year: "numeric" })}</span>` : ""}
+          </div>
+        </div>
+        <div class="goal-progress-bar">
+          <span class="progress-fill" style="width: ${progress}%"></span>
+        </div>
+        <div class="goal-contributions">
+          <div class="contribution">
+            <span class="contribution-avatar">👤</span>
+            <span class="contribution-amount">${formatCurrency(goal.yourContrib || 0)}/month</span>
+          </div>
+          <div class="contribution">
+            <span class="contribution-avatar">💑</span>
+            <span class="contribution-amount">${formatCurrency(goal.partnerContrib || 0)}/month</span>
+          </div>
+          <span class="muted">${monthsToGoal > 0 ? `${monthsToGoal} months to go` : ""}</span>
+        </div>
+        <button class="btn ghost small" type="button" data-delete-goal="${escapeHtml(goal.id)}" style="margin-top:12px">Remove Goal</button>
+      </div>
+    `;
+  }).join("");
+
+  // Attach delete handlers
+  container.querySelectorAll("[data-delete-goal]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      if (confirm("Remove this shared goal?")) {
+        deleteSharedGoal(btn.getAttribute("data-delete-goal"));
+      }
+    });
+  });
+}
+
+function openSharedGoalModal() {
+  const modal = document.querySelector("[data-shared-goal-modal]");
+  if (modal) {
+    document.querySelector("[data-shared-goal-form]")?.reset();
+    modal.hidden = false;
+  }
+}
+
+function closeSharedGoalModal() {
+  const modal = document.querySelector("[data-shared-goal-modal]");
+  if (modal) modal.hidden = true;
+}
+
+function saveSharedGoalFromForm() {
+  const name = document.querySelector("[data-goal-name]")?.value?.trim();
+  const target = parseFloat(document.querySelector("[data-goal-target]")?.value) || 0;
+  const targetDate = document.querySelector("[data-goal-date]")?.value || null;
+  const yourContrib = parseFloat(document.querySelector("[data-goal-your-contrib]")?.value) || 0;
+  const partnerContrib = parseFloat(document.querySelector("[data-goal-partner-contrib]")?.value) || 0;
+
+  if (!name || target <= 0) {
+    alert("Please enter a goal name and target amount");
+    return;
+  }
+
+  const goals = loadSharedGoals();
+  goals.push({
+    id: generateSharedGoalId(),
+    name,
+    target,
+    targetDate,
+    yourContrib,
+    partnerContrib,
+    saved: 0,
+    createdAt: new Date().toISOString()
+  });
+
+  saveSharedGoals(goals);
+  closeSharedGoalModal();
+  renderSharedGoals();
+}
+
+function deleteSharedGoal(id) {
+  const goals = loadSharedGoals().filter(g => g.id !== id);
+  saveSharedGoals(goals);
+  renderSharedGoals();
+}
+
+// Settlement
+function settleUp() {
+  const balance = calculateSplitBalance();
+  if (Math.abs(balance.net) < 1) return;
+
+  const settlements = loadSettlements();
+  settlements.unshift({
+    date: new Date().toISOString(),
+    amount: Math.abs(balance.net),
+    direction: balance.net > 0 ? "received" : "paid"
+  });
+
+  saveSettlements(settlements.slice(0, 20)); // Keep last 20
+
+  // Clear shared expenses (mark as settled)
+  saveSharedExpenses([]);
+
+  updateSharedExpensesUI();
+  renderSettlementHistory();
+}
+
+function renderSettlementHistory() {
+  const container = document.querySelector("[data-settlement-history]");
+  if (!container) return;
+
+  const settlements = loadSettlements();
+
+  if (settlements.length === 0) {
+    container.innerHTML = '<p class="muted">No settlements yet. Settle up when someone owes money.</p>';
+    return;
+  }
+
+  container.innerHTML = settlements.slice(0, 5).map(s => `
+    <div class="settlement-item">
+      <div class="settlement-info">
+        <span class="settlement-amount ${s.direction === "received" ? "positive" : "negative"}">
+          ${s.direction === "received" ? "+" : "-"}${formatCurrency(s.amount)}
+        </span>
+        <span class="settlement-date">${new Date(s.date).toLocaleDateString("en-GB")}</span>
+      </div>
+      <span class="muted">${s.direction === "received" ? "Received" : "Paid"}</span>
+    </div>
+  `).join("");
+}
+
+function updateHouseholdUI() {
+  renderHouseholdMembers();
+  updateHouseholdSummary();
+  updateSharedExpensesUI();
+  renderSharedGoals();
+  renderSettlementHistory();
+}
+
+// Financial Reports
+function generateReport(type) {
+  const now = new Date();
+  const monthName = now.toLocaleDateString("en-GB", { month: "long", year: "numeric" });
+
+  let title = "";
+  let content = "";
+
+  const income = state.income || 0;
+  const expenses = Object.entries(state.expenses)
+    .filter(([_, v]) => v > 0)
+    .map(([k, v]) => ({ category: k, amount: v }));
+  const totalExpenses = expenses.reduce((sum, e) => sum + e.amount, 0);
+  const surplus = income - totalExpenses;
+  const assets = calculateTotalAssets();
+  const liabilities = calculateTotalLiabilities();
+  const netWorth = assets - liabilities;
+
+  switch (type) {
+    case "monthly":
+      title = `Monthly Summary - ${monthName}`;
+      content = `
+MONTHLY FINANCIAL SUMMARY
+${monthName}
+${"=".repeat(40)}
+
+INCOME
+------
+Primary Salary:           ${formatCurrency(income)}
+${"─".repeat(40)}
+Total Income:             ${formatCurrency(income)}
+
+EXPENSES
+--------
+${expenses.map(e => `${e.category.padEnd(25)} ${formatCurrency(e.amount)}`).join("\n")}
+${"─".repeat(40)}
+Total Expenses:           ${formatCurrency(totalExpenses)}
+
+SUMMARY
+-------
+Monthly Surplus:          ${formatCurrency(surplus)}
+Savings Rate:             ${income > 0 ? ((surplus / income) * 100).toFixed(1) : 0}%
+
+Generated: ${now.toLocaleString("en-GB")}
+      `;
+      break;
+
+    case "annual":
+      title = "Annual Report - " + now.getFullYear();
+      content = `
+ANNUAL FINANCIAL REPORT
+Year: ${now.getFullYear()}
+${"=".repeat(40)}
+
+ANNUAL PROJECTIONS
+------------------
+Projected Annual Income:    ${formatCurrency(income * 12)}
+Projected Annual Expenses:  ${formatCurrency(totalExpenses * 12)}
+Projected Annual Savings:   ${formatCurrency(surplus * 12)}
+
+CURRENT POSITION
+----------------
+Net Worth:                  ${formatCurrency(netWorth)}
+Total Assets:               ${formatCurrency(assets)}
+Total Liabilities:          ${formatCurrency(liabilities)}
+
+KEY METRICS
+-----------
+Monthly Savings Rate:       ${income > 0 ? ((surplus / income) * 100).toFixed(1) : 0}%
+Debt to Income Ratio:       ${income > 0 ? ((liabilities / (income * 12)) * 100).toFixed(1) : 0}%
+
+Generated: ${now.toLocaleString("en-GB")}
+      `;
+      break;
+
+    case "tax":
+      const taxYear = now.getMonth() >= 3 ? `${now.getFullYear()}/${now.getFullYear() + 1}` : `${now.getFullYear() - 1}/${now.getFullYear()}`;
+      title = `Tax Year Summary - ${taxYear}`;
+      content = `
+TAX YEAR SUMMARY
+Tax Year: ${taxYear} (6 April - 5 April)
+${"=".repeat(40)}
+
+EMPLOYMENT INCOME
+-----------------
+Gross Annual Salary:        ${formatCurrency(state.annualSalary || income * 12)}
+
+DEDUCTIONS (ESTIMATED)
+----------------------
+Income Tax:                 Calculated via PAYE
+National Insurance:         Calculated via PAYE
+${state.pensionContrib ? "Pension Contributions:      5% of gross" : ""}
+${state.studentLoan ? "Student Loan Repayments:    Plan 2" : ""}
+
+NOTES
+-----
+- This is a summary for record-keeping
+- Consult HMRC for official tax calculations
+- Keep receipts for any tax-deductible expenses
+
+Generated: ${now.toLocaleString("en-GB")}
+      `;
+      break;
+
+    case "networth":
+      title = "Net Worth Statement";
+      content = `
+NET WORTH STATEMENT
+As of: ${now.toLocaleDateString("en-GB")}
+${"=".repeat(40)}
+
+ASSETS
+------
+Cash Savings:               ${formatCurrency(state.assets.cashSavings || 0)}
+Cash ISA:                   ${formatCurrency(state.assets.cashIsa || 0)}
+Stocks & Shares ISA:        ${formatCurrency(state.assets.stocksIsa || 0)}
+General Investments:        ${formatCurrency(state.assets.investments || 0)}
+Pension Value:              ${formatCurrency(state.assets.pension || 0)}
+Property Value:             ${formatCurrency(state.assets.property || 0)}
+Vehicle Value:              ${formatCurrency(state.assets.vehicle || 0)}
+Other Assets:               ${formatCurrency(state.assets.otherAssets || 0)}
+${"─".repeat(40)}
+TOTAL ASSETS:               ${formatCurrency(assets)}
+
+LIABILITIES
+-----------
+Mortgage:                   ${formatCurrency(state.liabilities.mortgage || 0)}
+Personal Loans:             ${formatCurrency(state.liabilities.personalLoans || 0)}
+Car Finance:                ${formatCurrency(state.liabilities.carFinance || 0)}
+Credit Cards:               ${formatCurrency(state.liabilities.creditCards || 0)}
+Overdraft:                  ${formatCurrency(state.liabilities.overdraft || 0)}
+Student Loan:               ${formatCurrency(state.liabilities.studentLoan || 0)}
+Other Debts:                ${formatCurrency(state.liabilities.otherDebts || 0)}
+${"─".repeat(40)}
+TOTAL LIABILITIES:          ${formatCurrency(liabilities)}
+
+${"=".repeat(40)}
+NET WORTH:                  ${formatCurrency(netWorth)}
+${"=".repeat(40)}
+
+Generated: ${now.toLocaleString("en-GB")}
+      `;
+      break;
+  }
+
+  showReportModal(title, content);
+}
+
+function showReportModal(title, content) {
+  const modal = document.querySelector("[data-report-modal]");
+  const titleEl = document.querySelector("[data-report-title]");
+  const previewEl = document.querySelector("[data-report-preview]");
+
+  if (!modal || !previewEl) return;
+
+  titleEl.textContent = title;
+  previewEl.textContent = content.trim();
+
+  modal.hidden = false;
+}
+
+function closeReportModal() {
+  const modal = document.querySelector("[data-report-modal]");
+  if (modal) modal.hidden = true;
+}
+
+function copyReport() {
+  const content = document.querySelector("[data-report-preview]")?.textContent;
+  if (content) {
+    navigator.clipboard.writeText(content).then(() => {
+      alert("Report copied to clipboard!");
+    });
+  }
+}
+
+function downloadReport() {
+  const title = document.querySelector("[data-report-title]")?.textContent || "Report";
+  const content = document.querySelector("[data-report-preview]")?.textContent;
+
+  if (!content) return;
+
+  const blob = new Blob([content], { type: "text/plain" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `${title.replace(/[^a-z0-9]/gi, "_")}.txt`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+}
+
+function initHousehold() {
+  // Member modal
+  document.querySelector("[data-add-member]")?.addEventListener("click", openMemberModal);
+  document.querySelectorAll("[data-close-member-modal]").forEach(btn => {
+    btn.addEventListener("click", closeMemberModal);
+  });
+  document.querySelector("[data-member-form]")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    saveMemberFromForm();
+  });
+
+  // Shared expense modal
+  document.querySelector("[data-add-shared-expense]")?.addEventListener("click", () => openSharedExpenseModal());
+  document.querySelectorAll("[data-close-shared-modal]").forEach(btn => {
+    btn.addEventListener("click", closeSharedExpenseModal);
+  });
+  document.querySelector("[data-shared-expense-form]")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    saveSharedExpenseFromForm();
+  });
+
+  // Preset buttons
+  document.querySelectorAll("[data-preset-expense]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      openSharedExpenseModal(btn.getAttribute("data-preset-expense"));
+    });
+  });
+
+  // Shared goals
+  document.querySelectorAll("[data-add-shared-goal]").forEach(btn => {
+    btn.addEventListener("click", openSharedGoalModal);
+  });
+  document.querySelectorAll("[data-close-goal-modal]").forEach(btn => {
+    btn.addEventListener("click", closeSharedGoalModal);
+  });
+  document.querySelector("[data-shared-goal-form]")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    saveSharedGoalFromForm();
+  });
+
+  // Settle up
+  document.querySelector("[data-settle-up]")?.addEventListener("click", settleUp);
+
+  // Reports
+  document.querySelectorAll("[data-generate-report]").forEach(option => {
+    option.querySelector("button")?.addEventListener("click", () => {
+      generateReport(option.getAttribute("data-generate-report"));
+    });
+  });
+  document.querySelectorAll("[data-close-report-modal]").forEach(btn => {
+    btn.addEventListener("click", closeReportModal);
+  });
+  document.querySelector("[data-copy-report]")?.addEventListener("click", copyReport);
+  document.querySelector("[data-download-report]")?.addEventListener("click", downloadReport);
+
+  // Initial render
+  updateHouseholdUI();
+}
+
+// ============================================================
+// END PHASE 3 FEATURES
+// ============================================================
+
 attachEventListeners();
 init();
 
@@ -8528,4 +9331,6 @@ document.addEventListener("DOMContentLoaded", () => {
   initSpendingLimits();
   initIncomeSources();
   initSpendingForecast();
+  // Phase 3
+  initHousehold();
 });

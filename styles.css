@@ -7393,3 +7393,606 @@ label.full-width input {
     width: 100%;
   }
 }
+
+/* ============================================================
+   PHASE 3: HOUSEHOLD & SHARING
+   ============================================================ */
+
+.household-setup {
+  margin-bottom: 24px;
+}
+
+.setup-header {
+  margin-bottom: 24px;
+}
+
+.setup-header h2 {
+  margin: 0 0 8px 0;
+}
+
+.members-card {
+  margin-bottom: 24px;
+}
+
+.members-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.members-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0;
+}
+
+.members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.member-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.member-item.you {
+  border-color: var(--primary);
+  background: rgba(37, 157, 145, 0.05);
+}
+
+.member-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}
+
+.member-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.member-name {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.member-role {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.member-contribution {
+  font-weight: 600;
+  color: var(--positive);
+}
+
+.add-member-prompt {
+  text-align: center;
+  padding: 20px;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+}
+
+.member-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.household-summary-card {
+  margin-bottom: 24px;
+}
+
+.household-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 16px;
+  background: var(--surface);
+  border-radius: 8px;
+}
+
+.stat-label {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.stat-value.positive { color: var(--positive); }
+.stat-value.negative { color: var(--negative); }
+
+/* Shared Expenses */
+.shared-expenses-card,
+.shared-goals-card {
+  margin-top: 24px;
+}
+
+.shared-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 20px;
+}
+
+.shared-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px 0;
+}
+
+.split-summary {
+  margin-bottom: 20px;
+}
+
+.split-balance {
+  display: flex;
+  justify-content: center;
+  padding: 16px;
+  background: var(--surface);
+  border-radius: 12px;
+}
+
+.balance-status {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.balance-status.settled {
+  color: var(--positive);
+}
+
+.balance-status.owes {
+  color: var(--negative);
+}
+
+.balance-status.owed {
+  color: var(--primary);
+}
+
+.shared-expenses-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.shared-expense-item {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.expense-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  background: var(--surface);
+}
+
+.expense-icon.housing { background: #e0e7ff; }
+.expense-icon.utilities { background: #dbeafe; }
+.expense-icon.groceries { background: #d1fae5; }
+.expense-icon.subscriptions { background: #fce7f3; }
+.expense-icon.transport { background: #fef3c7; }
+.expense-icon.dining { background: #fee2e2; }
+.expense-icon.other { background: #f3f4f6; }
+
+.expense-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+}
+
+.expense-meta {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.expense-amount {
+  text-align: right;
+}
+
+.expense-total {
+  font-weight: 700;
+  font-size: 16px;
+}
+
+.expense-split {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.expense-status {
+  min-width: 80px;
+  text-align: center;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.status-badge.settled {
+  background: rgba(72, 187, 120, 0.1);
+  color: var(--positive);
+}
+
+.status-badge.pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning, #f59e0b);
+}
+
+.split-presets {
+  padding: 20px;
+  background: var(--surface);
+  border-radius: 12px;
+}
+
+.split-presets h4 {
+  margin: 0 0 12px 0;
+  font-size: 14px;
+}
+
+.preset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.preset-btn {
+  padding: 8px 16px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: transparent;
+  cursor: pointer;
+  font-size: 14px;
+  transition: all 0.15s;
+}
+
+.preset-btn:hover {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+.shared-expense-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Shared Goals */
+.shared-goals-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.shared-goal-placeholder {
+  text-align: center;
+  padding: 40px 20px;
+  border: 2px dashed var(--border);
+  border-radius: 12px;
+}
+
+.shared-goal-placeholder .goal-icon {
+  font-size: 48px;
+  margin-bottom: 16px;
+}
+
+.shared-goal-placeholder p {
+  margin-bottom: 16px;
+  color: var(--muted);
+}
+
+.shared-goal-item {
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+}
+
+.goal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+}
+
+.goal-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.goal-title h4 {
+  margin: 0;
+}
+
+.goal-target {
+  text-align: right;
+}
+
+.goal-target .target-amount {
+  font-weight: 700;
+  font-size: 20px;
+}
+
+.goal-target .target-date {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+.goal-progress-bar {
+  height: 12px;
+  background: var(--border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.goal-progress-bar .progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--primary), #48bb78);
+  border-radius: 6px;
+  transition: width 0.3s;
+}
+
+.goal-contributions {
+  display: flex;
+  gap: 24px;
+}
+
+.contribution {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contribution-avatar {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+}
+
+.contribution-amount {
+  font-weight: 600;
+}
+
+.shared-goal-form {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+/* Settlement */
+.settlement-card {
+  margin-top: 24px;
+}
+
+.settlement-card h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.settlement-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.settlement-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 16px;
+  background: var(--surface);
+  border-radius: 8px;
+}
+
+.settlement-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.settlement-amount {
+  font-weight: 600;
+}
+
+.settlement-date {
+  font-size: 12px;
+  color: var(--muted);
+}
+
+/* Financial Reports */
+.reports-card {
+  margin-top: 24px;
+}
+
+.reports-header {
+  margin-bottom: 20px;
+}
+
+.reports-header h3 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 4px 0;
+}
+
+.reports-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.report-option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.15s;
+}
+
+.report-option:hover {
+  border-color: var(--primary);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+}
+
+.report-icon {
+  font-size: 32px;
+}
+
+.report-info {
+  flex: 1;
+}
+
+.report-info h4 {
+  margin: 0 0 4px 0;
+  font-size: 15px;
+}
+
+.report-info p {
+  margin: 0;
+  font-size: 13px;
+  color: var(--muted);
+}
+
+.report-modal-content {
+  max-width: 640px;
+}
+
+.report-preview {
+  padding: 24px;
+  max-height: 60vh;
+  overflow-y: auto;
+  background: var(--surface);
+  font-family: monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  border-radius: 8px;
+  margin: 0 24px;
+}
+
+.report-section {
+  margin-bottom: 24px;
+}
+
+.report-section h4 {
+  margin: 0 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+}
+
+.report-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+}
+
+.report-row.total {
+  font-weight: 700;
+  border-top: 2px solid var(--border);
+  margin-top: 8px;
+  padding-top: 12px;
+}
+
+/* Mobile Responsive for Phase 3 */
+@media (max-width: 768px) {
+  .household-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .shared-header {
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  .shared-expense-item {
+    grid-template-columns: auto 1fr;
+  }
+
+  .expense-amount,
+  .expense-status {
+    grid-column: 2;
+  }
+
+  .reports-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .report-option {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .goal-header {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .goal-target {
+    text-align: left;
+  }
+
+  .goal-contributions {
+    flex-direction: column;
+    gap: 8px;
+  }
+}

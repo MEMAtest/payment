@@ -2238,6 +2238,97 @@
                 </div>
               </div>
 
+              <!-- Smart Insights Section -->
+              <div class="insights-section">
+                <div class="insights-header">
+                  <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                    </svg>
+                    Smart Insights
+                  </h3>
+                  <p class="muted">How you compare to UK averages</p>
+                </div>
+
+                <!-- Peer Comparison Cards -->
+                <div class="peer-insights" data-peer-insights>
+                  <!-- Populated by JavaScript -->
+                </div>
+
+                <!-- Spending Trends -->
+                <div class="insights-subsection">
+                  <h4>Spending vs UK Average</h4>
+                  <div class="spending-trends" data-spending-trends>
+                    <!-- Populated by JavaScript -->
+                  </div>
+                </div>
+
+                <!-- Subscription Audit -->
+                <div class="insights-subsection">
+                  <h4>
+                    <span>Subscription Audit</span>
+                    <span class="sub-total" data-subscription-total></span>
+                  </h4>
+                  <div class="subscription-list" data-subscription-audit>
+                    <!-- Populated by JavaScript -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- What-If Calculator -->
+              <div class="whatif-section">
+                <div class="whatif-header">
+                  <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                    </svg>
+                    What If Calculator
+                  </h3>
+                  <p class="muted">See the impact of small changes</p>
+                </div>
+
+                <div class="whatif-controls">
+                  <div class="whatif-scenario-select">
+                    <label>Scenario</label>
+                    <select data-whatif-scenario>
+                      <option value="extraSavings">Save extra each month</option>
+                      <option value="debtPayoff">Pay extra on debt</option>
+                      <option value="emergencyRunway">Job loss runway</option>
+                      <option value="goalAcceleration">Accelerate goals</option>
+                    </select>
+                  </div>
+                  <div class="whatif-slider-wrap">
+                    <label>Amount: <span data-whatif-amount>£100</span></label>
+                    <input type="range" min="25" max="500" step="25" value="100" data-whatif-slider />
+                    <div class="slider-labels">
+                      <span>£25</span>
+                      <span>£500</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="whatif-results" data-whatif-results>
+                  <!-- Populated by JavaScript -->
+                </div>
+              </div>
+
+              <!-- Smart Tips -->
+              <div class="tips-section">
+                <div class="tips-header">
+                  <h3>
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M9 18h6"/><path d="M10 22h4"/>
+                      <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0018 8 6 6 0 006 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 018.91 14"/>
+                    </svg>
+                    Personalized Tips
+                  </h3>
+                  <p class="muted">Actions to improve your finances</p>
+                </div>
+                <div class="smart-tips" data-smart-tips>
+                  <!-- Populated by JavaScript -->
+                </div>
+              </div>
+
               <!-- Quick Profile Settings -->
               <div class="profile-settings">
                 <h3>Profile Settings</h3>

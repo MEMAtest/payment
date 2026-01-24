@@ -3117,6 +3117,9 @@ async function init() {
 
   // Initialize Visual Charts
   initVisualCharts();
+
+  // Initialize Gamification
+  initGamification();
 }
 
 // ============================================================
@@ -5315,6 +5318,644 @@ function updateVisualCharts() {
   if (emergencyGaugeEl) renderEmergencyGauge(emergencyGaugeEl);
   if (incomeExpenseEl) renderIncomeVsExpenses(incomeExpenseEl);
   if (netWorthChartEl) renderNetWorthChart(netWorthChartEl);
+}
+
+// ============================================================
+// GAMIFICATION & ACHIEVEMENTS
+// ============================================================
+
+const ACHIEVEMENTS_KEY = "consumerpay_achievements";
+const CHALLENGES_KEY = "consumerpay_challenges";
+
+// Badge definitions
+const BADGES = {
+  // Getting Started
+  profileComplete: {
+    id: "profileComplete",
+    name: "Profile Complete",
+    icon: "🎯",
+    description: "Filled in all your basic financial details",
+    category: "getting-started",
+    tier: "bronze"
+  },
+  firstImport: {
+    id: "firstImport",
+    name: "Statement Imported",
+    icon: "📄",
+    description: "Imported your first bank statement",
+    category: "getting-started",
+    tier: "bronze"
+  },
+  firstGoal: {
+    id: "firstGoal",
+    name: "Goal Setter",
+    icon: "🎯",
+    description: "Created your first savings goal",
+    category: "getting-started",
+    tier: "bronze"
+  },
+
+  // Savings Milestones
+  saved1k: {
+    id: "saved1k",
+    name: "First £1,000",
+    icon: "💰",
+    description: "Reached £1,000 in savings",
+    category: "savings",
+    tier: "bronze"
+  },
+  saved5k: {
+    id: "saved5k",
+    name: "£5K Saver",
+    icon: "💰",
+    description: "Reached £5,000 in savings",
+    category: "savings",
+    tier: "silver"
+  },
+  saved10k: {
+    id: "saved10k",
+    name: "Five Figures",
+    icon: "🌟",
+    description: "Reached £10,000 in savings",
+    category: "savings",
+    tier: "gold"
+  },
+  emergencyFund3: {
+    id: "emergencyFund3",
+    name: "Safety Net",
+    icon: "🛡️",
+    description: "Built 3 months of emergency savings",
+    category: "savings",
+    tier: "silver"
+  },
+  emergencyFund6: {
+    id: "emergencyFund6",
+    name: "Fully Protected",
+    icon: "🏰",
+    description: "Built 6 months of emergency savings",
+    category: "savings",
+    tier: "gold"
+  },
+
+  // Net Worth
+  netWorth10k: {
+    id: "netWorth10k",
+    name: "£10K Club",
+    icon: "📈",
+    description: "Net worth reached £10,000",
+    category: "networth",
+    tier: "bronze"
+  },
+  netWorth50k: {
+    id: "netWorth50k",
+    name: "Halfway to 100K",
+    icon: "🚀",
+    description: "Net worth reached £50,000",
+    category: "networth",
+    tier: "silver"
+  },
+  netWorth100k: {
+    id: "netWorth100k",
+    name: "Six Figures",
+    icon: "⭐",
+    description: "Net worth reached £100,000",
+    category: "networth",
+    tier: "gold"
+  },
+  netWorthPositive: {
+    id: "netWorthPositive",
+    name: "In The Black",
+    icon: "✅",
+    description: "Achieved positive net worth",
+    category: "networth",
+    tier: "bronze"
+  },
+
+  // Debt Freedom
+  creditCardFree: {
+    id: "creditCardFree",
+    name: "Card Crusher",
+    icon: "💳",
+    description: "Paid off all credit card debt",
+    category: "debt",
+    tier: "silver"
+  },
+  debtFree: {
+    id: "debtFree",
+    name: "Debt Free",
+    icon: "🎊",
+    description: "Paid off all consumer debt",
+    category: "debt",
+    tier: "gold"
+  },
+
+  // Health Score
+  score50: {
+    id: "score50",
+    name: "Halfway There",
+    icon: "📊",
+    description: "Reached a health score of 50",
+    category: "health",
+    tier: "bronze"
+  },
+  score70: {
+    id: "score70",
+    name: "Strong Foundation",
+    icon: "💪",
+    description: "Reached a health score of 70",
+    category: "health",
+    tier: "silver"
+  },
+  score85: {
+    id: "score85",
+    name: "Financial Champion",
+    icon: "🏆",
+    description: "Reached a health score of 85",
+    category: "health",
+    tier: "gold"
+  },
+
+  // Streaks
+  streak7: {
+    id: "streak7",
+    name: "Week Warrior",
+    icon: "🔥",
+    description: "7 consecutive days of tracking",
+    category: "consistency",
+    tier: "bronze"
+  },
+  streak30: {
+    id: "streak30",
+    name: "Monthly Master",
+    icon: "🔥",
+    description: "30 consecutive days of tracking",
+    category: "consistency",
+    tier: "silver"
+  },
+  streak90: {
+    id: "streak90",
+    name: "Quarter Champion",
+    icon: "🔥",
+    description: "90 consecutive days of tracking",
+    category: "consistency",
+    tier: "gold"
+  },
+
+  // Challenges
+  challengeComplete: {
+    id: "challengeComplete",
+    name: "Challenge Accepted",
+    icon: "🎮",
+    description: "Completed your first monthly challenge",
+    category: "challenges",
+    tier: "bronze"
+  },
+  challenges5: {
+    id: "challenges5",
+    name: "Challenge Pro",
+    icon: "🎖️",
+    description: "Completed 5 monthly challenges",
+    category: "challenges",
+    tier: "silver"
+  }
+};
+
+// Monthly challenges
+const MONTHLY_CHALLENGES = [
+  {
+    id: "noSpendWeekend",
+    name: "No-Spend Weekend",
+    description: "Go a full weekend without spending money",
+    icon: "🏠",
+    points: 50,
+    difficulty: "easy"
+  },
+  {
+    id: "packLunchWeek",
+    name: "Pack Lunch Week",
+    description: "Bring lunch from home for 5 workdays",
+    icon: "🥪",
+    points: 75,
+    difficulty: "easy"
+  },
+  {
+    id: "subscriptionAudit",
+    name: "Subscription Audit",
+    description: "Review and cancel at least one unused subscription",
+    icon: "📺",
+    points: 100,
+    difficulty: "medium"
+  },
+  {
+    id: "savingsBoost",
+    name: "Savings Boost",
+    description: "Save 10% more than usual this month",
+    icon: "📈",
+    points: 150,
+    difficulty: "medium"
+  },
+  {
+    id: "cashOnlyWeek",
+    name: "Cash Only Week",
+    description: "Use only cash for all purchases for one week",
+    icon: "💵",
+    points: 100,
+    difficulty: "medium"
+  },
+  {
+    id: "billNegotiator",
+    name: "Bill Negotiator",
+    description: "Call a provider and negotiate a better rate",
+    icon: "📞",
+    points: 150,
+    difficulty: "medium"
+  },
+  {
+    id: "mealPrepSunday",
+    name: "Meal Prep Master",
+    description: "Prep all your weekday meals on Sunday",
+    icon: "🍳",
+    points: 75,
+    difficulty: "easy"
+  },
+  {
+    id: "financialCheckup",
+    name: "Financial Checkup",
+    description: "Review all your accounts and update balances",
+    icon: "🔍",
+    points: 100,
+    difficulty: "medium"
+  }
+];
+
+// Load achievements from storage
+function loadAchievements() {
+  try {
+    const stored = localStorage.getItem(ACHIEVEMENTS_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch (e) { /* ignore */ }
+  return {
+    unlocked: [],
+    streak: 0,
+    lastVisit: null,
+    totalPoints: 0,
+    challengesCompleted: 0
+  };
+}
+
+// Save achievements to storage
+function saveAchievements(data) {
+  try {
+    localStorage.setItem(ACHIEVEMENTS_KEY, JSON.stringify(data));
+  } catch (e) { /* ignore */ }
+}
+
+// Load active challenges
+function loadChallenges() {
+  try {
+    const stored = localStorage.getItem(CHALLENGES_KEY);
+    if (stored) return JSON.parse(stored);
+  } catch (e) { /* ignore */ }
+  return {
+    active: [],
+    completed: [],
+    month: null
+  };
+}
+
+// Save challenges
+function saveChallenges(data) {
+  try {
+    localStorage.setItem(CHALLENGES_KEY, JSON.stringify(data));
+  } catch (e) { /* ignore */ }
+}
+
+// Check and unlock achievements
+function checkAchievements() {
+  const achievements = loadAchievements();
+  const newUnlocks = [];
+
+  // Helper to unlock a badge
+  const unlock = (badgeId) => {
+    if (!achievements.unlocked.includes(badgeId) && BADGES[badgeId]) {
+      achievements.unlocked.push(badgeId);
+      achievements.totalPoints += getBadgePoints(BADGES[badgeId].tier);
+      newUnlocks.push(BADGES[badgeId]);
+    }
+  };
+
+  // Profile complete check
+  if (state.annualSalary > 0 && state.income > 0 && calculateMonthlyExpenses() > 0) {
+    unlock("profileComplete");
+  }
+
+  // First goal check
+  if (state.goals && state.goals.length > 0) {
+    unlock("firstGoal");
+  }
+
+  // Savings milestones
+  const liquidAssets = (state.assets.cashSavings || 0) + (state.assets.cashISA || 0);
+  if (liquidAssets >= 1000) unlock("saved1k");
+  if (liquidAssets >= 5000) unlock("saved5k");
+  if (liquidAssets >= 10000) unlock("saved10k");
+
+  // Emergency fund milestones
+  const monthlyExpenses = calculateMonthlyExpenses();
+  const monthsCovered = monthlyExpenses > 0 ? liquidAssets / monthlyExpenses : 0;
+  if (monthsCovered >= 3) unlock("emergencyFund3");
+  if (monthsCovered >= 6) unlock("emergencyFund6");
+
+  // Net worth milestones
+  const netWorth = calculateNetWorth();
+  if (netWorth > 0) unlock("netWorthPositive");
+  if (netWorth >= 10000) unlock("netWorth10k");
+  if (netWorth >= 50000) unlock("netWorth50k");
+  if (netWorth >= 100000) unlock("netWorth100k");
+
+  // Debt freedom
+  const creditCardDebt = state.liabilities.creditCardBalance || 0;
+  const consumerDebt = creditCardDebt +
+    (state.liabilities.personalLoansBalance || 0) +
+    (state.liabilities.carFinanceBalance || 0) +
+    (state.liabilities.overdraftBalance || 0);
+
+  if (creditCardDebt === 0 && state.expenses.creditCards === 0) {
+    unlock("creditCardFree");
+  }
+  if (consumerDebt === 0) {
+    unlock("debtFree");
+  }
+
+  // Health score milestones
+  const healthScore = calculateHealthScore();
+  if (healthScore.total >= 50) unlock("score50");
+  if (healthScore.total >= 70) unlock("score70");
+  if (healthScore.total >= 85) unlock("score85");
+
+  // Streak milestones
+  if (achievements.streak >= 7) unlock("streak7");
+  if (achievements.streak >= 30) unlock("streak30");
+  if (achievements.streak >= 90) unlock("streak90");
+
+  // Challenge milestones
+  if (achievements.challengesCompleted >= 1) unlock("challengeComplete");
+  if (achievements.challengesCompleted >= 5) unlock("challenges5");
+
+  // Save and return new unlocks
+  saveAchievements(achievements);
+  return newUnlocks;
+}
+
+// Get points for badge tier
+function getBadgePoints(tier) {
+  const points = { bronze: 50, silver: 100, gold: 200 };
+  return points[tier] || 50;
+}
+
+// Update streak tracking
+function updateStreak() {
+  const achievements = loadAchievements();
+  const today = new Date().toDateString();
+
+  if (achievements.lastVisit === today) {
+    // Already visited today
+    return achievements.streak;
+  }
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
+  if (achievements.lastVisit === yesterday.toDateString()) {
+    // Consecutive day - increase streak
+    achievements.streak++;
+  } else if (achievements.lastVisit !== today) {
+    // Streak broken - reset
+    achievements.streak = 1;
+  }
+
+  achievements.lastVisit = today;
+  saveAchievements(achievements);
+
+  return achievements.streak;
+}
+
+// Get current month's challenges
+function getCurrentChallenges() {
+  const currentMonth = getCurrentMonthKey();
+  let challenges = loadChallenges();
+
+  // Reset challenges for new month
+  if (challenges.month !== currentMonth) {
+    // Pick 3 random challenges for this month
+    const shuffled = [...MONTHLY_CHALLENGES].sort(() => 0.5 - Math.random());
+    challenges = {
+      active: shuffled.slice(0, 3).map(c => ({
+        ...c,
+        status: "active",
+        acceptedAt: null
+      })),
+      completed: [],
+      month: currentMonth
+    };
+    saveChallenges(challenges);
+  }
+
+  return challenges;
+}
+
+// Accept a challenge
+function acceptChallenge(challengeId) {
+  const challenges = getCurrentChallenges();
+  const challenge = challenges.active.find(c => c.id === challengeId);
+
+  if (challenge && !challenge.acceptedAt) {
+    challenge.acceptedAt = new Date().toISOString();
+    challenge.status = "in-progress";
+    saveChallenges(challenges);
+    updateGamificationUI();
+  }
+}
+
+// Complete a challenge
+function completeChallenge(challengeId) {
+  const challenges = getCurrentChallenges();
+  const challengeIndex = challenges.active.findIndex(c => c.id === challengeId);
+
+  if (challengeIndex >= 0) {
+    const challenge = challenges.active[challengeIndex];
+    challenge.status = "completed";
+    challenge.completedAt = new Date().toISOString();
+
+    challenges.active.splice(challengeIndex, 1);
+    challenges.completed.push(challenge);
+    saveChallenges(challenges);
+
+    // Update achievements
+    const achievements = loadAchievements();
+    achievements.challengesCompleted++;
+    achievements.totalPoints += challenge.points;
+    saveAchievements(achievements);
+
+    // Check for new badges
+    const newBadges = checkAchievements();
+    if (newBadges.length > 0) {
+      showBadgeUnlock(newBadges[0]);
+    }
+
+    updateGamificationUI();
+  }
+}
+
+// Show badge unlock celebration
+function showBadgeUnlock(badge) {
+  const modal = document.querySelector("[data-celebration-modal]");
+  if (!modal) return;
+
+  const iconEl = modal.querySelector("[data-celebration-icon]");
+  const titleEl = modal.querySelector("[data-celebration-title]");
+  const messageEl = modal.querySelector("[data-celebration-message]");
+  const badgeNameEl = modal.querySelector("[data-badge-name]");
+  const badgeDescEl = modal.querySelector("[data-badge-desc]");
+  const badgeIconEl = modal.querySelector(".badge-icon");
+
+  if (iconEl) iconEl.textContent = badge.icon;
+  if (titleEl) titleEl.textContent = "Badge Unlocked!";
+  if (messageEl) messageEl.textContent = badge.name;
+  if (badgeNameEl) badgeNameEl.textContent = badge.name;
+  if (badgeDescEl) badgeDescEl.textContent = badge.description;
+  if (badgeIconEl) badgeIconEl.textContent = badge.icon;
+
+  // Hide stats for badge unlock
+  const statsEl = modal.querySelector("[data-celebration-stats]");
+  if (statsEl) statsEl.style.display = "none";
+
+  modal.hidden = false;
+
+  // Trigger confetti
+  triggerConfetti();
+}
+
+// Trigger confetti animation
+function triggerConfetti() {
+  const container = document.querySelector("[data-confetti-container]");
+  if (!container) return;
+
+  // Create confetti pieces
+  const colors = ["#259d91", "#f4c542", "#e86c5f", "#9f7aea", "#48bb78"];
+  for (let i = 0; i < 50; i++) {
+    const confetti = document.createElement("div");
+    confetti.className = "confetti-piece";
+    confetti.style.left = Math.random() * 100 + "%";
+    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+    confetti.style.animationDelay = Math.random() * 0.5 + "s";
+    confetti.style.animationDuration = (Math.random() * 2 + 2) + "s";
+    container.appendChild(confetti);
+
+    // Remove after animation
+    setTimeout(() => confetti.remove(), 4000);
+  }
+}
+
+// Initialize gamification
+function initGamification() {
+  // Update streak
+  const streak = updateStreak();
+
+  // Check for achievements
+  const newBadges = checkAchievements();
+
+  // Show first new badge if any
+  if (newBadges.length > 0) {
+    setTimeout(() => showBadgeUnlock(newBadges[0]), 1000);
+  }
+
+  // Load challenges
+  getCurrentChallenges();
+
+  // Update UI
+  updateGamificationUI();
+
+  // Setup challenge buttons
+  document.querySelectorAll("[data-accept-challenge]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-accept-challenge");
+      acceptChallenge(id);
+    });
+  });
+
+  document.querySelectorAll("[data-complete-challenge]").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const id = btn.getAttribute("data-complete-challenge");
+      completeChallenge(id);
+    });
+  });
+}
+
+// Update gamification UI elements
+function updateGamificationUI() {
+  const achievements = loadAchievements();
+  const challenges = getCurrentChallenges();
+
+  // Update streak display
+  const streakEl = document.querySelector("[data-streak-count]");
+  if (streakEl) {
+    streakEl.textContent = achievements.streak;
+  }
+
+  // Update points display
+  const pointsEl = document.querySelector("[data-total-points]");
+  if (pointsEl) {
+    pointsEl.textContent = achievements.totalPoints;
+  }
+
+  // Update badges display
+  const badgesListEl = document.querySelector("[data-badges-list]");
+  if (badgesListEl) {
+    const unlockedBadges = achievements.unlocked
+      .map(id => BADGES[id])
+      .filter(Boolean)
+      .slice(-8); // Show last 8
+
+    if (unlockedBadges.length === 0) {
+      badgesListEl.innerHTML = `<p class="no-badges">Complete actions to unlock badges</p>`;
+    } else {
+      badgesListEl.innerHTML = unlockedBadges.map(badge => `
+        <div class="badge-item ${badge.tier}">
+          <span class="badge-icon">${badge.icon}</span>
+          <span class="badge-name">${escapeHtml(badge.name)}</span>
+        </div>
+      `).join("");
+    }
+  }
+
+  // Update badges count
+  const badgesCountEl = document.querySelector("[data-badges-count]");
+  if (badgesCountEl) {
+    badgesCountEl.textContent = `${achievements.unlocked.length}/${Object.keys(BADGES).length}`;
+  }
+
+  // Update challenges display
+  const challengesListEl = document.querySelector("[data-challenges-list]");
+  if (challengesListEl) {
+    challengesListEl.innerHTML = challenges.active.map(challenge => `
+      <div class="challenge-card ${challenge.status}">
+        <span class="challenge-icon">${challenge.icon}</span>
+        <div class="challenge-info">
+          <h4>${escapeHtml(challenge.name)}</h4>
+          <p>${escapeHtml(challenge.description)}</p>
+          <span class="challenge-points">+${challenge.points} pts</span>
+        </div>
+        <div class="challenge-actions">
+          ${challenge.status === "active" ? `
+            <button class="btn small" type="button" onclick="acceptChallenge('${challenge.id}')">Accept</button>
+          ` : challenge.status === "in-progress" ? `
+            <button class="btn small primary" type="button" onclick="completeChallenge('${challenge.id}')">Complete</button>
+          ` : ""}
+        </div>
+      </div>
+    `).join("");
+  }
 }
 
 // ============================================================

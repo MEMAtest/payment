@@ -157,7 +157,7 @@ body {
 .flow {
   width: min(1200px, 100%);
   margin: 0 auto;
-  padding: 20px 6vw 80px;
+  padding: 20px 6vw 24px;
   flex: 1;
 }
 
@@ -188,7 +188,7 @@ body {
   gap: 48px;
   grid-template-columns: 1.2fr 1fr;
   align-items: center;
-  min-height: 70vh;
+  min-height: auto;
   padding: 40px 0;
 }
 
@@ -1275,6 +1275,59 @@ textarea {
 
 .tab-panel.is-active {
   display: block;
+  max-height: calc(100vh - 160px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+/* Sub-tab Navigation */
+.subtab-nav {
+  display: flex;
+  gap: 8px;
+  padding: 8px 0 16px;
+  margin-bottom: 8px;
+  border-bottom: 1px solid var(--border);
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+}
+
+.subtab-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.subtab-btn {
+  padding: 8px 16px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  color: var(--text-muted);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.subtab-btn:hover {
+  border-color: var(--sea);
+  color: var(--sea);
+}
+
+.subtab-btn.is-active {
+  background: var(--sea);
+  border-color: var(--sea);
+  color: white;
+}
+
+/* Sub-tab Panels */
+.subtab-panel {
+  display: none;
+}
+
+.subtab-panel.is-active {
+  display: block;
+  animation: fadeUp 0.3s ease;
 }
 
 /* Panel Grid */
@@ -1301,7 +1354,7 @@ textarea {
 /* Panel Cards */
 .panel-card {
   background: var(--paper);
-  padding: 24px;
+  padding: 20px;
   border-radius: 18px;
   border: 1px solid rgba(24, 35, 39, 0.06);
 }
@@ -1310,8 +1363,84 @@ textarea {
   display: flex;
   align-items: center;
   gap: 10px;
-  margin: 0 0 12px;
+  margin: 0 0 10px;
   font-size: 1.05rem;
+}
+
+/* Collapsible Panels */
+.panel-card.collapsible > h3 {
+  cursor: pointer;
+  user-select: none;
+}
+
+.panel-card.collapsible > h3::after {
+  content: "▼";
+  margin-left: auto;
+  font-size: 0.7rem;
+  transition: transform 0.2s ease;
+  opacity: 0.5;
+}
+
+.panel-card.collapsible.collapsed > h3::after {
+  transform: rotate(-90deg);
+}
+
+.panel-card.collapsible .panel-content {
+  overflow: hidden;
+  transition: max-height 0.3s ease, opacity 0.2s ease;
+}
+
+.panel-card.collapsible.collapsed .panel-content {
+  max-height: 0 !important;
+  opacity: 0;
+  padding-top: 0;
+  margin-top: 0;
+}
+
+/* Compact panels for subtabs */
+.subtab-panel .panel-card {
+  padding: 16px;
+}
+
+.subtab-panel .panel-card h3 {
+  margin-bottom: 8px;
+}
+
+.subtab-panel .muted {
+  margin-bottom: 10px;
+}
+
+/* Form input hints */
+.input-hint {
+  display: block;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+/* Scrollable subtab content */
+.subtab-panel.is-active {
+  max-height: calc(100vh - 220px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 4px;
+}
+
+.subtab-panel::-webkit-scrollbar {
+  width: 6px;
+}
+
+.subtab-panel::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.subtab-panel::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 3px;
+}
+
+.subtab-panel::-webkit-scrollbar-thumb:hover {
+  background: var(--text-muted);
 }
 
 .panel-card h3 svg {
@@ -1787,12 +1916,12 @@ textarea {
 
 .monte-form {
   display: grid;
-  gap: 12px;
-  margin: 16px 0;
+  gap: 8px;
+  margin: 12px 0;
 }
 
 .monte-grid {
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
 }
 
 .monte-form .btn.full {
@@ -1800,46 +1929,46 @@ textarea {
 }
 
 .monte-results {
-  margin-top: 20px;
+  margin-top: 12px;
 }
 
 .monte-output {
   font-weight: 700;
-  font-size: 1.1rem;
-  margin-bottom: 16px;
-  padding: 16px;
+  font-size: 1rem;
+  margin-bottom: 12px;
+  padding: 12px;
   background: var(--navy-light);
-  border-radius: 12px;
+  border-radius: 10px;
 }
 
 .monte-stats {
   display: grid;
-  gap: 12px;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  margin-bottom: 16px;
+  gap: 8px;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  margin-bottom: 12px;
 }
 
 .monte-chart-wrap {
-  margin-top: 20px;
-  padding: 20px;
+  margin-top: 12px;
+  padding: 12px;
   background: var(--white);
-  border-radius: 16px;
+  border-radius: 12px;
   border: 1px solid rgba(24, 35, 39, 0.06);
 }
 
 .monte-chart-wrap h4 {
-  margin: 0 0 16px;
-  font-size: 0.95rem;
+  margin: 0 0 8px;
+  font-size: 0.9rem;
 }
 
 .monte-bars {
   display: grid;
   grid-auto-flow: column;
-  gap: 4px;
+  gap: 3px;
   align-items: end;
-  height: 140px;
+  height: 100px;
   position: relative;
-  padding-bottom: 8px;
+  padding-bottom: 6px;
   border-bottom: 2px solid rgba(24, 35, 39, 0.1);
 }
 
@@ -5928,15 +6057,15 @@ textarea {
 .bills-summary {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 12px;
-  margin: 20px 0;
+  gap: 8px;
+  margin: 12px 0;
 }
 
 .summary-card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 8px;
-  padding: 16px;
+  padding: 10px;
   text-align: center;
 }
 
@@ -5951,7 +6080,7 @@ textarea {
 
 .summary-value {
   display: block;
-  font-size: 24px;
+  font-size: 20px;
   font-weight: 700;
   color: var(--text);
 }
@@ -5973,15 +6102,15 @@ textarea {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
-  padding: 20px;
-  margin: 20px 0;
+  padding: 12px;
+  margin: 12px 0;
 }
 
 .calendar-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 16px;
+  margin-bottom: 8px;
 }
 
 .calendar-header h4 {
@@ -6059,16 +6188,50 @@ textarea {
 /* Bills Lists */
 .bills-upcoming,
 .bills-all {
-  margin-top: 24px;
+  margin-top: 16px;
+  border-top: 1px solid var(--border);
+  padding-top: 12px;
+}
+
+.bills-upcoming summary,
+.bills-all summary {
+  cursor: pointer;
+  list-style: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.bills-upcoming summary::-webkit-details-marker,
+.bills-all summary::-webkit-details-marker {
+  display: none;
+}
+
+.bills-upcoming summary::before,
+.bills-all summary::before {
+  content: "▶";
+  font-size: 0.65rem;
+  transition: transform 0.2s;
+  color: var(--muted);
+}
+
+.bills-upcoming[open] summary::before,
+.bills-all[open] summary::before {
+  transform: rotate(90deg);
 }
 
 .bills-upcoming h4,
 .bills-all h4 {
-  margin-bottom: 12px;
-  font-size: 14px;
+  margin: 0;
+  font-size: 13px;
   color: var(--muted);
   text-transform: uppercase;
   letter-spacing: 0.5px;
+}
+
+.bills-upcoming .bills-list,
+.bills-all .bills-list {
+  margin-top: 10px;
 }
 
 .bills-list {

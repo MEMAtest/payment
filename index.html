@@ -967,9 +967,21 @@
                 </svg>
                 Home
               </button>
+              <button class="nav-item" type="button" data-tab-target="cashflow">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/>
+                </svg>
+                Cash Flow
+              </button>
+              <button class="nav-item" type="button" data-tab-target="simulate">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="4" y="4" width="16" height="16" rx="2"/><path d="M9 9h0.01M15 9h0.01M9 15h0.01M15 15h0.01"/>
+                </svg>
+                Simulate
+              </button>
               <button class="nav-item" type="button" data-tab-target="plan">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                  <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="1"/><path d="M9 12h6M9 16h6"/>
                 </svg>
                 Plan
               </button>
@@ -1013,613 +1025,635 @@
             </nav>
 
             <div class="tab-panel is-active" data-tab="home">
-              <div class="panel-grid">
-                <div class="panel-card metric-card">
-                  <div class="metric-icon surplus-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-                    </svg>
-                  </div>
-                  <p class="card-title">Monthly Surplus</p>
-                  <p class="card-value" data-app-surplus>£0</p>
-                  <p class="muted">Auto-allocated to goals</p>
-                </div>
-                <div class="panel-card metric-card">
-                  <div class="metric-icon buffer-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    </svg>
-                  </div>
-                  <p class="card-title">Buffer Health</p>
-                  <p class="card-value" data-app-buffer>0 months</p>
-                  <p class="muted">Target: 3-6 months</p>
-                </div>
-                <div class="panel-card metric-card">
-                  <div class="metric-icon score-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-                    </svg>
-                  </div>
-                  <p class="card-title">Financial Score</p>
-                  <p class="card-value">
-                    <span data-confidence-total>80</span> / 100
-                  </p>
-                  <div class="confidence-breakdown">
-                    <div class="confidence-row">
-                      <span>Base</span>
-                      <span data-confidence-base>50</span>
-                    </div>
-                    <div class="confidence-row">
-                      <span>Buffer</span>
-                      <span data-confidence-buffer>+0</span>
-                    </div>
-                    <div class="confidence-row">
-                      <span>Goals</span>
-                      <span data-confidence-goals>+0</span>
-                    </div>
-                    <div class="confidence-row">
-                      <span>Cashflow</span>
-                      <span data-confidence-cashflow>+0</span>
-                    </div>
-                    <div class="confidence-row">
-                      <span>Debt</span>
-                      <span data-confidence-debt>0</span>
-                    </div>
-                  </div>
-                </div>
-                <div class="panel-card metric-card">
-                  <div class="metric-icon rewards-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
-                    </svg>
-                  </div>
-                  <p class="card-title">Rewards</p>
-                  <p class="card-value">
-                    <span data-rewards-points>620</span> pts
-                  </p>
-                  <p class="muted">Keep saving to earn more!</p>
-                </div>
-              </div>
+              <nav class="subtab-nav" data-subtab-nav="home" role="tablist" aria-label="Home sections">
+                <button class="subtab-btn is-active" type="button" role="tab" aria-selected="true" data-subtab-target="overview">Overview</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="insights">Insights</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="dashboard">Dashboard</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="budget">Budget</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="income">Income</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="forecast">Forecast</button>
+              </nav>
 
-              <!-- Money Mood Tracker -->
-              <div class="panel-card wide mood-tracker-card">
-                <div class="mood-header">
-                  <div class="mood-icon">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3>How's your money mood today?</h3>
-                    <p class="muted">Track your financial confidence over time</p>
-                  </div>
-                </div>
-                <div class="mood-selector" data-mood-selector>
-                  <button type="button" class="mood-btn" data-mood="1" title="Very Stressed">
-                    <span class="mood-emoji">😰</span>
-                    <span class="mood-label">Stressed</span>
-                  </button>
-                  <button type="button" class="mood-btn" data-mood="2" title="Worried">
-                    <span class="mood-emoji">😟</span>
-                    <span class="mood-label">Worried</span>
-                  </button>
-                  <button type="button" class="mood-btn" data-mood="3" title="Neutral">
-                    <span class="mood-emoji">😐</span>
-                    <span class="mood-label">Neutral</span>
-                  </button>
-                  <button type="button" class="mood-btn" data-mood="4" title="Confident">
-                    <span class="mood-emoji">🙂</span>
-                    <span class="mood-label">Good</span>
-                  </button>
-                  <button type="button" class="mood-btn" data-mood="5" title="Excited">
-                    <span class="mood-emoji">😄</span>
-                    <span class="mood-label">Great!</span>
-                  </button>
-                </div>
-                <div class="mood-history" data-mood-history>
-                  <h4>Your Mood Trend</h4>
-                  <div class="mood-chart" data-mood-chart></div>
-                  <p class="mood-insight muted" data-mood-insight>Log your mood to see trends</p>
-                </div>
-              </div>
-
-              <div class="panel-row">
-                <div class="panel-card dashboard-builder">
-                  <h3>Dashboard Builder</h3>
-                  <p class="muted">Customise your view</p>
-                  <div class="toggle-grid">
-                    <label class="toggle-pill">
-                      <input type="checkbox" data-dashboard-toggle value="cashflow" checked />
-                      <span>Cash Flow</span>
-                    </label>
-                    <label class="toggle-pill">
-                      <input type="checkbox" data-dashboard-toggle value="alerts" checked />
-                      <span>Alerts</span>
-                    </label>
-                    <label class="toggle-pill">
-                      <input type="checkbox" data-dashboard-toggle value="vulnerabilities" checked />
-                      <span>Risk Radar</span>
-                    </label>
-                    <label class="toggle-pill">
-                      <input type="checkbox" data-dashboard-toggle value="quickwins" checked />
-                      <span>Quick Wins</span>
-                    </label>
-                    <label class="toggle-pill">
-                      <input type="checkbox" data-dashboard-toggle value="spark" checked />
-                      <span>Daily Tip</span>
-                    </label>
-                  </div>
-                </div>
-                <div class="panel-card">
-                  <h3>Income vs Expenses</h3>
-                  <div class="bar-compare">
-                    <div class="bar-track">
-                      <span>Income</span>
-                      <div class="bar-fill income" data-income-bar>
-                        <span data-income-label>£0</span>
-                      </div>
+              <div class="subtab-panel is-active" data-subtab="overview">
+                <div class="panel-grid">
+                  <div class="panel-card metric-card">
+                    <div class="metric-icon surplus-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                      </svg>
                     </div>
-                    <div class="bar-track">
-                      <span>Expenses</span>
-                      <div class="bar-fill expense" data-expense-bar>
-                        <span data-expense-label>£0</span>
-                      </div>
+                    <p class="card-title">Monthly Surplus</p>
+                    <p class="card-value" data-app-surplus>£0</p>
+                    <p class="muted">Auto-allocated to goals</p>
+                  </div>
+                  <div class="panel-card metric-card">
+                    <div class="metric-icon buffer-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                      </svg>
                     </div>
-                    <div class="bar-track">
-                      <span>Savings</span>
-                      <div class="bar-fill saving" data-saving-bar>
-                        <span data-saving-label>£0</span>
+                    <p class="card-title">Buffer Health</p>
+                    <p class="card-value" data-app-buffer>0 months</p>
+                    <p class="muted">Target: 3-6 months</p>
+                  </div>
+                  <div class="panel-card metric-card">
+                    <div class="metric-icon score-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+                      </svg>
+                    </div>
+                    <p class="card-title">Financial Score</p>
+                    <p class="card-value">
+                      <span data-confidence-total>80</span> / 100
+                    </p>
+                    <div class="confidence-breakdown">
+                      <div class="confidence-row">
+                        <span>Base</span>
+                        <span data-confidence-base>50</span>
+                      </div>
+                      <div class="confidence-row">
+                        <span>Buffer</span>
+                        <span data-confidence-buffer>+0</span>
+                      </div>
+                      <div class="confidence-row">
+                        <span>Goals</span>
+                        <span data-confidence-goals>+0</span>
+                      </div>
+                      <div class="confidence-row">
+                        <span>Cashflow</span>
+                        <span data-confidence-cashflow>+0</span>
+                      </div>
+                      <div class="confidence-row">
+                        <span>Debt</span>
+                        <span data-confidence-debt>0</span>
                       </div>
                     </div>
                   </div>
-                  <p class="muted" data-income-summary>
-                    Balance your income and expenses for financial health.
-                  </p>
-                </div>
-              </div>
-
-              <div class="panel-card wide smart-insights-card" data-widget="insights">
-                <div class="insights-header">
-                  <div class="insights-icon">
-                    <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"/>
-                      <path d="M12 16v-4M12 8h.01"/>
-                    </svg>
-                  </div>
-                  <div>
-                    <h3>Smart Money Insights</h3>
-                    <p class="muted">Personalized analysis based on your finances</p>
+                  <div class="panel-card metric-card">
+                    <div class="metric-icon rewards-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="8" r="7"/><polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"/>
+                      </svg>
+                    </div>
+                    <p class="card-title">Rewards</p>
+                    <p class="card-value">
+                      <span data-rewards-points>620</span> pts
+                    </p>
+                    <p class="muted">Keep saving to earn more!</p>
                   </div>
                 </div>
 
-                <div class="insights-concerns" data-insights-concerns>
-                  <h4>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    Areas of Concern
-                  </h4>
-                  <div class="concerns-list" data-concerns-list></div>
-                </div>
-
-                <div class="insights-actions" data-insights-actions>
-                  <h4>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                    </svg>
-                    Recommended Actions
-                  </h4>
-                  <div class="actions-list" data-actions-list></div>
-                </div>
-
-                <div class="insights-expert" data-insights-expert>
-                  <h4>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
-                    </svg>
-                    Expert Wisdom
-                  </h4>
-                  <div class="expert-advice" data-expert-advice></div>
-                </div>
-              </div>
-
-              <div class="dashboard-grid" data-dashboard-grid>
-                <div class="panel-card wide" data-widget="cashflow">
-                  <div class="panel-head">
+                <!-- Money Mood Tracker -->
+                <div class="panel-card wide mood-tracker-card">
+                  <div class="mood-header">
+                    <div class="mood-icon">
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>
+                      </svg>
+                    </div>
                     <div>
-                      <h3>Cash Flow Forecast</h3>
-                      <p class="muted">
-                        Track your projected balance over time
-                      </p>
+                      <h3>How's your money mood today?</h3>
+                      <p class="muted">Track your financial confidence over time</p>
                     </div>
-                    <div class="scenario-controls">
+                  </div>
+                  <div class="mood-selector" data-mood-selector>
+                    <button type="button" class="mood-btn" data-mood="1" title="Very Stressed">
+                      <span class="mood-emoji">😰</span>
+                      <span class="mood-label">Stressed</span>
+                    </button>
+                    <button type="button" class="mood-btn" data-mood="2" title="Worried">
+                      <span class="mood-emoji">😟</span>
+                      <span class="mood-label">Worried</span>
+                    </button>
+                    <button type="button" class="mood-btn" data-mood="3" title="Neutral">
+                      <span class="mood-emoji">😐</span>
+                      <span class="mood-label">Neutral</span>
+                    </button>
+                    <button type="button" class="mood-btn" data-mood="4" title="Confident">
+                      <span class="mood-emoji">🙂</span>
+                      <span class="mood-label">Good</span>
+                    </button>
+                    <button type="button" class="mood-btn" data-mood="5" title="Excited">
+                      <span class="mood-emoji">😄</span>
+                      <span class="mood-label">Great!</span>
+                    </button>
+                  </div>
+                  <div class="mood-history" data-mood-history>
+                    <h4>Your Mood Trend</h4>
+                    <div class="mood-chart" data-mood-chart></div>
+                    <p class="mood-insight muted" data-mood-insight>Log your mood to see trends</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="insights">
+                <div class="panel-card wide smart-insights-card" data-widget="insights">
+                  <div class="insights-header">
+                    <div class="insights-icon">
+                      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/>
+                        <path d="M12 16v-4M12 8h.01"/>
+                      </svg>
+                    </div>
+                    <div>
+                      <h3>Smart Money Insights</h3>
+                      <p class="muted">Personalized analysis based on your finances</p>
+                    </div>
+                  </div>
+
+                  <div class="insights-concerns" data-insights-concerns>
+                    <h4>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                      Areas of Concern
+                    </h4>
+                    <div class="concerns-list" data-concerns-list></div>
+                  </div>
+
+                  <div class="insights-actions" data-insights-actions>
+                    <h4>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                      </svg>
+                      Recommended Actions
+                    </h4>
+                    <div class="actions-list" data-actions-list></div>
+                  </div>
+
+                  <div class="insights-expert" data-insights-expert>
+                    <h4>
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/>
+                      </svg>
+                      Expert Wisdom
+                    </h4>
+                    <div class="expert-advice" data-expert-advice></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="dashboard">
+                <div class="panel-row">
+                  <div class="panel-card dashboard-builder">
+                    <h3>Dashboard Builder</h3>
+                    <p class="muted">Customise your view</p>
+                    <div class="toggle-grid">
+                      <label class="toggle-pill">
+                        <input type="checkbox" data-dashboard-toggle value="cashflow" checked />
+                        <span>Cash Flow</span>
+                      </label>
+                      <label class="toggle-pill">
+                        <input type="checkbox" data-dashboard-toggle value="alerts" checked />
+                        <span>Alerts</span>
+                      </label>
+                      <label class="toggle-pill">
+                        <input type="checkbox" data-dashboard-toggle value="vulnerabilities" checked />
+                        <span>Risk Radar</span>
+                      </label>
+                      <label class="toggle-pill">
+                        <input type="checkbox" data-dashboard-toggle value="quickwins" checked />
+                        <span>Quick Wins</span>
+                      </label>
+                      <label class="toggle-pill">
+                        <input type="checkbox" data-dashboard-toggle value="spark" checked />
+                        <span>Daily Tip</span>
+                      </label>
+                    </div>
+                  </div>
+                  <div class="panel-card">
+                    <h3>Income vs Expenses</h3>
+                    <div class="bar-compare">
+                      <div class="bar-track">
+                        <span>Income</span>
+                        <div class="bar-fill income" data-income-bar>
+                          <span data-income-label>£0</span>
+                        </div>
+                      </div>
+                      <div class="bar-track">
+                        <span>Expenses</span>
+                        <div class="bar-fill expense" data-expense-bar>
+                          <span data-expense-label>£0</span>
+                        </div>
+                      </div>
+                      <div class="bar-track">
+                        <span>Savings</span>
+                        <div class="bar-fill saving" data-saving-bar>
+                          <span data-saving-label>£0</span>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="muted" data-income-summary>
+                      Balance your income and expenses for financial health.
+                    </p>
+                  </div>
+                </div>
+
+                <div class="dashboard-grid" data-dashboard-grid>
+                  <div class="panel-card wide" data-widget="cashflow">
+                    <div class="panel-head">
+                      <div>
+                        <h3>Cash Flow Forecast</h3>
+                        <p class="muted">
+                          Track your projected balance over time
+                        </p>
+                      </div>
+                      <div class="scenario-controls">
+                        <label>
+                          Scenario
+                          <select data-scenario-select>
+                            <option value="baseline" selected>Baseline</option>
+                            <option value="optimistic">Optimistic</option>
+                            <option value="conservative">Conservative</option>
+                            <option value="stress">Stress Test</option>
+                            <option value="custom">Custom</option>
+                          </select>
+                        </label>
+                        <label>
+                          Months
+                          <input type="number" min="6" max="36" value="12" data-cashflow-months />
+                        </label>
+                      </div>
+                    </div>
+                    <div class="scenario-custom" data-scenario-custom>
                       <label>
-                        Scenario
-                        <select data-scenario-select>
-                          <option value="baseline" selected>Baseline</option>
-                          <option value="optimistic">Optimistic</option>
-                          <option value="conservative">Conservative</option>
-                          <option value="stress">Stress Test</option>
-                          <option value="custom">Custom</option>
+                        Income change (%)
+                        <input type="number" step="0.5" value="0" data-scenario-income />
+                      </label>
+                      <label>
+                        Expense change (%)
+                        <input type="number" step="0.5" value="0" data-scenario-expense />
+                      </label>
+                    </div>
+                    <div class="chart-wrap" data-cashflow-chart></div>
+                    <div class="chart-legend">
+                      <span class="legend-item">
+                        <span class="legend-dot balance"></span>
+                        Projected Balance
+                      </span>
+                      <span class="legend-item">
+                        <span class="legend-dot net positive"></span>
+                        Monthly Surplus
+                      </span>
+                      <span class="legend-item">
+                        <span class="legend-dot net negative"></span>
+                        Monthly Deficit
+                      </span>
+                    </div>
+                    <div class="chart-metrics">
+                      <div class="chart-metric">
+                        <p class="metric-label">Avg Monthly</p>
+                        <p class="metric-value" data-cashflow-average>£0</p>
+                      </div>
+                      <div class="chart-metric">
+                        <p class="metric-label">Lowest Point</p>
+                        <p class="metric-value" data-cashflow-low>£0</p>
+                      </div>
+                      <div class="chart-metric">
+                        <p class="metric-label">Risk Months</p>
+                        <p class="metric-value" data-cashflow-risk>0</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="panel-card" data-widget="alerts">
+                    <h3>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
+                      </svg>
+                      Upcoming Alerts
+                    </h3>
+                    <ul class="alert-list" data-alert-list></ul>
+                  </div>
+
+                  <div class="panel-card" data-widget="vulnerabilities">
+                    <h3>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
+                      </svg>
+                      Risk Radar
+                    </h3>
+                    <ul class="vuln-list" data-vulnerability-list></ul>
+                    <div class="vuln-score">
+                      <p class="muted">Overall Risk Level</p>
+                      <p class="card-value" data-vulnerability-score>Low</p>
+                    </div>
+                  </div>
+
+                  <div class="panel-card" data-widget="quickwins">
+                    <h3>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                      </svg>
+                      Quick Wins
+                    </h3>
+                    <div class="quick-grid">
+                      <button type="button" class="pill">Find lost balances</button>
+                      <button type="button" class="pill">Review subscriptions</button>
+                      <button type="button" class="pill">Auto-save surplus</button>
+                      <button type="button" class="pill">Investment check</button>
+                    </div>
+                  </div>
+
+                  <div class="panel-card" data-widget="spark">
+                    <h3>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
+                      </svg>
+                      Daily Money Tip
+                    </h3>
+                    <p class="spark-quote">
+                      "Small upgrades beat big delays. Increase your auto-save by 1% today."
+                    </p>
+                    <p class="muted">Personalized to your goals</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="budget">
+                <!-- Phase 2: Budget Limits & Tracking -->
+                <div class="panel-card wide spending-limits-card">
+                  <div class="limits-header">
+                    <div>
+                      <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
+                        </svg>
+                        Budget Limits
+                      </h3>
+                      <p class="muted">Track spending against your limits</p>
+                    </div>
+                    <div class="safe-to-spend">
+                      <span class="safe-label">Safe to Spend Today</span>
+                      <span class="safe-amount" data-safe-to-spend>£0</span>
+                    </div>
+                  </div>
+
+                  <!-- Weekly Pace Indicator -->
+                  <div class="spending-pace" data-spending-pace>
+                    <div class="pace-indicator on-track">
+                      <span class="pace-icon">✓</span>
+                      <span class="pace-text">On track this week</span>
+                    </div>
+                  </div>
+
+                  <!-- Category Limits -->
+                  <div class="limits-grid" data-limits-grid>
+                    <div class="limit-item">
+                      <div class="limit-header">
+                        <span class="limit-icon">🛒</span>
+                        <span class="limit-name">Groceries</span>
+                        <button class="btn ghost small" type="button" data-edit-limit="groceries">Edit</button>
+                      </div>
+                      <div class="limit-progress">
+                        <div class="limit-bar">
+                          <span class="limit-fill" style="width: 0%"></span>
+                        </div>
+                        <div class="limit-values">
+                          <span class="spent">£0 spent</span>
+                          <span class="limit">of £0</span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Set Limit Modal Trigger -->
+                  <button class="btn secondary" type="button" data-manage-limits>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
+                    </svg>
+                    Manage Limits
+                  </button>
+                </div>
+
+                <!-- Set Limits Modal -->
+                <div class="modal-overlay" data-limits-modal hidden>
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h3>Set Budget Limits</h3>
+                      <button class="btn ghost" type="button" data-close-limits-modal>×</button>
+                    </div>
+                    <div class="limits-form" data-limits-form>
+                      <p class="muted">Set monthly spending limits for each category. You'll get alerts at 75% and 90%.</p>
+                      <div class="limits-categories">
+                        <label class="limit-input-row">
+                          <span>🛒 Groceries</span>
+                          <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="groceries" />
+                        </label>
+                        <label class="limit-input-row">
+                          <span>🍽️ Dining Out</span>
+                          <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="diningOut" />
+                        </label>
+                        <label class="limit-input-row">
+                          <span>☕ Coffee/Snacks</span>
+                          <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="coffeeSnacks" />
+                        </label>
+                        <label class="limit-input-row">
+                          <span>🎬 Entertainment</span>
+                          <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="entertainment" />
+                        </label>
+                        <label class="limit-input-row">
+                          <span>👕 Clothing</span>
+                          <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="clothing" />
+                        </label>
+                        <label class="limit-input-row">
+                          <span>📺 Subscriptions</span>
+                          <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="subscriptions" />
+                        </label>
+                        <label class="limit-input-row">
+                          <span>⛽ Fuel</span>
+                          <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="fuel" />
+                        </label>
+                        <label class="limit-input-row">
+                          <span>🚌 Transport</span>
+                          <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="publicTransport" />
+                        </label>
+                      </div>
+                      <div class="modal-actions">
+                        <button type="button" class="btn ghost" data-close-limits-modal>Cancel</button>
+                        <button type="button" class="btn primary" data-save-limits>Save Limits</button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="income">
+                <!-- Phase 2: Multi-Income Tracking -->
+                <div class="panel-card wide income-sources-card">
+                  <div class="income-header">
+                    <div>
+                      <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                        </svg>
+                        Income Sources
+                      </h3>
+                      <p class="muted">Track all your income streams</p>
+                    </div>
+                    <button class="btn small primary" type="button" data-add-income>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+                      </svg>
+                      Add Income
+                    </button>
+                  </div>
+
+                  <!-- Income Summary -->
+                  <div class="income-summary">
+                    <div class="income-total">
+                      <span class="income-label">Total Monthly Income</span>
+                      <span class="income-value" data-total-income>£0</span>
+                    </div>
+                    <div class="income-diversification">
+                      <span class="diversification-label">Diversification Score</span>
+                      <div class="diversification-meter">
+                        <span class="meter-fill" data-diversification-fill style="width: 0%"></span>
+                      </div>
+                      <span class="diversification-value" data-diversification-score>Low</span>
+                    </div>
+                  </div>
+
+                  <!-- Income Sources List -->
+                  <div class="income-sources-list" data-income-sources>
+                    <div class="income-source primary">
+                      <div class="source-icon salary">💼</div>
+                      <div class="source-info">
+                        <span class="source-name">Primary Salary</span>
+                        <span class="source-meta">Monthly • PAYE</span>
+                      </div>
+                      <div class="source-amount" data-primary-salary>£0</div>
+                      <div class="source-percent" data-salary-percent>100%</div>
+                    </div>
+                    <p class="muted add-prompt">Add additional income sources to improve your diversification score</p>
+                  </div>
+                </div>
+
+                <!-- Add Income Modal -->
+                <div class="modal-overlay" data-income-modal hidden>
+                  <div class="modal-content">
+                    <div class="modal-header">
+                      <h3 data-income-modal-title>Add Income Source</h3>
+                      <button class="btn ghost" type="button" data-close-income-modal>×</button>
+                    </div>
+                    <form class="income-form" data-income-form>
+                      <input type="hidden" data-income-id />
+                      <label>
+                        Income Name
+                        <input type="text" placeholder="e.g. Freelance Work, Dividends" data-income-name required />
+                      </label>
+                      <label>
+                        Monthly Amount (£)
+                        <input type="number" min="0" step="1" placeholder="0" data-income-amount required />
+                      </label>
+                      <label>
+                        Type
+                        <select data-income-type>
+                          <option value="salary">Salary/Wages</option>
+                          <option value="freelance">Freelance/Self-employed</option>
+                          <option value="rental">Rental Income</option>
+                          <option value="dividends">Dividends</option>
+                          <option value="interest">Interest</option>
+                          <option value="benefits">Benefits</option>
+                          <option value="pension">Pension</option>
+                          <option value="side-hustle">Side Hustle</option>
+                          <option value="other">Other</option>
                         </select>
                       </label>
                       <label>
-                        Months
-                        <input type="number" min="6" max="36" value="12" data-cashflow-months />
+                        Frequency
+                        <select data-income-frequency>
+                          <option value="monthly">Monthly</option>
+                          <option value="weekly">Weekly</option>
+                          <option value="biweekly">Bi-weekly</option>
+                          <option value="quarterly">Quarterly</option>
+                          <option value="annually">Annually</option>
+                          <option value="irregular">Irregular</option>
+                        </select>
                       </label>
-                    </div>
+                      <label class="checkbox-row">
+                        <input type="checkbox" data-income-taxable checked />
+                        <span>Taxable income (needs self-assessment)</span>
+                      </label>
+                      <div class="modal-actions">
+                        <button type="button" class="btn ghost" data-close-income-modal>Cancel</button>
+                        <button type="submit" class="btn primary">Save Income</button>
+                      </div>
+                    </form>
                   </div>
-                  <div class="scenario-custom" data-scenario-custom>
-                    <label>
-                      Income change (%)
-                      <input type="number" step="0.5" value="0" data-scenario-income />
-                    </label>
-                    <label>
-                      Expense change (%)
-                      <input type="number" step="0.5" value="0" data-scenario-expense />
-                    </label>
-                  </div>
-                  <div class="chart-wrap" data-cashflow-chart></div>
-                  <div class="chart-legend">
-                    <span class="legend-item">
-                      <span class="legend-dot balance"></span>
-                      Projected Balance
-                    </span>
-                    <span class="legend-item">
-                      <span class="legend-dot net positive"></span>
-                      Monthly Surplus
-                    </span>
-                    <span class="legend-item">
-                      <span class="legend-dot net negative"></span>
-                      Monthly Deficit
-                    </span>
-                  </div>
-                  <div class="chart-metrics">
-                    <div class="chart-metric">
-                      <p class="metric-label">Avg Monthly</p>
-                      <p class="metric-value" data-cashflow-average>£0</p>
-                    </div>
-                    <div class="chart-metric">
-                      <p class="metric-label">Lowest Point</p>
-                      <p class="metric-value" data-cashflow-low>£0</p>
-                    </div>
-                    <div class="chart-metric">
-                      <p class="metric-label">Risk Months</p>
-                      <p class="metric-value" data-cashflow-risk>0</p>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="panel-card" data-widget="alerts">
-                  <h3>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 01-3.46 0"/>
-                    </svg>
-                    Upcoming Alerts
-                  </h3>
-                  <ul class="alert-list" data-alert-list></ul>
-                </div>
-
-                <div class="panel-card" data-widget="vulnerabilities">
-                  <h3>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
-                    </svg>
-                    Risk Radar
-                  </h3>
-                  <ul class="vuln-list" data-vulnerability-list></ul>
-                  <div class="vuln-score">
-                    <p class="muted">Overall Risk Level</p>
-                    <p class="card-value" data-vulnerability-score>Low</p>
-                  </div>
-                </div>
-
-                <div class="panel-card" data-widget="quickwins">
-                  <h3>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
-                    </svg>
-                    Quick Wins
-                  </h3>
-                  <div class="quick-grid">
-                    <button type="button" class="pill">Find lost balances</button>
-                    <button type="button" class="pill">Review subscriptions</button>
-                    <button type="button" class="pill">Auto-save surplus</button>
-                    <button type="button" class="pill">Investment check</button>
-                  </div>
-                </div>
-
-                <div class="panel-card" data-widget="spark">
-                  <h3>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/>
-                    </svg>
-                    Daily Money Tip
-                  </h3>
-                  <p class="spark-quote">
-                    "Small upgrades beat big delays. Increase your auto-save by 1% today."
-                  </p>
-                  <p class="muted">Personalized to your goals</p>
                 </div>
               </div>
 
-              <!-- Phase 2: Budget Limits & Tracking -->
-              <div class="panel-card wide spending-limits-card">
-                <div class="limits-header">
-                  <div>
-                    <h3>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/>
-                      </svg>
-                      Budget Limits
-                    </h3>
-                    <p class="muted">Track spending against your limits</p>
-                  </div>
-                  <div class="safe-to-spend">
-                    <span class="safe-label">Safe to Spend Today</span>
-                    <span class="safe-amount" data-safe-to-spend>£0</span>
-                  </div>
-                </div>
-
-                <!-- Weekly Pace Indicator -->
-                <div class="spending-pace" data-spending-pace>
-                  <div class="pace-indicator on-track">
-                    <span class="pace-icon">✓</span>
-                    <span class="pace-text">On track this week</span>
-                  </div>
-                </div>
-
-                <!-- Category Limits -->
-                <div class="limits-grid" data-limits-grid>
-                  <div class="limit-item">
-                    <div class="limit-header">
-                      <span class="limit-icon">🛒</span>
-                      <span class="limit-name">Groceries</span>
-                      <button class="btn ghost small" type="button" data-edit-limit="groceries">Edit</button>
+              <div class="subtab-panel" data-subtab="forecast">
+                <!-- Phase 2: Spending Forecast -->
+                <div class="panel-card wide forecast-card">
+                  <div class="forecast-header">
+                    <div>
+                      <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        End of Month Forecast
+                      </h3>
+                      <p class="muted">Predicted balance based on your spending patterns</p>
                     </div>
-                    <div class="limit-progress">
-                      <div class="limit-bar">
-                        <span class="limit-fill" style="width: 0%"></span>
+                  </div>
+
+                  <!-- Forecast Summary -->
+                  <div class="forecast-summary">
+                    <div class="forecast-main">
+                      <div class="forecast-projected">
+                        <span class="forecast-label">Projected Balance</span>
+                        <span class="forecast-value" data-forecast-balance>£0</span>
                       </div>
-                      <div class="limit-values">
-                        <span class="spent">£0 spent</span>
-                        <span class="limit">of £0</span>
+                      <div class="forecast-indicator" data-forecast-indicator>
+                        <span class="indicator-icon positive">✓</span>
+                        <span class="indicator-text">You're on track for a surplus</span>
+                      </div>
+                    </div>
+
+                    <div class="forecast-breakdown">
+                      <div class="forecast-item">
+                        <span class="item-label">Days Remaining</span>
+                        <span class="item-value" data-days-remaining>0</span>
+                      </div>
+                      <div class="forecast-item">
+                        <span class="item-label">Expected Spending</span>
+                        <span class="item-value negative" data-expected-spending>£0</span>
+                      </div>
+                      <div class="forecast-item">
+                        <span class="item-label">Upcoming Bills</span>
+                        <span class="item-value negative" data-upcoming-bills>£0</span>
                       </div>
                     </div>
                   </div>
-                </div>
 
-                <!-- Set Limit Modal Trigger -->
-                <button class="btn secondary" type="button" data-manage-limits>
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 010 2.83 2 2 0 01-2.83 0l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-2 2 2 2 0 01-2-2v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83 0 2 2 0 010-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H3a2 2 0 01-2-2 2 2 0 012-2h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 010-2.83 2 2 0 012.83 0l.06.06a1.65 1.65 0 001.82.33H9a1.65 1.65 0 001-1.51V3a2 2 0 012-2 2 2 0 012 2v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 0 2 2 0 010 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V9a1.65 1.65 0 001.51 1H21a2 2 0 012 2 2 2 0 01-2 2h-.09a1.65 1.65 0 00-1.51 1z"/>
-                  </svg>
-                  Manage Limits
-                </button>
-              </div>
-
-              <!-- Set Limits Modal -->
-              <div class="modal-overlay" data-limits-modal hidden>
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h3>Set Budget Limits</h3>
-                    <button class="btn ghost" type="button" data-close-limits-modal>×</button>
-                  </div>
-                  <div class="limits-form" data-limits-form>
-                    <p class="muted">Set monthly spending limits for each category. You'll get alerts at 75% and 90%.</p>
-                    <div class="limits-categories">
-                      <label class="limit-input-row">
-                        <span>🛒 Groceries</span>
-                        <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="groceries" />
-                      </label>
-                      <label class="limit-input-row">
-                        <span>🍽️ Dining Out</span>
-                        <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="diningOut" />
-                      </label>
-                      <label class="limit-input-row">
-                        <span>☕ Coffee/Snacks</span>
-                        <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="coffeeSnacks" />
-                      </label>
-                      <label class="limit-input-row">
-                        <span>🎬 Entertainment</span>
-                        <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="entertainment" />
-                      </label>
-                      <label class="limit-input-row">
-                        <span>👕 Clothing</span>
-                        <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="clothing" />
-                      </label>
-                      <label class="limit-input-row">
-                        <span>📺 Subscriptions</span>
-                        <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="subscriptions" />
-                      </label>
-                      <label class="limit-input-row">
-                        <span>⛽ Fuel</span>
-                        <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="fuel" />
-                      </label>
-                      <label class="limit-input-row">
-                        <span>🚌 Transport</span>
-                        <input type="number" min="0" step="10" placeholder="No limit" data-limit-input="publicTransport" />
-                      </label>
+                  <!-- Make it to Payday -->
+                  <div class="payday-check" data-payday-check>
+                    <div class="payday-question">
+                      <span class="payday-icon">💰</span>
+                      <span class="payday-text">Will you make it to payday?</span>
                     </div>
-                    <div class="modal-actions">
-                      <button type="button" class="btn ghost" data-close-limits-modal>Cancel</button>
-                      <button type="button" class="btn primary" data-save-limits>Save Limits</button>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Phase 2: Multi-Income Tracking -->
-              <div class="panel-card wide income-sources-card">
-                <div class="income-header">
-                  <div>
-                    <h3>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
-                      </svg>
-                      Income Sources
-                    </h3>
-                    <p class="muted">Track all your income streams</p>
-                  </div>
-                  <button class="btn small primary" type="button" data-add-income>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-                    </svg>
-                    Add Income
-                  </button>
-                </div>
-
-                <!-- Income Summary -->
-                <div class="income-summary">
-                  <div class="income-total">
-                    <span class="income-label">Total Monthly Income</span>
-                    <span class="income-value" data-total-income>£0</span>
-                  </div>
-                  <div class="income-diversification">
-                    <span class="diversification-label">Diversification Score</span>
-                    <div class="diversification-meter">
-                      <span class="meter-fill" data-diversification-fill style="width: 0%"></span>
-                    </div>
-                    <span class="diversification-value" data-diversification-score>Low</span>
-                  </div>
-                </div>
-
-                <!-- Income Sources List -->
-                <div class="income-sources-list" data-income-sources>
-                  <div class="income-source primary">
-                    <div class="source-icon salary">💼</div>
-                    <div class="source-info">
-                      <span class="source-name">Primary Salary</span>
-                      <span class="source-meta">Monthly • PAYE</span>
-                    </div>
-                    <div class="source-amount" data-primary-salary>£0</div>
-                    <div class="source-percent" data-salary-percent>100%</div>
-                  </div>
-                  <p class="muted add-prompt">Add additional income sources to improve your diversification score</p>
-                </div>
-              </div>
-
-              <!-- Add Income Modal -->
-              <div class="modal-overlay" data-income-modal hidden>
-                <div class="modal-content">
-                  <div class="modal-header">
-                    <h3 data-income-modal-title>Add Income Source</h3>
-                    <button class="btn ghost" type="button" data-close-income-modal>×</button>
-                  </div>
-                  <form class="income-form" data-income-form>
-                    <input type="hidden" data-income-id />
-                    <label>
-                      Income Name
-                      <input type="text" placeholder="e.g. Freelance Work, Dividends" data-income-name required />
-                    </label>
-                    <label>
-                      Monthly Amount (£)
-                      <input type="number" min="0" step="1" placeholder="0" data-income-amount required />
-                    </label>
-                    <label>
-                      Type
-                      <select data-income-type>
-                        <option value="salary">Salary/Wages</option>
-                        <option value="freelance">Freelance/Self-employed</option>
-                        <option value="rental">Rental Income</option>
-                        <option value="dividends">Dividends</option>
-                        <option value="interest">Interest</option>
-                        <option value="benefits">Benefits</option>
-                        <option value="pension">Pension</option>
-                        <option value="side-hustle">Side Hustle</option>
-                        <option value="other">Other</option>
-                      </select>
-                    </label>
-                    <label>
-                      Frequency
-                      <select data-income-frequency>
-                        <option value="monthly">Monthly</option>
-                        <option value="weekly">Weekly</option>
-                        <option value="biweekly">Bi-weekly</option>
-                        <option value="quarterly">Quarterly</option>
-                        <option value="annually">Annually</option>
-                        <option value="irregular">Irregular</option>
-                      </select>
-                    </label>
-                    <label class="checkbox-row">
-                      <input type="checkbox" data-income-taxable checked />
-                      <span>Taxable income (needs self-assessment)</span>
-                    </label>
-                    <div class="modal-actions">
-                      <button type="button" class="btn ghost" data-close-income-modal>Cancel</button>
-                      <button type="submit" class="btn primary">Save Income</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-
-              <!-- Phase 2: Spending Forecast -->
-              <div class="panel-card wide forecast-card">
-                <div class="forecast-header">
-                  <div>
-                    <h3>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                      </svg>
-                      End of Month Forecast
-                    </h3>
-                    <p class="muted">Predicted balance based on your spending patterns</p>
-                  </div>
-                </div>
-
-                <!-- Forecast Summary -->
-                <div class="forecast-summary">
-                  <div class="forecast-main">
-                    <div class="forecast-projected">
-                      <span class="forecast-label">Projected Balance</span>
-                      <span class="forecast-value" data-forecast-balance>£0</span>
-                    </div>
-                    <div class="forecast-indicator" data-forecast-indicator>
-                      <span class="indicator-icon positive">✓</span>
-                      <span class="indicator-text">You're on track for a surplus</span>
+                    <div class="payday-answer positive" data-payday-answer>
+                      <span class="answer-icon">✓</span>
+                      <span class="answer-text">Yes, with £0 to spare</span>
                     </div>
                   </div>
 
-                  <div class="forecast-breakdown">
-                    <div class="forecast-item">
-                      <span class="item-label">Days Remaining</span>
-                      <span class="item-value" data-days-remaining>0</span>
+                  <!-- Daily Breakdown Chart -->
+                  <div class="forecast-chart-container">
+                    <h4>Daily Balance Projection</h4>
+                    <div class="forecast-chart" data-forecast-chart>
+                      <p class="muted">Tracking your predicted daily balance</p>
                     </div>
-                    <div class="forecast-item">
-                      <span class="item-label">Expected Spending</span>
-                      <span class="item-value negative" data-expected-spending>£0</span>
-                    </div>
-                    <div class="forecast-item">
-                      <span class="item-label">Upcoming Bills</span>
-                      <span class="item-value negative" data-upcoming-bills>£0</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Make it to Payday -->
-                <div class="payday-check" data-payday-check>
-                  <div class="payday-question">
-                    <span class="payday-icon">💰</span>
-                    <span class="payday-text">Will you make it to payday?</span>
-                  </div>
-                  <div class="payday-answer positive" data-payday-answer>
-                    <span class="answer-icon">✓</span>
-                    <span class="answer-text">Yes, with £0 to spare</span>
-                  </div>
-                </div>
-
-                <!-- Daily Breakdown Chart -->
-                <div class="forecast-chart-container">
-                  <h4>Daily Balance Projection</h4>
-                  <div class="forecast-chart" data-forecast-chart>
-                    <p class="muted">Tracking your predicted daily balance</p>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div class="tab-panel" data-tab="plan">
+            <!-- Cash Flow Tab (standalone) -->
+            <div class="tab-panel" data-tab="cashflow">
               <div class="panel-grid">
                 <div class="panel-card">
                   <h3>Future Lab</h3>
@@ -1689,104 +1723,122 @@
                     </div>
                   </div>
                 </div>
-                <div class="panel-card monte-panel">
-                  <h3>Monte Carlo Simulator</h3>
-                  <p class="muted">Run thousands of scenarios to see your probability of success</p>
-                  <form class="monte-form monte-grid" data-monte-form>
-                    <label>
-                      Starting balance
-                      <input type="number" min="0" step="100" value="2500" data-monte-start />
-                    </label>
-                    <label>
-                      Monthly contribution
-                      <input type="number" min="1" value="350" data-monte-monthly />
-                    </label>
-                    <label>
-                      Contribution growth (%/yr)
-                      <input type="number" step="0.1" value="2" data-monte-growth />
-                    </label>
-                    <label>
-                      Years
-                      <input type="number" min="1" max="40" value="20" data-monte-years />
-                    </label>
-                    <label>
-                      Risk profile
-                      <select data-monte-risk>
-                        <option value="cautious">Cautious</option>
-                        <option value="balanced" selected>Balanced</option>
-                        <option value="growth">Growth</option>
-                        <option value="custom">Custom</option>
-                      </select>
-                    </label>
-                    <label>
-                      Expected return (%)
-                      <input type="number" step="0.1" value="6" data-monte-return />
-                    </label>
-                    <label>
-                      Volatility (%)
-                      <input type="number" step="0.1" value="10" data-monte-vol />
-                    </label>
-                    <label>
-                      Inflation (%)
-                      <input type="number" step="0.1" value="2.5" data-monte-inflation />
-                    </label>
-                    <label>
-                      Annual fee (%)
-                      <input type="number" step="0.1" value="0.6" data-monte-fee />
-                    </label>
-                    <label>
-                      Target value
-                      <input type="number" min="0" step="100" value="100000" data-monte-target />
-                    </label>
-                    <label>
-                      Simulations
-                      <input type="number" min="100" max="5000" step="50" value="500" data-monte-runs />
-                    </label>
-                    <button class="btn primary full" type="button" data-monte-run>
-                      Run Simulation
+              </div>
+            </div>
+            <!-- End Cash Flow Tab -->
+
+            <!-- Simulate Tab (standalone) -->
+            <div class="tab-panel" data-tab="simulate">
+              <div class="panel-card monte-panel">
+                <h3>Monte Carlo Simulator</h3>
+                <p class="muted">Run thousands of scenarios to see your probability of success</p>
+                <form class="monte-form monte-grid" data-monte-form>
+                  <label>
+                    Starting balance
+                    <input type="number" min="0" step="100" value="2500" data-monte-start />
+                  </label>
+                  <label>
+                    Monthly contribution
+                    <input type="number" min="1" value="350" data-monte-monthly />
+                  </label>
+                  <label>
+                    Contribution growth (%/yr)
+                    <input type="number" step="0.1" value="2" data-monte-growth />
+                  </label>
+                  <label>
+                    Years
+                    <input type="number" min="1" max="40" value="20" data-monte-years />
+                  </label>
+                  <label>
+                    Risk profile
+                    <select data-monte-risk>
+                      <option value="cautious">Cautious</option>
+                      <option value="balanced" selected>Balanced</option>
+                      <option value="growth">Growth</option>
+                      <option value="custom">Custom</option>
+                    </select>
+                  </label>
+                  <label>
+                    Expected return (%)
+                    <input type="number" step="0.1" value="6" data-monte-return />
+                  </label>
+                  <label>
+                    Volatility (%)
+                    <input type="number" step="0.1" value="10" data-monte-vol />
+                  </label>
+                  <label>
+                    Inflation (%)
+                    <input type="number" step="0.1" value="2.5" data-monte-inflation />
+                  </label>
+                  <label>
+                    Annual fee (%)
+                    <input type="number" step="0.1" value="0.6" data-monte-fee />
+                  </label>
+                  <label>
+                    Target value
+                    <input type="number" min="0" step="100" value="100000" data-monte-target />
+                  </label>
+                  <label>
+                    Simulations
+                    <input type="number" min="100" max="5000" step="50" value="500" data-monte-runs />
+                  </label>
+                  <button class="btn primary full" type="button" data-monte-run>
+                    Run Simulation
+                  </button>
+                </form>
+                <div class="monte-results">
+                  <div class="monte-output" data-monte-output>
+                    Projected range: £0 - £0
+                  </div>
+                  <div class="monte-stats">
+                    <div>
+                      <p class="metric-label">Simulations</p>
+                      <p class="metric-value" data-monte-sims>500</p>
+                    </div>
+                    <div>
+                      <p class="metric-label">Hit Target</p>
+                      <p class="metric-value" data-monte-hit>0%</p>
+                    </div>
+                    <div>
+                      <p class="metric-label">Real Return</p>
+                      <p class="metric-value" data-monte-real>0%</p>
+                    </div>
+                  </div>
+                  <p class="muted" data-assumptions-updated>Assumptions updated: --</p>
+                  <div class="monte-chart-wrap">
+                    <h4>Distribution of Outcomes</h4>
+                    <div class="monte-bars" data-monte-bars></div>
+                    <div class="monte-percentiles">
+                      <span class="percentile p10" data-monte-p10>10th: £0</span>
+                      <span class="percentile p50" data-monte-p50>50th: £0</span>
+                      <span class="percentile p90" data-monte-p90>90th: £0</span>
+                    </div>
+                  </div>
+                  <div class="monte-report" data-monte-report style="display: none;">
+                    <h4>Simulation Report</h4>
+                    <div class="report-content" data-report-content></div>
+                    <button class="btn ghost" type="button" data-download-report>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+                      </svg>
+                      Download Report
                     </button>
-                  </form>
-                  <div class="monte-results">
-                    <div class="monte-output" data-monte-output>
-                      Projected range: £0 - £0
-                    </div>
-                    <div class="monte-stats">
-                      <div>
-                        <p class="metric-label">Simulations</p>
-                        <p class="metric-value" data-monte-sims>500</p>
-                      </div>
-                      <div>
-                        <p class="metric-label">Hit Target</p>
-                        <p class="metric-value" data-monte-hit>0%</p>
-                      </div>
-                      <div>
-                        <p class="metric-label">Real Return</p>
-                        <p class="metric-value" data-monte-real>0%</p>
-                      </div>
-                    </div>
-                    <p class="muted" data-assumptions-updated>Assumptions updated: --</p>
-                    <div class="monte-chart-wrap">
-                      <h4>Distribution of Outcomes</h4>
-                      <div class="monte-bars" data-monte-bars></div>
-                      <div class="monte-percentiles">
-                        <span class="percentile p10" data-monte-p10>10th: £0</span>
-                        <span class="percentile p50" data-monte-p50>50th: £0</span>
-                        <span class="percentile p90" data-monte-p90>90th: £0</span>
-                      </div>
-                    </div>
-                    <div class="monte-report" data-monte-report style="display: none;">
-                      <h4>Simulation Report</h4>
-                      <div class="report-content" data-report-content></div>
-                      <button class="btn ghost" type="button" data-download-report>
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
-                        </svg>
-                        Download Report
-                      </button>
-                    </div>
                   </div>
                 </div>
               </div>
+            </div>
+            <!-- End Simulate Tab -->
+
+            <div class="tab-panel" data-tab="plan">
+              <!-- Sub-tab Navigation -->
+              <nav class="subtab-nav" data-subtab-nav="plan" role="tablist" aria-label="Plan sections">
+                <button class="subtab-btn is-active" type="button" role="tab" aria-selected="true" data-subtab-target="bill-calendar">Bill Calendar</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="debt-payoff">Debt Payoff</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="currency">Currency</button>
+              </nav>
+
+              <!-- Currency Section -->
+              <div class="subtab-panel" data-subtab="currency">
               <div class="panel-row">
                 <div class="panel-card converter-card">
                   <h3>Currency Converter</h3>
@@ -1843,8 +1895,11 @@
                   </div>
                 </div>
               </div>
+              </div>
+              <!-- End Currency Section -->
 
-              <!-- Bill Calendar & Reminders -->
+              <!-- Bill Calendar Section -->
+              <div class="subtab-panel is-active" data-subtab="bill-calendar">
               <div class="panel-card bills-panel">
                 <div class="bills-header">
                   <h3>Bill Calendar</h3>
@@ -1894,20 +1949,20 @@
                 </div>
 
                 <!-- Upcoming Bills List -->
-                <div class="bills-upcoming">
-                  <h4>Upcoming This Week</h4>
+                <details class="bills-upcoming" open>
+                  <summary><h4>Upcoming This Week</h4></summary>
                   <div class="bills-list" data-bills-upcoming>
                     <p class="muted">No bills added yet. Add your first bill to get started.</p>
                   </div>
-                </div>
+                </details>
 
                 <!-- All Bills List -->
-                <div class="bills-all">
-                  <h4>All Bills</h4>
+                <details class="bills-all">
+                  <summary><h4>All Bills</h4></summary>
                   <div class="bills-list" data-bills-all>
                     <p class="muted">No bills added yet.</p>
                   </div>
-                </div>
+                </details>
               </div>
 
               <!-- Add/Edit Bill Modal -->
@@ -1959,8 +2014,11 @@
                   </form>
                 </div>
               </div>
+              </div>
+              <!-- End Bill Calendar Section -->
 
-              <!-- Debt Payoff Planner -->
+              <!-- Debt Payoff Section -->
+              <div class="subtab-panel" data-subtab="debt-payoff">
               <div class="panel-card debt-panel">
                 <div class="debt-header">
                   <h3>Debt Payoff Planner</h3>
@@ -2102,6 +2160,8 @@
                   </form>
                 </div>
               </div>
+              </div>
+              <!-- End Debt Payoff Section -->
             </div>
 
             <div class="tab-panel" data-tab="goals">
@@ -2199,10 +2259,6 @@
                         <input type="text" placeholder="e.g. Partner, Housemate" data-member-name required />
                       </label>
                       <label>
-                        Monthly Contribution (£)
-                        <input type="number" min="0" step="1" placeholder="0" data-member-contribution />
-                      </label>
-                      <label>
                         Relationship
                         <select data-member-relationship>
                           <option value="partner">Partner/Spouse</option>
@@ -2210,6 +2266,16 @@
                           <option value="family">Family Member</option>
                           <option value="other">Other</option>
                         </select>
+                      </label>
+                      <label>
+                        Monthly Income (£)
+                        <input type="number" min="0" step="1" placeholder="0" data-member-income />
+                        <span class="input-hint">Their total monthly income (optional)</span>
+                      </label>
+                      <label>
+                        Monthly Contribution (£)
+                        <input type="number" min="0" step="1" placeholder="0" data-member-contribution />
+                        <span class="input-hint">Amount they contribute to shared expenses</span>
                       </label>
                       <div class="modal-actions">
                         <button type="button" class="btn ghost" data-close-member-modal>Cancel</button>
@@ -2821,903 +2887,942 @@
             </div>
 
             <div class="tab-panel" data-tab="profile">
-              <!-- Financial Health Score Hero -->
-              <div class="health-score-hero">
-                <div class="health-score-ring">
-                  <svg viewBox="0 0 120 120" class="score-ring-svg">
-                    <circle cx="60" cy="60" r="52" class="score-ring-bg"/>
-                    <circle cx="60" cy="60" r="52" class="score-ring-fill" data-health-ring/>
-                  </svg>
-                  <div class="score-ring-center">
-                    <span class="score-value" data-health-score>0</span>
-                    <span class="score-max">/ 100</span>
-                  </div>
-                </div>
-                <div class="health-score-info">
-                  <h2>Your Financial Health Score</h2>
-                  <p class="health-status" data-health-status>Getting started</p>
-                  <div class="score-trend" data-score-trend>
-                    <!-- Trend indicator populated by JS -->
-                  </div>
-                  <p class="muted">Based on 5 key financial pillars. Updated as you enter your details.</p>
-                </div>
-              </div>
+              <nav class="subtab-nav" data-subtab-nav="profile" role="tablist" aria-label="Profile sections">
+                <button class="subtab-btn is-active" type="button" role="tab" aria-selected="true" data-subtab-target="health">Health</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="networth">Net Worth</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="credit">Credit</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="protection">Protection</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="snapshot">Snapshot</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="insights">Insights</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="whatif">What-If</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="tax">Tax</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="retirement">Retirement</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="tips">Tips</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="gamification">Achievements</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="settings">Settings</button>
+              </nav>
 
-              <!-- Year on Year Comparison -->
-              <div class="yoy-section" data-yoy-comparison>
-                <!-- Populated by JavaScript -->
-              </div>
-
-              <!-- Score History Chart -->
-              <div class="score-history-section">
-                <div class="score-history-header">
-                  <h3>Score History</h3>
-                  <div class="milestones-row" data-milestones></div>
-                </div>
-                <div class="score-chart-container" data-score-chart>
-                  <p class="chart-empty">Score history will appear as you track over time</p>
-                </div>
-              </div>
-
-              <!-- Health Score Breakdown -->
-              <div class="health-breakdown">
-                <div class="health-pillar" data-pillar="emergency">
-                  <div class="pillar-header">
-                    <span class="pillar-icon">🛡️</span>
-                    <span class="pillar-name">Emergency Buffer</span>
-                    <span class="pillar-trend" data-pillar-trend="emergency"></span>
-                    <span class="pillar-score" data-pillar-score="emergency">0/25</span>
-                  </div>
-                  <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="emergency"></div></div>
-                  <p class="pillar-tip" data-pillar-tip="emergency">Add your savings to see your emergency cover</p>
-                </div>
-                <div class="health-pillar" data-pillar="debt">
-                  <div class="pillar-header">
-                    <span class="pillar-icon">📊</span>
-                    <span class="pillar-name">Debt-to-Income</span>
-                    <span class="pillar-trend" data-pillar-trend="debt"></span>
-                    <span class="pillar-score" data-pillar-score="debt">0/25</span>
-                  </div>
-                  <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="debt"></div></div>
-                  <p class="pillar-tip" data-pillar-tip="debt">Enter your debts to calculate your ratio</p>
-                </div>
-                <div class="health-pillar" data-pillar="savings">
-                  <div class="pillar-header">
-                    <span class="pillar-icon">💰</span>
-                    <span class="pillar-name">Savings Rate</span>
-                    <span class="pillar-trend" data-pillar-trend="savings"></span>
-                    <span class="pillar-score" data-pillar-score="savings">0/20</span>
-                  </div>
-                  <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="savings"></div></div>
-                  <p class="pillar-tip" data-pillar-tip="savings">Your surplus as % of income</p>
-                </div>
-                <div class="health-pillar" data-pillar="credit">
-                  <div class="pillar-header">
-                    <span class="pillar-icon">💳</span>
-                    <span class="pillar-name">Credit Utilization</span>
-                    <span class="pillar-trend" data-pillar-trend="credit"></span>
-                    <span class="pillar-score" data-pillar-score="credit">0/15</span>
-                  </div>
-                  <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="credit"></div></div>
-                  <p class="pillar-tip" data-pillar-tip="credit">Add your credit score details below</p>
-                </div>
-                <div class="health-pillar" data-pillar="protection">
-                  <div class="pillar-header">
-                    <span class="pillar-icon">🏥</span>
-                    <span class="pillar-name">Protection Cover</span>
-                    <span class="pillar-trend" data-pillar-trend="protection"></span>
-                    <span class="pillar-score" data-pillar-score="protection">0/15</span>
-                  </div>
-                  <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="protection"></div></div>
-                  <p class="pillar-tip" data-pillar-tip="protection">Review your insurance coverage</p>
-                </div>
-              </div>
-
-              <!-- Net Worth Section -->
-              <div class="networth-section">
-                <div class="networth-header">
-                  <h3>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+              <div class="subtab-panel is-active" data-subtab="health">
+                <!-- Financial Health Score Hero -->
+                <div class="health-score-hero">
+                  <div class="health-score-ring">
+                    <svg viewBox="0 0 120 120" class="score-ring-svg">
+                      <circle cx="60" cy="60" r="52" class="score-ring-bg"/>
+                      <circle cx="60" cy="60" r="52" class="score-ring-fill" data-health-ring/>
                     </svg>
-                    Your Net Worth
-                  </h3>
-                  <div class="networth-total">
-                    <span class="networth-label">Total</span>
-                    <span class="networth-value" data-networth-total>£0</span>
+                    <div class="score-ring-center">
+                      <span class="score-value" data-health-score>0</span>
+                      <span class="score-max">/ 100</span>
+                    </div>
+                  </div>
+                  <div class="health-score-info">
+                    <h2>Your Financial Health Score</h2>
+                    <p class="health-status" data-health-status>Getting started</p>
+                    <div class="score-trend" data-score-trend>
+                      <!-- Trend indicator populated by JS -->
+                    </div>
+                    <p class="muted">Based on 5 key financial pillars. Updated as you enter your details.</p>
                   </div>
                 </div>
 
-                <div class="networth-bars">
-                  <div class="networth-bar assets-bar">
-                    <span class="bar-label">Assets</span>
-                    <div class="bar-track"><div class="bar-fill" data-assets-fill></div></div>
-                    <span class="bar-value" data-assets-total>£0</span>
-                  </div>
-                  <div class="networth-bar liabilities-bar">
-                    <span class="bar-label">Liabilities</span>
-                    <div class="bar-track"><div class="bar-fill" data-liabilities-fill></div></div>
-                    <span class="bar-value" data-liabilities-total>£0</span>
-                  </div>
-                </div>
-
-                <!-- Net Worth Chart -->
-                <div class="networth-chart-section">
-                  <h4>Net Worth Over Time</h4>
-                  <div class="networth-chart-container" data-networth-chart>
-                    <p class="chart-empty">Track for 2+ months to see trend</p>
-                  </div>
-                </div>
-
-                <!-- Assets Accordion -->
-                <div class="networth-accordion">
-                  <button class="accordion-trigger" type="button" data-accordion="assets">
-                    <span class="accordion-icon">💎</span>
-                    <span class="accordion-title">Assets - What You Own</span>
-                    <span class="accordion-value" data-assets-total-small>£0</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="accordion-chevron">
-                      <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                  </button>
-                  <div class="accordion-content" data-accordion-content="assets">
-                    <div class="asset-group">
-                      <h4>Cash & Savings</h4>
-                      <p class="group-help">Money you can access quickly - current accounts, savings, ISAs</p>
-                      <div class="form-grid compact">
-                        <label>
-                          Current & Savings Accounts
-                          <input type="number" min="0" placeholder="5000" data-asset="cashSavings" />
-                        </label>
-                        <label>
-                          Cash ISA Balance
-                          <input type="number" min="0" placeholder="10000" data-asset="cashISA" />
-                        </label>
-                      </div>
-                    </div>
-                    <div class="asset-group">
-                      <h4>Investments</h4>
-                      <p class="group-help">Stocks, shares, ISAs, and other investments</p>
-                      <div class="form-grid compact">
-                        <label>
-                          Stocks & Shares ISA
-                          <input type="number" min="0" placeholder="15000" data-asset="stocksISA" />
-                        </label>
-                        <label>
-                          General Investments
-                          <input type="number" min="0" placeholder="5000" data-asset="generalInvestments" />
-                        </label>
-                        <label>
-                          Cryptocurrency
-                          <input type="number" min="0" placeholder="1000" data-asset="crypto" />
-                        </label>
-                      </div>
-                    </div>
-                    <div class="asset-group">
-                      <h4>Pension</h4>
-                      <p class="group-help">Total value of all your pension pots (check your statements or pension provider)</p>
-                      <div class="form-grid compact">
-                        <label>
-                          Total Pension Value
-                          <input type="number" min="0" placeholder="50000" data-asset="pensionValue" />
-                        </label>
-                      </div>
-                    </div>
-                    <div class="asset-group">
-                      <h4>Property & Vehicles</h4>
-                      <p class="group-help">Estimated current market value of property you own</p>
-                      <div class="form-grid compact">
-                        <label>
-                          Primary Home Value
-                          <input type="number" min="0" placeholder="300000" data-asset="propertyValue" />
-                        </label>
-                        <label>
-                          Other Property Value
-                          <input type="number" min="0" placeholder="0" data-asset="otherPropertyValue" />
-                        </label>
-                        <label>
-                          Vehicle(s) Value
-                          <input type="number" min="0" placeholder="8000" data-asset="vehicleValue" />
-                        </label>
-                        <label>
-                          Other Assets
-                          <input type="number" min="0" placeholder="0" data-asset="otherAssets" />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Liabilities Accordion -->
-                <div class="networth-accordion">
-                  <button class="accordion-trigger" type="button" data-accordion="liabilities">
-                    <span class="accordion-icon">📉</span>
-                    <span class="accordion-title">Liabilities - What You Owe</span>
-                    <span class="accordion-value" data-liabilities-total-small>£0</span>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="accordion-chevron">
-                      <polyline points="6 9 12 15 18 9"/>
-                    </svg>
-                  </button>
-                  <div class="accordion-content" data-accordion-content="liabilities">
-                    <div class="asset-group">
-                      <h4>Mortgages</h4>
-                      <p class="group-help">Outstanding balance remaining on your mortgage(s)</p>
-                      <div class="form-grid compact">
-                        <label>
-                          Primary Mortgage Balance
-                          <input type="number" min="0" placeholder="200000" data-liability="mortgageBalance" />
-                        </label>
-                        <label>
-                          Other Mortgages
-                          <input type="number" min="0" placeholder="0" data-liability="otherMortgages" />
-                        </label>
-                      </div>
-                    </div>
-                    <div class="asset-group">
-                      <h4>Loans & Finance</h4>
-                      <p class="group-help">Outstanding balances on personal loans and car finance</p>
-                      <div class="form-grid compact">
-                        <label>
-                          Personal Loans Balance
-                          <input type="number" min="0" placeholder="0" data-liability="personalLoansBalance" />
-                        </label>
-                        <label>
-                          Car Finance (PCP/HP)
-                          <input type="number" min="0" placeholder="0" data-liability="carFinanceBalance" />
-                        </label>
-                        <label>
-                          Student Loan Balance
-                          <input type="number" min="0" placeholder="0" data-liability="studentLoanBalance" />
-                        </label>
-                      </div>
-                    </div>
-                    <div class="asset-group">
-                      <h4>Credit & Overdrafts</h4>
-                      <p class="group-help">Current balances on credit cards and overdrafts</p>
-                      <div class="form-grid compact">
-                        <label>
-                          Total Credit Card Debt
-                          <input type="number" min="0" placeholder="0" data-liability="creditCardBalance" />
-                        </label>
-                        <label>
-                          Overdraft Used
-                          <input type="number" min="0" placeholder="0" data-liability="overdraftBalance" />
-                        </label>
-                        <label>
-                          Other Debts
-                          <input type="number" min="0" placeholder="0" data-liability="otherDebts" />
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Credit Score Section -->
-              <div class="credit-section">
-                <div class="credit-header">
-                  <h3>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
-                    </svg>
-                    Credit Score
-                  </h3>
-                </div>
-                <div class="credit-score-card">
-                  <div class="credit-score-display">
-                    <div class="credit-score-gauge">
-                      <div class="gauge-value" data-credit-gauge>
-                        <span class="gauge-number" data-credit-score-display>---</span>
-                        <span class="gauge-label">out of 999</span>
-                      </div>
-                      <div class="gauge-band" data-credit-band>Not set</div>
-                    </div>
-                    <div class="credit-score-input">
-                      <p class="credit-help">Check your score for free at ClearScore, Credit Karma, or MSE Credit Club</p>
-                      <div class="form-grid compact">
-                        <label>
-                          Your Credit Score
-                          <input type="number" min="0" max="999" placeholder="750" data-credit="score" />
-                        </label>
-                        <label>
-                          Score Provider
-                          <select data-credit="provider">
-                            <option value="">Select...</option>
-                            <option value="experian">Experian (0-999)</option>
-                            <option value="equifax">Equifax / ClearScore (0-700)</option>
-                            <option value="transunion">TransUnion / Credit Karma (0-710)</option>
-                          </select>
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-                  <div class="credit-utilization">
-                    <h4>Credit Utilization</h4>
-                    <p class="group-help">Lower is better - aim for under 30% of your available credit</p>
-                    <div class="form-grid compact">
-                      <label>
-                        Total Credit Limit
-                        <input type="number" min="0" placeholder="10000" data-credit="creditLimit" />
-                      </label>
-                      <label>
-                        Credit Currently Used
-                        <input type="number" min="0" placeholder="2000" data-credit="creditUsed" />
-                      </label>
-                    </div>
-                    <div class="utilization-bar">
-                      <div class="utilization-fill" data-utilization-fill></div>
-                      <span class="utilization-percent" data-utilization-percent>0%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Insurance Coverage Section -->
-              <div class="insurance-section">
-                <div class="insurance-header">
-                  <h3>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
-                    </svg>
-                    Protection & Insurance
-                  </h3>
-                  <p class="muted">Tick what you have in place</p>
-                </div>
-                <div class="insurance-grid">
-                  <label class="insurance-item">
-                    <input type="checkbox" data-insurance="lifeInsurance" />
-                    <div class="insurance-info">
-                      <span class="insurance-name">Life Insurance</span>
-                      <span class="insurance-desc">Pays out to your family if you die</span>
-                    </div>
-                    <input type="number" min="0" placeholder="Cover amount" class="insurance-amount" data-insurance-amount="lifeInsuranceAmount" />
-                  </label>
-                  <label class="insurance-item">
-                    <input type="checkbox" data-insurance="incomeProtection" />
-                    <div class="insurance-info">
-                      <span class="insurance-name">Income Protection</span>
-                      <span class="insurance-desc">Replaces income if you can't work due to illness</span>
-                    </div>
-                    <input type="number" min="0" max="100" placeholder="% of salary" class="insurance-amount" data-insurance-amount="incomeProtectionPercent" />
-                  </label>
-                  <label class="insurance-item">
-                    <input type="checkbox" data-insurance="criticalIllness" />
-                    <div class="insurance-info">
-                      <span class="insurance-name">Critical Illness</span>
-                      <span class="insurance-desc">Lump sum if diagnosed with serious illness</span>
-                    </div>
-                    <input type="number" min="0" placeholder="Cover amount" class="insurance-amount" data-insurance-amount="criticalIllnessAmount" />
-                  </label>
-                  <label class="insurance-item">
-                    <input type="checkbox" data-insurance="homeContents" />
-                    <div class="insurance-info">
-                      <span class="insurance-name">Home Contents</span>
-                      <span class="insurance-desc">Covers your belongings inside your home</span>
-                    </div>
-                  </label>
-                  <label class="insurance-item">
-                    <input type="checkbox" data-insurance="buildings" />
-                    <div class="insurance-info">
-                      <span class="insurance-name">Buildings Insurance</span>
-                      <span class="insurance-desc">Covers the structure of your home (usually required for mortgages)</span>
-                    </div>
-                  </label>
-                </div>
-              </div>
-
-              <!-- Vulnerability Assessment -->
-              <div class="vulnerability-section">
-                <div class="vulnerability-header">
-                  <h3>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
-                      <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    Vulnerability Check
-                  </h3>
-                  <p class="muted">Areas that need attention based on your financial profile</p>
-                </div>
-                <div class="vulnerability-list" data-vulnerability-list>
-                  <!-- Populated by JavaScript -->
-                </div>
-              </div>
-
-              <!-- Improvement Roadmap -->
-              <div class="roadmap-section">
-                <div class="roadmap-header">
-                  <h3>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
-                      <polyline points="22 4 12 14.01 9 11.01"/>
-                    </svg>
-                    Your Improvement Roadmap
-                  </h3>
-                  <p class="muted">Prioritized steps to strengthen your financial health</p>
-                </div>
-                <div class="roadmap-list" data-roadmap-list>
-                  <!-- Populated by JavaScript -->
-                </div>
-              </div>
-
-              <!-- Financial Snapshot Charts -->
-              <div class="snapshot-section">
-                <div class="snapshot-header">
-                  <h3>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/>
-                    </svg>
-                    Financial Snapshot
-                  </h3>
-                  <p class="muted">Visual overview of your finances</p>
-                </div>
-
-                <div class="snapshot-grid">
-                  <!-- Income vs Expenses -->
-                  <div class="snapshot-card">
-                    <h4>Income vs Expenses</h4>
-                    <div class="snapshot-chart" data-income-expense>
-                      <p class="chart-empty">Add income & expenses</p>
-                    </div>
-                  </div>
-
-                  <!-- Emergency Fund Gauge -->
-                  <div class="snapshot-card">
-                    <h4>Emergency Runway</h4>
-                    <div class="snapshot-chart" data-emergency-gauge>
-                      <p class="chart-empty">Add savings & expenses</p>
-                    </div>
-                  </div>
-
-                  <!-- Spending Breakdown -->
-                  <div class="snapshot-card wide">
-                    <h4>Spending Breakdown</h4>
-                    <div class="snapshot-chart" data-spending-donut>
-                      <p class="chart-empty">Add your expenses</p>
-                    </div>
-                  </div>
-
-                  <!-- Asset Allocation -->
-                  <div class="snapshot-card">
-                    <h4>Asset Allocation</h4>
-                    <div class="snapshot-chart" data-asset-pie>
-                      <p class="chart-empty">Add your assets</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Smart Insights Section -->
-              <div class="insights-section">
-                <div class="insights-header">
-                  <h3>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
-                    </svg>
-                    Smart Insights
-                  </h3>
-                  <p class="muted">How you compare to UK averages</p>
-                </div>
-
-                <!-- Peer Comparison Cards -->
-                <div class="peer-insights" data-peer-insights>
+                <!-- Year on Year Comparison -->
+                <div class="yoy-section" data-yoy-comparison>
                   <!-- Populated by JavaScript -->
                 </div>
 
-                <!-- Spending Trends -->
-                <div class="insights-subsection">
-                  <h4>Spending vs UK Average</h4>
-                  <div class="spending-trends" data-spending-trends>
+                <!-- Score History Chart -->
+                <div class="score-history-section">
+                  <div class="score-history-header">
+                    <h3>Score History</h3>
+                    <div class="milestones-row" data-milestones></div>
+                  </div>
+                  <div class="score-chart-container" data-score-chart>
+                    <p class="chart-empty">Score history will appear as you track over time</p>
+                  </div>
+                </div>
+
+                <!-- Health Score Breakdown -->
+                <div class="health-breakdown">
+                  <div class="health-pillar" data-pillar="emergency">
+                    <div class="pillar-header">
+                      <span class="pillar-icon">🛡️</span>
+                      <span class="pillar-name">Emergency Buffer</span>
+                      <span class="pillar-trend" data-pillar-trend="emergency"></span>
+                      <span class="pillar-score" data-pillar-score="emergency">0/25</span>
+                    </div>
+                    <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="emergency"></div></div>
+                    <p class="pillar-tip" data-pillar-tip="emergency">Add your savings to see your emergency cover</p>
+                  </div>
+                  <div class="health-pillar" data-pillar="debt">
+                    <div class="pillar-header">
+                      <span class="pillar-icon">📊</span>
+                      <span class="pillar-name">Debt-to-Income</span>
+                      <span class="pillar-trend" data-pillar-trend="debt"></span>
+                      <span class="pillar-score" data-pillar-score="debt">0/25</span>
+                    </div>
+                    <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="debt"></div></div>
+                    <p class="pillar-tip" data-pillar-tip="debt">Enter your debts to calculate your ratio</p>
+                  </div>
+                  <div class="health-pillar" data-pillar="savings">
+                    <div class="pillar-header">
+                      <span class="pillar-icon">💰</span>
+                      <span class="pillar-name">Savings Rate</span>
+                      <span class="pillar-trend" data-pillar-trend="savings"></span>
+                      <span class="pillar-score" data-pillar-score="savings">0/20</span>
+                    </div>
+                    <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="savings"></div></div>
+                    <p class="pillar-tip" data-pillar-tip="savings">Your surplus as % of income</p>
+                  </div>
+                  <div class="health-pillar" data-pillar="credit">
+                    <div class="pillar-header">
+                      <span class="pillar-icon">💳</span>
+                      <span class="pillar-name">Credit Utilization</span>
+                      <span class="pillar-trend" data-pillar-trend="credit"></span>
+                      <span class="pillar-score" data-pillar-score="credit">0/15</span>
+                    </div>
+                    <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="credit"></div></div>
+                    <p class="pillar-tip" data-pillar-tip="credit">Add your credit score details below</p>
+                  </div>
+                  <div class="health-pillar" data-pillar="protection">
+                    <div class="pillar-header">
+                      <span class="pillar-icon">🏥</span>
+                      <span class="pillar-name">Protection Cover</span>
+                      <span class="pillar-trend" data-pillar-trend="protection"></span>
+                      <span class="pillar-score" data-pillar-score="protection">0/15</span>
+                    </div>
+                    <div class="pillar-bar"><div class="pillar-fill" data-pillar-fill="protection"></div></div>
+                    <p class="pillar-tip" data-pillar-tip="protection">Review your insurance coverage</p>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="networth">
+                <!-- Net Worth Section -->
+                <div class="networth-section">
+                  <div class="networth-header">
+                    <h3>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2v20M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/>
+                      </svg>
+                      Your Net Worth
+                    </h3>
+                    <div class="networth-total">
+                      <span class="networth-label">Total</span>
+                      <span class="networth-value" data-networth-total>£0</span>
+                    </div>
+                  </div>
+
+                  <div class="networth-bars">
+                    <div class="networth-bar assets-bar">
+                      <span class="bar-label">Assets</span>
+                      <div class="bar-track"><div class="bar-fill" data-assets-fill></div></div>
+                      <span class="bar-value" data-assets-total>£0</span>
+                    </div>
+                    <div class="networth-bar liabilities-bar">
+                      <span class="bar-label">Liabilities</span>
+                      <div class="bar-track"><div class="bar-fill" data-liabilities-fill></div></div>
+                      <span class="bar-value" data-liabilities-total>£0</span>
+                    </div>
+                  </div>
+
+                  <!-- Net Worth Chart -->
+                  <div class="networth-chart-section">
+                    <h4>Net Worth Over Time</h4>
+                    <div class="networth-chart-container" data-networth-chart>
+                      <p class="chart-empty">Track for 2+ months to see trend</p>
+                    </div>
+                  </div>
+
+                  <!-- Assets Accordion -->
+                  <div class="networth-accordion">
+                    <button class="accordion-trigger" type="button" data-accordion="assets">
+                      <span class="accordion-icon">💎</span>
+                      <span class="accordion-title">Assets - What You Own</span>
+                      <span class="accordion-value" data-assets-total-small>£0</span>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="accordion-chevron">
+                        <polyline points="6 9 12 15 18 9"/>
+                      </svg>
+                    </button>
+                    <div class="accordion-content" data-accordion-content="assets">
+                      <div class="asset-group">
+                        <h4>Cash & Savings</h4>
+                        <p class="group-help">Money you can access quickly - current accounts, savings, ISAs</p>
+                        <div class="form-grid compact">
+                          <label>
+                            Current & Savings Accounts
+                            <input type="number" min="0" placeholder="5000" data-asset="cashSavings" />
+                          </label>
+                          <label>
+                            Cash ISA Balance
+                            <input type="number" min="0" placeholder="10000" data-asset="cashISA" />
+                          </label>
+                        </div>
+                      </div>
+                      <div class="asset-group">
+                        <h4>Investments</h4>
+                        <p class="group-help">Stocks, shares, ISAs, and other investments</p>
+                        <div class="form-grid compact">
+                          <label>
+                            Stocks & Shares ISA
+                            <input type="number" min="0" placeholder="15000" data-asset="stocksISA" />
+                          </label>
+                          <label>
+                            General Investments
+                            <input type="number" min="0" placeholder="5000" data-asset="generalInvestments" />
+                          </label>
+                          <label>
+                            Cryptocurrency
+                            <input type="number" min="0" placeholder="1000" data-asset="crypto" />
+                          </label>
+                        </div>
+                      </div>
+                      <div class="asset-group">
+                        <h4>Pension</h4>
+                        <p class="group-help">Total value of all your pension pots (check your statements or pension provider)</p>
+                        <div class="form-grid compact">
+                          <label>
+                            Total Pension Value
+                            <input type="number" min="0" placeholder="50000" data-asset="pensionValue" />
+                          </label>
+                        </div>
+                      </div>
+                      <div class="asset-group">
+                        <h4>Property & Vehicles</h4>
+                        <p class="group-help">Estimated current market value of property you own</p>
+                        <div class="form-grid compact">
+                          <label>
+                            Primary Home Value
+                            <input type="number" min="0" placeholder="300000" data-asset="propertyValue" />
+                          </label>
+                          <label>
+                            Other Property Value
+                            <input type="number" min="0" placeholder="0" data-asset="otherPropertyValue" />
+                          </label>
+                          <label>
+                            Vehicle(s) Value
+                            <input type="number" min="0" placeholder="8000" data-asset="vehicleValue" />
+                          </label>
+                          <label>
+                            Other Assets
+                            <input type="number" min="0" placeholder="0" data-asset="otherAssets" />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Liabilities Accordion -->
+                  <div class="networth-accordion">
+                    <button class="accordion-trigger" type="button" data-accordion="liabilities">
+                      <span class="accordion-icon">📉</span>
+                      <span class="accordion-title">Liabilities - What You Owe</span>
+                      <span class="accordion-value" data-liabilities-total-small>£0</span>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="accordion-chevron">
+                        <polyline points="6 9 12 15 18 9"/>
+                      </svg>
+                    </button>
+                    <div class="accordion-content" data-accordion-content="liabilities">
+                      <div class="asset-group">
+                        <h4>Mortgages</h4>
+                        <p class="group-help">Outstanding balance remaining on your mortgage(s)</p>
+                        <div class="form-grid compact">
+                          <label>
+                            Primary Mortgage Balance
+                            <input type="number" min="0" placeholder="200000" data-liability="mortgageBalance" />
+                          </label>
+                          <label>
+                            Other Mortgages
+                            <input type="number" min="0" placeholder="0" data-liability="otherMortgages" />
+                          </label>
+                        </div>
+                      </div>
+                      <div class="asset-group">
+                        <h4>Loans & Finance</h4>
+                        <p class="group-help">Outstanding balances on personal loans and car finance</p>
+                        <div class="form-grid compact">
+                          <label>
+                            Personal Loans Balance
+                            <input type="number" min="0" placeholder="0" data-liability="personalLoansBalance" />
+                          </label>
+                          <label>
+                            Car Finance (PCP/HP)
+                            <input type="number" min="0" placeholder="0" data-liability="carFinanceBalance" />
+                          </label>
+                          <label>
+                            Student Loan Balance
+                            <input type="number" min="0" placeholder="0" data-liability="studentLoanBalance" />
+                          </label>
+                        </div>
+                      </div>
+                      <div class="asset-group">
+                        <h4>Credit & Overdrafts</h4>
+                        <p class="group-help">Current balances on credit cards and overdrafts</p>
+                        <div class="form-grid compact">
+                          <label>
+                            Total Credit Card Debt
+                            <input type="number" min="0" placeholder="0" data-liability="creditCardBalance" />
+                          </label>
+                          <label>
+                            Overdraft Used
+                            <input type="number" min="0" placeholder="0" data-liability="overdraftBalance" />
+                          </label>
+                          <label>
+                            Other Debts
+                            <input type="number" min="0" placeholder="0" data-liability="otherDebts" />
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="credit">
+                <!-- Credit Score Section -->
+                <div class="credit-section">
+                  <div class="credit-header">
+                    <h3>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>
+                      </svg>
+                      Credit Score
+                    </h3>
+                  </div>
+                  <div class="credit-score-card">
+                    <div class="credit-score-display">
+                      <div class="credit-score-gauge">
+                        <div class="gauge-value" data-credit-gauge>
+                          <span class="gauge-number" data-credit-score-display>---</span>
+                          <span class="gauge-label">out of 999</span>
+                        </div>
+                        <div class="gauge-band" data-credit-band>Not set</div>
+                      </div>
+                      <div class="credit-score-input">
+                        <p class="credit-help">Check your score for free at ClearScore, Credit Karma, or MSE Credit Club</p>
+                        <div class="form-grid compact">
+                          <label>
+                            Your Credit Score
+                            <input type="number" min="0" max="999" placeholder="750" data-credit="score" />
+                          </label>
+                          <label>
+                            Score Provider
+                            <select data-credit="provider">
+                              <option value="">Select...</option>
+                              <option value="experian">Experian (0-999)</option>
+                              <option value="equifax">Equifax / ClearScore (0-700)</option>
+                              <option value="transunion">TransUnion / Credit Karma (0-710)</option>
+                            </select>
+                          </label>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="credit-utilization">
+                      <h4>Credit Utilization</h4>
+                      <p class="group-help">Lower is better - aim for under 30% of your available credit</p>
+                      <div class="form-grid compact">
+                        <label>
+                          Total Credit Limit
+                          <input type="number" min="0" placeholder="10000" data-credit="creditLimit" />
+                        </label>
+                        <label>
+                          Credit Currently Used
+                          <input type="number" min="0" placeholder="2000" data-credit="creditUsed" />
+                        </label>
+                      </div>
+                      <div class="utilization-bar">
+                        <div class="utilization-fill" data-utilization-fill></div>
+                        <span class="utilization-percent" data-utilization-percent>0%</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="protection">
+                <!-- Insurance Coverage Section -->
+                <div class="insurance-section">
+                  <div class="insurance-header">
+                    <h3>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+                      </svg>
+                      Protection & Insurance
+                    </h3>
+                    <p class="muted">Tick what you have in place</p>
+                  </div>
+                  <div class="insurance-grid">
+                    <label class="insurance-item">
+                      <input type="checkbox" data-insurance="lifeInsurance" />
+                      <div class="insurance-info">
+                        <span class="insurance-name">Life Insurance</span>
+                        <span class="insurance-desc">Pays out to your family if you die</span>
+                      </div>
+                      <input type="number" min="0" placeholder="Cover amount" class="insurance-amount" data-insurance-amount="lifeInsuranceAmount" />
+                    </label>
+                    <label class="insurance-item">
+                      <input type="checkbox" data-insurance="incomeProtection" />
+                      <div class="insurance-info">
+                        <span class="insurance-name">Income Protection</span>
+                        <span class="insurance-desc">Replaces income if you can't work due to illness</span>
+                      </div>
+                      <input type="number" min="0" max="100" placeholder="% of salary" class="insurance-amount" data-insurance-amount="incomeProtectionPercent" />
+                    </label>
+                    <label class="insurance-item">
+                      <input type="checkbox" data-insurance="criticalIllness" />
+                      <div class="insurance-info">
+                        <span class="insurance-name">Critical Illness</span>
+                        <span class="insurance-desc">Lump sum if diagnosed with serious illness</span>
+                      </div>
+                      <input type="number" min="0" placeholder="Cover amount" class="insurance-amount" data-insurance-amount="criticalIllnessAmount" />
+                    </label>
+                    <label class="insurance-item">
+                      <input type="checkbox" data-insurance="homeContents" />
+                      <div class="insurance-info">
+                        <span class="insurance-name">Home Contents</span>
+                        <span class="insurance-desc">Covers your belongings inside your home</span>
+                      </div>
+                    </label>
+                    <label class="insurance-item">
+                      <input type="checkbox" data-insurance="buildings" />
+                      <div class="insurance-info">
+                        <span class="insurance-name">Buildings Insurance</span>
+                        <span class="insurance-desc">Covers the structure of your home (usually required for mortgages)</span>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="snapshot">
+                <!-- Financial Snapshot Charts -->
+                <div class="snapshot-section">
+                  <div class="snapshot-header">
+                    <h3>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M21.21 15.89A10 10 0 118 2.83"/><path d="M22 12A10 10 0 0012 2v10z"/>
+                      </svg>
+                      Financial Snapshot
+                    </h3>
+                    <p class="muted">Visual overview of your finances</p>
+                  </div>
+
+                  <div class="snapshot-grid">
+                    <!-- Income vs Expenses -->
+                    <div class="snapshot-card">
+                      <h4>Income vs Expenses</h4>
+                      <div class="snapshot-chart" data-income-expense>
+                        <p class="chart-empty">Add income & expenses</p>
+                      </div>
+                    </div>
+
+                    <!-- Emergency Fund Gauge -->
+                    <div class="snapshot-card">
+                      <h4>Emergency Runway</h4>
+                      <div class="snapshot-chart" data-emergency-gauge>
+                        <p class="chart-empty">Add savings & expenses</p>
+                      </div>
+                    </div>
+
+                    <!-- Spending Breakdown -->
+                    <div class="snapshot-card wide">
+                      <h4>Spending Breakdown</h4>
+                      <div class="snapshot-chart" data-spending-donut>
+                        <p class="chart-empty">Add your expenses</p>
+                      </div>
+                    </div>
+
+                    <!-- Asset Allocation -->
+                    <div class="snapshot-card">
+                      <h4>Asset Allocation</h4>
+                      <div class="snapshot-chart" data-asset-pie>
+                        <p class="chart-empty">Add your assets</p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="insights">
+                <!-- Smart Insights Section -->
+                <div class="insights-section">
+                  <div class="insights-header">
+                    <h3>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/>
+                      </svg>
+                      Smart Insights
+                    </h3>
+                    <p class="muted">How you compare to UK averages</p>
+                  </div>
+
+                  <!-- Peer Comparison Cards -->
+                  <div class="peer-insights" data-peer-insights>
                     <!-- Populated by JavaScript -->
                   </div>
-                </div>
 
-                <!-- Subscription Audit -->
-                <div class="insights-subsection">
-                  <h4>
-                    <span>Subscription Audit</span>
-                    <span class="sub-total" data-subscription-total></span>
-                  </h4>
-                  <div class="subscription-list" data-subscription-audit>
-                    <!-- Populated by JavaScript -->
-                  </div>
-                </div>
-              </div>
-
-              <!-- What-If Calculator -->
-              <div class="whatif-section">
-                <div class="whatif-header">
-                  <h3>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
-                    </svg>
-                    What If Calculator
-                  </h3>
-                  <p class="muted">See the impact of small changes</p>
-                </div>
-
-                <div class="whatif-controls">
-                  <div class="whatif-scenario-select">
-                    <label>Scenario</label>
-                    <select data-whatif-scenario>
-                      <option value="extraSavings">Save extra each month</option>
-                      <option value="debtPayoff">Pay extra on debt</option>
-                      <option value="emergencyRunway">Job loss runway</option>
-                      <option value="goalAcceleration">Accelerate goals</option>
-                    </select>
-                  </div>
-                  <div class="whatif-slider-wrap">
-                    <label>Amount: <span data-whatif-amount>£100</span></label>
-                    <input type="range" min="25" max="500" step="25" value="100" data-whatif-slider />
-                    <div class="slider-labels">
-                      <span>£25</span>
-                      <span>£500</span>
+                  <!-- Spending Trends -->
+                  <div class="insights-subsection">
+                    <h4>Spending vs UK Average</h4>
+                    <div class="spending-trends" data-spending-trends>
+                      <!-- Populated by JavaScript -->
                     </div>
-                  </div>
-                </div>
-
-                <div class="whatif-results" data-whatif-results>
-                  <!-- Populated by JavaScript -->
-                </div>
-              </div>
-
-              <!-- Phase 4: Tax Planning Tools -->
-              <div class="panel-card wide tax-planning-card">
-                <div class="tax-header">
-                  <div>
-                    <h3>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
-                      </svg>
-                      Tax Allowances Tracker
-                    </h3>
-                    <p class="muted">Monitor your annual tax-free allowances (2024/25)</p>
-                  </div>
-                </div>
-
-                <!-- Tax Allowances Grid -->
-                <div class="tax-allowances-grid">
-                  <!-- ISA Allowance -->
-                  <div class="allowance-card isa">
-                    <div class="allowance-header">
-                      <span class="allowance-icon">💰</span>
-                      <div class="allowance-title">
-                        <h4>ISA Allowance</h4>
-                        <span class="allowance-limit">£20,000/year</span>
-                      </div>
-                    </div>
-                    <div class="allowance-progress">
-                      <div class="progress-bar">
-                        <span class="progress-fill" data-isa-progress style="width: 0%"></span>
-                      </div>
-                      <div class="progress-values">
-                        <span class="used" data-isa-used>£0 used</span>
-                        <span class="remaining" data-isa-remaining>£20,000 remaining</span>
-                      </div>
-                    </div>
-                    <div class="allowance-inputs">
-                      <label>
-                        Cash ISA contributions
-                        <input type="number" min="0" step="100" placeholder="0" data-tax-input="cashIsaContrib" />
-                      </label>
-                      <label>
-                        S&S ISA contributions
-                        <input type="number" min="0" step="100" placeholder="0" data-tax-input="stocksIsaContrib" />
-                      </label>
-                    </div>
-                    <p class="allowance-tip">Tip: Use your ISA allowance to shelter savings from tax</p>
                   </div>
 
-                  <!-- Capital Gains Allowance -->
-                  <div class="allowance-card cgt">
-                    <div class="allowance-header">
-                      <span class="allowance-icon">📈</span>
-                      <div class="allowance-title">
-                        <h4>Capital Gains</h4>
-                        <span class="allowance-limit">£3,000/year</span>
-                      </div>
-                    </div>
-                    <div class="allowance-progress">
-                      <div class="progress-bar">
-                        <span class="progress-fill" data-cgt-progress style="width: 0%"></span>
-                      </div>
-                      <div class="progress-values">
-                        <span class="used" data-cgt-used>£0 gains</span>
-                        <span class="remaining" data-cgt-remaining>£3,000 tax-free</span>
-                      </div>
-                    </div>
-                    <div class="allowance-inputs">
-                      <label>
-                        Realised gains this year
-                        <input type="number" min="0" step="100" placeholder="0" data-tax-input="capitalGains" />
-                      </label>
-                    </div>
-                    <p class="allowance-tip">Gains above £3k taxed at 10% (basic) or 20% (higher)</p>
-                  </div>
-
-                  <!-- Dividend Allowance -->
-                  <div class="allowance-card dividend">
-                    <div class="allowance-header">
-                      <span class="allowance-icon">💵</span>
-                      <div class="allowance-title">
-                        <h4>Dividend Allowance</h4>
-                        <span class="allowance-limit">£500/year</span>
-                      </div>
-                    </div>
-                    <div class="allowance-progress">
-                      <div class="progress-bar">
-                        <span class="progress-fill" data-dividend-progress style="width: 0%"></span>
-                      </div>
-                      <div class="progress-values">
-                        <span class="used" data-dividend-used>£0 received</span>
-                        <span class="remaining" data-dividend-remaining>£500 tax-free</span>
-                      </div>
-                    </div>
-                    <div class="allowance-inputs">
-                      <label>
-                        Dividends received this year
-                        <input type="number" min="0" step="10" placeholder="0" data-tax-input="dividends" />
-                      </label>
-                    </div>
-                    <p class="allowance-tip">Above £500 taxed at 8.75% (basic) to 39.35% (additional)</p>
-                  </div>
-
-                  <!-- Personal Savings Allowance -->
-                  <div class="allowance-card savings">
-                    <div class="allowance-header">
-                      <span class="allowance-icon">🏦</span>
-                      <div class="allowance-title">
-                        <h4>Savings Interest</h4>
-                        <span class="allowance-limit" data-psa-limit>£1,000/year</span>
-                      </div>
-                    </div>
-                    <div class="allowance-progress">
-                      <div class="progress-bar">
-                        <span class="progress-fill" data-psa-progress style="width: 0%"></span>
-                      </div>
-                      <div class="progress-values">
-                        <span class="used" data-psa-used>£0 interest</span>
-                        <span class="remaining" data-psa-remaining>£1,000 tax-free</span>
-                      </div>
-                    </div>
-                    <div class="allowance-inputs">
-                      <label>
-                        Interest earned this year
-                        <input type="number" min="0" step="10" placeholder="0" data-tax-input="savingsInterest" />
-                      </label>
-                    </div>
-                    <p class="allowance-tip">Basic rate: £1k allowance, Higher rate: £500</p>
-                  </div>
-                </div>
-
-                <!-- Tax Year Progress -->
-                <div class="tax-year-progress">
-                  <div class="year-info">
-                    <span class="year-label">Tax Year 2024/25</span>
-                    <span class="year-dates">6 April 2024 - 5 April 2025</span>
-                  </div>
-                  <div class="year-countdown" data-tax-year-countdown>
-                    <!-- Populated by JS -->
-                  </div>
-                </div>
-              </div>
-
-              <!-- Phase 4: Retirement Calculator -->
-              <div class="panel-card wide retirement-card">
-                <div class="retirement-header">
-                  <div>
-                    <h3>
-                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
-                      </svg>
-                      Retirement Planner
-                    </h3>
-                    <p class="muted">Plan your financial independence</p>
-                  </div>
-                </div>
-
-                <!-- Retirement Inputs -->
-                <div class="retirement-inputs">
-                  <div class="input-group">
-                    <label>
-                      Current Age
-                      <input type="number" min="18" max="80" value="30" data-retire-input="currentAge" />
-                    </label>
-                    <label>
-                      Target Retirement Age
-                      <input type="number" min="50" max="80" value="65" data-retire-input="retireAge" />
-                    </label>
-                    <label>
-                      Current Pension Pot
-                      <input type="number" min="0" step="1000" placeholder="0" data-retire-input="pensionPot" />
-                    </label>
-                  </div>
-                  <div class="input-group">
-                    <label>
-                      Monthly Pension Contribution
-                      <input type="number" min="0" step="50" placeholder="0" data-retire-input="monthlyContrib" />
-                    </label>
-                    <label>
-                      Employer Contribution (%)
-                      <input type="number" min="0" max="100" value="3" data-retire-input="employerContrib" />
-                    </label>
-                    <label>
-                      Expected Annual Return (%)
-                      <input type="number" min="0" max="15" step="0.5" value="5" data-retire-input="expectedReturn" />
-                    </label>
-                  </div>
-                </div>
-
-                <!-- Retirement Projections -->
-                <div class="retirement-projections">
-                  <div class="projection-card main">
-                    <span class="projection-label">Projected Pension at Retirement</span>
-                    <span class="projection-value" data-projected-pension>£0</span>
-                    <span class="projection-note" data-pension-years>in 0 years</span>
-                  </div>
-                  <div class="projection-grid">
-                    <div class="projection-card">
-                      <span class="projection-label">Monthly Income (4% drawdown)</span>
-                      <span class="projection-value" data-monthly-drawdown>£0</span>
-                    </div>
-                    <div class="projection-card">
-                      <span class="projection-label">State Pension (estimate)</span>
-                      <span class="projection-value" data-state-pension>£221/week</span>
-                    </div>
-                    <div class="projection-card">
-                      <span class="projection-label">Total Monthly Retirement</span>
-                      <span class="projection-value positive" data-total-retirement>£0</span>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Pension Gap Analysis -->
-                <div class="pension-gap-section">
-                  <h4>Pension Gap Analysis</h4>
-                  <div class="pension-gap">
-                    <div class="gap-current">
-                      <span class="gap-label">Current Monthly Expenses</span>
-                      <span class="gap-value" data-current-expenses>£0</span>
-                    </div>
-                    <div class="gap-arrow">→</div>
-                    <div class="gap-retirement">
-                      <span class="gap-label">Projected Retirement Income</span>
-                      <span class="gap-value" data-retirement-income>£0</span>
-                    </div>
-                    <div class="gap-result" data-pension-gap-result>
-                      <!-- Populated by JS -->
-                    </div>
-                  </div>
-                </div>
-
-                <!-- FIRE Calculator -->
-                <div class="fire-section">
-                  <div class="fire-header">
+                  <!-- Subscription Audit -->
+                  <div class="insights-subsection">
                     <h4>
-                      <span class="fire-icon">🔥</span>
-                      FIRE Calculator
+                      <span>Subscription Audit</span>
+                      <span class="sub-total" data-subscription-total></span>
                     </h4>
-                    <span class="fire-subtitle">Financial Independence, Retire Early</span>
-                  </div>
-                  <div class="fire-inputs">
-                    <label>
-                      Target Annual Spending in Retirement
-                      <input type="number" min="0" step="1000" placeholder="30000" data-fire-input="annualSpending" />
-                    </label>
-                    <label>
-                      Current Investments/Savings
-                      <input type="number" min="0" step="1000" placeholder="0" data-fire-input="currentSavings" />
-                    </label>
-                    <label>
-                      Monthly Savings Rate
-                      <input type="number" min="0" step="100" placeholder="0" data-fire-input="monthlySavings" />
-                    </label>
-                  </div>
-                  <div class="fire-results">
-                    <div class="fire-target">
-                      <span class="fire-label">FIRE Target (25x expenses)</span>
-                      <span class="fire-value" data-fire-target>£0</span>
-                    </div>
-                    <div class="fire-progress-container">
-                      <div class="fire-progress-bar">
-                        <span class="fire-progress-fill" data-fire-progress style="width: 0%"></span>
-                      </div>
-                      <span class="fire-percent" data-fire-percent>0%</span>
-                    </div>
-                    <div class="fire-timeline">
-                      <span class="timeline-label">Years to FIRE:</span>
-                      <span class="timeline-value" data-fire-years>--</span>
-                    </div>
-                    <div class="fire-age" data-fire-age>
-                      <!-- Populated by JS -->
+                    <div class="subscription-list" data-subscription-audit>
+                      <!-- Populated by JavaScript -->
                     </div>
                   </div>
                 </div>
 
-                <!-- Retirement Scenarios -->
-                <div class="retirement-scenarios">
-                  <h4>Retirement Age Comparison</h4>
-                  <div class="scenarios-grid" data-retirement-scenarios>
-                    <!-- Populated by JS -->
+                <!-- Vulnerability Assessment -->
+                <div class="vulnerability-section">
+                  <div class="vulnerability-header">
+                    <h3>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+                        <line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                      Vulnerability Check
+                    </h3>
+                    <p class="muted">Areas that need attention based on your financial profile</p>
                   </div>
-                </div>
-              </div>
-
-              <!-- Smart Tips -->
-              <div class="tips-section">
-                <div class="tips-header">
-                  <h3>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M9 18h6"/><path d="M10 22h4"/>
-                      <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0018 8 6 6 0 006 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 018.91 14"/>
-                    </svg>
-                    Personalized Tips
-                  </h3>
-                  <p class="muted">Actions to improve your finances</p>
-                </div>
-                <div class="smart-tips" data-smart-tips>
-                  <!-- Populated by JavaScript -->
-                </div>
-              </div>
-
-              <!-- Gamification Section -->
-              <div class="gamification-section">
-                <div class="gamification-header">
-                  <h3>
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                      <path d="M12 15l-2 5l9-9l-5 2l2-5l-9 9l5-2z"/>
-                    </svg>
-                    Achievements & Challenges
-                  </h3>
-                  <div class="gamification-stats">
-                    <div class="stat-pill">
-                      <span class="stat-icon">🔥</span>
-                      <span class="stat-value" data-streak-count>0</span>
-                      <span class="stat-label">day streak</span>
-                    </div>
-                    <div class="stat-pill">
-                      <span class="stat-icon">⭐</span>
-                      <span class="stat-value" data-total-points>0</span>
-                      <span class="stat-label">points</span>
-                    </div>
+                  <div class="vulnerability-list" data-vulnerability-list>
+                    <!-- Populated by JavaScript -->
                   </div>
                 </div>
 
-                <!-- Badges -->
-                <div class="badges-section">
-                  <div class="badges-header">
-                    <h4>Your Badges</h4>
-                    <span class="badges-count" data-badges-count>0/20</span>
+                <!-- Improvement Roadmap -->
+                <div class="roadmap-section">
+                  <div class="roadmap-header">
+                    <h3>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/>
+                        <polyline points="22 4 12 14.01 9 11.01"/>
+                      </svg>
+                      Your Improvement Roadmap
+                    </h3>
+                    <p class="muted">Prioritized steps to strengthen your financial health</p>
                   </div>
-                  <div class="badges-list" data-badges-list>
-                    <p class="no-badges">Complete actions to unlock badges</p>
-                  </div>
-                </div>
-
-                <!-- Monthly Challenges -->
-                <div class="challenges-section">
-                  <h4>Monthly Challenges</h4>
-                  <p class="challenges-intro">Complete challenges to earn bonus points</p>
-                  <div class="challenges-list" data-challenges-list>
+                  <div class="roadmap-list" data-roadmap-list>
                     <!-- Populated by JavaScript -->
                   </div>
                 </div>
               </div>
 
-              <!-- Quick Profile Settings -->
-              <div class="profile-settings">
-                <h3>Profile Settings</h3>
-                <div class="form-grid compact">
-                  <label>
-                    Your Name
-                    <input type="text" placeholder="Your name" data-field="name" />
-                  </label>
-                  <label>
-                    Annual Salary
-                    <input type="number" min="0" data-field="annualSalary" />
-                  </label>
+              <div class="subtab-panel" data-subtab="whatif">
+                <!-- What-If Calculator -->
+                <div class="whatif-section">
+                  <div class="whatif-header">
+                    <h3>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/>
+                      </svg>
+                      What If Calculator
+                    </h3>
+                    <p class="muted">See the impact of small changes</p>
+                  </div>
+
+                  <div class="whatif-controls">
+                    <div class="whatif-scenario-select">
+                      <label>Scenario</label>
+                      <select data-whatif-scenario>
+                        <option value="extraSavings">Save extra each month</option>
+                        <option value="debtPayoff">Pay extra on debt</option>
+                        <option value="emergencyRunway">Job loss runway</option>
+                        <option value="goalAcceleration">Accelerate goals</option>
+                      </select>
+                    </div>
+                    <div class="whatif-slider-wrap">
+                      <label>Amount: <span data-whatif-amount>£100</span></label>
+                      <input type="range" min="25" max="500" step="25" value="100" data-whatif-slider />
+                      <div class="slider-labels">
+                        <span>£25</span>
+                        <span>£500</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="whatif-results" data-whatif-results>
+                    <!-- Populated by JavaScript -->
+                  </div>
                 </div>
-                <div class="profile-persona">
-                  <span class="persona-label">Money Persona:</span>
-                  <span class="persona-value" data-profile-persona>Builder</span>
+              </div>
+
+              <div class="subtab-panel" data-subtab="tax">
+                <!-- Phase 4: Tax Planning Tools -->
+                <div class="panel-card wide tax-planning-card">
+                  <div class="tax-header">
+                    <div>
+                      <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/>
+                        </svg>
+                        Tax Allowances Tracker
+                      </h3>
+                      <p class="muted">Monitor your annual tax-free allowances (2024/25)</p>
+                    </div>
+                  </div>
+
+                  <!-- Tax Allowances Grid -->
+                  <div class="tax-allowances-grid">
+                    <!-- ISA Allowance -->
+                    <div class="allowance-card isa">
+                      <div class="allowance-header">
+                        <span class="allowance-icon">💰</span>
+                        <div class="allowance-title">
+                          <h4>ISA Allowance</h4>
+                          <span class="allowance-limit">£20,000/year</span>
+                        </div>
+                      </div>
+                      <div class="allowance-progress">
+                        <div class="progress-bar">
+                          <span class="progress-fill" data-isa-progress style="width: 0%"></span>
+                        </div>
+                        <div class="progress-values">
+                          <span class="used" data-isa-used>£0 used</span>
+                          <span class="remaining" data-isa-remaining>£20,000 remaining</span>
+                        </div>
+                      </div>
+                      <div class="allowance-inputs">
+                        <label>
+                          Cash ISA contributions
+                          <input type="number" min="0" step="100" placeholder="0" data-tax-input="cashIsaContrib" />
+                        </label>
+                        <label>
+                          S&S ISA contributions
+                          <input type="number" min="0" step="100" placeholder="0" data-tax-input="stocksIsaContrib" />
+                        </label>
+                      </div>
+                      <p class="allowance-tip">Tip: Use your ISA allowance to shelter savings from tax</p>
+                    </div>
+
+                    <!-- Capital Gains Allowance -->
+                    <div class="allowance-card cgt">
+                      <div class="allowance-header">
+                        <span class="allowance-icon">📈</span>
+                        <div class="allowance-title">
+                          <h4>Capital Gains</h4>
+                          <span class="allowance-limit">£3,000/year</span>
+                        </div>
+                      </div>
+                      <div class="allowance-progress">
+                        <div class="progress-bar">
+                          <span class="progress-fill" data-cgt-progress style="width: 0%"></span>
+                        </div>
+                        <div class="progress-values">
+                          <span class="used" data-cgt-used>£0 gains</span>
+                          <span class="remaining" data-cgt-remaining>£3,000 tax-free</span>
+                        </div>
+                      </div>
+                      <div class="allowance-inputs">
+                        <label>
+                          Realised gains this year
+                          <input type="number" min="0" step="100" placeholder="0" data-tax-input="capitalGains" />
+                        </label>
+                      </div>
+                      <p class="allowance-tip">Gains above £3k taxed at 10% (basic) or 20% (higher)</p>
+                    </div>
+
+                    <!-- Dividend Allowance -->
+                    <div class="allowance-card dividend">
+                      <div class="allowance-header">
+                        <span class="allowance-icon">💵</span>
+                        <div class="allowance-title">
+                          <h4>Dividend Allowance</h4>
+                          <span class="allowance-limit">£500/year</span>
+                        </div>
+                      </div>
+                      <div class="allowance-progress">
+                        <div class="progress-bar">
+                          <span class="progress-fill" data-dividend-progress style="width: 0%"></span>
+                        </div>
+                        <div class="progress-values">
+                          <span class="used" data-dividend-used>£0 received</span>
+                          <span class="remaining" data-dividend-remaining>£500 tax-free</span>
+                        </div>
+                      </div>
+                      <div class="allowance-inputs">
+                        <label>
+                          Dividends received this year
+                          <input type="number" min="0" step="10" placeholder="0" data-tax-input="dividends" />
+                        </label>
+                      </div>
+                      <p class="allowance-tip">Above £500 taxed at 8.75% (basic) to 39.35% (additional)</p>
+                    </div>
+
+                    <!-- Personal Savings Allowance -->
+                    <div class="allowance-card savings">
+                      <div class="allowance-header">
+                        <span class="allowance-icon">🏦</span>
+                        <div class="allowance-title">
+                          <h4>Savings Interest</h4>
+                          <span class="allowance-limit" data-psa-limit>£1,000/year</span>
+                        </div>
+                      </div>
+                      <div class="allowance-progress">
+                        <div class="progress-bar">
+                          <span class="progress-fill" data-psa-progress style="width: 0%"></span>
+                        </div>
+                        <div class="progress-values">
+                          <span class="used" data-psa-used>£0 interest</span>
+                          <span class="remaining" data-psa-remaining>£1,000 tax-free</span>
+                        </div>
+                      </div>
+                      <div class="allowance-inputs">
+                        <label>
+                          Interest earned this year
+                          <input type="number" min="0" step="10" placeholder="0" data-tax-input="savingsInterest" />
+                        </label>
+                      </div>
+                      <p class="allowance-tip">Basic rate: £1k allowance, Higher rate: £500</p>
+                    </div>
+                  </div>
+
+                  <!-- Tax Year Progress -->
+                  <div class="tax-year-progress">
+                    <div class="year-info">
+                      <span class="year-label">Tax Year 2024/25</span>
+                      <span class="year-dates">6 April 2024 - 5 April 2025</span>
+                    </div>
+                    <div class="year-countdown" data-tax-year-countdown>
+                      <!-- Populated by JS -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="retirement">
+                <!-- Phase 4: Retirement Calculator -->
+                <div class="panel-card wide retirement-card">
+                  <div class="retirement-header">
+                    <div>
+                      <h3>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+                        </svg>
+                        Retirement Planner
+                      </h3>
+                      <p class="muted">Plan your financial independence</p>
+                    </div>
+                  </div>
+
+                  <!-- Retirement Inputs -->
+                  <div class="retirement-inputs">
+                    <div class="input-group">
+                      <label>
+                        Current Age
+                        <input type="number" min="18" max="80" value="30" data-retire-input="currentAge" />
+                      </label>
+                      <label>
+                        Target Retirement Age
+                        <input type="number" min="50" max="80" value="65" data-retire-input="retireAge" />
+                      </label>
+                      <label>
+                        Current Pension Pot
+                        <input type="number" min="0" step="1000" placeholder="0" data-retire-input="pensionPot" />
+                      </label>
+                    </div>
+                    <div class="input-group">
+                      <label>
+                        Monthly Pension Contribution
+                        <input type="number" min="0" step="50" placeholder="0" data-retire-input="monthlyContrib" />
+                      </label>
+                      <label>
+                        Employer Contribution (%)
+                        <input type="number" min="0" max="100" value="3" data-retire-input="employerContrib" />
+                      </label>
+                      <label>
+                        Expected Annual Return (%)
+                        <input type="number" min="0" max="15" step="0.5" value="5" data-retire-input="expectedReturn" />
+                      </label>
+                    </div>
+                  </div>
+
+                  <!-- Retirement Projections -->
+                  <div class="retirement-projections">
+                    <div class="projection-card main">
+                      <span class="projection-label">Projected Pension at Retirement</span>
+                      <span class="projection-value" data-projected-pension>£0</span>
+                      <span class="projection-note" data-pension-years>in 0 years</span>
+                    </div>
+                    <div class="projection-grid">
+                      <div class="projection-card">
+                        <span class="projection-label">Monthly Income (4% drawdown)</span>
+                        <span class="projection-value" data-monthly-drawdown>£0</span>
+                      </div>
+                      <div class="projection-card">
+                        <span class="projection-label">State Pension (estimate)</span>
+                        <span class="projection-value" data-state-pension>£221/week</span>
+                      </div>
+                      <div class="projection-card">
+                        <span class="projection-label">Total Monthly Retirement</span>
+                        <span class="projection-value positive" data-total-retirement>£0</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Pension Gap Analysis -->
+                  <div class="pension-gap-section">
+                    <h4>Pension Gap Analysis</h4>
+                    <div class="pension-gap">
+                      <div class="gap-current">
+                        <span class="gap-label">Current Monthly Expenses</span>
+                        <span class="gap-value" data-current-expenses>£0</span>
+                      </div>
+                      <div class="gap-arrow">→</div>
+                      <div class="gap-retirement">
+                        <span class="gap-label">Projected Retirement Income</span>
+                        <span class="gap-value" data-retirement-income>£0</span>
+                      </div>
+                      <div class="gap-result" data-pension-gap-result>
+                        <!-- Populated by JS -->
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- FIRE Calculator -->
+                  <div class="fire-section">
+                    <div class="fire-header">
+                      <h4>
+                        <span class="fire-icon">🔥</span>
+                        FIRE Calculator
+                      </h4>
+                      <span class="fire-subtitle">Financial Independence, Retire Early</span>
+                    </div>
+                    <div class="fire-inputs">
+                      <label>
+                        Target Annual Spending in Retirement
+                        <input type="number" min="0" step="1000" placeholder="30000" data-fire-input="annualSpending" />
+                      </label>
+                      <label>
+                        Current Investments/Savings
+                        <input type="number" min="0" step="1000" placeholder="0" data-fire-input="currentSavings" />
+                      </label>
+                      <label>
+                        Monthly Savings Rate
+                        <input type="number" min="0" step="100" placeholder="0" data-fire-input="monthlySavings" />
+                      </label>
+                    </div>
+                    <div class="fire-results">
+                      <div class="fire-target">
+                        <span class="fire-label">FIRE Target (25x expenses)</span>
+                        <span class="fire-value" data-fire-target>£0</span>
+                      </div>
+                      <div class="fire-progress-container">
+                        <div class="fire-progress-bar">
+                          <span class="fire-progress-fill" data-fire-progress style="width: 0%"></span>
+                        </div>
+                        <span class="fire-percent" data-fire-percent>0%</span>
+                      </div>
+                      <div class="fire-timeline">
+                        <span class="timeline-label">Years to FIRE:</span>
+                        <span class="timeline-value" data-fire-years>--</span>
+                      </div>
+                      <div class="fire-age" data-fire-age>
+                        <!-- Populated by JS -->
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Retirement Scenarios -->
+                  <div class="retirement-scenarios">
+                    <h4>Retirement Age Comparison</h4>
+                    <div class="scenarios-grid" data-retirement-scenarios>
+                      <!-- Populated by JS -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="tips">
+                <!-- Smart Tips -->
+                <div class="tips-section">
+                  <div class="tips-header">
+                    <h3>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M9 18h6"/><path d="M10 22h4"/>
+                        <path d="M15.09 14c.18-.98.65-1.74 1.41-2.5A4.65 4.65 0 0018 8 6 6 0 006 8c0 1 .23 2.23 1.5 3.5A4.61 4.61 0 018.91 14"/>
+                      </svg>
+                      Personalized Tips
+                    </h3>
+                    <p class="muted">Actions to improve your finances</p>
+                  </div>
+                  <div class="smart-tips" data-smart-tips>
+                    <!-- Populated by JavaScript -->
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="gamification">
+                <!-- Gamification Section -->
+                <div class="gamification-section">
+                  <div class="gamification-header">
+                    <h3>
+                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M12 15l-2 5l9-9l-5 2l2-5l-9 9l5-2z"/>
+                      </svg>
+                      Achievements & Challenges
+                    </h3>
+                    <div class="gamification-stats">
+                      <div class="stat-pill">
+                        <span class="stat-icon">🔥</span>
+                        <span class="stat-value" data-streak-count>0</span>
+                        <span class="stat-label">day streak</span>
+                      </div>
+                      <div class="stat-pill">
+                        <span class="stat-icon">⭐</span>
+                        <span class="stat-value" data-total-points>0</span>
+                        <span class="stat-label">points</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Badges -->
+                  <div class="badges-section">
+                    <div class="badges-header">
+                      <h4>Your Badges</h4>
+                      <span class="badges-count" data-badges-count>0/20</span>
+                    </div>
+                    <div class="badges-list" data-badges-list>
+                      <p class="no-badges">Complete actions to unlock badges</p>
+                    </div>
+                  </div>
+
+                  <!-- Monthly Challenges -->
+                  <div class="challenges-section">
+                    <h4>Monthly Challenges</h4>
+                    <p class="challenges-intro">Complete challenges to earn bonus points</p>
+                    <div class="challenges-list" data-challenges-list>
+                      <!-- Populated by JavaScript -->
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="subtab-panel" data-subtab="settings">
+                <!-- Quick Profile Settings -->
+                <div class="profile-settings">
+                  <h3>Profile Settings</h3>
+                  <div class="form-grid compact">
+                    <label>
+                      Your Name
+                      <input type="text" placeholder="Your name" data-field="name" />
+                    </label>
+                    <label>
+                      Annual Salary
+                      <input type="number" min="0" data-field="annualSalary" />
+                    </label>
+                  </div>
+                  <div class="profile-persona">
+                    <span class="persona-label">Money Persona:</span>
+                    <span class="persona-value" data-profile-persona>Builder</span>
+                  </div>
                 </div>
               </div>
             </div>
@@ -3902,6 +4007,66 @@
     <script src="app-config.js" defer></script>
     <script src="firebase-config.js" defer></script>
     <script src="firebase-init.js" defer></script>
+    <script src="app-core.js" defer></script>
     <script src="app.js" defer></script>
+    <script src="app-notifications.js" defer></script>
+    <script src="app-validation-a11y.js" defer></script>
+    <script src="app-state.js" defer></script>
+    <script src="app-budget.js" defer></script>
+    <script src="app-ui-core.js" defer></script>
+    <script src="app-events.js" defer></script>
+    <script src="app-import-parse.js" defer></script>
+    <script src="app-import.js" defer></script>
+    <script src="app-bills.js" defer></script>
+    <script src="app-debts.js" defer></script>
+    <script src="app-transactions.js" defer></script>
+    <script src="app-spending-limits.js" defer></script>
+    <script src="app-income.js" defer></script>
+    <script src="app-spending-forecast.js" defer></script>
+    <script src="app-household-storage.js" defer></script>
+    <script src="app-household-members.js" defer></script>
+    <script src="app-household-expenses.js" defer></script>
+    <script src="app-household-goals.js" defer></script>
+    <script src="app-household-settlements.js" defer></script>
+    <script src="app-household-reports.js" defer></script>
+    <script src="app-household-init.js" defer></script>
+    <script src="app-tax-retirement.js" defer></script>
+    <script src="app-health-schedule-init.js" defer></script>
+    <script src="app-health-calculations.js" defer></script>
+    <script src="app-health-insights.js" defer></script>
+    <script src="app-health-dashboard.js" defer></script>
+    <script src="app-smart-insights-data.js" defer></script>
+    <script src="app-smart-insights-analysis.js" defer></script>
+    <script src="app-smart-insights-whatif.js" defer></script>
+    <script src="app-smart-insights-ui.js" defer></script>
+    <script src="app-score-history.js" defer></script>
+    <script src="app-charts.js" defer></script>
+    <script src="app-gamification-data.js" defer></script>
+    <script src="app-gamification-storage.js" defer></script>
+    <script src="app-gamification-achievements.js" defer></script>
+    <script src="app-gamification-challenges.js" defer></script>
+    <script src="app-gamification-ui.js" defer></script>
+    <script src="app-gamification-init.js" defer></script>
+    <script src="app-mood.js" defer></script>
+    <script src="app-learn.js" defer></script>
+    <script src="app-celebrations.js" defer></script>
+    <script src="app-planner.js" defer></script>
+    <script src="app-rewards.js" defer></script>
+    <script src="app-goals.js" defer></script>
+    <script src="app-cashflow.js" defer></script>
+    <script src="app-protection.js" defer></script>
+    <script src="app-alerts.js" defer></script>
+    <script src="app-actions-core.js" defer></script>
+    <script src="app-actions-statement.js" defer></script>
+    <script src="app-simulation.js" defer></script>
+    <script src="app-future.js" defer></script>
+    <script src="app-currency.js" defer></script>
+    <script src="app-onboarding.js" defer></script>
+    <script src="app-firebase.js" defer></script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        document.dispatchEvent(new Event("poapyments:scripts-ready"));
+      });
+    </script>
   </body>
 </html>

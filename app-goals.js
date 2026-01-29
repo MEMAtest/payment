@@ -1,4 +1,33 @@
 // Goal Engine v2
+let goalsDelegationAttached = false;
+
+// Goal colors palette
+const GOAL_COLORS = [
+  "#6366f1", // indigo
+  "#8b5cf6", // violet
+  "#ec4899", // pink
+  "#f97316", // orange
+  "#eab308", // yellow
+  "#22c55e", // green
+  "#06b6d4", // cyan
+  "#3b82f6", // blue
+];
+
+// Ensure color is a valid CSS color string
+function safeColor(color) {
+  if (!color || typeof color !== "string") return GOAL_COLORS[0];
+  // Basic validation - starts with # or is a named color
+  if (color.startsWith("#") || /^[a-z]+$/i.test(color)) return color;
+  return GOAL_COLORS[0];
+}
+
+// Attach listener for "Add Goal" button when goals list is empty
+function attachAddGoalListener() {
+  const goalList = document.querySelector("[data-app-goals]");
+  if (!goalList) return;
+  ensureGoalsDelegation(goalList);
+}
+
 function calculateGoalETA(goal) {
   if (!goal || typeof goal !== "object") {
     return { months: 0, date: null, status: "invalid" };
@@ -248,109 +277,127 @@ function updateGoalList() {
   `;
 
   goalList.innerHTML = summaryHtml + items.join("") + addButtonHtml;
-  attachGoalInputListeners();
-  attachAddGoalListener();
-  attachAutoAllocateListener();
+  ensureGoalsDelegation(goalList);
   syncFutureGoalSelect();
 }
 
-function attachGoalInputListeners() {
-  document.querySelectorAll("[data-goal-index]").forEach((item) => {
-    const index = parseInt(item.dataset.goalIndex, 10);
-    const targetInput = item.querySelector("[data-goal-target-input]");
-    const savedInput = item.querySelector("[data-goal-saved-input]");
-    const monthlyInput = item.querySelector("[data-goal-monthly-input]");
-    const monthlySlider = item.querySelector("[data-goal-monthly-slider]");
-    const dateInput = item.querySelector("[data-goal-date-input]");
-    const autoAllocateCheckbox = item.querySelector("[data-goal-auto-allocate]");
-
-    if (targetInput) {
-      targetInput.addEventListener("input", () => {
-        state.goals[index].target = Math.max(0, Number(targetInput.value) || 0);
-        scheduleSave();
-      });
-      targetInput.addEventListener("change", () => {
-        updateGoalList();
-      });
-    }
-    if (savedInput) {
-      savedInput.addEventListener("input", () => {
-        state.goals[index].saved = Math.max(0, Number(savedInput.value) || 0);
-        scheduleSave();
-      });
-      savedInput.addEventListener("change", () => {
-        updateGoalList();
-      });
-    }
-    if (monthlyInput) {
-      monthlyInput.addEventListener("input", () => {
-        const value = Math.max(0, Number(monthlyInput.value) || 0);
-        state.goals[index].monthly = value;
-        if (monthlySlider) monthlySlider.value = value;
-        scheduleSave();
-      });
-      monthlyInput.addEventListener("change", () => {
-        updateGoalList();
-      });
-    }
-    if (monthlySlider) {
-      monthlySlider.addEventListener("input", () => {
-        const value = Math.max(0, Number(monthlySlider.value) || 0);
-        state.goals[index].monthly = value;
-        if (monthlyInput) monthlyInput.value = value;
-        scheduleSave();
-      });
-      monthlySlider.addEventListener("change", () => {
-        updateGoalList();
-      });
-    }
-    if (dateInput) {
-      dateInput.addEventListener("change", () => {
-        state.goals[index].targetDate = dateInput.value || null;
-        scheduleSave();
-        updateGoalList();
-      });
-    }
-    if (autoAllocateCheckbox) {
-      autoAllocateCheckbox.addEventListener("change", () => {
-        state.goals[index].autoAllocate = autoAllocateCheckbox.checked;
-        scheduleSave();
-      });
-    }
-  });
+function getGoalContext(target) {
+  const item = target.closest("[data-goal-index]");
+  if (!item) return null;
+  const index = Number(item.dataset.goalIndex);
+  if (!Number.isFinite(index) || !state.goals[index]) return null;
+  return { item, index, goal: state.goals[index] };
 }
 
-function attachAddGoalListener() {
-  document.querySelectorAll("[data-add-goal]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const name = prompt("Enter goal name:");
-      if (!name || !name.trim()) return;
+function ensureGoalsDelegation(goalList) {
+  if (!goalList) return;
+  if (goalList.dataset.delegationAttached === "true") return;
 
-      const newGoal = {
-        id: `goal-${Date.now()}`,
-        name: name.trim(),
-        target: 0,
-        saved: 0,
-        monthly: 0,
-        targetDate: null,
-        priority: state.goals.length + 1,
-        autoAllocate: true,
-        color: GOAL_COLORS[state.goals.length % GOAL_COLORS.length],
-        createdAt: Date.now(),
-      };
+  goalList.addEventListener("input", (event) => {
+    const ctx = getGoalContext(event.target);
+    if (!ctx) return;
+    const { item, index } = ctx;
 
-      state.goals.push(newGoal);
+    if (event.target.matches("[data-goal-target-input]")) {
+      state.goals[index].target = Math.max(0, Number(event.target.value) || 0);
+      scheduleSave();
+      return;
+    }
+
+    if (event.target.matches("[data-goal-saved-input]")) {
+      state.goals[index].saved = Math.max(0, Number(event.target.value) || 0);
+      scheduleSave();
+      return;
+    }
+
+    if (event.target.matches("[data-goal-monthly-input]")) {
+      const value = Math.max(0, Number(event.target.value) || 0);
+      state.goals[index].monthly = value;
+      const slider = item.querySelector("[data-goal-monthly-slider]");
+      if (slider && slider.value !== String(value)) {
+        slider.value = value;
+      }
+      scheduleSave();
+      return;
+    }
+
+    if (event.target.matches("[data-goal-monthly-slider]")) {
+      const value = Math.max(0, Number(event.target.value) || 0);
+      state.goals[index].monthly = value;
+      const input = item.querySelector("[data-goal-monthly-input]");
+      if (input && input.value !== String(value)) {
+        input.value = value;
+      }
+      scheduleSave();
+    }
+  });
+
+  goalList.addEventListener("change", (event) => {
+    const ctx = getGoalContext(event.target);
+    if (!ctx) {
+      if (event.target.closest("[data-add-goal]")) {
+        // Clicks are handled in the delegated click listener below.
+      }
+      return;
+    }
+    const { index } = ctx;
+
+    if (
+      event.target.matches("[data-goal-target-input]") ||
+      event.target.matches("[data-goal-saved-input]") ||
+      event.target.matches("[data-goal-monthly-input]") ||
+      event.target.matches("[data-goal-monthly-slider]")
+    ) {
+      updateGoalList();
+      return;
+    }
+
+    if (event.target.matches("[data-goal-date-input]")) {
+      state.goals[index].targetDate = event.target.value || null;
       scheduleSave();
       updateGoalList();
-    });
-  });
-}
+      return;
+    }
 
-function attachAutoAllocateListener() {
-  const btn = document.querySelector("[data-auto-allocate]");
-  if (btn) {
-    btn.addEventListener("click", applyAutoAllocation);
-  }
+    if (event.target.matches("[data-goal-auto-allocate]")) {
+      state.goals[index].autoAllocate = event.target.checked;
+      scheduleSave();
+    }
+  });
+
+  goalList.addEventListener("click", (event) => {
+    // Auto-allocate button (delegated — button is re-created on each render)
+    if (event.target.closest("[data-auto-allocate]")) {
+      applyAutoAllocation();
+      return;
+    }
+
+    const addGoalBtn = event.target.closest("[data-add-goal]");
+    if (!addGoalBtn) return;
+
+    const name = prompt("Enter goal name:");
+    if (!name || !name.trim()) return;
+
+    const newGoal = {
+      id: `goal-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+      name: name.trim(),
+      target: 0,
+      saved: 0,
+      monthly: 0,
+      targetDate: null,
+      priority: state.goals.length + 1,
+      autoAllocate: true,
+      color: GOAL_COLORS[state.goals.length % GOAL_COLORS.length],
+      createdAt: Date.now(),
+    };
+
+    state.goals.push(newGoal);
+    scheduleSave();
+    updateGoalList();
+  });
+
+  goalList.dataset.delegationAttached = "true";
+  goalsDelegationAttached = true;
 }
 
 function updateDashboardVisibility() {
@@ -378,3 +425,14 @@ function updateIncomeBreakdown() {
   setTextAll("[data-expense-label]", formatCurrency(snapshot.expenses));
   setTextAll("[data-saving-label]", formatCurrency(Math.max(0, snapshot.surplus)));
 }
+
+// Expose goals functions globally for cross-module access
+Object.assign(window, {
+  GOAL_COLORS,
+  safeColor,
+  calculateGoalETA,
+  updateGoalList,
+  updateDashboardVisibility,
+  updateIncomeBreakdown,
+  attachAddGoalListener,
+});

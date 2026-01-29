@@ -1,5 +1,13 @@
-// Event listeners
+// ============================================================
+// EVENT WIRING: APP-LEVEL LISTENERS AND UI INTERACTIONS
+// ============================================================
+
 function attachEventListeners() {
+  if (!screens.length) {
+    console.warn("attachEventListeners called before DOM initialization");
+    return;
+  }
+
   // Navigation buttons
   document.querySelectorAll("[data-next]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -55,16 +63,14 @@ function attachEventListeners() {
 
     el.addEventListener(event, () => {
       if (field === "annualSalary") {
-        state.annualSalary = Math.max(0, Math.min(Number(el.value) || 0, 10000000));
+        state.annualSalary = Number(el.value) || 0;
         updateSalaryBreakdown();
+        scheduleHealthUpdate();
       } else if (field === "studentLoan") {
         state.studentLoan = el.checked;
         updateSalaryBreakdown();
       } else if (field === "pensionContrib") {
         state.pensionContrib = el.checked;
-        updateSalaryBreakdown();
-      } else if (field === "taxCode") {
-        state.taxCode = el.value.toUpperCase().trim();
         updateSalaryBreakdown();
       } else if (field === "savings") {
         state.savings = Number(el.value) || 0;
@@ -90,6 +96,7 @@ function attachEventListeners() {
       state.expenses[key] = Number(el.value) || 0;
       updateCategoryTotals();
       updateBudgetSummary();
+      scheduleHealthUpdate();
       scheduleSave();
     });
   });
@@ -128,6 +135,28 @@ function attachEventListeners() {
     });
   });
 
+  // Sub-tab switching function
+  function switchSubtab(tabPanel, target) {
+    if (!tabPanel || !target) return;
+
+    // Update sub-tab buttons
+    tabPanel.querySelectorAll("[data-subtab-target]").forEach((b) => {
+      b.classList.remove("is-active");
+      b.setAttribute("aria-selected", "false");
+    });
+    const activeBtn = tabPanel.querySelector(`[data-subtab-target="${target}"]`);
+    if (activeBtn) {
+      activeBtn.classList.add("is-active");
+      activeBtn.setAttribute("aria-selected", "true");
+    }
+
+    // Update sub-tab panels
+    tabPanel.querySelectorAll("[data-subtab]").forEach((p) => {
+      p.classList.remove("is-active");
+    });
+    tabPanel.querySelector(`[data-subtab="${target}"]`)?.classList.add("is-active");
+  }
+
   // App tabs
   document.querySelectorAll("[data-tab-target]").forEach((btn) => {
     btn.addEventListener("click", () => {
@@ -137,10 +166,56 @@ function attachEventListeners() {
       btn.classList.add("is-active");
       document.querySelector(`[data-tab="${target}"]`)?.classList.add("is-active");
 
-      if (target === "plan") {
+      if (target === "cashflow") {
         updateCashflowInsights();
       }
+      if (target === "import") {
+        renderImportHistory();
+      }
+
+      // Reset sub-tabs to first item when switching main tabs
+      const tabPanel = document.querySelector(`[data-tab="${target}"]`);
+      const subtabNav = tabPanel?.querySelector("[data-subtab-nav]");
+      if (subtabNav) {
+        const firstSubtab = subtabNav.querySelector("[data-subtab-target]");
+        if (firstSubtab) {
+          switchSubtab(tabPanel, firstSubtab.dataset.subtabTarget);
+        }
+      }
     });
+  });
+
+  // Sub-tab navigation
+  document.querySelectorAll("[data-subtab-target]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const tabPanel = btn.closest("[data-tab]");
+      const target = btn.dataset.subtabTarget;
+      switchSubtab(tabPanel, target);
+    });
+  });
+
+  // Collapsible panels
+  document.querySelectorAll(".panel-card.collapsible > h3").forEach((header) => {
+    header.addEventListener("click", () => {
+      const panel = header.closest(".panel-card");
+      panel.classList.toggle("collapsed");
+      // Save collapse state
+      const panelId = panel.dataset.panelId;
+      if (panelId) {
+        const collapsed = JSON.parse(localStorage.getItem("poapyments_collapsed") || "{}");
+        collapsed[panelId] = panel.classList.contains("collapsed");
+        localStorage.setItem("poapyments_collapsed", JSON.stringify(collapsed));
+      }
+    });
+  });
+
+  // Restore collapse state
+  const savedCollapsed = JSON.parse(localStorage.getItem("poapyments_collapsed") || "{}");
+  Object.entries(savedCollapsed).forEach(([panelId, isCollapsed]) => {
+    if (isCollapsed) {
+      const panel = document.querySelector(`[data-panel-id="${panelId}"]`);
+      if (panel) panel.classList.add("collapsed");
+    }
   });
 
   // Dashboard toggles
@@ -225,30 +300,44 @@ function attachEventListeners() {
   if (downloadReportBtn) {
     downloadReportBtn.addEventListener("click", () => {
       const content = document.querySelector("[data-report-content]")?.innerText || "";
-      const blob = new Blob([content], { type: "text/plain" });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "monte-carlo-report.txt";
-      a.click();
-      URL.revokeObjectURL(url);
+      if (!content) {
+        showNotification("No report content to download", "error");
+        return;
+      }
+      let url = null;
+      try {
+        const blob = new Blob([content], { type: "text/plain" });
+        url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "monte-carlo-report.txt";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        showNotification("Report downloaded!", "success");
+      } catch (error) {
+        console.error("Download failed:", error);
+        showNotification("Failed to download report", "error");
+      } finally {
+        if (url) URL.revokeObjectURL(url);
+      }
     });
   }
 
   // Future scenario
   const futureRunBtn = document.querySelector("[data-future-run]");
   if (futureRunBtn) {
-    futureRunBtn.addEventListener("click", () => runFutureScenario({ useAI: true }));
+    futureRunBtn.addEventListener("click", runFutureScenario);
   }
 
-  const futureTypeSelect = document.querySelector("[data-future-type]");
-  if (futureTypeSelect) {
-    futureTypeSelect.addEventListener("change", updateFutureFormLabels);
-  }
-  updateFutureFormLabels();
+  document.querySelectorAll("[data-future-type], [data-future-months], [data-future-amount]").forEach((el) => {
+    el.addEventListener("change", runFutureScenario);
+  });
 
   // Currency converter
-  const converterInputs = document.querySelectorAll("[data-converter-amount], [data-converter-from], [data-converter-to]");
+  const converterInputs = document.querySelectorAll(
+    "[data-converter-amount], [data-converter-from], [data-converter-to]",
+  );
   converterInputs.forEach((el) => {
     el.addEventListener("input", updateConverter);
     el.addEventListener("change", updateConverter);
@@ -267,84 +356,9 @@ function attachEventListeners() {
       }
     });
   }
-
-  // Statement import handlers
-  const statementDropzone = document.querySelector("[data-statement-dropzone]");
-  const statementFileInput = document.querySelector("[data-statement-file]");
-  const statementApply = document.querySelector("[data-statement-apply]");
-  const statementClear = document.querySelector("[data-statement-clear]");
-
-  if (statementDropzone) {
-    statementDropzone.addEventListener("dragover", (e) => {
-      e.preventDefault();
-      statementDropzone.classList.add("drag-over");
-    });
-
-    statementDropzone.addEventListener("dragleave", () => {
-      statementDropzone.classList.remove("drag-over");
-    });
-
-    statementDropzone.addEventListener("drop", (e) => {
-      e.preventDefault();
-      statementDropzone.classList.remove("drag-over");
-      const file = e.dataTransfer.files[0];
-      if (file) handleStatementFile(file);
-    });
-
-    statementDropzone.addEventListener("click", () => {
-      statementFileInput?.click();
-    });
-  }
-
-  if (statementFileInput) {
-    statementFileInput.addEventListener("change", (e) => {
-      const file = e.target.files[0];
-      if (file) handleStatementFile(file);
-    });
-  }
-
-  if (statementApply) {
-    statementApply.addEventListener("click", applyStatementToBudget);
-  }
-
-  if (statementClear) {
-    statementClear.addEventListener("click", clearStatementImport);
-  }
-
-  // Beforeunload handler to prevent data loss
-  window.addEventListener("beforeunload", (e) => {
-    if (hasUnsavedChanges) {
-      saveLocalState();
-    }
-  });
 }
 
-// Initialize
-async function init() {
-  const localData = loadLocalState();
-  if (localData) {
-    applyState(localData);
-  }
-
-  syncFormFromState();
-  showInitialScreen();
-  updateSummary();
-  updateQuickActions();
-  handleDailyCheckIn();
-  updateRewardsUI();
-
-  await loadFxRates();
-  updateConverter();
-  initEnhancedConverter();
-  initSimulatorWizard();
-
-  await initFirebase();
-
-  // Initial Monte Carlo
-  setTimeout(updateMonteCarlo, 500);
-}
-
-attachEventListeners();
-init().then(() => {
-  window.appInitialized = true;
+// Expose event functions globally for cross-module access
+Object.assign(window, {
+  attachEventListeners,
 });

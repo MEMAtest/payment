@@ -1,3 +1,5 @@
+window.__poapymentsLoaderActive = true;
+
 (async () => {
   async function loadInclude(el) {
     const path = el.dataset.include;
@@ -41,23 +43,67 @@
     "app-config.js",
     "firebase-config.js",
     "firebase-init.js",
+    "app-core.js",
     "app.js",
+    "app-notifications.js",
+    "app-validation-a11y.js",
+    "app-state.js",
+    "app-budget.js",
+    "app-ui-core.js",
+    "app-events.js",
+    "app-import-parse.js",
+    "app-import.js",
+    "app-bills.js",
+    "app-debts.js",
+    "app-transactions.js",
+    "app-spending-limits.js",
+    "app-income.js",
+    "app-spending-forecast.js",
+    "app-household-storage.js",
+    "app-household-members.js",
+    "app-household-expenses.js",
+    "app-household-goals.js",
+    "app-household-settlements.js",
+    "app-household-reports.js",
+    "app-household-init.js",
+    "app-tax-retirement.js",
+    "app-health-schedule-init.js",
+    "app-health-calculations.js",
+    "app-health-insights.js",
+    "app-health-dashboard.js",
+    "app-smart-insights-data.js",
+    "app-smart-insights-analysis.js",
+    "app-smart-insights-whatif.js",
+    "app-smart-insights-ui.js",
+    "app-score-history.js",
+    "app-charts.js",
+    "app-gamification-data.js",
+    "app-gamification-storage.js",
+    "app-gamification-achievements.js",
+    "app-gamification-challenges.js",
+    "app-gamification-ui.js",
+    "app-gamification-init.js",
+    "app-mood.js",
+    "app-learn.js",
+    "app-celebrations.js",
+    "app-planner.js",
     "app-rewards.js",
     "app-goals.js",
     "app-cashflow.js",
     "app-protection.js",
     "app-alerts.js",
-    "app-actions.js",
+    "app-actions-core.js",
+    "app-actions-statement.js",
     "app-simulation.js",
     "app-future.js",
     "app-currency.js",
     "app-onboarding.js",
     "app-firebase.js",
-    "app-init.js",
   ];
 
   try {
     await loadScripts(scripts);
+    document.dispatchEvent(new Event("poapyments:scripts-ready"));
   } catch (error) {
     console.error("Script load failed:", error);
   }

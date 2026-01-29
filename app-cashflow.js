@@ -201,3 +201,8 @@ function updateCashflowInsights() {
   setTextAll("[data-cashflow-low]", formatCurrency(lowBalance));
   setTextAll("[data-cashflow-risk]", riskMonths);
 }
+
+// Expose cashflow functions globally for cross-module access
+Object.assign(window, {
+  updateCashflowInsights,
+});

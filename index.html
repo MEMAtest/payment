@@ -877,10 +877,32 @@
                   </div>
                 </div>
               </label>
+
+              <label class="goal-card" data-goal-card>
+                <input type="checkbox" data-goal-check value="Custom Goal" />
+                <div class="goal-icon custom">
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M12 2l2.09 6.26L20 9l-5 3.64L16.18 19 12 15.77 7.82 19 9 12.64 4 9l5.91-.74L12 2z"/>
+                  </svg>
+                </div>
+                <div class="goal-content">
+                  <span class="goal-name">Custom Goal</span>
+                  <span class="goal-desc">Create a goal that matters to you</span>
+                  <input type="text" placeholder="e.g. Start a business" data-goal-custom-name />
+                </div>
+                <div class="goal-target-wrap">
+                  <span class="goal-target-label">Target</span>
+                  <div class="goal-input-wrap">
+                    <span>£</span>
+                    <input type="number" min="0" placeholder="5000" data-goal-target />
+                  </div>
+                </div>
+              </label>
             </div>
 
             <div class="screen-actions">
               <button class="btn ghost" type="button" data-back>Back</button>
+              <button class="btn ghost" type="button" data-skip-goals>Skip for now</button>
               <button class="btn primary" type="button" data-next>
                 Generate My Plan
               </button>
@@ -1743,6 +1765,7 @@
                   </label>
                   <label>
                     Contribution growth (%/yr)
+                    <small class="input-hint">Annual increase to monthly amount (e.g. with pay rises)</small>
                     <input type="number" step="0.1" value="2" data-monte-growth />
                   </label>
                   <label>
@@ -1751,6 +1774,7 @@
                   </label>
                   <label>
                     Risk profile
+                    <small class="input-hint">Sets expected return and volatility automatically</small>
                     <select data-monte-risk>
                       <option value="cautious">Cautious</option>
                       <option value="balanced" selected>Balanced</option>
@@ -1760,18 +1784,22 @@
                   </label>
                   <label>
                     Expected return (%)
+                    <small class="input-hint">Average yearly gain before fees. UK stocks historically ~7-8%</small>
                     <input type="number" step="0.1" value="6" data-monte-return />
                   </label>
                   <label>
                     Volatility (%)
+                    <small class="input-hint">How much returns swing year-to-year. Higher = more risk</small>
                     <input type="number" step="0.1" value="10" data-monte-vol />
                   </label>
                   <label>
                     Inflation (%)
+                    <small class="input-hint">Erodes purchasing power. UK target is 2%</small>
                     <input type="number" step="0.1" value="2.5" data-monte-inflation />
                   </label>
                   <label>
                     Annual fee (%)
+                    <small class="input-hint">Platform + fund charges deducted yearly</small>
                     <input type="number" step="0.1" value="0.6" data-monte-fee />
                   </label>
                   <label>
@@ -1780,6 +1808,7 @@
                   </label>
                   <label>
                     Simulations
+                    <small class="input-hint">Number of random scenarios to run. 500+ recommended</small>
                     <input type="number" min="100" max="5000" step="50" value="500" data-monte-runs />
                   </label>
                   <button class="btn primary full" type="button" data-monte-run>

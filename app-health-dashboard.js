@@ -9,25 +9,31 @@ function updateFinancialHealth() {
   const netWorth = calculateNetWorth();
   const vulnerabilities = detectVulnerabilities();
   const roadmap = generateRoadmap(healthScore, vulnerabilities);
+  const showGuidedSetup = healthScore.total === 0;
+  const displayScore = showGuidedSetup ? 0 : healthScore.total;
 
   // Update health score hero
   const scoreEl = document.querySelector("[data-health-score]");
   const statusEl = document.querySelector("[data-health-status]");
   const ringEl = document.querySelector("[data-health-ring]");
 
-  if (scoreEl) scoreEl.textContent = healthScore.total;
-  if (statusEl) statusEl.textContent = healthScore.status;
+  if (scoreEl) scoreEl.textContent = showGuidedSetup ? "--" : healthScore.total;
+  if (statusEl) {
+    statusEl.textContent = showGuidedSetup
+      ? "Complete these to build your score: 1) Add savings (Assets tab), 2) Enter expenses (Budget tab), 3) Set up protection (Protection tab)"
+      : healthScore.status;
+  }
 
   // Update ring SVG
   if (ringEl) {
     const circumference = 2 * Math.PI * 52; // r=52
-    const offset = circumference - (healthScore.total / 100) * circumference;
+    const offset = circumference - (displayScore / 100) * circumference;
     ringEl.style.strokeDashoffset = offset;
 
     // Color based on score
     ringEl.classList.remove("good", "warning", "danger");
-    if (healthScore.total >= 70) ringEl.classList.add("good");
-    else if (healthScore.total >= 40) ringEl.classList.add("warning");
+    if (displayScore >= 70) ringEl.classList.add("good");
+    else if (displayScore >= 40) ringEl.classList.add("warning");
     else ringEl.classList.add("danger");
   }
 

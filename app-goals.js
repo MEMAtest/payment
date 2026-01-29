@@ -120,17 +120,34 @@ function updateGoalList() {
   const surplus = Math.max(0, income - totalExpenses);
   const totalAllocated = state.goals.reduce((sum, g) => sum + (Number(g.monthly) || 0), 0);
   const unallocated = surplus - totalAllocated;
+  const emergencyMin = totalExpenses * 3;
+  const emergencyMax = totalExpenses * 6;
+  const hasEmergencyGoal = state.goals.some((goal) => /emergency/i.test(goal.name || ""));
 
   if (!state.goals.length) {
+    const emergencyRange = `${formatCurrency(emergencyMin)} - ${formatCurrency(emergencyMax)}`;
+    const showEmergencyButton = surplus > 0 && !hasEmergencyGoal;
     goalList.innerHTML = `
       <div class="goal-empty-state">
-        <p class="muted">No goals yet. Add one to start tracking progress.</p>
-        <button class="btn secondary" type="button" data-add-goal>
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <path d="M12 5v14M5 12h14"/>
-          </svg>
-          Add your first goal
-        </button>
+        <p class="muted">Based on your ${formatCurrency(surplus)} monthly surplus, you could save for: Emergency Fund (3-6 months = ${emergencyRange}), or start a custom goal.</p>
+        <div class="goal-empty-actions">
+          ${
+            showEmergencyButton
+              ? `<button class="btn secondary" type="button" data-create-emergency-goal>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+            </svg>
+            Create Emergency Fund goal
+          </button>`
+              : ""
+          }
+          <button class="btn secondary" type="button" data-add-goal>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 5v14M5 12h14"/>
+            </svg>
+            Add your first goal
+          </button>
+        </div>
       </div>
     `;
     attachAddGoalListener();
@@ -158,6 +175,11 @@ function updateGoalList() {
 
   // Sort goals by priority
   const sortedGoals = [...state.goals].sort((a, b) => (a.priority || 99) - (b.priority || 99));
+  const unfundedGoals = sortedGoals.filter(
+    (goal) => (Number(goal.target) || 0) > 0 && (Number(goal.monthly) || 0) === 0,
+  );
+  const suggestedMonthly =
+    unfundedGoals.length > 0 && surplus > 0 ? Math.floor(surplus / unfundedGoals.length) : 0;
 
   const items = sortedGoals.map((goal, displayIdx) => {
     const index = state.goals.findIndex((g) => g.id === goal.id);
@@ -167,6 +189,12 @@ function updateGoalList() {
     const progress = target ? Math.min(100, Math.round((saved / target) * 100)) : 0;
     const eta = calculateGoalETA(goal);
     const color = safeColor(goal.color || GOAL_COLORS[displayIdx % GOAL_COLORS.length]);
+    const shouldSuggest = suggestedMonthly > 0 && target > 0 && monthly === 0;
+    const suggestionHtml = shouldSuggest
+      ? `<button class="btn ghost small goal-suggestion" type="button" data-goal-suggest="${suggestedMonthly}">
+          Suggested: ${formatCurrency(suggestedMonthly)}/mo
+        </button>`
+      : "";
 
     let statusHtml = "";
     let etaLabel = "";
@@ -224,6 +252,7 @@ function updateGoalList() {
         <div class="goal-pot-controls">
           <div class="control-group">
             <label>Monthly contribution</label>
+            ${suggestionHtml}
             <div class="slider-input-group">
               <input type="range" min="0" max="${Math.max(surplus, monthly, 500)}" step="25" value="${monthly}" data-goal-monthly-slider class="goal-slider" style="--slider-color: ${color}" />
               <div class="input-with-prefix">
@@ -366,6 +395,44 @@ function ensureGoalsDelegation(goalList) {
   });
 
   goalList.addEventListener("click", (event) => {
+    const emergencyBtn = event.target.closest("[data-create-emergency-goal]");
+    if (emergencyBtn) {
+      const alreadyExists = state.goals.some((goal) => /emergency/i.test(goal.name || ""));
+      if (alreadyExists) return;
+
+      const monthlyExpenses = calculateTotalExpenses();
+      const target = Math.max(0, Math.round(monthlyExpenses * 3));
+      const newGoal = {
+        id: `goal-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        name: "Emergency Fund",
+        target,
+        saved: 0,
+        monthly: 0,
+        targetDate: null,
+        priority: state.goals.length + 1,
+        autoAllocate: true,
+        color: GOAL_COLORS[state.goals.length % GOAL_COLORS.length],
+        createdAt: Date.now(),
+      };
+
+      state.goals.push(newGoal);
+      scheduleSave();
+      updateGoalList();
+      return;
+    }
+
+    const suggestBtn = event.target.closest("[data-goal-suggest]");
+    if (suggestBtn) {
+      const ctx = getGoalContext(suggestBtn);
+      if (!ctx) return;
+      const { index } = ctx;
+      const suggested = Math.max(0, Number(suggestBtn.dataset.goalSuggest) || 0);
+      state.goals[index].monthly = suggested;
+      scheduleSave();
+      updateGoalList();
+      return;
+    }
+
     // Auto-allocate button (delegated — button is re-created on each render)
     if (event.target.closest("[data-auto-allocate]")) {
       applyAutoAllocation();

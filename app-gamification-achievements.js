@@ -45,6 +45,8 @@ function checkAchievements() {
   if (netWorth >= 100000) unlock("netWorth100k");
 
   // Debt freedom
+  const hasFinancialData =
+    state.income > 0 || calculateMonthlyExpenses() > 0 || calculateTotalLiabilities() > 0;
   const creditCardDebt = state.liabilities.creditCardBalance || 0;
   const consumerDebt =
     creditCardDebt +
@@ -52,10 +54,10 @@ function checkAchievements() {
     (state.liabilities.carFinanceBalance || 0) +
     (state.liabilities.overdraftBalance || 0);
 
-  if (creditCardDebt === 0 && state.expenses.creditCards === 0) {
+  if (hasFinancialData && creditCardDebt === 0 && state.expenses.creditCards === 0) {
     unlock("creditCardFree");
   }
-  if (consumerDebt === 0) {
+  if (hasFinancialData && consumerDebt === 0) {
     unlock("debtFree");
   }
 

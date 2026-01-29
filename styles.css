@@ -1413,9 +1413,10 @@ textarea {
 /* Form input hints */
 .input-hint {
   display: block;
-  font-size: 0.75rem;
-  color: var(--text-muted);
-  margin-top: 4px;
+  font-size: 0.7rem;
+  color: var(--ink-muted);
+  margin-top: 2px;
+  line-height: 1.3;
 }
 
 /* Scrollable subtab content */
@@ -1652,9 +1653,10 @@ textarea {
 
 .chart-tooltip {
   position: absolute;
-  background: var(--white);
+  background: var(--navy);
+  color: var(--white);
   border-radius: 14px;
-  border: 1px solid rgba(24, 35, 39, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   padding: 14px 16px;
   font-size: 0.8rem;
   box-shadow: var(--shadow);
@@ -1674,7 +1676,7 @@ textarea {
   font-weight: 700;
   margin-bottom: 8px;
   padding-bottom: 8px;
-  border-bottom: 1px solid rgba(24, 35, 39, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
 }
 
 .balance-line {
@@ -1922,6 +1924,12 @@ textarea {
 
 .monte-grid {
   grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.monte-grid label {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
 }
 
 .monte-form .btn.full {
@@ -3147,6 +3155,18 @@ textarea {
   }
 }
 
+@media (max-width: 768px) {
+  .chart-tooltip {
+    min-width: 130px;
+    font-size: 0.78rem;
+    padding: 8px 10px;
+  }
+
+  .monte-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
 @media (max-width: 720px) {
   .flow {
     padding: 16px 5vw 60px;
@@ -3179,11 +3199,45 @@ textarea {
   }
 
   .app-tabs {
-    justify-content: center;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .app-tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .nav-item {
+    padding: 10px 12px;
+    min-width: auto;
+    flex-shrink: 0;
   }
 
   .nav-item span {
     display: none;
+  }
+
+  .tab-panel[data-tab="profile"] .subtab-nav {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: 6px;
+    gap: 4px;
+  }
+
+  .tab-panel[data-tab="profile"] .subtab-nav::-webkit-scrollbar {
+    display: none;
+  }
+
+  .tab-panel[data-tab="profile"] .subtab-btn {
+    padding: 8px 12px;
+    flex-shrink: 0;
   }
 
   .expense-item {
@@ -8910,6 +8964,27 @@ label.full-width input {
 
   .confirmation-actions .btn {
     width: 100%;
+  }
+
+  .mood-btn {
+    min-width: 52px;
+    padding: 10px 4px;
+  }
+
+  .mood-emoji {
+    font-size: 1.5rem;
+  }
+
+  .mood-label {
+    font-size: 0.65rem;
+  }
+
+  .goal-pot-controls .control-row {
+    grid-template-columns: 1fr;
+  }
+
+  .slider-input-group {
+    flex-direction: column;
   }
 }
 

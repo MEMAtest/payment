@@ -33,6 +33,8 @@ let riskProfiles = {
   growth: { mean: 0.08, vol: 0.14 },
 };
 
+let monteHasRun = false;
+
 function percentile(arr, p) {
   const idx = (arr.length - 1) * p;
   const lower = Math.floor(idx);
@@ -41,7 +43,53 @@ function percentile(arr, p) {
   return arr[lower] + (arr[upper] - arr[lower]) * (idx - lower);
 }
 
+function getMonteCarloDefaults() {
+  const assetSavings = (state.assets?.cashSavings || 0) + (state.assets?.cashISA || 0);
+  const start = state.savings > 0 ? state.savings : assetSavings;
+  const monthly = Math.max(0, (state.income || 0) - calculateTotalExpenses());
+  return { start, monthly };
+}
+
+function autoFillMonteCarloFromState() {
+  const startEl = document.querySelector("[data-monte-start]");
+  const monthlyEl = document.querySelector("[data-monte-monthly]");
+  if (!startEl || !monthlyEl) return;
+
+  const { start, monthly } = getMonteCarloDefaults();
+  if (startEl.dataset.userEdited !== "true") {
+    startEl.value = Math.round(start);
+  }
+  if (monthlyEl.dataset.userEdited !== "true") {
+    monthlyEl.value = Math.round(monthly);
+  }
+
+  renderMonteCarloEmptyState();
+}
+
+function renderMonteCarloEmptyState() {
+  if (monteHasRun) return;
+  const outputEl = document.querySelector("[data-monte-output]");
+  if (!outputEl) return;
+
+  const { start, monthly } = getMonteCarloDefaults();
+  const message = `Click "Run Simulation" to see projected outcomes. Your current savings (${formatCurrency(start)}) and surplus (${formatCurrency(monthly)}/mo) will be used as starting values.`;
+  setTextAll("[data-monte-output]", message);
+  setTextAll("[data-monte-sims]", "--");
+  setTextAll("[data-monte-hit]", "--");
+  setTextAll("[data-monte-real]", "--");
+  setTextAll("[data-monte-p10]", "10th: --");
+  setTextAll("[data-monte-p50]", "50th: --");
+  setTextAll("[data-monte-p90]", "90th: --");
+
+  const barsContainer = document.querySelector("[data-monte-bars]");
+  if (barsContainer) barsContainer.innerHTML = "";
+
+  const reportEl = document.querySelector("[data-monte-report]");
+  if (reportEl) reportEl.style.display = "none";
+}
+
 function updateMonteCarlo() {
+  monteHasRun = true;
   const startEl = document.querySelector("[data-monte-start]");
   const monthlyEl = document.querySelector("[data-monte-monthly]");
   const growthEl = document.querySelector("[data-monte-growth]");

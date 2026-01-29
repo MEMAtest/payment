@@ -2,6 +2,8 @@
 // EVENT WIRING: APP-LEVEL LISTENERS AND UI INTERACTIONS
 // ============================================================
 
+let hasShownExpenseOverIncomeWarning = false;
+
 function attachEventListeners() {
   if (!screens.length) {
     console.warn("attachEventListeners called before DOM initialization");
@@ -26,6 +28,13 @@ function attachEventListeners() {
 
   document.querySelectorAll("[data-back]").forEach((btn) => {
     btn.addEventListener("click", () => showScreen(currentIndex - 1));
+  });
+
+  document.querySelectorAll("[data-skip-goals]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      showScreen(currentIndex + 1);
+      updateSummary();
+    });
   });
 
   document.querySelectorAll("[data-go]").forEach((btn) => {
@@ -97,6 +106,20 @@ function attachEventListeners() {
       updateCategoryTotals();
       updateBudgetSummary();
       scheduleHealthUpdate();
+      if (!hasShownExpenseOverIncomeWarning) {
+        const income = state.income || 0;
+        const totalExpenses = calculateTotalExpenses();
+        if (income > 0 && totalExpenses > income) {
+          const diff = totalExpenses - income;
+          if (typeof showNotification === "function") {
+            showNotification(
+              `Your expenses (${formatCurrency(totalExpenses)}) exceed your income (${formatCurrency(income)}) by ${formatCurrency(diff)}. Review your budget to find savings.`,
+              "warning",
+            );
+          }
+          hasShownExpenseOverIncomeWarning = true;
+        }
+      }
       scheduleSave();
     });
   });
@@ -169,6 +192,17 @@ function attachEventListeners() {
       if (target === "cashflow") {
         updateCashflowInsights();
       }
+      if (target === "home" || target === "profile") {
+        scheduleHealthUpdate();
+      }
+      if (target === "simulate") {
+        if (typeof autoFillMonteCarloFromState === "function") {
+          autoFillMonteCarloFromState();
+        }
+        if (typeof renderMonteCarloEmptyState === "function") {
+          renderMonteCarloEmptyState();
+        }
+      }
       if (target === "import") {
         renderImportHistory();
       }
@@ -192,6 +226,14 @@ function attachEventListeners() {
       const target = btn.dataset.subtabTarget;
       switchSubtab(tabPanel, target);
     });
+  });
+
+  document.addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-subtab-target]");
+    if (!btn) return;
+    const tabPanel = btn.closest("[data-tab]");
+    const target = btn.dataset.subtabTarget;
+    switchSubtab(tabPanel, target);
   });
 
   // Collapsible panels
@@ -294,6 +336,16 @@ function attachEventListeners() {
         volEl.disabled = false;
       }
     });
+  }
+
+  document.querySelectorAll("[data-monte-start], [data-monte-monthly]").forEach((input) => {
+    input.addEventListener("input", () => {
+      input.dataset.userEdited = "true";
+    });
+  });
+
+  if (typeof renderMonteCarloEmptyState === "function") {
+    renderMonteCarloEmptyState();
   }
 
   const downloadReportBtn = document.querySelector("[data-download-report]");

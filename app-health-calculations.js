@@ -28,6 +28,13 @@ function calculateEmergencyScore() {
   const monthlyExpenses = calculateMonthlyExpenses();
 
   if (monthlyExpenses <= 0) {
+    if (liquidAssets > 0) {
+      return {
+        score: 15,
+        months: 0,
+        tip: "You have savings! Add your expenses to calculate full emergency cover",
+      };
+    }
     return { score: 0, months: 0, tip: "Enter your monthly expenses to calculate emergency cover" };
   }
 

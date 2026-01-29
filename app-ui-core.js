@@ -138,14 +138,19 @@ function updateGoalsFromCards() {
   cards.forEach((card) => {
     const checkbox = card.querySelector("[data-goal-check]");
     const targetInput = card.querySelector("[data-goal-target]");
+    const customNameInput = card.querySelector("[data-goal-custom-name]");
+    const customName = customNameInput?.value?.trim();
 
     if (checkbox?.checked) {
-      goals.push({
-        name: checkbox.value,
-        target: Number(targetInput?.value) || Number(targetInput?.placeholder) || 0,
-        saved: 0,
-        monthly: 0,
-      });
+      const goalName = customNameInput ? customName : checkbox.value;
+      if (goalName) {
+        goals.push({
+          name: goalName,
+          target: Number(targetInput?.value) || Number(targetInput?.placeholder) || 0,
+          saved: 0,
+          monthly: 0,
+        });
+      }
     }
 
     card.classList.toggle("active", checkbox?.checked);

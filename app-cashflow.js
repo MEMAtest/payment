@@ -190,6 +190,24 @@ function attachCashflowInteractions() {
 }
 
 function updateCashflowInsights() {
+  const snapshot = getFinanceSnapshot();
+  const chartEl = document.querySelector("[data-cashflow-chart]");
+
+  if (snapshot.income === 0 && snapshot.expenses === 0) {
+    if (chartEl) {
+      chartEl.innerHTML = `
+        <div class="chart-empty">
+          <p>Enter your income and expenses to see your cash flow forecast.</p>
+          <button class="btn secondary" type="button" data-goto-budget>Go to Budget</button>
+        </div>
+      `;
+    }
+    setTextAll("[data-cashflow-average]", "--");
+    setTextAll("[data-cashflow-low]", "--");
+    setTextAll("[data-cashflow-risk]", "--");
+    return;
+  }
+
   const data = buildCashflowData(state.cashflowMonths, state.cashflowScenario);
   renderCashflowChart(data);
 
@@ -201,6 +219,17 @@ function updateCashflowInsights() {
   setTextAll("[data-cashflow-low]", formatCurrency(lowBalance));
   setTextAll("[data-cashflow-risk]", riskMonths);
 }
+
+// Navigate from cashflow empty state to home → budget subtab
+document.addEventListener("click", (e) => {
+  if (!e.target.closest("[data-goto-budget]")) return;
+  document.querySelector('[data-tab-target="home"]')?.click();
+  requestAnimationFrame(() => {
+    const homePanel = document.querySelector('[data-tab="home"]');
+    const budgetBtn = homePanel?.querySelector('[data-subtab-target="budget"]');
+    if (budgetBtn) budgetBtn.click();
+  });
+});
 
 // Expose cashflow functions globally for cross-module access
 Object.assign(window, {

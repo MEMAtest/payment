@@ -166,6 +166,13 @@ function openIncomeModal(incomeId = null) {
     }
   } else {
     title.textContent = "Add Income Source";
+    const sources = loadIncomeSources();
+    if (sources.length === 0 && state.income > 0) {
+      document.querySelector("[data-income-name]").value = "Primary Salary";
+      document.querySelector("[data-income-amount]").value = state.income;
+      document.querySelector("[data-income-type]").value = "salary";
+      document.querySelector("[data-income-frequency]").value = "monthly";
+    }
   }
 
   modal.hidden = false;

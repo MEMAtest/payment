@@ -415,11 +415,38 @@ async function parseExcel(file) {
   });
 }
 
+// Lazy-load pdf.js from CDN (avoids SRI hash issues with eager script tags)
+async function loadPdfJs() {
+  if (typeof pdfjsLib !== "undefined") return;
+  await new Promise((resolve, reject) => {
+    const script = document.createElement("script");
+    script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    script.crossOrigin = "anonymous";
+    script.onload = () => {
+      if (typeof pdfjsLib !== "undefined") {
+        pdfjsLib.GlobalWorkerOptions.workerSrc =
+          "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+      }
+      resolve();
+    };
+    script.onerror = () => reject(new Error("Failed to load PDF library from CDN"));
+    document.head.appendChild(script);
+  });
+}
+
 // Parse PDF file (handles unstructured PDFs like Virgin Media bills)
 async function parsePDF(file) {
   return new Promise(async (resolve, reject) => {
+    try {
+      updateProgress(5, "Loading PDF library...");
+      await loadPdfJs();
+    } catch (err) {
+      reject(err);
+      return;
+    }
+
     if (typeof pdfjsLib === "undefined") {
-      reject(new Error("PDF parsing library not loaded"));
+      reject(new Error("PDF parsing library not available"));
       return;
     }
 

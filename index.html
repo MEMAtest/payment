@@ -4053,21 +4053,11 @@
       </svg>
     </button>
 
-    <!-- External Libraries for file parsing (with SRI integrity hashes) -->
+    <!-- External Libraries for file parsing -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"
-            integrity="sha512-r22gChDnGvBylk90+2e/ycr3RVrDi8DIOkIGNhJlKfuyQM4tIRAI062MaV8sfjQKYVGjOBaZBOA87z+IhZE9DA=="
             crossorigin="anonymous"
             referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"
-            integrity="sha512-q+4liFwdPC4nh5jPqMPgL4w8PO0sGgpuMpmOHBbLXCn8xEj9C1pmRdBFr/g58bRCTqXB2LRyfE0T1HNDlEoBwg=="
-            crossorigin="anonymous"
-            referrerpolicy="no-referrer"></script>
-    <script>
-      // Configure PDF.js worker
-      if (typeof pdfjsLib !== 'undefined') {
-        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
-      }
-    </script>
+    <!-- pdf.js is lazy-loaded in app-import-parse.js when a PDF is imported -->
 
     <script src="app-config.js" defer></script>
     <script src="firebase-config.js" defer></script>

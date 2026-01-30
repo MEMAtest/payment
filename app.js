@@ -436,6 +436,11 @@ function initializePoapyments() {
   screens = Array.from(document.querySelectorAll("[data-screen]"));
   steps = Array.from(document.querySelectorAll("[data-step]"));
 
+  // Hoist all modals to <body> so they escape tab-panel overflow clipping
+  document.querySelectorAll(".modal-overlay").forEach((modal) => {
+    document.body.appendChild(modal);
+  });
+
   // Apply hooks after all feature scripts have loaded.
   hookUpdateGoalList();
 

@@ -24,7 +24,7 @@ const cashflowPresets = {
 
 const CASHFLOW_CHART = {
   width: 720,
-  height: 240,
+  height: 360,
   padding: 26,
 };
 

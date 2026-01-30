@@ -32,6 +32,8 @@ function initStatementImport() {
       const firstName = files[0]?.name || "file";
       updateProgress(100, `Failed to import ${escapeHtml(firstName)}.`);
       showNotification(`Import failed: ${error.message}`, "error");
+    } finally {
+      fileInput.value = "";
     }
   });
 

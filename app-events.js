@@ -405,7 +405,7 @@ function attachEventListeners() {
     renderMonteCarloEmptyState();
   }
 
-  const downloadReportBtn = document.querySelector("[data-download-report]");
+  const downloadReportBtn = document.querySelector("[data-download-monte-report]");
   if (downloadReportBtn) {
     downloadReportBtn.addEventListener("click", () => {
       const content = document.querySelector("[data-report-content]")?.innerText || "";

@@ -54,11 +54,11 @@ function renderCashflowChart(data) {
   const maxNet = Math.max(...nets.map(Math.abs), 1);
   const balanceRange = Math.max(maxBalance - minBalance, 1);
 
-  const barWidth = Math.max(8, (chartWidth / data.length) * 0.5);
+  const barWidth = Math.max(8, (chartWidth / data.length) * 0.65);
   const gap = (chartWidth - barWidth * data.length) / (data.length - 1 || 1);
 
   const scaleY = (val) => padding + chartHeight - ((val - minBalance) / balanceRange) * chartHeight;
-  const scaleNetY = (val) => (Math.abs(val) / maxNet) * (chartHeight * 0.3);
+  const scaleNetY = (val) => (Math.abs(val) / maxNet) * (chartHeight * 0.45);
   const zeroY = scaleY(0);
 
   // Build balance line path
@@ -131,7 +131,7 @@ function attachCashflowInteractions() {
   const { width, height, padding } = CASHFLOW_CHART;
   const data = currentCashflowData;
   const chartWidth = width - padding * 2;
-  const barWidth = Math.max(8, (chartWidth / data.length) * 0.5);
+  const barWidth = Math.max(8, (chartWidth / data.length) * 0.65);
   const gap = (chartWidth - barWidth * data.length) / (data.length - 1 || 1);
 
   const balances = data.map((d) => d.balance);

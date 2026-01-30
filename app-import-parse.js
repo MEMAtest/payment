@@ -416,9 +416,11 @@ async function parseExcel(file) {
 }
 
 // Lazy-load pdf.js from CDN (avoids SRI hash issues with eager script tags)
-async function loadPdfJs() {
-  if (typeof pdfjsLib !== "undefined") return;
-  await new Promise((resolve, reject) => {
+let _pdfJsLoadPromise = null;
+function loadPdfJs() {
+  if (typeof pdfjsLib !== "undefined") return Promise.resolve();
+  if (_pdfJsLoadPromise) return _pdfJsLoadPromise;
+  _pdfJsLoadPromise = new Promise((resolve, reject) => {
     const script = document.createElement("script");
     script.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
     script.crossOrigin = "anonymous";
@@ -429,9 +431,13 @@ async function loadPdfJs() {
       }
       resolve();
     };
-    script.onerror = () => reject(new Error("Failed to load PDF library from CDN"));
+    script.onerror = () => {
+      _pdfJsLoadPromise = null;
+      reject(new Error("Failed to load PDF library from CDN"));
+    };
     document.head.appendChild(script);
   });
+  return _pdfJsLoadPromise;
 }
 
 // Parse PDF file (handles unstructured PDFs like Virgin Media bills)

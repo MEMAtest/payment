@@ -16,6 +16,7 @@
   --navy-light: rgba(29, 53, 87, 0.1);
   --sky: #dceaf2;
   --white: #ffffff;
+  --card: #ffffff;
   --purple: #7c3aed;
   --purple-light: rgba(124, 58, 237, 0.15);
   --radius: 18px;
@@ -2791,7 +2792,7 @@ textarea {
 .celebration-modal {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.7);
+  background: rgba(0, 0, 0, 0.55);
   display: flex;
   align-items: center;
   justify-content: center;

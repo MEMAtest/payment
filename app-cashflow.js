@@ -198,7 +198,7 @@ function updateCashflowInsights() {
       chartEl.innerHTML = `
         <div class="chart-empty">
           <p>Enter your income and expenses to see your cash flow forecast.</p>
-          <button class="btn secondary" type="button" data-goto-budget>Go to Budget</button>
+          <button class="btn secondary" type="button" data-go-tab="home" data-go-subtab="budget">Go to Budget</button>
         </div>
       `;
     }
@@ -219,17 +219,6 @@ function updateCashflowInsights() {
   setTextAll("[data-cashflow-low]", formatCurrency(lowBalance));
   setTextAll("[data-cashflow-risk]", riskMonths);
 }
-
-// Navigate from cashflow empty state to home → budget subtab
-document.addEventListener("click", (e) => {
-  if (!e.target.closest("[data-goto-budget]")) return;
-  document.querySelector('[data-tab-target="home"]')?.click();
-  requestAnimationFrame(() => {
-    const homePanel = document.querySelector('[data-tab="home"]');
-    const budgetBtn = homePanel?.querySelector('[data-subtab-target="budget"]');
-    if (budgetBtn) budgetBtn.click();
-  });
-});
 
 // Expose cashflow functions globally for cross-module access
 Object.assign(window, {

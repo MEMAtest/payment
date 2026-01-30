@@ -38,10 +38,38 @@ function initFinancialHealthDashboard() {
     input.value = state.assets[key] || "";
     input.addEventListener("input", () => {
       state.assets[key] = parseFloat(input.value) || 0;
+      if (key === "cashSavings" || key === "cashISA") {
+        state.savings = (state.assets.cashSavings || 0) + (state.assets.cashISA || 0);
+        document.querySelectorAll('[data-field="savings"]').forEach((el) => {
+          if (el === input) return;
+          el.value = state.savings || "";
+        });
+      }
+      if (key === "pensionValue") {
+        if (typeof loadRetirementSettings === "function" && typeof saveRetirementSettings === "function") {
+          const settings = loadRetirementSettings();
+          settings.pensionPot = state.assets.pensionValue || 0;
+          saveRetirementSettings(settings);
+        }
+        if (typeof updateRetirementUI === "function") {
+          updateRetirementUI();
+        }
+      }
       scheduleSave();
       scheduleHealthUpdate();
+      if (typeof updateSummary === "function") {
+        updateSummary();
+      }
     });
   });
+
+  const liquidSavings = (state.assets.cashSavings || 0) + (state.assets.cashISA || 0);
+  if (liquidSavings > 0 && state.savings !== liquidSavings) {
+    state.savings = liquidSavings;
+    document.querySelectorAll('[data-field="savings"]').forEach((el) => {
+      el.value = state.savings || "";
+    });
+  }
 
   // Setup liability inputs
   document.querySelectorAll("[data-liability]").forEach((input) => {
@@ -51,6 +79,9 @@ function initFinancialHealthDashboard() {
       state.liabilities[key] = parseFloat(input.value) || 0;
       scheduleSave();
       scheduleHealthUpdate();
+      if (typeof updateSummary === "function") {
+        updateSummary();
+      }
     });
   });
 

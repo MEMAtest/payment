@@ -11,6 +11,8 @@ function sanitizeState(raw) {
   safe.expenses = { ...defaultState.expenses, ...(raw.expenses || {}) };
 
   safe.name = typeof safe.name === "string" ? safe.name : "";
+  safe.currentAge = Number(safe.currentAge) || 0;
+  safe.currentAge = Math.min(Math.max(safe.currentAge, 0), 120);
   safe.focus = ["saving", "investing", "protection", "income"].includes(safe.focus)
     ? safe.focus
     : defaultState.focus;

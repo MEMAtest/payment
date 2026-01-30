@@ -91,14 +91,22 @@ function initMoodTracker() {
 
     if (mood === todaysMood) {
       btn.classList.add("active");
+      btn.setAttribute("aria-pressed", "true");
+    } else {
+      btn.setAttribute("aria-pressed", "false");
     }
 
     btn.addEventListener("click", () => {
       selector.querySelectorAll(".mood-btn").forEach(b => b.classList.remove("active"));
+      selector.querySelectorAll(".mood-btn").forEach(b => b.setAttribute("aria-pressed", "false"));
       btn.classList.add("active");
+      btn.setAttribute("aria-pressed", "true");
       saveMoodEntry(mood);
       updateMoodChart();
       updateRewardsUI();
+      if (typeof showNotification === "function") {
+        showNotification("Mood saved", "success");
+      }
     });
   });
 

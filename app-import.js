@@ -3,6 +3,7 @@
 
 const IMPORT_STORAGE_KEY = "consumerpay_import_history";
 const MAX_IMPORT_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
+let importInitialized = false;
 
 // Merchant to category mapping for smart categorization
 function initStatementImport() {
@@ -11,9 +12,14 @@ function initStatementImport() {
   const modal = document.querySelector("[data-import-modal]");
 
   if (!dropzone || !fileInput) return;
+  if (importInitialized) return;
+  importInitialized = true;
 
   // Click to upload
-  dropzone.addEventListener("click", () => fileInput.click());
+  dropzone.addEventListener("click", (e) => {
+    if (e.target === fileInput) return;
+    fileInput.click();
+  });
 
   // File selection
   fileInput.addEventListener("change", async (e) => {

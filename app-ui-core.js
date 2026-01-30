@@ -59,10 +59,14 @@ function updatePersona() {
 
 function getFinanceSnapshot() {
   const totalExpenses = calculateTotalExpenses();
+  const liquidSavings =
+    Number.isFinite(state.savings) && state.savings > 0
+      ? state.savings
+      : (state.assets.cashSavings || 0) + (state.assets.cashISA || 0);
   return {
     income: state.income,
     expenses: totalExpenses,
-    savings: state.savings,
+    savings: liquidSavings,
     surplus: state.income - totalExpenses,
     debt: calculateCategoryTotal("debt"),
   };
@@ -174,6 +178,8 @@ function syncFormFromState() {
       el.value = state.savings || "";
     } else if (field === "name") {
       el.value = state.name || "";
+    } else if (field === "currentAge") {
+      el.value = state.currentAge || "";
     } else if (field === "rewardPoints") {
       el.value = state.rewardPoints || "";
     } else if (field === "rewardStreak") {

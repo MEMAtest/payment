@@ -83,8 +83,29 @@ function attachEventListeners() {
         updateSalaryBreakdown();
       } else if (field === "savings") {
         state.savings = Number(el.value) || 0;
+        const currentCashIsa = state.assets.cashISA || 0;
+        state.assets.cashSavings = Math.max(0, state.savings - currentCashIsa);
+        const cashInput = document.querySelector('[data-asset="cashSavings"]');
+        if (cashInput && cashInput !== el) {
+          cashInput.value = state.assets.cashSavings || "";
+        }
+        scheduleHealthUpdate();
       } else if (field === "name") {
         state.name = el.value;
+      } else if (field === "currentAge") {
+        state.currentAge = Number(el.value) || 0;
+        const retireAgeInput = document.querySelector('[data-retire-input="currentAge"]');
+        if (retireAgeInput && retireAgeInput !== el) {
+          retireAgeInput.value = state.currentAge || "";
+        }
+        if (typeof loadRetirementSettings === "function" && typeof saveRetirementSettings === "function") {
+          const settings = loadRetirementSettings();
+          settings.currentAge = state.currentAge || settings.currentAge || 30;
+          saveRetirementSettings(settings);
+        }
+        if (typeof updateRetirementUI === "function") {
+          updateRetirementUI();
+        }
       } else if (field === "rewardPoints") {
         state.rewardPoints = Number(el.value) || 0;
         updateRewardsUI();
@@ -94,7 +115,20 @@ function attachEventListeners() {
       } else {
         state[field] = el.type === "checkbox" ? el.checked : el.value;
       }
+
+      document.querySelectorAll(`[data-field="${field}"]`).forEach((input) => {
+        if (input === el) return;
+        if (input.type === "checkbox") {
+          input.checked = Boolean(state[field]);
+        } else if (state[field] !== undefined) {
+          input.value = state[field] || "";
+        }
+      });
+
       scheduleSave();
+      if (typeof refreshUI === "function") {
+        refreshUI();
+      }
     });
   });
 
@@ -195,6 +229,9 @@ function attachEventListeners() {
       if (target === "home" || target === "profile") {
         scheduleHealthUpdate();
       }
+      if (target === "profile") {
+        syncFormFromState();
+      }
       if (target === "simulate") {
         if (typeof autoFillMonteCarloFromState === "function") {
           autoFillMonteCarloFromState();
@@ -205,6 +242,9 @@ function attachEventListeners() {
       }
       if (target === "import") {
         renderImportHistory();
+        if (typeof initStatementImport === "function") {
+          initStatementImport();
+        }
       }
 
       // Reset sub-tabs to first item when switching main tabs
@@ -234,6 +274,23 @@ function attachEventListeners() {
     const tabPanel = btn.closest("[data-tab]");
     const target = btn.dataset.subtabTarget;
     switchSubtab(tabPanel, target);
+  });
+
+  document.addEventListener("click", (event) => {
+    const btn = event.target.closest("[data-go-tab]");
+    if (!btn) return;
+    const target = btn.dataset.goTab;
+    const subtabTarget = btn.dataset.goSubtab;
+    const navBtn = document.querySelector(`[data-tab-target="${target}"]`);
+    if (navBtn) {
+      navBtn.click();
+      if (subtabTarget) {
+        setTimeout(() => {
+          const tabPanel = document.querySelector(`[data-tab="${target}"]`);
+          switchSubtab(tabPanel, subtabTarget);
+        }, 0);
+      }
+    }
   });
 
   // Collapsible panels

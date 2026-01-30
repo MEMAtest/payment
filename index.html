@@ -148,6 +148,10 @@
                 What should we call you?
                 <input type="text" placeholder="Your first name" data-field="name" />
               </label>
+              <label>
+                Your age
+                <input type="number" min="18" max="100" placeholder="30" data-field="currentAge" />
+              </label>
               <div>
                 <p class="field-label">What's your main financial focus?</p>
                 <div class="choice-group" data-choice-group="focus">
@@ -274,7 +278,7 @@
               <div class="salary-breakdown" data-salary-breakdown>
                 <div class="breakdown-header">
                   <h3>Your Monthly Breakdown</h3>
-                  <p class="muted">Based on 2024/25 UK tax rates</p>
+                  <p class="muted">Based on stored UK tax assumptions</p>
                 </div>
 
                 <div class="breakdown-visual">
@@ -1276,67 +1280,28 @@
                   <div class="panel-card wide" data-widget="cashflow">
                     <div class="panel-head">
                       <div>
-                        <h3>Cash Flow Forecast</h3>
-                        <p class="muted">
-                          Track your projected balance over time
-                        </p>
+                        <h3>Cash Flow Snapshot</h3>
+                        <p class="muted">Quick view of your monthly position</p>
                       </div>
-                      <div class="scenario-controls">
-                        <label>
-                          Scenario
-                          <select data-scenario-select>
-                            <option value="baseline" selected>Baseline</option>
-                            <option value="optimistic">Optimistic</option>
-                            <option value="conservative">Conservative</option>
-                            <option value="stress">Stress Test</option>
-                            <option value="custom">Custom</option>
-                          </select>
-                        </label>
-                        <label>
-                          Months
-                          <input type="number" min="6" max="36" value="12" data-cashflow-months />
-                        </label>
-                      </div>
-                    </div>
-                    <div class="scenario-custom" data-scenario-custom>
-                      <label>
-                        Income change (%)
-                        <input type="number" step="0.5" value="0" data-scenario-income />
-                      </label>
-                      <label>
-                        Expense change (%)
-                        <input type="number" step="0.5" value="0" data-scenario-expense />
-                      </label>
-                    </div>
-                    <div class="chart-wrap" data-cashflow-chart></div>
-                    <div class="chart-legend">
-                      <span class="legend-item">
-                        <span class="legend-dot balance"></span>
-                        Projected Balance
-                      </span>
-                      <span class="legend-item">
-                        <span class="legend-dot net positive"></span>
-                        Monthly Surplus
-                      </span>
-                      <span class="legend-item">
-                        <span class="legend-dot net negative"></span>
-                        Monthly Deficit
-                      </span>
+                      <button class="btn small ghost" type="button" data-go-tab="cashflow">Open Cash Flow</button>
                     </div>
                     <div class="chart-metrics">
                       <div class="chart-metric">
-                        <p class="metric-label">Avg Monthly</p>
-                        <p class="metric-value" data-cashflow-average>£0</p>
+                        <p class="metric-label">Monthly Income</p>
+                        <p class="metric-value" data-income-label>£0</p>
                       </div>
                       <div class="chart-metric">
-                        <p class="metric-label">Lowest Point</p>
-                        <p class="metric-value" data-cashflow-low>£0</p>
+                        <p class="metric-label">Monthly Expenses</p>
+                        <p class="metric-value" data-expense-label>£0</p>
                       </div>
                       <div class="chart-metric">
-                        <p class="metric-label">Risk Months</p>
-                        <p class="metric-value" data-cashflow-risk>0</p>
+                        <p class="metric-label">Monthly Surplus</p>
+                        <p class="metric-value" data-summary-surplus>£0</p>
                       </div>
                     </div>
+                    <p class="muted" data-income-summary>
+                      Balance your income and expenses for financial health.
+                    </p>
                   </div>
 
                   <div class="panel-card" data-widget="alerts">
@@ -1676,73 +1641,66 @@
 
             <!-- Cash Flow Tab (standalone) -->
             <div class="tab-panel" data-tab="cashflow">
-              <div class="panel-grid">
-                <div class="panel-card">
-                  <h3>Future Lab</h3>
-                  <p class="muted">
-                    AI-powered scenario planning
-                  </p>
-                  <div class="chat-stack" data-future-chat>
-                    <div class="chat-bubble">
-                      <p class="chat-title">You</p>
-                      <p data-future-user>Can we pause investing for 6 months?</p>
-                    </div>
-                    <div class="chat-bubble response">
-                      <p class="chat-title">Consumer Pay</p>
-                      <p data-future-response>
-                        That delays your goal by 4 months, but keeps the buffer
-                        intact. Want to see alternatives?
-                      </p>
-                    </div>
+              <div class="panel-card cashflow-panel">
+                <div class="panel-head">
+                  <div>
+                    <h3>Cash Flow Forecast</h3>
+                    <p class="muted">Track your projected balance over time</p>
                   </div>
-                  <div class="future-form" data-future-form>
+                  <div class="scenario-controls">
                     <label>
-                      Ask a question
-                      <textarea rows="2" placeholder="e.g. What if I pause investing for 6 months?" data-future-question></textarea>
+                      Scenario
+                      <select data-scenario-select>
+                        <option value="baseline" selected>Baseline</option>
+                        <option value="optimistic">Optimistic</option>
+                        <option value="conservative">Conservative</option>
+                        <option value="stress">Stress Test</option>
+                        <option value="custom">Custom</option>
+                      </select>
                     </label>
-                    <div class="future-grid">
-                      <label>
-                        Scenario type
-                        <select data-future-type>
-                          <option value="pause_investing" selected>Pause contributions</option>
-                          <option value="income_drop">Income drop</option>
-                          <option value="income_boost">Income boost</option>
-                          <option value="expense_spike">Expense spike</option>
-                          <option value="one_off">One-off expense</option>
-                        </select>
-                      </label>
-                      <label>
-                        <span data-future-months-label>Duration (months)</span>
-                        <input type="number" min="1" max="24" value="6" data-future-months />
-                      </label>
-                      <label>
-                        <span data-future-amount-label>Amount (£)</span>
-                        <input type="number" min="0" step="50" value="250" data-future-amount />
-                      </label>
-                    </div>
-                    <button class="btn secondary" type="button" data-future-run>
-                      Run Scenario
-                    </button>
+                    <label>
+                      Months
+                      <input type="number" min="6" max="36" value="12" data-cashflow-months />
+                    </label>
                   </div>
-                  <div class="future-output">
-                    <p class="card-title">Scenario Impact</p>
-                    <p class="muted" data-future-summary>
-                      Update the fields to simulate your scenario.
-                    </p>
-                    <div class="chart-metrics future-metrics">
-                      <div>
-                        <p class="metric-label">Balance Impact</p>
-                        <p class="metric-value" data-future-balance>£0</p>
-                      </div>
-                      <div>
-                        <p class="metric-label">Risk Months</p>
-                        <p class="metric-value" data-future-risk>0</p>
-                      </div>
-                      <div>
-                        <p class="metric-label">Goal Timing</p>
-                        <p class="metric-value" data-future-delay>--</p>
-                      </div>
-                    </div>
+                </div>
+                <div class="scenario-custom" data-scenario-custom>
+                  <label>
+                    Income change (%)
+                    <input type="number" step="0.5" value="0" data-scenario-income />
+                  </label>
+                  <label>
+                    Expense change (%)
+                    <input type="number" step="0.5" value="0" data-scenario-expense />
+                  </label>
+                </div>
+                <div class="chart-wrap" data-cashflow-chart></div>
+                <div class="chart-legend">
+                  <span class="legend-item">
+                    <span class="legend-dot balance"></span>
+                    Projected Balance
+                  </span>
+                  <span class="legend-item">
+                    <span class="legend-dot net positive"></span>
+                    Monthly Surplus
+                  </span>
+                  <span class="legend-item">
+                    <span class="legend-dot net negative"></span>
+                    Monthly Deficit
+                  </span>
+                </div>
+                <div class="chart-metrics">
+                  <div class="chart-metric">
+                    <p class="metric-label">Avg Monthly</p>
+                    <p class="metric-value" data-cashflow-average>£0</p>
+                  </div>
+                  <div class="chart-metric">
+                    <p class="metric-label">Lowest Point</p>
+                    <p class="metric-value" data-cashflow-low>£0</p>
+                  </div>
+                  <div class="chart-metric">
+                    <p class="metric-label">Risk Months</p>
+                    <p class="metric-value" data-cashflow-risk>0</p>
                   </div>
                 </div>
               </div>
@@ -1864,6 +1822,7 @@
                 <button class="subtab-btn is-active" type="button" role="tab" aria-selected="true" data-subtab-target="bill-calendar">Bill Calendar</button>
                 <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="debt-payoff">Debt Payoff</button>
                 <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="currency">Currency</button>
+                <button class="subtab-btn" type="button" role="tab" aria-selected="false" data-subtab-target="future">What-If</button>
               </nav>
 
               <!-- Currency Section -->
@@ -1926,6 +1885,79 @@
               </div>
               </div>
               <!-- End Currency Section -->
+
+              <div class="subtab-panel" data-subtab="future">
+                <div class="panel-grid">
+                  <div class="panel-card">
+                    <h3>Future Lab</h3>
+                    <p class="muted">
+                      AI-powered scenario planning
+                    </p>
+                    <div class="chat-stack" data-future-chat>
+                      <div class="chat-bubble">
+                        <p class="chat-title">You</p>
+                        <p data-future-user>Can we pause investing for 6 months?</p>
+                      </div>
+                      <div class="chat-bubble response">
+                        <p class="chat-title">Consumer Pay</p>
+                        <p data-future-response>
+                          That delays your goal by 4 months, but keeps the buffer
+                          intact. Want to see alternatives?
+                        </p>
+                      </div>
+                    </div>
+                    <div class="future-form" data-future-form>
+                      <label>
+                        Ask a question
+                        <textarea rows="2" placeholder="e.g. What if I pause investing for 6 months?" data-future-question></textarea>
+                      </label>
+                      <div class="future-grid">
+                        <label>
+                          Scenario type
+                          <select data-future-type>
+                            <option value="pause_investing" selected>Pause contributions</option>
+                            <option value="income_drop">Income drop</option>
+                            <option value="income_boost">Income boost</option>
+                            <option value="expense_spike">Expense spike</option>
+                            <option value="one_off">One-off expense</option>
+                          </select>
+                        </label>
+                        <label>
+                          <span data-future-months-label>Duration (months)</span>
+                          <input type="number" min="1" max="24" value="6" data-future-months />
+                        </label>
+                        <label>
+                          <span data-future-amount-label>Amount (£)</span>
+                          <input type="number" min="0" step="50" value="250" data-future-amount />
+                        </label>
+                      </div>
+                      <button class="btn secondary" type="button" data-future-run>
+                        Run Scenario
+                      </button>
+                    </div>
+                    <div class="future-output">
+                      <p class="card-title">Scenario Impact</p>
+                      <p class="muted" data-future-summary>
+                        Update the fields to simulate your scenario.
+                      </p>
+                      <div class="chart-metrics future-metrics">
+                        <div>
+                          <p class="metric-label">Balance Impact</p>
+                          <p class="metric-value" data-future-balance>£0</p>
+                        </div>
+                        <div>
+                          <p class="metric-label">Risk Months</p>
+                          <p class="metric-value" data-future-risk>0</p>
+                        </div>
+                        <div>
+                          <p class="metric-label">Goal Timing</p>
+                          <p class="metric-value" data-future-delay>--</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
 
               <!-- Bill Calendar Section -->
               <div class="subtab-panel is-active" data-subtab="bill-calendar">
@@ -2744,7 +2776,7 @@
                 </div>
                 <h3>Drag & drop your files here</h3>
                 <p class="muted">or click to browse</p>
-                <input type="file" multiple accept=".csv,.xlsx,.xls,.pdf" data-import-file hidden />
+                <input type="file" multiple accept=".csv,.xlsx,.xls,.pdf" data-import-file class="import-file-input" aria-label="Choose statement files" />
                 <div class="import-formats">
                   <span class="format-badge csv">CSV</span>
                   <span class="format-badge excel">Excel</span>
@@ -3494,7 +3526,7 @@
                         </svg>
                         Tax Allowances Tracker
                       </h3>
-                      <p class="muted">Monitor your annual tax-free allowances (2024/25)</p>
+                      <p class="muted">Monitor your annual tax-free allowances</p>
                     </div>
                   </div>
 
@@ -3616,8 +3648,8 @@
                   <!-- Tax Year Progress -->
                   <div class="tax-year-progress">
                     <div class="year-info">
-                      <span class="year-label">Tax Year 2024/25</span>
-                      <span class="year-dates">6 April 2024 - 5 April 2025</span>
+                      <span class="year-label">Tax Year 2025/26</span>
+                      <span class="year-dates">6 April 2025 - 5 April 2026</span>
                     </div>
                     <div class="year-countdown" data-tax-year-countdown>
                       <!-- Populated by JS -->
@@ -3844,8 +3876,12 @@
                       <input type="text" placeholder="Your name" data-field="name" />
                     </label>
                     <label>
+                      Current Age
+                      <input type="number" min="18" max="100" placeholder="30" data-field="currentAge" />
+                    </label>
+                    <label>
                       Annual Salary
-                      <input type="number" min="0" data-field="annualSalary" />
+                      <input type="number" min="0" placeholder="60000" data-field="annualSalary" />
                     </label>
                   </div>
                   <div class="profile-persona">

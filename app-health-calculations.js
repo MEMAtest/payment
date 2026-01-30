@@ -281,7 +281,13 @@ function calculateHealthScore() {
   const credit = calculateCreditScore();
   const protection = calculateProtectionScore();
 
-  const total = emergency.score + debt.score + savings.score + credit.score + protection.score;
+  const safeScore = (value) => (Number.isFinite(value) ? value : 0);
+  const total =
+    safeScore(emergency.score) +
+    safeScore(debt.score) +
+    safeScore(savings.score) +
+    safeScore(credit.score) +
+    safeScore(protection.score);
 
   let status = "Getting started";
   if (total >= 85) status = "Excellent financial health";

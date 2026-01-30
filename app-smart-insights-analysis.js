@@ -243,6 +243,9 @@ function generateSmartTips() {
   const surplus = monthlyIncome - monthlyExpenses;
   const liquidAssets = (state.assets.cashSavings || 0) + (state.assets.cashISA || 0);
   const monthsCovered = monthlyExpenses > 0 ? liquidAssets / monthlyExpenses : 0;
+  const totalAssets = Object.values(state.assets || {}).reduce((sum, val) => sum + (val || 0), 0);
+  const totalLiabilities = Object.values(state.liabilities || {}).reduce((sum, val) => sum + (val || 0), 0);
+  const netWorth = totalAssets - totalLiabilities;
 
   // Priority 1: Critical issues
   if (surplus < 0) {
@@ -264,6 +267,43 @@ function generateSmartTips() {
       tip: "46% of UK adults have less than £1,000 saved. Start with £1,000, then build to 3 months of expenses.",
       action: "Set savings goal",
       category: "urgent",
+    });
+  }
+
+  if (monthlyIncome > 0 && monthlyExpenses > 0) {
+    const savingsRate = (surplus / monthlyIncome) * 100;
+    if (savingsRate >= 20) {
+      tips.push({
+        priority: 2,
+        icon: "✅",
+        title: "Strong savings rate",
+        tip: `You're saving about ${savingsRate.toFixed(0)}% of your income (£${Math.max(0, surplus).toFixed(0)}/mo). Keep this momentum.`,
+        action: "Review goals",
+        category: "growth",
+      });
+    } else if (savingsRate > 0) {
+      tips.push({
+        priority: 2,
+        icon: "📊",
+        title: "Boost your savings rate",
+        tip: `You're saving ${savingsRate.toFixed(0)}% of income. A target of 20% would add roughly £${(
+          (monthlyIncome * 0.2) - surplus
+        ).toFixed(0)}/mo.`,
+        action: "Trim expenses",
+        category: "savings",
+      });
+    }
+  }
+
+  if (netWorth !== 0 && monthlyExpenses > 0) {
+    const monthsOfSpending = Math.abs(netWorth) / monthlyExpenses;
+    tips.push({
+      priority: 3,
+      icon: "🧮",
+      title: "Net worth snapshot",
+      tip: `Your net worth is ${formatCurrency(netWorth)}. That's roughly ${monthsOfSpending.toFixed(1)} months of your current spending ${netWorth >= 0 ? "covered" : "below zero"}.`,
+      action: "Update net worth",
+      category: "insight",
     });
   }
 
@@ -328,6 +368,21 @@ function generateSmartTips() {
       action: "Review ISA allowance",
       category: "growth",
     });
+  }
+
+  if (typeof loadRetirementSettings === "function") {
+    const retireSettings = loadRetirementSettings();
+    const yearsToRetirement = Math.max(0, (retireSettings.retireAge || 65) - (retireSettings.currentAge || 0));
+    if (yearsToRetirement > 0) {
+      tips.push({
+        priority: 3,
+        icon: "🕒",
+        title: "Retirement timeline",
+        tip: `You have about ${yearsToRetirement} years to your target age ${retireSettings.retireAge || 65}. Review contributions to stay on track.`,
+        action: "Adjust retirement plan",
+        category: "retirement",
+      });
+    }
   }
 
   // Priority 4: Quick wins

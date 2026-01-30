@@ -130,16 +130,41 @@ const RETIREMENT_KEY = "consumerpay_retirement_v1";
 function loadRetirementSettings() {
   try {
     const stored = localStorage.getItem(RETIREMENT_KEY);
-    return stored ? JSON.parse(stored) : {
-      currentAge: 30,
+    const parsed = stored ? JSON.parse(stored) : {};
+    const defaults = {
+      currentAge: state.currentAge || 30,
       retireAge: 65,
-      pensionPot: 0,
+      pensionPot: state.assets?.pensionValue || 0,
       monthlyContrib: 0,
       employerContrib: 3,
-      expectedReturn: 5
+      expectedReturn: 5,
     };
+    const merged = { ...defaults, ...parsed };
+
+    merged.currentAge = Number(merged.currentAge) || defaults.currentAge;
+    merged.retireAge = Number(merged.retireAge) || defaults.retireAge;
+    merged.pensionPot = Number(merged.pensionPot) || defaults.pensionPot;
+    merged.monthlyContrib = Number(merged.monthlyContrib) || 0;
+    merged.employerContrib = Number(merged.employerContrib) || defaults.employerContrib;
+    merged.expectedReturn = Number(merged.expectedReturn) || defaults.expectedReturn;
+
+    if (state.currentAge) {
+      merged.currentAge = state.currentAge;
+    }
+    if ((state.assets?.pensionValue || 0) > 0 && (!parsed || parsed.pensionPot === undefined || parsed.pensionPot === 0)) {
+      merged.pensionPot = state.assets.pensionValue;
+    }
+
+    return merged;
   } catch (e) {
-    return {};
+    return {
+      currentAge: state.currentAge || 30,
+      retireAge: 65,
+      pensionPot: state.assets?.pensionValue || 0,
+      monthlyContrib: 0,
+      employerContrib: 3,
+      expectedReturn: 5,
+    };
   }
 }
 
@@ -247,6 +272,13 @@ function renderRetirementScenarios(settings) {
 function initRetirement() {
   const settings = loadRetirementSettings();
 
+  if (!state.currentAge && settings.currentAge) {
+    state.currentAge = settings.currentAge;
+  }
+  if (!state.assets.pensionValue && settings.pensionPot) {
+    state.assets.pensionValue = settings.pensionPot;
+  }
+
   // Populate inputs
   document.querySelectorAll("[data-retire-input]").forEach(input => {
     const key = input.getAttribute("data-retire-input");
@@ -258,6 +290,24 @@ function initRetirement() {
       const newSettings = loadRetirementSettings();
       newSettings[key] = parseFloat(input.value) || 0;
       saveRetirementSettings(newSettings);
+      if (key === "currentAge") {
+        state.currentAge = newSettings.currentAge || 0;
+        document.querySelectorAll('[data-field="currentAge"]').forEach((el) => {
+          el.value = state.currentAge || "";
+        });
+        scheduleSave();
+      }
+      if (key === "pensionPot") {
+        state.assets.pensionValue = newSettings.pensionPot || 0;
+        const assetInput = document.querySelector('[data-asset="pensionValue"]');
+        if (assetInput) {
+          assetInput.value = state.assets.pensionValue || "";
+        }
+        scheduleSave();
+        if (typeof scheduleHealthUpdate === "function") {
+          scheduleHealthUpdate();
+        }
+      }
       updateRetirementUI();
     });
   });
@@ -386,6 +436,9 @@ Object.assign(window, {
   initTaxPlanning,
   initRetirement,
   initFire,
+  loadRetirementSettings,
+  saveRetirementSettings,
+  updateRetirementUI,
 });
 
 // ============================================================

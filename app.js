@@ -83,6 +83,7 @@ let currentIndex = 0;
 
 const defaultState = {
   name: "",
+  currentAge: 0,
   focus: "saving",
   horizon: "short",
   persona: "builder",

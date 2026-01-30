@@ -1918,18 +1918,19 @@ textarea {
 
 .monte-form {
   display: grid;
-  gap: 8px;
+  gap: 12px;
   margin: 12px 0;
 }
 
 .monte-grid {
-  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
 }
 
 .monte-grid label {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  min-height: 96px;
 }
 
 .monte-form .btn.full {
@@ -2421,7 +2422,8 @@ textarea {
 
 .mood-btn.active {
   border-color: var(--navy);
-  background: var(--navy-light);
+  background: var(--navy);
+  color: var(--white);
 }
 
 .mood-emoji {
@@ -2432,6 +2434,10 @@ textarea {
   font-size: 0.75rem;
   font-weight: 600;
   color: var(--ink-muted);
+}
+
+.mood-btn.active .mood-label {
+  color: var(--white);
 }
 
 .mood-history {
@@ -3263,6 +3269,7 @@ textarea {
 }
 
 .import-dropzone {
+  position: relative;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -3275,6 +3282,16 @@ textarea {
   transition: all var(--transition);
   text-align: center;
   margin-bottom: 32px;
+}
+
+.import-file-input {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0;
+  cursor: pointer;
+  z-index: 2;
 }
 
 .import-dropzone:hover,
@@ -3920,8 +3937,9 @@ textarea {
   background: var(--white);
   border-radius: var(--radius);
   box-shadow: var(--shadow-soft);
-  padding: 24px;
+  padding: 32px;
   margin-bottom: 24px;
+  border: 1px solid rgba(24, 35, 39, 0.08);
 }
 
 .networth-header {
@@ -3937,7 +3955,7 @@ textarea {
   gap: 12px;
   margin: 0;
   font-family: var(--display-font);
-  font-size: 1.25rem;
+  font-size: 1.4rem;
 }
 
 .networth-header h3 svg {
@@ -3958,7 +3976,7 @@ textarea {
 
 .networth-value {
   font-family: var(--display-font);
-  font-size: 1.75rem;
+  font-size: 2.2rem;
   font-weight: 700;
   color: var(--navy);
 }

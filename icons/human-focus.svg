@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="avatar-svg insights-avatar">
+  <defs>
+    <linearGradient id="skin-1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f8dcb0;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e0b17c;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shirt-1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#2a9d8f;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1d756a;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <circle cx="100" cy="100" r="90" fill="#fbf5ee" />
+  
+  <!-- Shoulders -->
+  <path d="M50 190 Q 50 140 100 140 Q 150 140 150 190" fill="url(#shirt-1)" />
+  
+  <!-- Head Group (Bobbing) -->
+  <g class="avatar-head">
+    <!-- Neck -->
+    <rect x="85" y="120" width="30" height="30" fill="url(#skin-1)" />
+    
+    <!-- Face -->
+    <rect x="65" y="50" width="70" height="90" rx="30" fill="url(#skin-1)" />
+    
+    <!-- Hair -->
+    <path d="M65 60 Q 60 30 100 30 Q 140 30 135 60 L 135 80 L 125 60 L 100 65 L 75 60 L 65 80 Z" fill="#2f3e46" />
+    
+    <!-- Glasses -->
+    <g stroke="#1d3557" stroke-width="4" fill="none">
+        <circle cx="82" cy="90" r="12" />
+        <circle cx="118" cy="90" r="12" />
+        <line x1="94" y1="90" x2="106" y2="90" />
+    </g>
+
+    <!-- Eyes (Blinking) -->
+    <g class="avatar-eyes">
+        <circle cx="82" cy="90" r="4" fill="#1d3557" />
+        <circle cx="118" cy="90" r="4" fill="#1d3557" />
+    </g>
+    
+    <!-- Smile -->
+    <path d="M90 115 Q 100 120 110 115" stroke="#ce9052" stroke-width="3" fill="none" stroke-linecap="round" />
+  </g>
+</svg>

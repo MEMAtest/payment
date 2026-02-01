@@ -4,6 +4,53 @@
 const IMPORT_STORAGE_KEY = "consumerpay_import_history";
 const MAX_IMPORT_FILE_SIZE = 10 * 1024 * 1024; // 10MB limit
 let importInitialized = false;
+let importSuggestionsDelegationAttached = false;
+
+function shouldRememberCategories() {
+  return document.querySelector("[data-import-remember]")?.checked ?? false;
+}
+
+function saveCategoryPreference(description, category) {
+  if (!category) return;
+  if (typeof loadCustomCategoryMap !== "function" || typeof saveCustomCategoryMap !== "function") {
+    return;
+  }
+  const normalized = normalizeMerchant(description);
+  if (!normalized) return;
+  const map = loadCustomCategoryMap();
+  map[normalized] = category;
+  saveCustomCategoryMap(map);
+}
+
+function applyCategoryToSimilar(description, category, type) {
+  if (!category) return 0;
+  if (typeof normalizeMerchant !== "function") return 0;
+  const normalized = normalizeMerchant(description);
+  if (!normalized) return 0;
+  let count = 0;
+  importedTransactions.forEach((tx) => {
+    if (type && tx.type !== type) return;
+    if (normalizeMerchant(tx.description) === normalized) {
+      tx.category = category;
+      count += 1;
+    }
+  });
+  return count;
+}
+
+function applyCategoryToNormalizedKey(normalizedKey, category, type) {
+  if (!category || !normalizedKey) return 0;
+  if (typeof normalizeMerchant !== "function") return 0;
+  let count = 0;
+  importedTransactions.forEach((tx) => {
+    if (type && tx.type !== type) return;
+    if (normalizeMerchant(tx.description) === normalizedKey) {
+      tx.category = category;
+      count += 1;
+    }
+  });
+  return count;
+}
 
 // Merchant to category mapping for smart categorization
 function initStatementImport() {
@@ -77,6 +124,15 @@ function initStatementImport() {
       btn.classList.add("active");
       renderTransactions();
     });
+  });
+
+  document.querySelector("[data-import-autocategorize]")?.addEventListener("click", () => {
+    const before = importedTransactions.filter((tx) => !tx.category).length;
+    importedTransactions = categorizeTransactions(importedTransactions);
+    const after = importedTransactions.filter((tx) => !tx.category).length;
+    const applied = Math.max(0, before - after);
+    renderTransactions();
+    showNotification(`Auto-categorized ${applied} transactions.`, "success");
   });
 
   // Load import history
@@ -209,6 +265,15 @@ function renderTransactions() {
   const list = document.querySelector("[data-transaction-list]");
   if (!list) return;
 
+  const normalizedCounts = {};
+  if (typeof normalizeMerchant === "function") {
+    importedTransactions.forEach((tx) => {
+      const key = normalizeMerchant(tx.description);
+      if (!key) return;
+      normalizedCounts[key] = (normalizedCounts[key] || 0) + 1;
+    });
+  }
+
   // Filter transactions
   let filtered = importedTransactions;
   if (currentFilter === "income") {
@@ -230,6 +295,7 @@ function renderTransactions() {
         <p>No transactions match this filter</p>
       </div>
     `;
+    renderImportSuggestions();
     return;
   }
 
@@ -237,6 +303,9 @@ function renderTransactions() {
   filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
 
   list.innerHTML = filtered.map((tx) => {
+    const normalizedKey = typeof normalizeMerchant === "function" ? normalizeMerchant(tx.description) : "";
+    const similarCount = normalizedKey ? normalizedCounts[normalizedKey] || 0 : 0;
+    const showApplySimilar = similarCount > 1;
     const categoryOptions = Object.keys(state.expenses).map((key) =>
       `<option value="${key}" ${tx.category === key ? "selected" : ""}>${escapeHtml(formatExpenseLabel(key))}</option>`
     ).join("");
@@ -256,6 +325,13 @@ function renderTransactions() {
             <option value="">Uncategorized</option>
             ${categoryOptions}
           </select>
+          ${showApplySimilar ? `
+            <div class="transaction-similar">
+              <button type="button" data-apply-similar="${escapeHtml(tx.id)}">
+                Apply to similar (${similarCount})
+              </button>
+            </div>
+          ` : ""}
         </div>
         <span class="transaction-amount ${tx.amount >= 0 ? "positive" : "negative"}">
           ${tx.amount >= 0 ? "+" : ""}${formatCurrency(tx.amount)}
@@ -264,6 +340,105 @@ function renderTransactions() {
     `;
   }).join("");
   ensureImportTransactionsDelegation(list);
+  renderImportSuggestions();
+}
+
+function renderImportSuggestions() {
+  const container = document.querySelector("[data-import-suggestions]");
+  if (!container) return;
+
+  const uncategorized = importedTransactions.filter((tx) => !tx.category && tx.type === "expense");
+  if (uncategorized.length === 0) {
+    container.innerHTML = "";
+    container.style.display = "none";
+    return;
+  }
+
+  container.style.display = "block";
+
+  const groups = new Map();
+  uncategorized.forEach((tx) => {
+    const key = typeof normalizeMerchant === "function"
+      ? normalizeMerchant(tx.description)
+      : String(tx.description || "").toLowerCase();
+    if (!key) return;
+    if (!groups.has(key)) {
+      groups.set(key, {
+        key,
+        example: tx.description,
+        count: 0,
+        total: 0
+      });
+    }
+    const group = groups.get(key);
+    group.count += 1;
+    group.total += Math.abs(tx.amount);
+    if (!group.example || String(tx.description).length < String(group.example).length) {
+      group.example = tx.description;
+    }
+  });
+
+  const topGroups = Array.from(groups.values())
+    .sort((a, b) => (b.count - a.count) || (b.total - a.total))
+    .slice(0, 5);
+
+  if (topGroups.length === 0) {
+    container.innerHTML = "";
+    container.style.display = "none";
+    return;
+  }
+
+  const categoryOptions = Object.keys(state.expenses).map((key) =>
+    `<option value="${key}">${escapeHtml(formatExpenseLabel(key))}</option>`
+  ).join("");
+
+  container.innerHTML = `
+    <div class="suggestions-header">
+      <strong>Quick categorization</strong>
+      <span class="muted">${uncategorized.length} uncategorized</span>
+    </div>
+    <div class="suggestions-list">
+      ${topGroups.map((group) => `
+        <div class="suggestion-item" data-suggestion-key="${escapeHtml(group.key)}">
+          <div class="suggestion-info">
+            <span class="suggestion-name">${escapeHtml(group.example)}</span>
+            <span class="suggestion-meta">${group.count} tx · ${formatCurrency(group.total)}</span>
+          </div>
+          <div class="suggestion-action">
+            <select data-suggestion-category="${escapeHtml(group.key)}">
+              <option value="">Choose category...</option>
+              ${categoryOptions}
+            </select>
+          </div>
+        </div>
+      `).join("")}
+    </div>
+  `;
+
+  ensureImportSuggestionsDelegation(container);
+}
+
+function ensureImportSuggestionsDelegation(container) {
+  if (!container || importSuggestionsDelegationAttached) return;
+
+  container.addEventListener("change", (event) => {
+    const select = event.target.closest("[data-suggestion-category]");
+    if (!select) return;
+    const key = select.dataset.suggestionCategory;
+    const category = select.value || null;
+    if (!key || !category) return;
+
+    const count = applyCategoryToNormalizedKey(key, category, "expense");
+    if (count > 0) {
+      if (shouldRememberCategories()) {
+        saveCategoryPreference(key, category);
+      }
+      renderTransactions();
+      showNotification(`Applied "${formatExpenseLabel(category)}" to ${count} transactions.`, "success");
+    }
+  });
+
+  importSuggestionsDelegationAttached = true;
 }
 
 function ensureImportTransactionsDelegation(list) {
@@ -282,7 +457,31 @@ function ensureImportTransactionsDelegation(list) {
     if (select) {
       const txId = select.dataset.txCategory;
       const tx = importedTransactions.find((t) => t.id === txId);
-      if (tx) tx.category = select.value || null;
+      if (tx) {
+        tx.category = select.value || null;
+        if (tx.category && shouldRememberCategories()) {
+          saveCategoryPreference(tx.description, tx.category);
+        }
+      }
+    }
+  });
+
+  list.addEventListener("click", (event) => {
+    const applyBtn = event.target.closest("[data-apply-similar]");
+    if (!applyBtn) return;
+    const txId = applyBtn.dataset.applySimilar;
+    const tx = importedTransactions.find((t) => t.id === txId);
+    if (!tx || !tx.category) {
+      showNotification("Select a category first, then apply to similar.", "warning");
+      return;
+    }
+    const count = applyCategoryToSimilar(tx.description, tx.category, tx.type);
+    if (count > 0) {
+      if (shouldRememberCategories()) {
+        saveCategoryPreference(tx.description, tx.category);
+      }
+      renderTransactions();
+      showNotification(`Applied "${formatExpenseLabel(tx.category)}" to ${count} transactions.`, "success");
     }
   });
 

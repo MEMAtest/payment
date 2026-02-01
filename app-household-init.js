@@ -65,6 +65,7 @@ function initHousehold() {
   });
   document.querySelector("[data-copy-report]")?.addEventListener("click", copyReport);
   document.querySelector("[data-download-household-report]")?.addEventListener("click", downloadReport);
+  document.querySelector("[data-download-household-report-xlsx]")?.addEventListener("click", downloadReportExcel);
 
   // Initial render
   updateHouseholdUI();

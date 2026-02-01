@@ -34,6 +34,7 @@ let riskProfiles = {
 };
 
 let monteHasRun = false;
+let lastMonteCarloReport = null;
 
 function percentile(arr, p) {
   const idx = (arr.length - 1) * p;
@@ -148,6 +149,33 @@ function updateMonteCarlo() {
   const mid = percentile(results, 0.5);
   const high = percentile(results, 0.9);
   const hitRate = Math.round((hits / runs) * 100);
+
+  lastMonteCarloReport = {
+    generatedAt: new Date().toISOString(),
+    inputs: {
+      start,
+      monthly,
+      growth,
+      years,
+      risk,
+      expectedReturn: mean * 100,
+      volatility: vol * 100,
+      inflation,
+      fee,
+      target,
+      runs,
+    },
+    outputs: {
+      low,
+      mid,
+      high,
+      hitRate,
+      realReturn: realMean * 100,
+    },
+  };
+  if (typeof window !== "undefined") {
+    window.lastMonteCarloReport = lastMonteCarloReport;
+  }
 
   setTextAll("[data-monte-output]", `Projected range: ${formatCurrency(low)} - ${formatCurrency(high)}`);
   setTextAll("[data-monte-sims]", runs);

@@ -1,0 +1,48 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="avatar-svg growth-avatar">
+  <defs>
+    <linearGradient id="skin-growth" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#704018;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#4d2c10;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shirt-growth" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#f4a261;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#e76f51;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <circle cx="100" cy="100" r="90" fill="#fbf5ee" />
+  
+  <path d="M50 190 Q 50 140 100 140 Q 150 140 150 190" fill="url(#shirt-growth)" />
+  
+  <g class="avatar-head">
+      <!-- Neck -->
+      <rect x="85" y="120" width="30" height="30" fill="url(#skin-growth)" />
+      <!-- Face -->
+      <rect x="65" y="50" width="70" height="90" rx="30" fill="url(#skin-growth)" />
+      
+      <!-- Short Twisted Hair / Fade -->
+      <path d="M65 60 Q 60 40 100 40 Q 140 40 135 60 L 135 70 L 125 55 L 100 50 L 75 55 L 65 70 Z" fill="#0f0f0f" />
+      
+      <!-- Friendly Eyes -->
+      <g class="avatar-eyes">
+        <ellipse cx="82" cy="85" rx="4" ry="5" fill="#f0f0f0" />
+        <circle cx="82" cy="85" r="2" fill="#000" />
+        
+        <ellipse cx="118" cy="85" rx="4" ry="5" fill="#f0f0f0" />
+        <circle cx="118" cy="85" r="2" fill="#000" />
+      </g>
+      
+      <!-- Brows -->
+      <path d="M78 75 Q 82 72 86 75" stroke="#333" stroke-width="2" fill="none" />
+      <path d="M114 75 Q 118 72 122 75" stroke="#333" stroke-width="2" fill="none" />
+
+      <!-- Smile -->
+      <path d="M85 110 Q 100 122 115 110" stroke="#3e230d" stroke-width="3" fill="none" stroke-linecap="round" />
+  </g>
+  
+  <!-- Floating Chart Element (Arrow Up) -->
+  <g class="float-icon">
+    <path d="M150 70 L 170 50 L 170 65 M 170 50 L 155 50" stroke="#2a9d8f" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" />
+  </g>
+
+</svg>

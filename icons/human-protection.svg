@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" class="avatar-svg protection-avatar">
+  <defs>
+    <linearGradient id="skin-3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#ffdbac;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#eac086;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="hair-3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#e76f51;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#c74e32;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="shirt-3" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1d3557;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#13243d;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <circle cx="100" cy="100" r="90" fill="#fbf5ee" />
+  
+  <path d="M50 190 Q 50 140 100 140 Q 150 140 150 190" fill="url(#shirt-3)" />
+  
+  <g class="avatar-head">
+      <rect x="85" y="120" width="30" height="30" fill="url(#skin-3)" />
+      <rect x="65" y="50" width="70" height="90" rx="30" fill="url(#skin-3)" />
+      <path d="M100 30 Q 150 30 150 100 L 150 130 L 130 130 L 130 90 Q 130 50 100 50 Q 70 50 70 90 L 70 130 L 50 130 L 50 100 Q 50 30 100 30" fill="url(#hair-3)" />
+      
+      <g class="avatar-eyes">
+        <circle cx="85" cy="90" r="3" fill="#2d2d2d" />
+        <circle cx="115" cy="90" r="3" fill="#2d2d2d" />
+      </g>
+      
+      <path d="M90 115 Q 100 118 110 115" stroke="#b08b5e" stroke-width="3" fill="none" stroke-linecap="round" />
+  </g>
+
+  <!-- Shield Icon Overlay with pulse class -->
+  <g class="shield-icon">
+      <path d="M140 140 L 140 170 L 160 180 L 180 170 L 180 140 Z" fill="#e76f51" stroke="#fff" stroke-width="2" />
+  </g>
+</svg>

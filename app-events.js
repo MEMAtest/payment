@@ -433,6 +433,56 @@ function attachEventListeners() {
     });
   }
 
+  const downloadReportXlsxBtn = document.querySelector("[data-download-monte-report-xlsx]");
+  if (downloadReportXlsxBtn) {
+    downloadReportXlsxBtn.addEventListener("click", () => {
+      if (typeof XLSX === "undefined") {
+        showNotification("Excel export is unavailable. Please refresh and try again.", "error");
+        return;
+      }
+      const report = window.lastMonteCarloReport;
+      if (!report) {
+        showNotification("Run a simulation before downloading.", "warning");
+        return;
+      }
+      const rows = [
+        ["Generated At", new Date(report.generatedAt).toLocaleString("en-GB")],
+        ["Starting Balance", formatCurrency(report.inputs.start)],
+        ["Monthly Contribution", formatCurrency(report.inputs.monthly)],
+        ["Contribution Growth (%/yr)", `${report.inputs.growth}`],
+        ["Years", `${report.inputs.years}`],
+        ["Risk Profile", report.inputs.risk],
+        ["Expected Return (%)", report.inputs.expectedReturn.toFixed(1)],
+        ["Volatility (%)", report.inputs.volatility.toFixed(1)],
+        ["Inflation (%)", report.inputs.inflation.toFixed(1)],
+        ["Annual Fee (%)", report.inputs.fee.toFixed(1)],
+        ["Target Value", formatCurrency(report.inputs.target)],
+        ["Simulations", `${report.inputs.runs}`],
+        ["", ""],
+        ["10th Percentile", formatCurrency(report.outputs.low)],
+        ["Median (50th)", formatCurrency(report.outputs.mid)],
+        ["90th Percentile", formatCurrency(report.outputs.high)],
+        ["Hit Target Rate", `${report.outputs.hitRate}%`],
+        ["Real Return (%)", report.outputs.realReturn.toFixed(1)],
+      ];
+
+      const worksheet = XLSX.utils.aoa_to_sheet([["Metric", "Value"], ...rows]);
+      const workbook = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(workbook, worksheet, "Monte Carlo");
+      const wbout = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
+      const blob = new Blob([wbout], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "monte-carlo-report.xlsx";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      showNotification("Excel report downloaded!", "success");
+    });
+  }
+
   // Future scenario
   const futureRunBtn = document.querySelector("[data-future-run]");
   if (futureRunBtn) {

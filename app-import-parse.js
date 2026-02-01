@@ -47,7 +47,92 @@ const MERCHANT_CATEGORIES = {
   // Debt
   loan: "personalLoans", credit: "creditCards", barclaycard: "creditCards",
   amex: "creditCards", "american express": "creditCards",
+
+  // Software & SaaS
+  adobe: "subscriptions", anthropic: "subscriptions", openai: "subscriptions", chatgpt: "subscriptions",
+  github: "subscriptions", gitlab: "subscriptions", microsoft: "subscriptions", google: "subscriptions",
+  apple: "subscriptions", slack: "subscriptions", notion: "subscriptions", figma: "subscriptions",
+  canva: "subscriptions", zoom: "subscriptions", dropbox: "subscriptions",
+
+  // Cloud & Hosting
+  aws: "subscriptions", "amazon web services": "subscriptions", azure: "subscriptions", gcp: "subscriptions",
+  cloudflare: "subscriptions", digitalocean: "subscriptions", heroku: "subscriptions",
 };
+
+const STARLING_CATEGORY_MAP = {
+  FOOD_AND_DRINK: "diningOut",
+  GROCERIES: "groceries",
+  TRANSPORT: "publicTransport",
+  BILLS: "energy",
+  UTILITIES: "energy",
+  SHOPPING: "entertainment",
+  ENTERTAINMENT: "entertainment",
+  SUBSCRIPTIONS: "subscriptions",
+  ADMIN: "subscriptions",
+  PROFESSIONAL_SERVICES: "subscriptions",
+  HEALTH: "personalCare",
+  INSURANCE: "homeInsurance",
+  RENT: "mortgage",
+  MORTGAGE: "mortgage",
+  COUNCIL_TAX: "councilTax",
+  CHILDCARE: "childcare",
+  EDUCATION: "schoolCosts",
+  GIFTS: "entertainment",
+  HOLIDAYS: "entertainment",
+  CASH: null,
+  OTHER: null,
+};
+
+const CUSTOM_CATEGORY_MAP_KEY = "consumerpay_custom_category_map_v1";
+
+function loadCustomCategoryMap() {
+  try {
+    const stored = localStorage.getItem(CUSTOM_CATEGORY_MAP_KEY);
+    const parsed = JSON.parse(stored || "{}");
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function saveCustomCategoryMap(map) {
+  try {
+    localStorage.setItem(CUSTOM_CATEGORY_MAP_KEY, JSON.stringify(map || {}));
+  } catch {
+    // ignore
+  }
+}
+
+function normalizeMerchant(description) {
+  return String(description || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9\s]/g, " ")
+    .replace(/\d+/g, "")
+    .replace(/\s+/g, " ")
+    .trim()
+    .substring(0, 36);
+}
+
+function mapExternalCategory(rawCategory) {
+  if (!rawCategory) return null;
+  const key = String(rawCategory)
+    .trim()
+    .toUpperCase()
+    .replace(/[^A-Z0-9]+/g, "_");
+
+  if (!key || /REVENUE|INCOME|TRANSFER/.test(key)) {
+    return null;
+  }
+
+  return STARLING_CATEGORY_MAP[key] || null;
+}
+
+function inferCategoryFromType(rawType) {
+  const type = String(rawType || "").toLowerCase();
+  if (!type) return null;
+  if (type.includes("subscription")) return "subscriptions";
+  return null;
+}
 
 // UK Bank CSV formats
 const BANK_FORMATS = {
@@ -62,6 +147,10 @@ const BANK_FORMATS = {
     dateCol: "Date",
     descCol: "Counter Party",
     amountCol: "Amount (GBP)",
+    categoryCol: "Spending Category",
+    typeCol: "Type",
+    referenceCol: "Reference",
+    notesCol: "Notes",
     dateFormat: "DD/MM/YYYY",
     delimiter: ","
   },
@@ -276,6 +365,10 @@ function detectBankFormat(headers) {
     dateCol: headers.find((h) => h.toLowerCase().includes("date")) || headers[0],
     descCol: headers.find((h) => h.toLowerCase().includes("desc") || h.toLowerCase().includes("name") || h.toLowerCase().includes("memo")) || headers[1],
     amountCol: headers.find((h) => h.toLowerCase().includes("amount") || h.toLowerCase().includes("value")) || headers[2],
+    categoryCol: headers.find((h) => h.toLowerCase().includes("spending category") || h.toLowerCase().includes("category")) || null,
+    typeCol: headers.find((h) => h.toLowerCase().includes("type")) || null,
+    referenceCol: headers.find((h) => h.toLowerCase().includes("reference")) || null,
+    notesCol: headers.find((h) => h.toLowerCase().includes("notes")) || null,
     dateFormat: "DD/MM/YYYY",
     delimiter: ","
   };
@@ -287,6 +380,14 @@ function extractTransaction(row, format) {
   const rawDesc = row[format.descCol] ?? Object.values(row)[1];
   const dateText = rawDate == null ? "" : String(rawDate).trim();
   const descText = rawDesc == null ? "" : String(rawDesc).trim();
+  const referenceText = format.referenceCol ? row[format.referenceCol] : (row.Reference || row["Reference"] || "");
+  const notesText = format.notesCol ? row[format.notesCol] : (row.Notes || row["Notes"] || "");
+  const rawCategory = format.categoryCol ? row[format.categoryCol] : (row.Category || row["Category"] || "");
+  const rawType = format.typeCol ? row[format.typeCol] : (row.Type || row["Type"] || "");
+  const referenceStr = referenceText == null ? "" : String(referenceText).trim();
+  const notesStr = notesText == null ? "" : String(notesText).trim();
+  const rawCategoryStr = rawCategory == null ? "" : String(rawCategory).trim();
+  const rawTypeStr = rawType == null ? "" : String(rawType).trim();
   let amount = 0;
 
   const parseAmount = (value) => {
@@ -313,13 +414,25 @@ function extractTransaction(row, format) {
   const parsedDate = parseDate(dateText, { fallbackToToday: false });
   if (!parsedDate) return null;
 
+  let category = null;
+  if (rawCategoryStr) {
+    category = mapExternalCategory(rawCategoryStr);
+  }
+  if (!category && rawTypeStr) {
+    category = inferCategoryFromType(rawTypeStr);
+  }
+
   return {
     id: generateSecureId('tx'),
     date: parsedDate,
     description: descText,
     amount: amount,
     type: amount >= 0 ? "income" : "expense",
-    category: null,
+    category,
+    reference: referenceStr,
+    notes: notesStr,
+    rawCategory: rawCategoryStr,
+    rawType: rawTypeStr,
     isRecurring: false,
     selected: true
   };
@@ -552,11 +665,29 @@ function extractTransactionsFromText(text) {
 
 // Categorize transactions using merchant mapping
 function categorizeTransactions(transactions) {
+  const customMap = loadCustomCategoryMap();
   return transactions.map((tx) => {
     const descLower = tx.description.toLowerCase();
+    const normalized = normalizeMerchant(descLower);
+    const combined = [
+      tx.description,
+      tx.reference,
+      tx.notes,
+      tx.rawCategory,
+      tx.rawType
+    ].filter(Boolean).join(" ").toLowerCase();
+
+    if (tx.category) return tx;
+
+    for (const [keyword, category] of Object.entries(customMap)) {
+      if (descLower.includes(keyword) || normalized.includes(keyword) || combined.includes(keyword)) {
+        tx.category = category;
+        return tx;
+      }
+    }
 
     for (const [keyword, category] of Object.entries(MERCHANT_CATEGORIES)) {
-      if (descLower.includes(keyword)) {
+      if (combined.includes(keyword)) {
         tx.category = category;
         break;
       }
@@ -647,6 +778,9 @@ Object.assign(window, {
   extractTransactionsFromText,
   categorizeTransactions,
   detectRecurringPayments,
+  loadCustomCategoryMap,
+  saveCustomCategoryMap,
+  normalizeMerchant,
   updateImportSummary,
   MERCHANT_CATEGORIES,
   BANK_FORMATS,

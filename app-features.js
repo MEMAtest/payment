@@ -37,8 +37,8 @@ function updateSpotlight(featureKey) {
     setTimeout(() => {
         // Swap text
         container.innerHTML = `
-            <h3>${data.title}</h3>
-            <p>${data.text}</p>
+            <h3>${escapeHtml(data.title)}</h3>
+            <p>${escapeHtml(data.text)}</p>
         `;
 
         // Fade in
@@ -47,8 +47,9 @@ function updateSpotlight(featureKey) {
     }, 200); // Wait for fade out
 }
 
-// Ensure first state is set correctly on load
-document.addEventListener('DOMContentLoaded', () => {
-    // Initial state is already in HTML, but this ensures JS alignment
-    // updateSpotlight('insights'); 
+// Event delegation for feature buttons (replaces inline onclick)
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-feature]');
+    if (!btn) return;
+    updateSpotlight(btn.dataset.feature);
 });

@@ -23,7 +23,7 @@ function saveCategoryPreference(description, category) {
 }
 
 function applyCategoryToSimilar(description, category, type) {
-  if (!category) return 0;
+  if (!category || !importedTransactions) return 0;
   if (typeof normalizeMerchant !== "function") return 0;
   const normalized = normalizeMerchant(description);
   if (!normalized) return 0;

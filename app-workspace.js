@@ -660,9 +660,8 @@
     const deltaPct = startNW > 0 ? (deltaNW / startNW) * 100 : 0;
 
     document.getElementById("ov-net-delta").textContent = `↑ +${deltaPct.toFixed(1)}%`;
-    document.getElementById("ov-net-horizon").textContent = `vs ${ovRange}`;
-    document.getElementById("ov-change-val").textContent = formatSignedCurrency(deltaNW);
-    document.getElementById("ov-change-label").textContent = `Net worth change (${ovRange})`;
+    const lblEl = document.getElementById("ov-change-label");
+    if (lblEl) lblEl.textContent = `${formatSignedCurrency(deltaNW)} vs ${ovRange}`;
     renderAreaChart(document.getElementById("ov-wealth-chart"), buildSeriesPoints(netWorth, startNW, cfg.lbl.length), null, cfg.lbl, "#2563eb");
 
     const surpEl = document.getElementById("ov-surplus");
@@ -1209,11 +1208,141 @@
     });
   }
 
+  // Lightweight 60fps 3D Rotating Particle Wealth Globe on Home Hero Canvas
+  function initHero3DGlobe() {
+    const canvas = document.getElementById("hero-3d-canvas");
+    if (!canvas || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const pts = [];
+    const N = 95;
+    for (let i = 0; i < N; i++) {
+      const phi = Math.acos(1 - (2 * (i + 0.5)) / N);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+      pts.push({
+        x: Math.sin(phi) * Math.cos(theta),
+        y: Math.cos(phi),
+        z: Math.sin(phi) * Math.sin(theta),
+        c: i % 3 === 0 ? "#6ee7b7" : i % 3 === 1 ? "#7dd3fc" : "#93c5fd",
+      });
+    }
+
+    let angleY = 0;
+    let mouseX = 0;
+    let mouseY = 0;
+    const hero = document.getElementById("hero-3d-card");
+    hero?.addEventListener("mousemove", (e) => {
+      const r = hero.getBoundingClientRect();
+      mouseX = ((e.clientX - r.left) / r.width - 0.5) * 0.6;
+      mouseY = ((e.clientY - r.top) / r.height - 0.5) * 0.4;
+    });
+
+    function draw() {
+      const w = (canvas.width = canvas.offsetWidth || 600);
+      const h = (canvas.height = canvas.offsetHeight || 220);
+      ctx.clearRect(0, 0, w, h);
+
+      const cx = w * 0.44;
+      const cy = h * 0.52;
+      const rad = Math.min(w, h) * 0.68;
+      angleY += 0.0045;
+      const cosY = Math.cos(angleY + mouseX);
+      const sinY = Math.sin(angleY + mouseX);
+      const cosX = Math.cos(0.25 + mouseY);
+      const sinX = Math.sin(0.25 + mouseY);
+
+      const projected = pts.map((p) => {
+        const x1 = p.x * cosY - p.z * sinY;
+        const z1 = p.x * sinY + p.z * cosY;
+        const y2 = p.y * cosX - z1 * sinX;
+        const z2 = p.y * sinX + z1 * cosX;
+        const scale = 2.4 / (2.8 - z2);
+        return { sx: cx + x1 * rad * scale, sy: cy + y2 * rad * scale, z: z2, r: Math.max(1.2, scale * 2.1), c: p.c };
+      });
+
+      // Subtle connecting arcs between nearby front-facing nodes
+      ctx.strokeStyle = "rgba(125, 211, 252, 0.14)";
+      ctx.lineWidth = 0.8;
+      for (let i = 0; i < projected.length; i++) {
+        const a = projected[i];
+        if (a.z < -0.2) continue;
+        for (let j = i + 1; j < Math.min(i + 8, projected.length); j++) {
+          const b = projected[j];
+          const dx = a.sx - b.sx, dy = a.sy - b.sy;
+          if (dx * dx + dy * dy < 3200) {
+            ctx.beginPath();
+            ctx.moveTo(a.sx, a.sy);
+            ctx.lineTo(b.sx, b.sy);
+            ctx.stroke();
+          }
+        }
+      }
+
+      for (const p of projected) {
+        ctx.globalAlpha = Math.max(0.18, (p.z + 1.2) / 2.2);
+        ctx.fillStyle = p.c;
+        ctx.beginPath();
+        ctx.arc(p.sx, p.sy, p.r, 0, Math.PI * 2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  }
+
+  function startBlankWorkspace() {
+    financeState = {
+      annualSalary: 0,
+      income: 0,
+      pensionContrib: false,
+      studentLoan: false,
+      savings: 0,
+      liabilities: { otherDebt: 0 },
+      expenses: { mortgage: 0, groceries: 0, energy: 0, publicTransport: 0, entertainment: 0, subscriptions: 0 },
+    };
+    transactions = [];
+    holdings = [];
+    localStorage.setItem(STORAGE_KEYS.seeded, "1");
+    persistAll();
+    renderAll();
+    showNotification("Cleared demo data — ready for your own statements & holdings!", "success");
+  }
+
   function init() {
     loadAllState();
     setupDialogFallbacks();
     setupAccessibleValidation();
     setupHero3DTilt();
+    initHero3DGlobe();
+
+    // Home Action Launchers
+    document.getElementById("start-blank-btn")?.addEventListener("click", startBlankWorkspace);
+    document.getElementById("home-act-bank")?.addEventListener("click", () => {
+      switchView("statements");
+      document.getElementById("bank-file-input").click();
+    });
+    document.getElementById("home-act-inv")?.addEventListener("click", () => openHoldingModal());
+    document.getElementById("home-act-tax")?.addEventListener("click", () => openKpiModal("surplus"));
+
+    // Home Visual Switcher Tabs
+    document.getElementById("home-left-tabs")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-home-left]");
+      if (!btn) return;
+      const target = btn.dataset.homeLeft;
+      document.querySelectorAll("#home-left-tabs [data-home-left]").forEach((b) => b.classList.toggle("is-active", b === btn));
+      document.querySelectorAll("[data-home-left-pane]").forEach((p) => { p.hidden = p.dataset.homeLeftPane !== target; });
+      const rangeGrp = document.getElementById("ov-range-group");
+      if (rangeGrp) rangeGrp.style.visibility = target === "trend" ? "visible" : "hidden";
+    });
+    document.getElementById("home-right-tabs")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-home-right]");
+      if (!btn) return;
+      const target = btn.dataset.homeRight;
+      document.querySelectorAll("#home-right-tabs [data-home-right]").forEach((b) => b.classList.toggle("is-active", b === btn));
+      document.querySelectorAll("[data-home-right-pane]").forEach((p) => { p.hidden = p.dataset.homeRightPane !== target; });
+    });
 
     document.querySelectorAll("[data-kpi-modal]").forEach((tile) => {
       tile.addEventListener("click", () => openKpiModal(tile.dataset.kpiModal));
@@ -1236,8 +1365,8 @@
 
     document.getElementById("reset-demo-btn").addEventListener("click", resetToDemoData);
     document.getElementById("quick-holding-btn").addEventListener("click", () => openHoldingModal());
-    document.getElementById("ov-upload-bank-btn").addEventListener("click", () => { switchView("statements"); document.getElementById("bank-file-input").click(); });
-    document.getElementById("ov-upload-inv-btn").addEventListener("click", () => { switchView("investments"); document.getElementById("inv-file-input").click(); });
+    document.getElementById("ov-upload-bank-btn")?.addEventListener("click", () => { switchView("statements"); document.getElementById("bank-file-input").click(); });
+    document.getElementById("ov-upload-inv-btn")?.addEventListener("click", () => { switchView("investments"); document.getElementById("inv-file-input").click(); });
 
     document.getElementById("ov-range-group").addEventListener("click", (e) => {
       const btn = e.target.closest("[data-ov-range]");

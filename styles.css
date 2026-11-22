@@ -280,6 +280,159 @@ html, body {
 /* ============================================================
    VIEW 1: OVERVIEW (Hero + KPIs + Sankey/Donut/Signals + Bottom Bento)
    ============================================================ */
+/* ============================================================
+   3D ACTIONABLE HOME HERO + 2-CARD VISUAL STAGE
+   ============================================================ */
+.home-hero-3d {
+  position: relative;
+  overflow: hidden;
+  display: grid;
+  grid-template-columns: minmax(280px, 1.15fr) minmax(260px, 1fr);
+  gap: 18px;
+  align-items: center;
+  padding: 18px 22px;
+  border-radius: 20px;
+  background: linear-gradient(135deg, #0f172a 0%, #1e3a8a 52%, #0f766e 100%);
+  color: #ffffff;
+  box-shadow: 0 16px 36px rgba(15, 23, 42, 0.16);
+  transform-style: preserve-3d;
+  transition: transform 0.25s ease;
+}
+@media (max-width: 880px) { .home-hero-3d { grid-template-columns: 1fr; } }
+
+.hero-3d-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  opacity: 0.72;
+}
+
+.home-hero-left,
+.home-action-grid {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-badge-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  flex-wrap: wrap;
+}
+.live-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #e0f2fe;
+}
+.subtle-link {
+  color: #bae6fd;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+.subtle-link:hover { background: rgba(255, 255, 255, 0.12); color: #fff; }
+
+.home-headline {
+  margin: 0 0 12px;
+  font-size: clamp(1.25rem, 2vw, 1.65rem);
+  font-weight: 800;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+.grad-text {
+  background: linear-gradient(90deg, #7dd3fc, #6ee7b7);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.home-nw-row {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  flex-wrap: wrap;
+}
+.home-nw-row .muted-xs { color: rgba(226, 232, 240, 0.8); }
+.home-nw-row .hero-amount { color: #fff; margin: 1px 0 0; }
+.hero-delta-col { display: flex; flex-direction: column; gap: 3px; }
+
+.home-action-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.action-card {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  width: 100%;
+  text-align: left;
+  padding: 10px 13px;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #fff;
+  cursor: pointer;
+  transition: transform 0.16s ease, background 0.16s ease, border-color 0.16s ease;
+}
+.action-card:hover {
+  transform: translateX(3px);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(125, 211, 252, 0.65);
+}
+.act-icon {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+  display: grid;
+  place-items: center;
+  font-size: 1rem;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.16);
+}
+.act-text { flex: 1; min-width: 0; }
+.act-text strong { display: block; font-size: 0.84rem; font-weight: 700; }
+.act-text span { display: block; font-size: 0.72rem; color: rgba(226, 232, 240, 0.85); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.act-arrow { font-weight: 800; opacity: 0.8; }
+
+.home-visuals-2 {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+@media (max-width: 920px) { .home-visuals-2 { grid-template-columns: 1fr; } }
+.home-viz-card {
+  display: flex;
+  flex-direction: column;
+  min-height: 256px;
+}
+.home-pane[hidden] { display: none; }
+.tall-chart { height: 145px; }
+.tall-sankey { height: 205px; }
+.home-signals-inline {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 7px;
+  margin-top: 8px;
+}
+@media (max-width: 640px) { .home-signals-inline { grid-template-columns: 1fr; } }
+.pane-foot { margin-top: 8px; text-align: right; }
+.padded-donut { padding: 14px 8px; }
+.isa-focus-box { display: flex; flex-direction: column; gap: 10px; padding: 6px 2px; }
+.isa-focus-box h3 { margin: 0; font-size: 0.96rem; }
+.goal-banner.rounded { border-radius: 12px; height: 64px; }
+
 .hero-card {
   position: relative;
   overflow: hidden;

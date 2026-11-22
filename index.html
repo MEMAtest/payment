@@ -31,7 +31,7 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1V9.5z" />
           </svg>
-          <span>Overview</span>
+          <span>Home</span>
         </button>
         <button type="button" class="nav-pill" data-nav="statements">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -72,41 +72,60 @@
     <main id="workspace-main" class="workspace-main">
 
       <!-- ============================================================
-           VIEW 1: OVERVIEW (Clear Visual Homepage matching Mock #3 & #10)
+           VIEW 1: HOME (Actionable 3D Command Homepage — Zero Clutter)
            ============================================================ -->
-      <section class="view-panel" data-view="overview" aria-label="Overview">
-        <!-- Hero Net Worth + Interactive Wealth Trend Chart -->
-        <div class="hero-card" id="hero-3d-card">
-          <div class="hero-aurora" aria-hidden="true"></div>
-          <div class="hero-left">
-            <p class="eyebrow">Your financial picture</p>
-            <h1 class="hero-amount" id="ov-net-worth">£0</h1>
-            <div class="hero-delta-row">
-              <span class="muted-xs">Net worth</span>
-              <span class="delta-pill pos" id="ov-net-delta">↑ +0.0%</span>
-              <span class="muted-xs" id="ov-net-horizon">vs 6M</span>
+      <section class="view-panel" data-view="overview" aria-label="Home">
+        <!-- 3D Interactive Hero Command Banner -->
+        <div class="home-hero-3d" id="hero-3d-card">
+          <canvas id="hero-3d-canvas" class="hero-3d-canvas" aria-hidden="true"></canvas>
+          <div class="home-hero-left">
+            <div class="hero-badge-row">
+              <span class="live-pill"><span class="live-dot"></span> Live Wealth Engine</span>
+              <button type="button" class="link-btn subtle-link" id="start-blank-btn" title="Clear demo data and enter your own numbers">Start with my numbers</button>
+            </div>
+            <h1 class="home-headline">Your UK money, statements &amp; investments — <span class="grad-text">crystal clear</span></h1>
+            <div class="home-nw-row">
+              <div>
+                <span class="muted-xs">Total Net Worth</span>
+                <strong class="hero-amount" id="ov-net-worth">£0</strong>
+              </div>
+              <div class="hero-delta-col">
+                <span class="delta-pill pos" id="ov-net-delta">↑ +8.7%</span>
+                <span class="muted-xs" id="ov-change-label">+£0 vs 6M</span>
+              </div>
             </div>
           </div>
 
-          <div class="hero-chart-area">
-            <div class="hero-chart-controls">
-              <div class="seg-group" id="ov-range-group" role="group" aria-label="Net worth timeframe">
-                <button type="button" class="seg-btn" data-ov-range="3M">3M</button>
-                <button type="button" class="seg-btn is-active" data-ov-range="6M">6M</button>
-                <button type="button" class="seg-btn" data-ov-range="12M">12M</button>
-                <button type="button" class="seg-btn" data-ov-range="All">All</button>
+          <!-- 3 Direct "Do Something Useful Now" Action Launchers -->
+          <div class="home-action-grid">
+            <button type="button" class="action-card" id="home-act-bank">
+              <span class="act-icon blue">📄</span>
+              <div class="act-text">
+                <strong>Import Bank Statement</strong>
+                <span>Drop Monzo, Starling, HSBC, Barclays CSV/PDF</span>
               </div>
-              <div class="change-chip">
-                <span class="live-dot" aria-hidden="true"></span>
-                <span class="pos" id="ov-change-val">+£0</span>
-                <span class="muted-xs" id="ov-change-label">Net worth change (6M)</span>
+              <span class="act-arrow">→</span>
+            </button>
+            <button type="button" class="action-card" id="home-act-inv">
+              <span class="act-icon mint">📈</span>
+              <div class="act-text">
+                <strong>Import / Add Investments</strong>
+                <span>Trading 212, Vanguard, HL CSV or ISA/SIPP</span>
               </div>
-            </div>
-            <div class="trend-svg-wrap" id="ov-wealth-chart"></div>
+              <span class="act-arrow">→</span>
+            </button>
+            <button type="button" class="action-card" id="home-act-tax">
+              <span class="act-icon sky">💷</span>
+              <div class="act-text">
+                <strong>UK Salary &amp; Surplus</strong>
+                <span>2024/25 take-home, budget &amp; 3-yr projection</span>
+              </div>
+              <span class="act-arrow">→</span>
+            </button>
           </div>
         </div>
 
-        <!-- 4 Interactive KPI Tiles (Click opens Quick-Inspect Modal first!) -->
+        <!-- 4 Interactive KPI Tiles (Click opens Quick-Inspect & Edit Modal first!) -->
         <div class="kpi-row-4">
           <article class="kpi-tile clickable" data-kpi-modal="surplus" role="button" tabindex="0">
             <div class="kpi-icon blue">£</div>
@@ -149,77 +168,67 @@
           </article>
         </div>
 
-        <!-- Middle 3-Col Visual Bento: Income Flow Sankey | Portfolio Donut | Financial Signals -->
-        <div class="bento-3">
-          <section class="card">
+        <!-- 2 Generous, High-Impact Visual Cards (Switchable sub-views — Zero Clutter, Zero Scroll) -->
+        <div class="home-visuals-2">
+          <!-- Left Visual Card: Wealth Trend | Top Holdings | Recent Activity -->
+          <section class="card home-viz-card">
             <div class="card-head">
-              <div>
-                <h2>Income to spending</h2>
-                <p class="muted-xs">Where your money goes each month</p>
+              <div class="seg-group" id="home-left-tabs" role="group" aria-label="Wealth visual view">
+                <button type="button" class="seg-btn is-active" data-home-left="trend">Wealth Trend</button>
+                <button type="button" class="seg-btn" data-home-left="holdings">Top Holdings</button>
+                <button type="button" class="seg-btn" data-home-left="activity">Recent Activity</button>
+              </div>
+              <div class="seg-group" id="ov-range-group" role="group" aria-label="Timeframe">
+                <button type="button" class="seg-btn" data-ov-range="3M">3M</button>
+                <button type="button" class="seg-btn is-active" data-ov-range="6M">6M</button>
+                <button type="button" class="seg-btn" data-ov-range="12M">12M</button>
+                <button type="button" class="seg-btn" data-ov-range="All">All</button>
+              </div>
+            </div>
+
+            <div class="home-pane" data-home-left-pane="trend">
+              <div class="trend-svg-wrap tall-chart" id="ov-wealth-chart"></div>
+              <div class="home-signals-inline" id="ov-signals"></div>
+            </div>
+            <div class="home-pane" data-home-left-pane="holdings" hidden>
+              <div class="mini-list" id="ov-top-holdings"></div>
+              <div class="pane-foot"><button type="button" class="link-btn" data-goto="investments">Manage full portfolio →</button></div>
+            </div>
+            <div class="home-pane" data-home-left-pane="activity" hidden>
+              <div class="mini-list" id="ov-recent-tx"></div>
+              <div class="pane-foot"><button type="button" class="link-btn" data-goto="statements">Open all statements →</button></div>
+            </div>
+          </section>
+
+          <!-- Right Visual Card: Income to Spending Sankey | Portfolio Allocation Donut -->
+          <section class="card home-viz-card">
+            <div class="card-head">
+              <div class="seg-group" id="home-right-tabs" role="group" aria-label="Breakdown visual view">
+                <button type="button" class="seg-btn is-active" data-home-right="sankey">Income to Spending</button>
+                <button type="button" class="seg-btn" data-home-right="allocation">Portfolio Mix</button>
+                <button type="button" class="seg-btn" data-home-right="isa">ISA Allowance</button>
               </div>
               <button type="button" class="link-btn" data-goto="cashflow">Edit →</button>
             </div>
-            <div class="sankey-wrap" id="ov-sankey-wrap"></div>
-          </section>
 
-          <section class="card">
-            <div class="card-head">
-              <div>
-                <h2>Portfolio allocation</h2>
-                <p class="muted-xs">Investments by asset class</p>
-              </div>
-              <button type="button" class="link-btn" data-goto="investments">Details →</button>
+            <div class="home-pane" data-home-right-pane="sankey">
+              <div class="sankey-wrap tall-sankey" id="ov-sankey-wrap"></div>
             </div>
-            <div class="donut-split">
-              <div class="donut-box" id="ov-donut-wrap"></div>
-              <div class="legend-col" id="ov-allocation-legend"></div>
-            </div>
-          </section>
-
-          <section class="card">
-            <div class="card-head">
-              <div>
-                <h2>Financial signals</h2>
-                <p class="muted-xs">Key insights from your data</p>
+            <div class="home-pane" data-home-right-pane="allocation" hidden>
+              <div class="donut-split padded-donut">
+                <div class="donut-box" id="ov-donut-wrap"></div>
+                <div class="legend-col" id="ov-allocation-legend"></div>
               </div>
             </div>
-            <div class="signals-stack" id="ov-signals"></div>
-          </section>
-        </div>
-
-        <!-- Bottom 3-Col Bento: Top Holdings | Recent Activity | ISA Goal Progress -->
-        <div class="bento-3">
-          <section class="card">
-            <div class="card-head">
-              <h2>Top holdings</h2>
-              <button type="button" class="link-btn" data-goto="investments">View all →</button>
-            </div>
-            <div class="mini-list" id="ov-top-holdings"></div>
-          </section>
-
-          <section class="card">
-            <div class="card-head">
-              <h2>Recent activity</h2>
-              <button type="button" class="link-btn" data-goto="statements">View all →</button>
-            </div>
-            <div class="mini-list" id="ov-recent-tx"></div>
-          </section>
-
-          <section class="card goal-card">
-            <div class="goal-banner" aria-hidden="true"></div>
-            <div class="goal-body">
-              <p class="muted-xs">Tax-year allowance tracker</p>
-              <h2>UK ISA Allowance (£20,000)</h2>
-              <div class="progress-row">
-                <div class="progress-track"><div class="progress-fill" id="ov-isa-fill"></div></div>
-                <strong id="ov-isa-pct">0%</strong>
-              </div>
-              <div class="goal-foot">
-                <span class="muted-xs" id="ov-isa-sub">£0 in ISA</span>
-                <div class="goal-actions">
-                  <button type="button" class="btn soft xs" id="ov-upload-bank-btn">↑ Bank CSV</button>
-                  <button type="button" class="btn soft xs" id="ov-upload-inv-btn">↑ Broker CSV</button>
+            <div class="home-pane" data-home-right-pane="isa" hidden>
+              <div class="isa-focus-box">
+                <div class="goal-banner rounded" aria-hidden="true"></div>
+                <h3>UK ISA Tax-Year Allowance (£20,000)</h3>
+                <div class="progress-row">
+                  <div class="progress-track"><div class="progress-fill" id="ov-isa-fill"></div></div>
+                  <strong id="ov-isa-pct">0%</strong>
                 </div>
+                <p class="muted-xs" id="ov-isa-sub">£0 total in ISA</p>
               </div>
             </div>
           </section>

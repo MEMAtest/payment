@@ -197,6 +197,22 @@ const BANK_FORMATS = {
     dateFormat: "YYYY-MM-DD",
     delimiter: ","
   },
+  virginMoneyCard: {
+    dateCol: "Transaction Date",
+    descCol: "Merchant",
+    amountCol: "Billing Amount",
+    directionCol: "Debit or Credit",
+    dateFormat: "DD/MM/YYYY",
+    delimiter: ","
+  },
+  virginMoneyBank: {
+    dateCol: "Date",
+    descCol: "Description",
+    debitCol: "Debit",
+    creditCol: "Credit",
+    dateFormat: "DD/MM/YYYY",
+    delimiter: ","
+  },
   financesCentral: {
     dateCol: "event_date",
     descCol: "merchant",
@@ -368,6 +384,12 @@ function detectBankFormat(headers) {
 
   if (headerStr.includes("event_date") && headerStr.includes("merchant") && headerStr.includes("amount")) {
     return BANK_FORMATS.financesCentral;
+  }
+  if (headerStr.includes("billing amount") && headerStr.includes("debit or credit")) {
+    return BANK_FORMATS.virginMoneyCard;
+  }
+  if (headerStr.includes("date") && headerStr.includes("description") && headerStr.includes("debit") && headerStr.includes("credit")) {
+    return BANK_FORMATS.virginMoneyBank;
   }
   if (headerStr.includes("counter party")) return BANK_FORMATS.starling;
   if (headerStr.includes("started date")) return BANK_FORMATS.revolut;

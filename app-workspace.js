@@ -175,6 +175,9 @@
     if (key.includes("adobe")) {
       return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#fa0f00"/><path d="M12.5 8H7v16l5.5-16zm7 0H25v16l-5.5-16zM16 14l3.5 10h-2.6l-1.1-3.2h-2.5z" fill="#fff"/></svg>`);
     }
+    if (key.includes("virgin")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#cc0000"/><path d="M8 9h4.2l3.8 11.2L19.8 9H24l-6.2 15h-3.6z" fill="#fff"/></svg>`);
+    }
     if (key.includes("vanguard") || key.includes("vwrp") || key.includes("ls80") || key.includes("vuag")) {
       return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#96151d"/><path d="M8.5 9h3.8L16 20.2 19.7 9h3.8L17.8 24h-3.6z" fill="#fff"/></svg>`);
     }
@@ -1027,7 +1030,7 @@
         else if (lower.endsWith(".xlsx") || lower.endsWith(".xls")) parsed = await window.parseExcel(file);
         else if (lower.endsWith(".pdf")) parsed = await window.parsePDF(file);
         else { showNotification(`Unsupported file: ${file.name}`, "warning"); continue; }
-        const acct = /monzo/i.test(lower) ? "Monzo" : /starling/i.test(lower) ? "Starling" : /hsbc/i.test(lower) ? "HSBC" : /barclays/i.test(lower) ? "Barclays" : /lloyds/i.test(lower) ? "Lloyds" : /revolut/i.test(lower) ? "Revolut" : "Bank";
+        const acct = /virgin/i.test(lower) ? "Virgin Money" : /halifax/i.test(lower) ? "Halifax" : /monzo/i.test(lower) ? "Monzo" : /starling/i.test(lower) ? "Starling" : /hsbc/i.test(lower) ? "HSBC" : /barclays/i.test(lower) ? "Barclays" : /lloyds/i.test(lower) ? "Lloyds" : /revolut/i.test(lower) ? "Revolut" : "Bank";
         combined = combined.concat(parsed.map((t) => ({ ...t, account: t.account || acct })));
       } catch (err) { showNotification(`Failed to parse ${file.name}: ${err.message}`, "error"); }
     }

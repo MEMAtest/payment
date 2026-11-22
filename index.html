@@ -76,7 +76,8 @@
            ============================================================ -->
       <section class="view-panel" data-view="overview" aria-label="Overview">
         <!-- Hero Net Worth + Interactive Wealth Trend Chart -->
-        <div class="hero-card">
+        <div class="hero-card" id="hero-3d-card">
+          <div class="hero-aurora" aria-hidden="true"></div>
           <div class="hero-left">
             <p class="eyebrow">Your financial picture</p>
             <h1 class="hero-amount" id="ov-net-worth">£0</h1>
@@ -96,6 +97,7 @@
                 <button type="button" class="seg-btn" data-ov-range="All">All</button>
               </div>
               <div class="change-chip">
+                <span class="live-dot" aria-hidden="true"></span>
                 <span class="pos" id="ov-change-val">+£0</span>
                 <span class="muted-xs" id="ov-change-label">Net worth change (6M)</span>
               </div>
@@ -104,45 +106,45 @@
           </div>
         </div>
 
-        <!-- 4 Compact KPI Tiles -->
+        <!-- 4 Interactive KPI Tiles (Click opens Quick-Inspect Modal first!) -->
         <div class="kpi-row-4">
-          <article class="kpi-tile clickable" data-goto="cashflow">
+          <article class="kpi-tile clickable" data-kpi-modal="surplus" role="button" tabindex="0">
             <div class="kpi-icon blue">£</div>
             <div class="kpi-body">
               <div class="kpi-top">
                 <strong class="kpi-num" id="ov-surplus">£0</strong>
                 <span class="delta-pill pos" id="ov-surplus-pct">0%</span>
               </div>
-              <span class="kpi-sub">Monthly surplus</span>
+              <span class="kpi-sub">Monthly surplus · Inspect ↗</span>
             </div>
           </article>
-          <article class="kpi-tile clickable" data-goto="cashflow">
+          <article class="kpi-tile clickable" data-kpi-modal="cash" role="button" tabindex="0">
             <div class="kpi-icon sky">▤</div>
             <div class="kpi-body">
               <div class="kpi-top">
                 <strong class="kpi-num" id="ov-cash">£0</strong>
               </div>
-              <span class="kpi-sub" id="ov-cash-sub">Cash &amp; savings</span>
+              <span class="kpi-sub" id="ov-cash-sub">Cash &amp; savings · Inspect ↗</span>
             </div>
           </article>
-          <article class="kpi-tile clickable" data-goto="investments">
+          <article class="kpi-tile clickable" data-kpi-modal="investments" role="button" tabindex="0">
             <div class="kpi-icon mint">↗</div>
             <div class="kpi-body">
               <div class="kpi-top">
                 <strong class="kpi-num" id="ov-investments">£0</strong>
                 <span class="delta-pill pos" id="ov-inv-pct">+0.0%</span>
               </div>
-              <span class="kpi-sub">Investments</span>
+              <span class="kpi-sub">Investments · Inspect ↗</span>
             </div>
           </article>
-          <article class="kpi-tile clickable" data-goto="cashflow">
+          <article class="kpi-tile clickable" data-kpi-modal="debt" role="button" tabindex="0">
             <div class="kpi-icon slate">▭</div>
             <div class="kpi-body">
               <div class="kpi-top">
                 <strong class="kpi-num" id="ov-debt">£0</strong>
                 <span class="delta-pill neutral" id="ov-debt-pill">Debt</span>
               </div>
-              <span class="kpi-sub">Total liabilities</span>
+              <span class="kpi-sub">Total liabilities · Inspect ↗</span>
             </div>
           </article>
         </div>
@@ -624,6 +626,24 @@
       </button>
     </nav>
   </div>
+
+  <!-- DIALOG: KPI QUICK-INSPECT & INLINE EDIT MODAL -->
+  <dialog id="kpi-detail-dialog" closedby="any" aria-labelledby="kpi-detail-title">
+    <div class="dialog-head">
+      <div>
+        <h2 id="kpi-detail-title">Financial Breakdown</h2>
+        <p class="muted-xs" id="kpi-detail-subtitle">Quick inspect &amp; update</p>
+      </div>
+      <form method="dialog"><button type="submit" value="cancel" class="icon-close" aria-label="Close">×</button></form>
+    </div>
+    <div class="dialog-body" id="kpi-detail-body"></div>
+    <div class="dialog-body" style="padding-top:0">
+      <div class="dialog-foot spread">
+        <button type="button" class="btn soft" id="kpi-detail-goto-btn">Open full tab →</button>
+        <button type="button" class="btn primary" id="kpi-detail-done-btn" autofocus>Done</button>
+      </div>
+    </div>
+  </dialog>
 
   <!-- DIALOGS: Holding CRUD, Manual Tx, Bank Import, Investment Import -->
   <dialog id="holding-dialog" closedby="any" aria-labelledby="holding-dialog-title">

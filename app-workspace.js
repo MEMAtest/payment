@@ -117,6 +117,79 @@
     return PALETTE[Math.abs(hash) % PALETTE.length];
   }
 
+  // Crisp recognizable company / brand SVG icons (no external broken links)
+  function renderBrandIcon(name, fallbackCode = "") {
+    const key = `${name || ""} ${fallbackCode || ""}`.toLowerCase();
+    const wrap = (svg) => `<span class="brand-icon" aria-hidden="true">${svg}</span>`;
+
+    if (key.includes("tesco")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#00539f"/><text x="16" y="18" text-anchor="middle" font-size="9.5" font-weight="900" fill="#fff" font-family="sans-serif">TESCO</text><path d="M5 23h4l-1.5 3h-4zM12 23h4l-1.5 3h-4zM19 23h4l-1.5 3h-4zM26 23h3l-1.5 3h-3z" fill="#ee1c2e"/></svg>`);
+    }
+    if (key.includes("amazon") || key.includes("amzn")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#131921"/><text x="16" y="18" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="sans-serif">a</text><path d="M8 22.5c4.5 3 11.5 3 16 0" stroke="#ff9900" stroke-width="2.2" fill="none" stroke-linecap="round"/><path d="M22 21l2.8 1.4-1.6 2.5" stroke="#ff9900" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>`);
+    }
+    if (key.includes("uber")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#000"/><text x="16" y="19.5" text-anchor="middle" font-size="9.5" font-weight="700" fill="#fff" font-family="sans-serif">Uber</text></svg>`);
+    }
+    if (key.includes("netflix")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#141414"/><path d="M10 7h3.5l5 12.5V7H22v18h-3.5l-5-12.5V25H10z" fill="#e50914"/></svg>`);
+    }
+    if (key.includes("spotify")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#1db954"/><path d="M9 13.5c4.5-1.3 10.2-1.1 14.5 1.1M10.2 17.8c3.6-1 8.2-.8 11.6.9M11.5 21.8c2.8-.7 6.2-.5 8.8.7" stroke="#fff" stroke-width="2.1" fill="none" stroke-linecap="round"/></svg>`);
+    }
+    if (key.includes("pret")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#8b1d3d"/><polygon points="16,6 18.7,12.5 25.8,13 20.4,17.5 22.1,24.4 16,20.7 9.9,24.4 11.6,17.5 6.2,13 13.3,12.5" fill="#fff"/></svg>`);
+    }
+    if (key.includes("octopus")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#180048"/><circle cx="16" cy="14" r="6.5" fill="#f050f8"/><circle cx="13.8" cy="13.5" r="1.3" fill="#fff"/><circle cx="18.2" cy="13.5" r="1.3" fill="#fff"/><path d="M10 21c1-2 2.5-2 3.5 0s2.5 2 3.5 0 2.5-2 3.5 0" stroke="#f050f8" stroke-width="2" fill="none" stroke-linecap="round"/></svg>`);
+    }
+    if (key.includes("waitrose")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#5c8a1e"/><text x="16" y="21" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="serif">W</text></svg>`);
+    }
+    if (key.includes("sainsbury")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#f06c00"/><text x="16" y="21" text-anchor="middle" font-size="14" font-weight="800" fill="#fff" font-family="sans-serif">S</text></svg>`);
+    }
+    if (key.includes("shell")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#fbce07"/><path d="M16 7c5.5 0 9.5 4.2 9.5 9.5 0 3.6-2 6.2-5 7.5H11.5c-3-1.3-5-3.9-5-7.5C6.5 11.2 10.5 7 16 7z" fill="#dd1d21"/><path d="M16 9.5c4 0 7 3 7 6.8 0 2.6-1.4 4.5-3.6 5.4h-6.8c-2.2-.9-3.6-2.8-3.6-5.4 0-3.8 3-6.8 7-6.8z" fill="#fbce07"/></svg>`);
+    }
+    if (key.includes("puregym")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#0d9488"/><path d="M8 16h16M10 12v8M22 12v8" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></svg>`);
+    }
+    if (key.includes("nationwide")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#004a8f"/><path d="M7 16l9-7 9 7v9H7z" fill="#e11d48"/><rect x="13.5" y="18" width="5" height="7" fill="#fff"/></svg>`);
+    }
+    if (key.includes("tfl")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#f8fafc"/><circle cx="16" cy="16" r="9.5" fill="none" stroke="#dc241f" stroke-width="3.2"/><rect x="4" y="13.8" width="24" height="4.4" rx="1" fill="#003688"/></svg>`);
+    }
+    if (key.includes("adobe")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#fa0f00"/><path d="M12.5 8H7v16l5.5-16zm7 0H25v16l-5.5-16zM16 14l3.5 10h-2.6l-1.1-3.2h-2.5z" fill="#fff"/></svg>`);
+    }
+    if (key.includes("vanguard") || key.includes("vwrp") || key.includes("ls80") || key.includes("vuag")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#96151d"/><path d="M8.5 9h3.8L16 20.2 19.7 9h3.8L17.8 24h-3.6z" fill="#fff"/></svg>`);
+    }
+    if (key.includes("apple") || key.includes("aapl")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#111827"/><path d="M19.8 16.5c0-2.1 1.7-3.1 1.8-3.2-1-1.4-2.5-1.6-3-1.7-1.3-.1-2.5.8-3.1.8-.6 0-1.6-.7-2.7-.7-1.4 0-2.7.8-3.4 2.1-1.5 2.5-.4 6.2 1 8.2.7 1 1.5 2.1 2.6 2 1 0 1.4-.7 2.7-.7 1.2 0 1.6.7 2.7.7 1.1 0 1.8-1 2.5-2 .8-1.1 1.1-2.2 1.1-2.3 0 0-2.2-.8-2.2-3.2zM17.8 10.2c.6-.7 1-1.7.9-2.7-.8 0-1.9.6-2.5 1.3-.5.6-1 1.6-.9 2.6.9.1 1.9-.5 2.5-1.2z" fill="#fff"/></svg>`);
+    }
+    if (key.includes("microsoft") || key.includes("msft")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#f8fafc"/><rect x="6" y="6" width="9" height="9" fill="#f25022"/><rect x="17" y="6" width="9" height="9" fill="#7fba00"/><rect x="6" y="17" width="9" height="9" fill="#00a4ef"/><rect x="17" y="17" width="9" height="9" fill="#ffb900"/></svg>`);
+    }
+    if (key.includes("nvidia") || key.includes("nvda")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#76b900"/><path d="M7 16c2.5-4.5 6.5-6.5 10.5-6.5 3.2 0 5.8 1.5 7.5 3.8-2 2.7-4.8 4.2-7.8 4.2-2.6 0-4.7-1.1-6.2-2.8 1.4 3.2 4.3 5.2 7.8 5.2 2.4 0 4.6-.8 6.2-2.2-1.8 3.2-5 5.3-8.8 5.3-4.3 0-7.7-2.6-9.2-7z" fill="#fff"/></svg>`);
+    }
+    if (key.includes("ishares") || key.includes("iglt") || key.includes("swda")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#0f172a"/><text x="16" y="20" text-anchor="middle" font-size="11" font-weight="800" fill="#38bdf8" font-family="sans-serif">iSh</text></svg>`);
+    }
+    if (key.includes("bitcoin") || key.includes("btc")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#f7931a"/><text x="16" y="21.5" text-anchor="middle" font-size="16" font-weight="900" fill="#fff" font-family="sans-serif">₿</text></svg>`);
+    }
+    if (key.includes("salary") || key.includes("payroll") || key.includes("bonus")) {
+      return wrap(`<svg viewBox="0 0 32 32"><rect width="32" height="32" fill="#16a34a"/><text x="16" y="21.5" text-anchor="middle" font-size="15" font-weight="900" fill="#fff" font-family="sans-serif">£</text></svg>`);
+    }
+
+    const code = escapeHtml((fallbackCode || name || "P").slice(0, 3).toUpperCase());
+    return `<span class="monogram" style="background:${monogramColor(name || fallbackCode)}">${code}</span>`;
+  }
+
   function showNotification(message, type = "info") {
     const region = document.getElementById("toast-region");
     if (!region) return;
@@ -394,52 +467,161 @@
     return pts;
   }
 
+  // Smooth Cubic Bezier Path Helper
+  function smoothPath(pts) {
+    if (pts.length < 2) return "";
+    let d = `M${pts[0][0].toFixed(1)},${pts[0][1].toFixed(1)}`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const p0 = pts[Math.max(0, i - 1)];
+      const p1 = pts[i];
+      const p2 = pts[i + 1];
+      const p3 = pts[Math.min(pts.length - 1, i + 2)];
+      const cp1x = p1[0] + (p2[0] - p0[0]) / 6;
+      const cp1y = p1[1] + (p2[1] - p0[1]) / 6;
+      const cp2x = p2[0] - (p3[0] - p1[0]) / 6;
+      const cp2y = p2[1] - (p3[1] - p1[1]) / 6;
+      d += ` C${cp1x.toFixed(1)},${cp1y.toFixed(1)} ${cp2x.toFixed(1)},${cp2y.toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}`;
+    }
+    return d;
+  }
+
   function renderAreaChart(container, seriesA, seriesB, labels, colorA = "#2563eb", colorB = "#22c55e") {
     if (!container) return;
     const all = seriesB ? [...seriesA, ...seriesB] : [...seriesA];
-    const maxV = Math.max(...all, 100), minV = Math.min(...all, 0) * 0.92, span = Math.max(1, maxV - minV);
-    const w = 440, h = 95, padL = 8, padR = 10, padT = 10, padB = 18;
-    const toXY = (arr) => arr.map((v, i) => [padL + (i / Math.max(1, arr.length - 1)) * (w - padL - padR), padT + (1 - (v - minV) / span) * (h - padT - padB)]);
+    const dataMax = Math.max(...all, 100);
+    const dataMin = Math.min(...all);
+    // Domain-focused scaling so growth curves have real visual drama (never squashed flat against 0!)
+    const rawRange = Math.max(dataMax - dataMin, dataMax * 0.08, 50);
+    const minV = Math.max(0, dataMin - rawRange * 0.28);
+    const maxV = dataMax + rawRange * 0.16;
+    const span = Math.max(1, maxV - minV);
+
+    const isSpark = labels.every((l) => !l);
+    const w = isSpark ? 120 : 480;
+    const h = isSpark ? 48 : 112;
+    const padL = isSpark ? 4 : 44;
+    const padR = isSpark ? 6 : 14;
+    const padT = isSpark ? 6 : 12;
+    const padB = isSpark ? 6 : 20;
+
+    const toXY = (arr) =>
+      arr.map((v, i) => [
+        padL + (i / Math.max(1, arr.length - 1)) * (w - padL - padR),
+        padT + (1 - (v - minV) / span) * (h - padT - padB),
+      ]);
+
     const ptsA = toXY(seriesA);
-    const lineA = ptsA.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+    const lineA = smoothPath(ptsA);
     const areaA = `${lineA} L${ptsA[ptsA.length - 1][0].toFixed(1)},${h - padB} L${ptsA[0][0].toFixed(1)},${h - padB} Z`;
+
     let secondSvg = "";
     if (seriesB?.length) {
       const ptsB = toXY(seriesB);
-      const lineB = ptsB.map((p, i) => `${i === 0 ? "M" : "L"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ");
+      const lineB = smoothPath(ptsB);
       const areaB = `${lineB} L${ptsB[ptsB.length - 1][0].toFixed(1)},${h - padB} L${ptsB[0][0].toFixed(1)},${h - padB} Z`;
       const lastB = ptsB[ptsB.length - 1];
-      secondSvg = `<path d="${areaB}" fill="${colorB}" fill-opacity="0.16"/><path d="${lineB}" fill="none" stroke="${colorB}" stroke-width="2.4" stroke-linecap="round"/><circle cx="${lastB[0].toFixed(1)}" cy="${lastB[1].toFixed(1)}" r="3.8" fill="${colorB}" stroke="#fff" stroke-width="2"/>`;
+      secondSvg = `<path d="${areaB}" fill="${colorB}" fill-opacity="0.16"/><path d="${lineB}" fill="none" stroke="${colorB}" stroke-width="2.5" stroke-linecap="round"/><circle cx="${lastB[0].toFixed(1)}" cy="${lastB[1].toFixed(1)}" r="4" fill="${colorB}" stroke="#fff" stroke-width="2"/>`;
     }
+
     const lastA = ptsA[ptsA.length - 1];
-    const xLabels = labels.map((lbl, idx) => {
-      const x = padL + (idx / Math.max(1, labels.length - 1)) * (w - padL - padR);
-      return `<text x="${x.toFixed(1)}" y="${h - 3}" text-anchor="${idx === 0 ? "start" : idx === labels.length - 1 ? "end" : "middle"}" font-size="9.5" fill="#64748b">${escapeHtml(lbl)}</text>`;
-    }).join("");
+    const yTicks = isSpark
+      ? ""
+      : [maxV, (maxV + minV) / 2, minV]
+          .map((val, idx) => {
+            const y = padT + (idx / 2) * (h - padT - padB);
+            return `<line x1="${padL}" y1="${y.toFixed(1)}" x2="${w - padR}" y2="${y.toFixed(1)}" stroke="#e2e8f0" stroke-dasharray="3 3"/><text x="${padL - 6}" y="${(y + 3).toFixed(1)}" text-anchor="end" font-size="9" fill="#64748b">${escapeHtml(formatCompact(val))}</text>`;
+          })
+          .join("");
+
+    const xLabels = isSpark
+      ? ""
+      : labels
+          .map((lbl, idx) => {
+            const x = padL + (idx / Math.max(1, labels.length - 1)) * (w - padL - padR);
+            return `<text x="${x.toFixed(1)}" y="${h - 4}" text-anchor="${idx === 0 ? "start" : idx === labels.length - 1 ? "end" : "middle"}" font-size="9.5" fill="#64748b">${escapeHtml(lbl)}</text>`;
+          })
+          .join("");
+
+    const primarySeries = seriesB?.length ? seriesB : seriesA;
+    const primaryPts = seriesB?.length ? toXY(seriesB) : ptsA;
+    const hoverTargets = isSpark
+      ? ""
+      : primaryPts
+          .map(
+            (p, idx) =>
+              `<circle class="chart-hit" cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="10" fill="transparent" data-pt-lbl="${escapeHtml(labels[idx] || "")}" data-pt-val="${escapeHtml(formatCurrency(primarySeries[idx]))}" style="cursor:pointer"/>`
+          )
+          .join("");
+
     const gradId = `g-${Math.random().toString(36).slice(2, 7)}`;
-    container.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" preserveAspectRatio="none"><defs><linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${colorA}" stop-opacity="0.24"/><stop offset="100%" stop-color="${colorA}" stop-opacity="0.01"/></linearGradient></defs><line x1="${padL}" y1="${padT}" x2="${w - padR}" y2="${padT}" stroke="#e2e8f0" stroke-dasharray="3 3"/><path d="${areaA}" fill="url(#${gradId})"/><path d="${lineA}" fill="none" stroke="${colorA}" stroke-width="2.4" stroke-linecap="round"/><circle cx="${lastA[0].toFixed(1)}" cy="${lastA[1].toFixed(1)}" r="3.8" fill="${colorA}" stroke="#fff" stroke-width="2"/>${secondSvg}${xLabels}</svg>`;
+    container.innerHTML = `<div class="chart-tooltip"></div><svg viewBox="0 0 ${w} ${h}" width="100%" height="100%"><defs><linearGradient id="${gradId}" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="${colorA}" stop-opacity="0.28"/><stop offset="100%" stop-color="${colorA}" stop-opacity="0.02"/></linearGradient></defs>${yTicks}<path d="${areaA}" fill="url(#${gradId})"/><path d="${lineA}" fill="none" stroke="${colorA}" stroke-width="2.5" stroke-linecap="round"/><circle cx="${lastA[0].toFixed(1)}" cy="${lastA[1].toFixed(1)}" r="4.2" fill="${colorA}" stroke="#fff" stroke-width="2"/>${secondSvg}${xLabels}${hoverTargets}</svg>`;
+
+    if (!isSpark) {
+      const tip = container.querySelector(".chart-tooltip");
+      container.querySelectorAll(".chart-hit").forEach((dot) => {
+        dot.addEventListener("mouseenter", () => {
+          tip.textContent = `${dot.dataset.ptLbl}: ${dot.dataset.ptVal}`;
+          tip.classList.add("visible");
+        });
+        dot.addEventListener("mouseleave", () => tip.classList.remove("visible"));
+      });
+    }
   }
 
   function renderSankey(container, monthlyIn, expensesObj) {
     if (!container) return;
-    const rows = BUDGET_BUCKETS.map((b) => ({ label: b.label, value: Math.max(0, Number(expensesObj?.[b.key]) || 0), color: b.color })).filter((r) => r.value > 0);
+    const icons = {
+      mortgage: "🏠",
+      groceries: "🛒",
+      energy: "⚡",
+      publicTransport: "🚗",
+      entertainment: "✨",
+      subscriptions: "📦",
+    };
+    const rows = BUDGET_BUCKETS.map((b) => ({
+      label: b.label,
+      icon: icons[b.key] || "•",
+      value: Math.max(0, Number(expensesObj?.[b.key]) || 0),
+      color: b.color,
+    })).filter((r) => r.value > 0);
     const totalOut = rows.reduce((s, r) => s + r.value, 0);
     const surplus = Math.max(0, monthlyIn - totalOut);
-    if (surplus > 0) rows.push({ label: "Surplus", value: surplus, color: "#22c55e" });
+    // Keep top 5 spending buckets + always include Surplus!
+    const topRows = rows.sort((a, b) => b.value - a.value).slice(0, 5);
+    if (surplus > 0) topRows.push({ label: "Surplus", icon: "💰", value: surplus, color: "#16a34a", isSurplus: true });
+
     if (monthlyIn <= 0 && totalOut <= 0) {
       container.innerHTML = `<p class="empty-state">Set income &amp; budget in Cashflow.</p>`;
       return;
     }
     const base = Math.max(monthlyIn, totalOut, 1);
-    const topRows = rows.slice(0, 5);
-    const h = 144, startY = h / 2;
+    const h = Math.max(176, topRows.length * 29 + 10);
+    const startY = h / 2;
     const paths = topRows.map((r, i) => {
-      const y = 16 + i * 28;
+      const y = 17 + i * 28;
       const pct = Math.round((r.value / base) * 100);
-      const sw = Math.max(4, Math.min(16, (r.value / base) * 32));
-      return `<path d="M96,${startY} C140,${startY} 146,${y} 184,${y}" fill="none" stroke="${r.color}" stroke-opacity="0.35" stroke-width="${sw.toFixed(1)}"/><rect x="186" y="${y - 10}" width="170" height="20" rx="6" fill="#f8fafc" stroke="#e2e8f0"/><circle cx="196" cy="${y}" r="3.2" fill="${r.color}"/><text x="204" y="${y + 3.5}" font-size="10" font-weight="700" fill="#0f172a">${escapeHtml(formatCurrency(r.value))}</text><text x="348" y="${y + 3.5}" text-anchor="end" font-size="9" fill="#475569">${escapeHtml(r.label)} (${pct}%)</text>`;
+      const sw = Math.max(4.5, Math.min(16, (r.value / base) * 32));
+      const pillFill = r.isSurplus ? "#ecfdf5" : "#f8fafc";
+      const pillStroke = r.isSurplus ? "#86efac" : "#e2e8f0";
+      const valFill = r.isSurplus ? "#15803d" : "#0f172a";
+      return `<g class="sankey-stream">
+        <title>${escapeHtml(r.label)}: ${escapeHtml(formatCurrency(r.value))}/mo (${escapeHtml(formatCurrency(r.value * 12))}/yr)</title>
+        <path d="M96,${startY} C140,${startY} 144,${y} 182,${y}" fill="none" stroke="${r.color}" stroke-opacity="0.28" stroke-width="${sw.toFixed(1)}"/>
+        <path class="sankey-flow-dash" d="M96,${startY} C140,${startY} 144,${y} 182,${y}" fill="none" stroke="${r.color}" stroke-opacity="0.85" stroke-width="2" stroke-linecap="round"/>
+        <rect x="184" y="${y - 11}" width="176" height="22" rx="7" fill="${pillFill}" stroke="${pillStroke}"/>
+        <text x="193" y="${y + 4}" font-size="10.5">${r.icon}</text>
+        <text x="209" y="${y + 3.5}" font-size="10" font-weight="800" fill="${valFill}">${escapeHtml(formatCurrency(r.value))}</text>
+        <text x="353" y="${y + 3.5}" text-anchor="end" font-size="9" fill="#475569">${escapeHtml(r.label)} (${pct}%)</text>
+      </g>`;
     }).join("");
-    container.innerHTML = `<svg viewBox="0 0 362 ${h}" width="100%" height="100%"><rect x="4" y="${startY - 26}" width="90" height="52" rx="11" fill="#e0ecff" stroke="#bfdbfe"/><text x="49" y="${startY - 3}" text-anchor="middle" font-size="12" font-weight="800" fill="#0f172a">${escapeHtml(formatCurrency(monthlyIn))}</text><text x="49" y="${startY + 12}" text-anchor="middle" font-size="8.8" fill="#475569">Take-home</text>${paths}</svg>`;
+    container.innerHTML = `<svg viewBox="0 0 364 ${h}" width="100%" height="100%">
+      <defs><linearGradient id="sankeyIn" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#dbeafe"/><stop offset="100%" stop-color="#eff6ff"/></linearGradient></defs>
+      <rect x="4" y="${startY - 28}" width="90" height="56" rx="12" fill="url(#sankeyIn)" stroke="#93c5fd"/>
+      <text x="49" y="${startY - 6}" text-anchor="middle" font-size="11">💼</text>
+      <text x="49" y="${startY + 8}" text-anchor="middle" font-size="11.5" font-weight="800" fill="#0f172a">${escapeHtml(formatCurrency(monthlyIn))}</text>
+      <text x="49" y="${startY + 20}" text-anchor="middle" font-size="8.2" fill="#475569">Take-home</text>
+      ${paths}
+    </svg>`;
   }
 
   function renderGauge(container, pct) {
@@ -521,7 +703,7 @@
       ? top3.map((h) => {
           const gain = (Number(h.currentValue) || 0) - (Number(h.costBasis) || 0);
           const pct = Number(h.costBasis) > 0 ? (gain / Number(h.costBasis)) * 100 : 0;
-          return `<div class="mini-row"><div class="mini-left"><span class="monogram" style="background:${monogramColor(h.ticker)}">${escapeHtml((h.ticker || "H").slice(0, 3))}</span><div><div class="mini-title">${escapeHtml(h.name)}</div><div class="muted-xs">${escapeHtml(h.ticker)} · ${escapeHtml(h.account)}</div></div></div><div class="mini-right"><strong>${formatCurrency(h.currentValue)}</strong><div class="muted-xs ${gain >= 0 ? "pos" : "neg"}">${Number(h.costBasis) > 0 ? `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%` : "—"}</div></div></div>`;
+          return `<div class="mini-row"><div class="mini-left">${renderBrandIcon(h.name, h.ticker)}<div><div class="mini-title">${escapeHtml(h.name)}</div><div class="muted-xs">${escapeHtml(h.ticker)} · ${escapeHtml(h.account)}</div></div></div><div class="mini-right"><strong>${formatCurrency(h.currentValue)}</strong><div class="muted-xs ${gain >= 0 ? "pos" : "neg"}">${Number(h.costBasis) > 0 ? `${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%` : "—"}</div></div></div>`;
         }).join("")
       : `<p class="empty-state">No holdings yet.</p>`;
 
@@ -529,7 +711,7 @@
     document.getElementById("ov-recent-tx").innerHTML = latest.length
       ? latest.map((tx) => {
           const isInc = tx.type === "income";
-          return `<div class="mini-row"><div class="mini-left"><span class="monogram" style="background:${monogramColor(tx.description)}">${escapeHtml((tx.description || "T").slice(0, 2).toUpperCase())}</span><div><div class="mini-title">${escapeHtml(tx.description)}</div><div class="muted-xs">${escapeHtml(tx.date || "")} · ${escapeHtml(tx.account || "Bank")}</div></div></div><div class="mini-right ${isInc ? "pos" : ""}"><strong>${isInc ? "+" : "-"}${formatCurrency(Math.abs(tx.amount), 2)}</strong></div></div>`;
+          return `<div class="mini-row"><div class="mini-left">${renderBrandIcon(tx.description)}<div><div class="mini-title">${escapeHtml(tx.description)}</div><div class="muted-xs">${escapeHtml(tx.date || "")} · ${escapeHtml(tx.account || "Bank")}</div></div></div><div class="mini-right ${isInc ? "pos" : ""}"><strong>${isInc ? "+" : "-"}${formatCurrency(Math.abs(tx.amount), 2)}</strong></div></div>`;
         }).join("")
       : `<p class="empty-state">No transactions yet.</p>`;
 
@@ -592,7 +774,7 @@
     document.getElementById("tx-table-body").innerHTML = pageRows.length
       ? pageRows.map((tx) => {
           const isInc = tx.type === "income", cat = tx.category || (isInc ? "income" : "other");
-          return `<tr><th scope="row">${escapeHtml(tx.date || "—")}</th><td data-label="Merchant"><div class="mini-left"><span class="monogram" style="background:${monogramColor(tx.description)}">${escapeHtml((tx.description || "T").slice(0, 2).toUpperCase())}</span><span>${escapeHtml(tx.description)}</span></div></td><td data-label="Category"><select class="table-select" data-tx-cat="${escapeHtml(tx.id)}">${catOpts.replace(`value="${cat}"`, `value="${cat}" selected`)}</select></td><td data-label="Amount" class="num ${isInc ? "pos" : ""}"><strong>${isInc ? "+" : "-"}${formatCurrency(Math.abs(tx.amount), 2)}</strong></td><td data-label="Account"><span class="acct-badge">${escapeHtml(tx.account || "Bank")}</span></td><td data-label="Delete" class="actions-col"><button type="button" class="icon-btn danger" data-del-tx="${escapeHtml(tx.id)}" aria-label="Delete">✕</button></td></tr>`;
+          return `<tr><th scope="row">${escapeHtml(tx.date || "—")}</th><td data-label="Merchant"><div class="mini-left">${renderBrandIcon(tx.description)}<span>${escapeHtml(tx.description)}</span></div></td><td data-label="Category"><select class="table-select" data-tx-cat="${escapeHtml(tx.id)}">${catOpts.replace(`value="${cat}"`, `value="${cat}" selected`)}</select></td><td data-label="Amount" class="num ${isInc ? "pos" : ""}"><strong>${isInc ? "+" : "-"}${formatCurrency(Math.abs(tx.amount), 2)}</strong></td><td data-label="Account"><span class="acct-badge">${escapeHtml(tx.account || "Bank")}</span></td><td data-label="Delete" class="actions-col"><button type="button" class="icon-btn danger" data-del-tx="${escapeHtml(tx.id)}" aria-label="Delete">✕</button></td></tr>`;
         }).join("")
       : `<tr><td colspan="6" class="empty-state">No matching transactions.</td></tr>`;
 
@@ -651,7 +833,7 @@
     document.getElementById("inv-table-body").innerHTML = pageRows.length
       ? pageRows.map((h) => {
           const val = Math.max(0, Number(h.currentValue) || 0), cost = Math.max(0, Number(h.costBasis) || 0), gain = val - cost, pct = cost > 0 ? (gain / cost) * 100 : 0;
-          return `<tr><th scope="row"><div class="mini-left"><span class="monogram" style="background:${monogramColor(h.ticker)}">${escapeHtml((h.ticker || "H").slice(0, 3))}</span><div><div>${escapeHtml(h.name)}</div><div class="muted-xs">${escapeHtml(h.ticker)}</div></div></div></th><td data-label="Acct"><span class="acct-badge ${String(h.account || "").toLowerCase()}">${escapeHtml(h.account || "GIA")}</span></td><td data-label="Class">${escapeHtml(h.assetClass || "Stock")}</td><td data-label="Cost" class="num">${formatCurrency(cost)}</td><td data-label="Value" class="num"><strong>${formatCurrency(val)}</strong></td><td data-label="Gain / Loss" class="num ${gain >= 0 ? "pos" : "neg"}">${formatSignedCurrency(gain)} <span class="muted-xs">${cost > 0 ? `(${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%)` : "(—)"}</span></td><td data-label="Actions" class="actions-col"><button type="button" class="icon-btn" data-edit-holding="${escapeHtml(h.id)}" aria-label="Edit">✎</button><button type="button" class="icon-btn danger" data-del-holding="${escapeHtml(h.id)}" aria-label="Delete">✕</button></td></tr>`;
+          return `<tr><th scope="row"><div class="mini-left">${renderBrandIcon(h.name, h.ticker)}<div><div>${escapeHtml(h.name)}</div><div class="muted-xs">${escapeHtml(h.ticker)}</div></div></div></th><td data-label="Acct"><span class="acct-badge ${String(h.account || "").toLowerCase()}">${escapeHtml(h.account || "GIA")}</span></td><td data-label="Class">${escapeHtml(h.assetClass || "Stock")}</td><td data-label="Cost" class="num">${formatCurrency(cost)}</td><td data-label="Value" class="num"><strong>${formatCurrency(val)}</strong></td><td data-label="Gain / Loss" class="num ${gain >= 0 ? "pos" : "neg"}">${formatSignedCurrency(gain)} <span class="muted-xs">${cost > 0 ? `(${pct >= 0 ? "+" : ""}${pct.toFixed(1)}%)` : "(—)"}</span></td><td data-label="Actions" class="actions-col"><button type="button" class="icon-btn" data-edit-holding="${escapeHtml(h.id)}" aria-label="Edit">✎</button><button type="button" class="icon-btn danger" data-del-holding="${escapeHtml(h.id)}" aria-label="Delete">✕</button></td></tr>`;
         }).join("")
       : `<tr><td colspan="7" class="empty-state">No holdings match.</td></tr>`;
 
@@ -903,10 +1085,147 @@
     document.addEventListener("input", (e) => { if (e.target.hasAttribute("aria-invalid")) { if (!CSS.supports("selector(:user-invalid)") && e.target.checkValidity) e.target.classList.toggle("user-invalid-fallback", !e.target.validity.valid); syncAria(e.target); } });
   }
 
+  let kpiModalTargetTab = "cashflow";
+
+  function openKpiModal(kind) {
+    const titleEl = document.getElementById("kpi-detail-title");
+    const subEl = document.getElementById("kpi-detail-subtitle");
+    const bodyEl = document.getElementById("kpi-detail-body");
+    const gotoBtn = document.getElementById("kpi-detail-goto-btn");
+
+    const port = getPortfolioTotals();
+    const cash = Math.max(0, Number(financeState.savings) || 0);
+    const debt = getTotalDebt();
+    const monthlyIn = getMonthlyIncome();
+    const monthlyOut = getMonthlyExpenses();
+    const surplus = monthlyIn - monthlyOut;
+
+    if (kind === "surplus") {
+      kpiModalTargetTab = "cashflow";
+      titleEl.textContent = "Monthly Surplus Breakdown";
+      subEl.textContent = "UK take-home pay minus monthly budget";
+      gotoBtn.textContent = "Open full Cashflow tab →";
+      bodyEl.innerHTML = `
+        <div class="kpi-modal-hero">
+          <span class="muted-xs">Monthly Surplus</span>
+          <strong class="${surplus >= 0 ? "pos" : "neg"}">${formatSignedCurrency(surplus)}</strong>
+        </div>
+        <div class="kpi-modal-list">
+          <div class="kpi-modal-row"><span>Monthly Take-Home Income</span><strong>${formatCurrency(monthlyIn)}</strong></div>
+          <div class="kpi-modal-row"><span>Monthly Budgeted Spend</span><strong>-${formatCurrency(monthlyOut)}</strong></div>
+          <div class="kpi-modal-row"><span>Annualised Surplus</span><strong class="pos">${formatSignedCurrency(surplus * 12)} / yr</strong></div>
+        </div>
+        <div class="field">
+          <label for="quick-salary-inp">Quick Update: Gross Annual Salary (£)</label>
+          <input type="number" id="quick-salary-inp" class="input" min="0" step="500" value="${financeState.annualSalary || 0}" />
+        </div>
+      `;
+      bodyEl.querySelector("#quick-salary-inp").addEventListener("input", (e) => {
+        financeState.annualSalary = Math.max(0, parseFloat(e.target.value) || 0);
+        persistAll();
+        renderAll();
+      });
+    } else if (kind === "cash") {
+      kpiModalTargetTab = "cashflow";
+      titleEl.textContent = "Cash & Savings Runway";
+      subEl.textContent = "Liquid emergency buffer & cash holdings";
+      gotoBtn.textContent = "Open full Cashflow tab →";
+      const runway = monthlyOut > 0 ? (cash / monthlyOut).toFixed(1) : "—";
+      bodyEl.innerHTML = `
+        <div class="kpi-modal-hero">
+          <span class="muted-xs">Total Liquid Cash</span>
+          <strong>${formatCurrency(cash)}</strong>
+        </div>
+        <div class="kpi-modal-list">
+          <div class="kpi-modal-row"><span>Emergency Runway</span><strong class="pos">${runway} months</strong></div>
+          <div class="kpi-modal-row"><span>Recommended 6-Month Target</span><strong>${formatCurrency(monthlyOut * 6)}</strong></div>
+        </div>
+        <div class="field">
+          <label for="quick-cash-inp">Quick Update: Cash &amp; Savings (£)</label>
+          <input type="number" id="quick-cash-inp" class="input" min="0" step="100" value="${cash}" />
+        </div>
+      `;
+      bodyEl.querySelector("#quick-cash-inp").addEventListener("input", (e) => {
+        financeState.savings = Math.max(0, parseFloat(e.target.value) || 0);
+        persistAll();
+        renderAll();
+      });
+    } else if (kind === "investments") {
+      kpiModalTargetTab = "investments";
+      titleEl.textContent = "Investments Snapshot";
+      subEl.textContent = `${holdings.length} holdings across ISA, SIPP, GIA & Crypto`;
+      gotoBtn.textContent = "Open full Investments tab →";
+      const top = [...holdings].sort((a, b) => (Number(b.currentValue) || 0) - (Number(a.currentValue) || 0)).slice(0, 4);
+      bodyEl.innerHTML = `
+        <div class="kpi-modal-hero">
+          <span class="muted-xs">Total Portfolio</span>
+          <strong class="pos">${formatCurrency(port.totalValue)}</strong>
+        </div>
+        <div class="kpi-modal-list">
+          <div class="kpi-modal-row"><span>Total Return</span><strong class="${port.gain >= 0 ? "pos" : "neg"}">${formatSignedCurrency(port.gain)} (${port.totalCost > 0 ? `${port.returnPct >= 0 ? "+" : ""}${port.returnPct.toFixed(1)}%` : "—"})</strong></div>
+          <div class="kpi-modal-row"><span>Tax-Wrapped (ISA + SIPP)</span><strong>${formatCurrency(port.taxWrapped)}</strong></div>
+          ${top.map((h) => `<div class="kpi-modal-row"><span class="mini-left">${renderBrandIcon(h.name, h.ticker)}<span>${escapeHtml(h.name)}</span></span><strong>${formatCurrency(h.currentValue)}</strong></div>`).join("")}
+        </div>
+      `;
+    } else {
+      kpiModalTargetTab = "cashflow";
+      titleEl.textContent = "Liabilities & Debt";
+      subEl.textContent = "Non-mortgage balances deducted from Net Worth";
+      gotoBtn.textContent = "Open full Cashflow tab →";
+      bodyEl.innerHTML = `
+        <div class="kpi-modal-hero">
+          <span class="muted-xs">Total Liabilities</span>
+          <strong>${formatCurrency(debt)}</strong>
+        </div>
+        <div class="kpi-modal-list">
+          <div class="kpi-modal-row"><span>Liquid Net (Cash − Debt)</span><strong class="${cash - debt >= 0 ? "pos" : "neg"}">${formatSignedCurrency(cash - debt)}</strong></div>
+        </div>
+        <div class="field">
+          <label for="quick-debt-inp">Quick Update: Total Debt (£)</label>
+          <input type="number" id="quick-debt-inp" class="input" min="0" step="100" value="${debt}" />
+        </div>
+      `;
+      bodyEl.querySelector("#quick-debt-inp").addEventListener("input", (e) => {
+        financeState.liabilities = { otherDebt: Math.max(0, parseFloat(e.target.value) || 0) };
+        persistAll();
+        renderAll();
+      });
+    }
+
+    document.getElementById("kpi-detail-dialog").showModal();
+  }
+
+  function setupHero3DTilt() {
+    const card = document.getElementById("hero-3d-card");
+    if (!card || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    card.addEventListener("mousemove", (e) => {
+      const r = card.getBoundingClientRect();
+      const x = (e.clientX - r.left) / r.width - 0.5;
+      const y = (e.clientY - r.top) / r.height - 0.5;
+      card.style.transform = `perspective(1000px) rotateX(${(-y * 3).toFixed(2)}deg) rotateY(${(x * 3.5).toFixed(2)}deg)`;
+    });
+    card.addEventListener("mouseleave", () => {
+      card.style.transform = "";
+    });
+  }
+
   function init() {
     loadAllState();
     setupDialogFallbacks();
     setupAccessibleValidation();
+    setupHero3DTilt();
+
+    document.querySelectorAll("[data-kpi-modal]").forEach((tile) => {
+      tile.addEventListener("click", () => openKpiModal(tile.dataset.kpiModal));
+      tile.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openKpiModal(tile.dataset.kpiModal); }
+      });
+    });
+    document.getElementById("kpi-detail-done-btn").addEventListener("click", () => document.getElementById("kpi-detail-dialog").close("done"));
+    document.getElementById("kpi-detail-goto-btn").addEventListener("click", () => {
+      document.getElementById("kpi-detail-dialog").close("goto");
+      switchView(kpiModalTargetTab);
+    });
 
     const opts = Object.entries(CATEGORIES).map(([k, v]) => `<option value="${k}">${escapeHtml(v.label)}</option>`).join("");
     document.getElementById("tx-cat-filter").innerHTML = `<option value="all">All categories</option>${opts}`;

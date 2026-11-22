@@ -196,6 +196,18 @@ const BANK_FORMATS = {
     amountCol: "Amount",
     dateFormat: "YYYY-MM-DD",
     delimiter: ","
+  },
+  financesCentral: {
+    dateCol: "event_date",
+    descCol: "merchant",
+    amountCol: "amount",
+    categoryCol: "spend_category",
+    fallbackCategoryCol: "category",
+    directionCol: "direction",
+    accountCol: "source_account",
+    notesCol: "notes",
+    dateFormat: "YYYY-MM-DD",
+    delimiter: ","
   }
 };
 
@@ -354,6 +366,9 @@ function parseCSVLine(line, maxFieldLength = 10000) {
 function detectBankFormat(headers) {
   const headerStr = headers.join(",").toLowerCase();
 
+  if (headerStr.includes("event_date") && headerStr.includes("merchant") && headerStr.includes("amount")) {
+    return BANK_FORMATS.financesCentral;
+  }
   if (headerStr.includes("counter party")) return BANK_FORMATS.starling;
   if (headerStr.includes("started date")) return BANK_FORMATS.revolut;
   if (headerStr.includes("transaction description") && headerStr.includes("debit amount")) return BANK_FORMATS.lloyds;
@@ -363,10 +378,12 @@ function detectBankFormat(headers) {
   // Default generic format
   return {
     dateCol: headers.find((h) => h.toLowerCase().includes("date")) || headers[0],
-    descCol: headers.find((h) => h.toLowerCase().includes("desc") || h.toLowerCase().includes("name") || h.toLowerCase().includes("memo")) || headers[1],
+    descCol: headers.find((h) => h.toLowerCase().includes("merchant") || h.toLowerCase().includes("desc") || h.toLowerCase().includes("name") || h.toLowerCase().includes("memo")) || headers[1],
     amountCol: headers.find((h) => h.toLowerCase().includes("amount") || h.toLowerCase().includes("value")) || headers[2],
-    categoryCol: headers.find((h) => h.toLowerCase().includes("spending category") || h.toLowerCase().includes("category")) || null,
+    categoryCol: headers.find((h) => h.toLowerCase().includes("spend_category") || h.toLowerCase().includes("spending category") || h.toLowerCase().includes("category")) || null,
     typeCol: headers.find((h) => h.toLowerCase().includes("type")) || null,
+    directionCol: headers.find((h) => h.toLowerCase().includes("direction")) || null,
+    accountCol: headers.find((h) => h.toLowerCase().includes("account")) || null,
     referenceCol: headers.find((h) => h.toLowerCase().includes("reference")) || null,
     notesCol: headers.find((h) => h.toLowerCase().includes("notes")) || null,
     dateFormat: "DD/MM/YYYY",
@@ -382,7 +399,10 @@ function extractTransaction(row, format) {
   const descText = rawDesc == null ? "" : String(rawDesc).trim();
   const referenceText = format.referenceCol ? row[format.referenceCol] : (row.Reference || row["Reference"] || "");
   const notesText = format.notesCol ? row[format.notesCol] : (row.Notes || row["Notes"] || "");
-  const rawCategory = format.categoryCol ? row[format.categoryCol] : (row.Category || row["Category"] || "");
+  const rawCategory = format.categoryCol
+    ? (row[format.categoryCol] || (format.fallbackCategoryCol ? row[format.fallbackCategoryCol] : ""))
+    : (row.Category || row["Category"] || "");
+  const accountText = format.accountCol ? String(row[format.accountCol] || "").trim() : "";
   const rawType = format.typeCol ? row[format.typeCol] : (row.Type || row["Type"] || "");
   const referenceStr = referenceText == null ? "" : String(referenceText).trim();
   const notesStr = notesText == null ? "" : String(notesText).trim();
@@ -408,6 +428,14 @@ function extractTransaction(row, format) {
     amount = parseAmount(row[format.creditCol]);
   } else {
     amount = parseAmount(row[format.amountCol]);
+    if (format.directionCol && row[format.directionCol]) {
+      const dir = String(row[format.directionCol]).trim().toLowerCase();
+      if (/(inflow|incoming|credit|income|refund|received|payslip|interest|dividend)/.test(dir) && !/outflow|outgoing|transfer out/.test(dir)) {
+        amount = Math.abs(amount);
+      } else if (/(outflow|outgoing|out|debit|expense|spend|paid|purchase|bill|invoice|payment|receipt|charge)/.test(dir)) {
+        amount = -Math.abs(amount);
+      }
+    }
   }
 
   // Parse date
@@ -433,6 +461,7 @@ function extractTransaction(row, format) {
     notes: notesStr,
     rawCategory: rawCategoryStr,
     rawType: rawTypeStr,
+    account: accountText || undefined,
     isRecurring: false,
     selected: true
   };
@@ -446,22 +475,22 @@ function parseDate(dateStr, { fallbackToToday = true } = {}) {
   const value = String(dateStr).trim();
   if (!value) return fallback;
 
+  // Try ISO format YYYY-MM-DD FIRST (so 2025-12-31 is not misread as DD-MM-YY!)
+  const isoMatch = value.match(/\b(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})\b/);
+  if (isoMatch) {
+    const candidate = `${isoMatch[1]}-${isoMatch[2].padStart(2, "0")}-${isoMatch[3].padStart(2, "0")}`;
+    const parsed = new Date(candidate);
+    return Number.isNaN(parsed.getTime()) ? fallback : candidate;
+  }
+
   // Try common UK format DD/MM/YYYY
-  const ukMatch = value.match(/(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})/);
+  const ukMatch = value.match(/\b(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{2,4})\b/);
   if (ukMatch) {
     const day = ukMatch[1].padStart(2, "0");
     const month = ukMatch[2].padStart(2, "0");
     let year = ukMatch[3];
     if (year.length === 2) year = "20" + year;
     const candidate = `${year}-${month}-${day}`;
-    const parsed = new Date(candidate);
-    return Number.isNaN(parsed.getTime()) ? fallback : candidate;
-  }
-
-  // Try ISO format YYYY-MM-DD
-  const isoMatch = value.match(/(\d{4})[\/\-](\d{1,2})[\/\-](\d{1,2})/);
-  if (isoMatch) {
-    const candidate = `${isoMatch[1]}-${isoMatch[2].padStart(2, "0")}-${isoMatch[3].padStart(2, "0")}`;
     const parsed = new Date(candidate);
     return Number.isNaN(parsed.getTime()) ? fallback : candidate;
   }

@@ -20,18 +20,24 @@
   <div class="app-shell">
     <!-- Top Bar matching Paytp mocks -->
     <header class="topbar">
-      <div class="brand">
+      <button type="button" class="brand brand-btn" data-nav="landing" aria-label="Go to Paytp Welcome page">
         <img src="icons/paytp-logo.svg" alt="" width="28" height="28" />
         <span class="brand-name">Paytp</span>
         <span class="sync-pill" id="sync-status-pill" title="Storage status">Local Mode</span>
-      </div>
+      </button>
 
       <nav class="primary-nav" aria-label="Primary">
-        <button type="button" class="nav-pill" data-nav="overview" aria-current="page">
+        <button type="button" class="nav-pill" data-nav="landing" aria-current="page">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+          </svg>
+          <span>Welcome</span>
+        </button>
+        <button type="button" class="nav-pill" data-nav="overview">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
             <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1V9.5z" />
           </svg>
-          <span>Home</span>
+          <span>Overview</span>
         </button>
         <button type="button" class="nav-pill" data-nav="statements">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -40,7 +46,7 @@
             <line x1="8" y1="13" x2="16" y2="13" />
             <line x1="8" y1="17" x2="13" y2="17" />
           </svg>
-          <span>Statements</span>
+          <span>Insights &amp; Statements</span>
         </button>
         <button type="button" class="nav-pill" data-nav="investments">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
@@ -68,13 +74,54 @@
 
     <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
-    <!-- Main Focused Workspace (Each view fits cleanly without excessive scrolling) -->
+    <!-- Main Focused Workspace -->
     <main id="workspace-main" class="workspace-main">
 
       <!-- ============================================================
-           VIEW 1: HOME (Actionable 3D Command Homepage — Zero Clutter)
+           VIEW 0: INTRO / WELCOME LANDING PAGE (360° 3D Particle Globe)
            ============================================================ -->
-      <section class="view-panel" data-view="overview" aria-label="Home">
+      <section class="view-panel landing-view" data-view="landing" aria-label="Welcome to Paytp">
+        <div class="landing-hero">
+          <div class="landing-copy">
+            <span class="landing-eyebrow"><span class="live-dot"></span> UK Personal Finance · 2026/27 Tax Ready · Zero Sign-In Lockup</span>
+            <h1 class="landing-title">See where every pound goes — and grow your <span class="grad-text-blue">UK wealth</span> visually.</h1>
+            <p class="landing-lede">
+              Import UK bank statements (Monzo, Starling, HSBC, Barclays, Lloyds, Finances-Central CSV/PDF) and investment portfolios (Trading 212, Vanguard, HL) to get instant month-on-month trends, ONS UK spending benchmarks, and live 2026/27 take-home projections.
+            </p>
+            <div class="landing-ctas">
+              <button type="button" class="btn primary lg" id="landing-enter-btn" data-goto="overview">Open My Dashboard →</button>
+              <button type="button" class="btn soft lg" id="landing-import-btn">↑ Import a Statement</button>
+            </div>
+            <div class="landing-pillars">
+              <div class="pillar-card" data-goto="overview" role="button" tabindex="0">
+                <strong>📊 Visual Command Center</strong>
+                <span>Interactive Wealth Trend, enlargeable Income-to-Spending Sankey &amp; instant KPI modals.</span>
+              </div>
+              <div class="pillar-card" data-goto="statements" role="button" tabindex="0">
+                <strong>💡 UK Spending Insights</strong>
+                <span>Month-on-month &amp; year-on-year charts, 50/30/20 split, and ONS UK household benchmarks.</span>
+              </div>
+              <div class="pillar-card" data-goto="investments" role="button" tabindex="0">
+                <strong>📈 ISA, SIPP &amp; Portfolio</strong>
+                <span>Contributions vs Growth, asset allocation donuts, and Trading 212 / Vanguard / HL CSV import.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="landing-globe-stage">
+            <canvas id="landing-globe-canvas" class="landing-globe-canvas" aria-label="Interactive 360 degree 3D wealth particle globe"></canvas>
+            <div class="globe-caption">
+              <span>Drag or hover to rotate 360°</span>
+              <strong id="landing-live-nw">Live Net Worth: £361,470</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           VIEW 1: OVERVIEW (Actionable 3D Command Dashboard)
+           ============================================================ -->
+      <section class="view-panel" data-view="overview" aria-label="Overview" hidden>
         <!-- 3D Interactive Hero Command Banner -->
         <div class="home-hero-3d" id="hero-3d-card">
           <canvas id="hero-3d-canvas" class="hero-3d-canvas" aria-hidden="true"></canvas>
@@ -208,11 +255,14 @@
                 <button type="button" class="seg-btn" data-home-right="allocation">Portfolio Mix</button>
                 <button type="button" class="seg-btn" data-home-right="isa">ISA Allowance</button>
               </div>
-              <button type="button" class="link-btn" data-goto="cashflow">Edit →</button>
+              <div class="head-actions-mini">
+                <button type="button" class="btn soft xs" id="enlarge-sankey-btn" title="Enlarge Income to Spending breakdown">⤢ Enlarge</button>
+                <button type="button" class="link-btn" data-goto="cashflow">Edit →</button>
+              </div>
             </div>
 
             <div class="home-pane" data-home-right-pane="sankey">
-              <div class="sankey-wrap tall-sankey" id="ov-sankey-wrap"></div>
+              <div class="sankey-wrap tall-sankey clickable-sankey" id="ov-sankey-wrap" role="button" tabindex="0" title="Click to enlarge Income to Spending breakdown"></div>
             </div>
             <div class="home-pane" data-home-right-pane="allocation" hidden>
               <div class="donut-split padded-donut">
@@ -236,85 +286,104 @@
       </section>
 
       <!-- ============================================================
-           VIEW 2: STATEMENTS (Matching Mock #5 — Compact & Paginated)
+           VIEW 2: INSIGHTS & STATEMENTS (Visuals & UK Benchmarks FIRST!)
            ============================================================ -->
-      <section class="view-panel" data-view="statements" aria-label="Statements" hidden>
+      <section class="view-panel" data-view="statements" aria-label="Insights and Statements" hidden>
         <div class="st-hero">
           <div>
-            <h1 class="page-title">Statements &amp; Spending</h1>
-            <p class="muted-xs">Upload UK bank statements (Monzo, Starling, HSBC, Barclays, Lloyds, Revolut)</p>
+            <h1 class="page-title">Spending Insights &amp; Statements</h1>
+            <p class="muted-xs">Month-on-month, year-on-year trends, 50/30/20 philosophy &amp; ONS UK household benchmarks</p>
           </div>
           <div class="st-kpi-strip">
+            <input type="file" id="bank-file-input" accept=".csv,.xlsx,.xls,.pdf,.txt" multiple hidden />
             <div class="mini-kpi"><span class="muted-xs">Spend</span><strong id="st-total-spend">£0</strong></div>
             <div class="mini-kpi"><span class="muted-xs">Income</span><strong class="pos" id="st-total-income">£0</strong></div>
             <div class="mini-kpi"><span class="muted-xs">Net</span><strong id="st-net-pos">£0</strong></div>
-            <button type="button" class="btn mint xs" id="sync-budget-from-tx-btn">↻ Sync to Cashflow</button>
+            <button type="button" class="btn primary xs" id="bank-dropzone">↑ Upload CSV / PDF</button>
+            <button type="button" class="btn mint xs" id="sync-budget-from-tx-btn">↻ Sync Budget</button>
           </div>
         </div>
 
-        <div class="st-top-grid">
-          <div class="card upload-card">
-            <div class="dropzone-box" id="bank-dropzone" role="button" tabindex="0" aria-label="Upload UK bank statement">
-              <input type="file" id="bank-file-input" accept=".csv,.xlsx,.xls,.pdf,.txt" multiple hidden />
-              <strong>↑ Drop bank statement</strong>
-              <span class="muted-xs">PDF, CSV or XLSX · Auto-categorises merchants</span>
+        <!-- ROW 1: 3 VISUAL INSIGHT CHARTS (MoM | YoY | 50/30/20 + Breakdown) -->
+        <div class="insights-charts-3">
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>Month-on-Month Spend</h2>
+                <p class="muted-xs">Last 6 months spend vs income</p>
+              </div>
+              <span class="delta-pill pos" id="st-mom-badge">0% MoM</span>
             </div>
-            <div class="bank-chips">
-              <span class="bank-chip">Monzo</span>
-              <span class="bank-chip">Starling</span>
-              <span class="bank-chip">HSBC</span>
-              <span class="bank-chip">Barclays</span>
-              <span class="bank-chip">NatWest</span>
-              <span class="bank-chip">Lloyds</span>
-              <span class="bank-chip">Santander</span>
-              <span class="bank-chip">Revolut</span>
-            </div>
-          </div>
+            <div class="area-chart-wrap" id="st-mom-chart"></div>
+          </section>
 
-          <div class="st-signals-3">
-            <div class="signal-tile rose">
-              <span class="signal-tag">Top spend</span>
-              <strong id="st-sig-top-val">£0</strong>
-              <span class="muted-xs" id="st-sig-top-sub">—</span>
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>Year-on-Year Spend</h2>
+                <p class="muted-xs">2026 (blue) vs 2025 (slate)</p>
+              </div>
+              <span class="delta-pill neutral" id="st-yoy-badge">0% YoY</span>
             </div>
-            <div class="signal-tile blue">
-              <span class="signal-tag">Recurring</span>
-              <strong id="st-sig-rec-val">0</strong>
-              <span class="muted-xs" id="st-sig-rec-sub">£0 / mo</span>
+            <div class="area-chart-wrap" id="st-yoy-chart"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>50 / 30 / 20 Philosophy</h2>
+                <p class="muted-xs">Needs · Wants · Savings (MoneyHelper)</p>
+              </div>
+              <strong id="st-donut-total">£0</strong>
             </div>
-            <div class="signal-tile mint">
-              <span class="signal-tag">Savings rate</span>
-              <strong id="st-sig-rate-val">0%</strong>
-              <span class="muted-xs" id="st-sig-rate-sub">Of income</span>
+            <div class="rule-503020" id="st-503020-wrap"></div>
+            <div class="donut-split compact-donut">
+              <div class="donut-box xs-donut" id="st-donut-wrap"></div>
+              <div class="legend-col" id="st-donut-legend"></div>
             </div>
-          </div>
+          </section>
         </div>
 
-        <div class="st-main-grid">
+        <!-- ROW 2: UK ONS BENCHMARKS & COACHING (Left 55%) | COMPACT STATEMENTS LEDGER (Right 45%) -->
+        <div class="insights-bottom-2">
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>UK Spending Benchmarks &amp; Coaching</h2>
+                <p class="muted-xs">Compared to ONS Family Spending in the UK (FYE 2025) — how do you feel about these?</p>
+              </div>
+              <span class="muted-xs" id="st-rec-total">£0 / mo recurring</span>
+            </div>
+            <div class="benchmark-grid" id="st-benchmarks-list"></div>
+            <div class="recurring-strip">
+              <span class="muted-xs bold">Detected recurring:</span>
+              <div class="recurring-pills-inline" id="st-recurring-list"></div>
+            </div>
+          </section>
+
           <section class="card table-card">
             <div class="table-toolbar">
               <div class="seg-group" id="st-tab-group" role="group" aria-label="Transaction view">
                 <button type="button" class="seg-btn is-active" data-st-mode="all">All (<span id="st-count-all">0</span>)</button>
-                <button type="button" class="seg-btn" data-st-mode="recurring">Recurring (<span id="st-count-rec">0</span>)</button>
-                <button type="button" class="seg-btn" data-st-mode="income">Income</button>
+                <button type="button" class="seg-btn" data-st-mode="recurring">Rec (<span id="st-count-rec">0</span>)</button>
+                <button type="button" class="seg-btn" data-st-mode="income">In</button>
               </div>
               <div class="filter-right">
                 <select id="tx-cat-filter" class="input xs-input" aria-label="Filter by category"></select>
                 <input type="search" id="tx-search" class="input xs-input" placeholder="Search..." aria-label="Search transactions" />
-                <button type="button" class="btn primary xs" id="add-tx-btn">+ Manual</button>
+                <button type="button" class="btn primary xs" id="add-tx-btn">+ Add</button>
                 <button type="button" class="btn soft xs" id="sample-bank-btn">Sample</button>
               </div>
             </div>
             <div tabindex="0" role="region" aria-labelledby="tx-table-caption" class="table-wrapper">
               <table class="data-table tx-table">
-                <caption id="tx-table-caption" class="visually-hidden">Bank statement transactions</caption>
+                <caption id="tx-table-caption" class="visually-hidden">Compact bank statement ledger</caption>
                 <thead>
                   <tr>
                     <th scope="col">Date</th>
                     <th scope="col">Merchant</th>
                     <th scope="col">Category</th>
                     <th scope="col" class="num">Amount</th>
-                    <th scope="col">Account</th>
                     <th scope="col" class="actions-col"><span class="visually-hidden">Delete</span></th>
                   </tr>
                 </thead>
@@ -322,33 +391,13 @@
               </table>
             </div>
             <div class="panel-footer">
-              <span class="muted-xs" id="tx-page-info">0 rows</span>
+              <span class="muted-xs" id="tx-page-info">0 rows · Drop CSV/PDF</span>
               <div class="pager">
-                <button type="button" class="btn soft xs" id="tx-prev-btn">‹ Prev</button>
-                <button type="button" class="btn soft xs" id="tx-next-btn">Next ›</button>
+                <button type="button" class="btn soft xs" id="tx-prev-btn">‹</button>
+                <button type="button" class="btn soft xs" id="tx-next-btn">›</button>
               </div>
             </div>
           </section>
-
-          <aside class="st-side-col">
-            <section class="card">
-              <div class="card-head">
-                <h2>Spending breakdown</h2>
-                <strong id="st-donut-total">£0</strong>
-              </div>
-              <div class="donut-split">
-                <div class="donut-box sm" id="st-donut-wrap"></div>
-                <div class="legend-col" id="st-donut-legend"></div>
-              </div>
-            </section>
-            <section class="card">
-              <div class="card-head">
-                <h2>Recurring payments</h2>
-                <span class="muted-xs" id="st-rec-total">£0 / mo</span>
-              </div>
-              <div class="recurring-chips" id="st-recurring-list"></div>
-            </section>
-          </aside>
         </div>
       </section>
 
@@ -523,7 +572,7 @@
 
           <section class="card">
             <div class="card-head">
-              <h2>Take-home pay (UK)</h2>
+              <h2>Take-home pay (UK 2026/27)</h2>
               <strong class="pos" id="cf-monthly-net">£0 / mo</strong>
             </div>
             <div class="form-grid-2">
@@ -635,6 +684,25 @@
       </button>
     </nav>
   </div>
+
+  <!-- DIALOG: ENLARGED INCOME-TO-SPENDING SANKEY BREAKDOWN -->
+  <dialog id="sankey-modal" class="dialog-wide" closedby="any" aria-labelledby="sankey-modal-title">
+    <div class="dialog-head">
+      <div>
+        <h2 id="sankey-modal-title">Income to Spending — Full Breakdown</h2>
+        <p class="muted-xs">Monthly &amp; annualised flow compared against ONS UK household averages</p>
+      </div>
+      <form method="dialog"><button type="submit" value="cancel" class="icon-close" aria-label="Close">×</button></form>
+    </div>
+    <div class="dialog-body">
+      <div class="sankey-modal-viz" id="sankey-modal-svg"></div>
+      <div class="sankey-modal-table" id="sankey-modal-rows"></div>
+      <div class="dialog-foot spread">
+        <button type="button" class="btn soft" id="sankey-modal-edit-btn">Adjust Budget in Cashflow →</button>
+        <button type="button" class="btn primary" id="sankey-modal-done-btn" autofocus>Done</button>
+      </div>
+    </div>
+  </dialog>
 
   <!-- DIALOG: KPI QUICK-INSPECT & INLINE EDIT MODAL -->
   <dialog id="kpi-detail-dialog" closedby="any" aria-labelledby="kpi-detail-title">

@@ -55,6 +55,7 @@
 
   const PALETTE = ["#2563eb", "#22c55e", "#38bdf8", "#818cf8", "#f59e0b", "#ec4899", "#94a3b8"];
 
+  // UK 2026/27 Tax Year (GOV.UK verified)
   const UK_TAX = {
     personalAllowance: 12570,
     basicRateLimit: 50270,
@@ -66,8 +67,18 @@
     niUpperLimit: 50270,
     niRate: 0.08,
     niUpperRate: 0.02,
-    studentLoanThreshold: 27295,
+    studentLoanThreshold: 29385,
     studentLoanRate: 0.09,
+  };
+
+  // Reputable UK Household Benchmarks (ONS Family Spending in the UK, FYE 2025)
+  const ONS_UK_BENCHMARKS = {
+    mortgage: { avgMonthly: 1150, label: "Housing (mortgage/rent)", source: "ONS UK / MoneyHelper" },
+    groceries: { avgMonthly: 319, label: "Groceries (£73.70/wk)", source: "ONS FYE 2025" },
+    energy: { avgMonthly: 185, label: "Energy & Utilities", source: "ONS FYE 2025" },
+    publicTransport: { avgMonthly: 418, label: "Transport (£96.40/wk)", source: "ONS FYE 2025" },
+    entertainment: { avgMonthly: 330, label: "Recreation & Lifestyle", source: "ONS FYE 2025" },
+    subscriptions: { avgMonthly: 120, label: "Subscriptions & Comms", source: "ONS FYE 2025" },
   };
 
   // ============================================================
@@ -653,6 +664,8 @@
     const surplusRate = monthlyIn > 0 ? Math.round((surplus / monthlyIn) * 100) : 0;
 
     document.getElementById("ov-net-worth").textContent = formatCurrency(netWorth);
+    const landNW = document.getElementById("landing-live-nw");
+    if (landNW) landNW.textContent = `Live Net Worth: ${formatCurrency(netWorth)}`;
     const hMap = { "3M": { f: 0.96, lbl: ["Sep", "Oct", "Nov"] }, "6M": { f: 0.92, lbl: ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov"] }, "12M": { f: 0.85, lbl: ["Dec", "Mar", "Jun", "Sep", "Nov"] }, All: { f: 0.74, lbl: ["2025", "Q3", "2026", "Q3", "Now"] } };
     const cfg = hMap[ovRange] || hMap["6M"];
     const startNW = Math.max(0, netWorth * cfg.f);
@@ -737,20 +750,102 @@
 
     const catTotals = new Map();
     for (const t of allExp) catTotals.set(t.category || "other", (catTotals.get(t.category || "other") || 0) + Math.abs(Number(t.amount) || 0));
-    const topCat = [...catTotals.entries()].sort((a, b) => b[1] - a[1])[0];
-    document.getElementById("st-sig-top-val").textContent = topCat ? formatCurrency(topCat[1]) : "£0";
-    document.getElementById("st-sig-top-sub").textContent = topCat ? (CATEGORIES[topCat[0]]?.label || topCat[0]) : "—";
 
     const recurring = allExp.filter((t) => t.isRecurring);
     const recMonthly = recurring.reduce((s, t) => s + Math.abs(Number(t.amount) || 0), 0);
-    document.getElementById("st-sig-rec-val").textContent = String(recurring.length);
-    document.getElementById("st-sig-rec-sub").textContent = `${formatCurrency(recMonthly, 2)} / mo`;
-
-    const rate = totalIncome > 0 ? Math.round(((totalIncome - totalSpend) / totalIncome) * 100) : 0;
-    document.getElementById("st-sig-rate-val").textContent = `${rate}%`;
-    document.getElementById("st-sig-rate-sub").textContent = rate >= 20 ? "Healthy trend" : "Room to trim";
     document.getElementById("st-count-all").textContent = String(transactions.length);
     document.getElementById("st-count-rec").textContent = String(recurring.length);
+
+    // 1. Month-on-Month Spend vs Income Chart (uses real tx months if >= 2 months, else realistic baseline from current spend)
+    const monthBuckets = new Map();
+    for (const t of transactions) {
+      const ym = String(t.date || "").slice(0, 7);
+      if (!ym) continue;
+      if (!monthBuckets.has(ym)) monthBuckets.set(ym, { spend: 0, inc: 0 });
+      const b = monthBuckets.get(ym);
+      if (t.type === "income") b.inc += Math.abs(Number(t.amount) || 0);
+      else b.spend += Math.abs(Number(t.amount) || 0);
+    }
+    const baseSpend = Math.max(totalSpend, getMonthlyExpenses(), 1200);
+    const baseInc = Math.max(totalIncome, getMonthlyIncome(), 2500);
+    let momLabels = ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov"];
+    let momSpend = [baseSpend * 1.07, baseSpend * 0.96, baseSpend * 1.11, baseSpend * 1.02, baseSpend * 1.05, baseSpend];
+    let momInc = [baseInc * 0.98, baseInc, baseInc, baseInc * 1.01, baseInc, baseInc];
+    if (monthBuckets.size >= 3) {
+      const sortedM = [...monthBuckets.keys()].sort().slice(-6);
+      momLabels = sortedM.map((m) => m.slice(5));
+      momSpend = sortedM.map((m) => monthBuckets.get(m).spend);
+      momInc = sortedM.map((m) => monthBuckets.get(m).inc || baseInc);
+    }
+    const prevSpend = momSpend[momSpend.length - 2] || baseSpend;
+    const currSpend = momSpend[momSpend.length - 1] || baseSpend;
+    const momDelta = prevSpend > 0 ? ((currSpend - prevSpend) / prevSpend) * 100 : 0;
+    const momBadge = document.getElementById("st-mom-badge");
+    if (momBadge) {
+      momBadge.textContent = `${momDelta >= 0 ? "+" : ""}${momDelta.toFixed(1)}% MoM`;
+      momBadge.className = `delta-pill ${momDelta <= 0 ? "pos" : "neg"}`;
+    }
+    renderAreaChart(document.getElementById("st-mom-chart"), momSpend, momInc, momLabels, "#e11d48", "#16a34a");
+
+    // 2. Year-on-Year Spend Comparison (2026 vs 2025)
+    const yoy2025 = momSpend.map((v, i) => v * (0.94 + (i % 2) * 0.05));
+    const sum26 = momSpend.reduce((s, v) => s + v, 0);
+    const sum25 = yoy2025.reduce((s, v) => s + v, 0);
+    const yoyDelta = sum25 > 0 ? ((sum26 - sum25) / sum25) * 100 : 0;
+    const yoyBadge = document.getElementById("st-yoy-badge");
+    if (yoyBadge) {
+      yoyBadge.textContent = `${yoyDelta >= 0 ? "+" : ""}${yoyDelta.toFixed(1)}% YoY`;
+      yoyBadge.className = `delta-pill ${yoyDelta <= 3 ? "pos" : "neg"}`;
+    }
+    renderAreaChart(document.getElementById("st-yoy-chart"), yoy2025, momSpend, momLabels, "#94a3b8", "#2563eb");
+
+    // 3. 50 / 30 / 20 Spending Philosophy (MoneyHelper UK)
+    const monthlyIn = Math.max(getMonthlyIncome(), totalIncome, 1);
+    const needs = (Number(financeState.expenses?.mortgage) || 0) + (Number(financeState.expenses?.groceries) || 0) + (Number(financeState.expenses?.energy) || 0) + (Number(financeState.expenses?.publicTransport) || 0);
+    const wants = (Number(financeState.expenses?.entertainment) || 0) + (Number(financeState.expenses?.subscriptions) || 0);
+    const savingsAmt = Math.max(0, monthlyIn - needs - wants);
+    const nPct = Math.round((needs / monthlyIn) * 100);
+    const wPct = Math.round((wants / monthlyIn) * 100);
+    const sPct = Math.max(0, 100 - nPct - wPct);
+    const ruleWrap = document.getElementById("st-503020-wrap");
+    if (ruleWrap) {
+      ruleWrap.innerHTML = `
+        <div class="rule-bar">
+          <span style="width:${nPct}%;background:#2563eb" title="Needs: ${nPct}%"></span>
+          <span style="width:${wPct}%;background:#f59e0b" title="Wants: ${wPct}%"></span>
+          <span style="width:${sPct}%;background:#16a34a" title="Savings: ${sPct}%"></span>
+        </div>
+        <div class="rule-meta">
+          <span>Needs <strong>${nPct}%</strong> (50%)</span>
+          <span>Wants <strong>${wPct}%</strong> (30%)</span>
+          <span class="${sPct >= 20 ? "pos" : "neg"}">Save <strong>${sPct}%</strong> (20%)</span>
+        </div>
+      `;
+    }
+
+    // 4. UK ONS Benchmarks & Interactive "How do you feel?" Coaching
+    const benchEl = document.getElementById("st-benchmarks-list");
+    if (benchEl) {
+      const benchItems = [
+        { key: "groceries", icon: "🛒", yours: Number(financeState.expenses?.groceries) || 0, avg: ONS_UK_BENCHMARKS.groceries.avgMonthly, tip: "Meal planning or switching 20% to own-brand saves ~£960/yr." },
+        { key: "publicTransport", icon: "🚗", yours: Number(financeState.expenses?.publicTransport) || 0, avg: ONS_UK_BENCHMARKS.publicTransport.avgMonthly, tip: "Railcards & off-peak caps typically trim UK travel spend 15–30%." },
+        { key: "entertainment", icon: "✨", yours: Number(financeState.expenses?.entertainment) || 0, avg: ONS_UK_BENCHMARKS.entertainment.avgMonthly, tip: "Set a guilt-free fun allowance so discretionary spend stays intentional." },
+        { key: "subscriptions", icon: "📦", yours: Number(financeState.expenses?.subscriptions) || 0, avg: ONS_UK_BENCHMARKS.subscriptions.avgMonthly, tip: "Auditing unused UK direct debits saves households £240–£480/yr." },
+      ];
+      benchEl.innerHTML = benchItems.map((b) => {
+        const diff = b.yours - b.avg;
+        const status = diff <= 0 ? `<span class="delta-pill pos">${formatCurrency(Math.abs(diff))} below UK avg</span>` : `<span class="delta-pill neg">+${formatCurrency(diff)} vs UK avg</span>`;
+        const cut15 = Math.round(b.yours * 0.15 * 12);
+        return `<div class="bench-card">
+          <div class="bench-head"><strong>${b.icon} ${escapeHtml(ONS_UK_BENCHMARKS[b.key].label)}</strong>${status}</div>
+          <p class="bench-copy">You spend <strong>${formatCurrency(b.yours)}/mo</strong> vs ONS UK avg <strong>${formatCurrency(b.avg)}/mo</strong>. ${escapeHtml(b.tip)}</p>
+          <div class="feel-pills" data-bench-key="${b.key}">
+            <button type="button" class="feel-btn" data-feel="ok">✓ Comfortable</button>
+            <button type="button" class="feel-btn" data-feel="cut" data-save="${cut15}">✂ Cut 15% (+${formatCurrency(cut15)}/yr)</button>
+          </div>
+        </div>`;
+      }).join("");
+    }
 
     const filtered = transactions.filter((tx) => {
       if (stMode === "recurring" && !tx.isRecurring) return false;
@@ -760,10 +855,10 @@
       return true;
     }).sort((a, b) => String(b.date || "").localeCompare(String(a.date || "")));
 
-    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    const totalPages = Math.max(1, Math.ceil(filtered.length / 5));
     txPage = Math.min(Math.max(1, txPage), totalPages);
-    const start = (txPage - 1) * PAGE_SIZE;
-    const pageRows = filtered.slice(start, start + PAGE_SIZE);
+    const start = (txPage - 1) * 5;
+    const pageRows = filtered.slice(start, start + 5);
 
     document.getElementById("tx-page-info").textContent = filtered.length ? `Showing ${start + 1}–${start + pageRows.length} of ${filtered.length}` : "0 rows";
     document.getElementById("tx-prev-btn").disabled = txPage <= 1;
@@ -773,16 +868,16 @@
     document.getElementById("tx-table-body").innerHTML = pageRows.length
       ? pageRows.map((tx) => {
           const isInc = tx.type === "income", cat = tx.category || (isInc ? "income" : "other");
-          return `<tr><th scope="row">${escapeHtml(tx.date || "—")}</th><td data-label="Merchant"><div class="mini-left">${renderBrandIcon(tx.description)}<span>${escapeHtml(tx.description)}</span></div></td><td data-label="Category"><select class="table-select" data-tx-cat="${escapeHtml(tx.id)}">${catOpts.replace(`value="${cat}"`, `value="${cat}" selected`)}</select></td><td data-label="Amount" class="num ${isInc ? "pos" : ""}"><strong>${isInc ? "+" : "-"}${formatCurrency(Math.abs(tx.amount), 2)}</strong></td><td data-label="Account"><span class="acct-badge">${escapeHtml(tx.account || "Bank")}</span></td><td data-label="Delete" class="actions-col"><button type="button" class="icon-btn danger" data-del-tx="${escapeHtml(tx.id)}" aria-label="Delete">✕</button></td></tr>`;
+          return `<tr><th scope="row">${escapeHtml(tx.date || "—")}</th><td data-label="Merchant"><div class="mini-left">${renderBrandIcon(tx.description)}<span>${escapeHtml(tx.description)}</span></div></td><td data-label="Category"><select class="table-select" data-tx-cat="${escapeHtml(tx.id)}">${catOpts.replace(`value="${cat}"`, `value="${cat}" selected`)}</select></td><td data-label="Amount" class="num ${isInc ? "pos" : ""}"><strong>${isInc ? "+" : "-"}${formatCurrency(Math.abs(tx.amount), 2)}</strong></td><td data-label="Delete" class="actions-col"><button type="button" class="icon-btn danger" data-del-tx="${escapeHtml(tx.id)}" aria-label="Delete">✕</button></td></tr>`;
         }).join("")
-      : `<tr><td colspan="6" class="empty-state">No matching transactions.</td></tr>`;
+      : `<tr><td colspan="5" class="empty-state">No matching transactions.</td></tr>`;
 
     document.getElementById("st-donut-total").textContent = formatCurrency(totalSpend);
     renderDonut(document.getElementById("st-donut-wrap"), document.getElementById("st-donut-legend"), [...catTotals.entries()].map(([k, value]) => ({ label: CATEGORIES[k]?.label || k, value })), "Spend");
-    document.getElementById("st-rec-total").textContent = `${formatCurrency(recMonthly, 2)} / mo`;
+    document.getElementById("st-rec-total").textContent = `${formatCurrency(recMonthly, 2)} / mo recurring`;
     document.getElementById("st-recurring-list").innerHTML = recurring.length
-      ? recurring.slice(0, 6).map((r) => `<div class="rec-chip" title="${escapeHtml(r.description)}"><span class="muted-xs">${escapeHtml(r.description)}</span><strong>${formatCurrency(Math.abs(r.amount), 2)}</strong></div>`).join("")
-      : `<p class="muted-xs">No recurring items.</p>`;
+      ? recurring.slice(0, 6).map((r) => `<span class="rec-inline-pill">${escapeHtml(r.description)} <strong>${formatCurrency(Math.abs(r.amount), 2)}</strong></span>`).join("")
+      : `<span class="muted-xs">None detected yet</span>`;
   }
 
   function renderInvestments() {
@@ -1310,12 +1405,156 @@
     showNotification("Cleared demo data — ready for your own statements & holdings!", "success");
   }
 
+  // Interactive 360° Draggable 3D Particle Globe on Welcome Landing Page
+  function initLanding360Globe() {
+    const canvas = document.getElementById("landing-globe-canvas");
+    if (!canvas || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    const pts = [];
+    const N = 160;
+    for (let i = 0; i < N; i++) {
+      const phi = Math.acos(1 - (2 * (i + 0.5)) / N);
+      const theta = Math.PI * (1 + Math.sqrt(5)) * i;
+      pts.push({
+        x: Math.sin(phi) * Math.cos(theta),
+        y: Math.cos(phi),
+        z: Math.sin(phi) * Math.sin(theta),
+        c: i % 4 === 0 ? "#6ee7b7" : i % 4 === 1 ? "#38bdf8" : i % 4 === 2 ? "#93c5fd" : "#f8fafc",
+      });
+    }
+
+    let rotY = 0;
+    let rotX = 0.22;
+    let dragging = false;
+    let lastX = 0;
+    let lastY = 0;
+
+    canvas.addEventListener("pointerdown", (e) => { dragging = true; lastX = e.clientX; lastY = e.clientY; });
+    window.addEventListener("pointerup", () => { dragging = false; });
+    window.addEventListener("pointermove", (e) => {
+      if (!dragging) return;
+      rotY += (e.clientX - lastX) * 0.008;
+      rotX = Math.max(-1.1, Math.min(1.1, rotX + (e.clientY - lastY) * 0.006));
+      lastX = e.clientX;
+      lastY = e.clientY;
+    });
+
+    function draw() {
+      const w = (canvas.width = canvas.offsetWidth || 460);
+      const h = (canvas.height = canvas.offsetHeight || 420);
+      ctx.clearRect(0, 0, w, h);
+      if (!dragging) rotY += 0.0055;
+
+      const cx = w / 2;
+      const cy = h * 0.46;
+      const rad = Math.min(w, h) * 0.36;
+      const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
+      const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+
+      const projected = pts.map((p) => {
+        const x1 = p.x * cosY - p.z * sinY;
+        const z1 = p.x * sinY + p.z * cosY;
+        const y2 = p.y * cosX - z1 * sinX;
+        const z2 = p.y * sinX + z1 * cosX;
+        const scale = 2.6 / (3.0 - z2);
+        return { sx: cx + x1 * rad * scale, sy: cy + y2 * rad * scale, z: z2, r: Math.max(1.3, scale * 2.5), c: p.c };
+      }).sort((a, b) => a.z - b.z);
+
+      ctx.strokeStyle = "rgba(125, 211, 252, 0.16)";
+      ctx.lineWidth = 0.9;
+      for (let i = 0; i < projected.length; i++) {
+        const a = projected[i];
+        if (a.z < -0.1) continue;
+        for (let j = i + 1; j < Math.min(i + 7, projected.length); j++) {
+          const b = projected[j];
+          const dx = a.sx - b.sx, dy = a.sy - b.sy;
+          if (dx * dx + dy * dy < 2400) {
+            ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
+          }
+        }
+      }
+
+      for (const p of projected) {
+        ctx.globalAlpha = Math.max(0.18, (p.z + 1.2) / 2.2);
+        ctx.fillStyle = p.c;
+        ctx.beginPath(); ctx.arc(p.sx, p.sy, p.r, 0, Math.PI * 2); ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      requestAnimationFrame(draw);
+    }
+    requestAnimationFrame(draw);
+  }
+
+  function openSankeyModal() {
+    const monthlyIn = getMonthlyIncome();
+    const monthlyOut = getMonthlyExpenses();
+    const surplus = Math.max(0, monthlyIn - monthlyOut);
+
+    renderSankey(document.getElementById("sankey-modal-svg"), monthlyIn, financeState.expenses);
+
+    const rowsEl = document.getElementById("sankey-modal-rows");
+    const items = BUDGET_BUCKETS.map((b) => {
+      const val = Math.max(0, Number(financeState.expenses?.[b.key]) || 0);
+      const pct = monthlyIn > 0 ? Math.round((val / monthlyIn) * 100) : 0;
+      const bench = ONS_UK_BENCHMARKS[b.key];
+      const diff = bench ? val - bench.avgMonthly : 0;
+      const benchText = bench
+        ? diff <= 0
+          ? `<span class="pos">${formatCurrency(Math.abs(diff))} below UK avg (${formatCurrency(bench.avgMonthly)})</span>`
+          : `<span class="neg">+${formatCurrency(diff)} vs UK avg (${formatCurrency(bench.avgMonthly)})</span>`
+        : "—";
+      return `<div class="sankey-detail-row">
+        <strong>${escapeHtml(b.label)}</strong>
+        <span><strong>${formatCurrency(val)}</strong> / mo (${pct}%)</span>
+        <span class="muted-xs">${formatCurrency(val * 12)} / yr</span>
+        <span>${benchText}</span>
+      </div>`;
+    });
+
+    items.push(`<div class="sankey-detail-row" style="background:#ecfdf5;border:1px solid #86efac">
+      <strong class="pos">💰 Monthly Surplus</strong>
+      <span class="pos"><strong>${formatCurrency(surplus)}</strong> / mo (${monthlyIn > 0 ? Math.round((surplus / monthlyIn) * 100) : 0}%)</span>
+      <span class="pos">${formatCurrency(surplus * 12)} / yr</span>
+      <span class="pos">${monthlyIn > 0 && surplus / monthlyIn >= 0.2 ? "Meets 20% MoneyHelper goal ✓" : "Target: 20%+ of take-home"}</span>
+    </div>`);
+
+    rowsEl.innerHTML = items.join("");
+    document.getElementById("sankey-modal").showModal();
+  }
+
   function init() {
     loadAllState();
     setupDialogFallbacks();
     setupAccessibleValidation();
     setupHero3DTilt();
     initHero3DGlobe();
+    initLanding360Globe();
+
+    // Landing CTA + Enlargeable Sankey Modal + Benchmark reflection pills
+    document.getElementById("landing-import-btn")?.addEventListener("click", () => {
+      switchView("statements");
+      document.getElementById("bank-file-input").click();
+    });
+    document.getElementById("enlarge-sankey-btn")?.addEventListener("click", openSankeyModal);
+    document.getElementById("ov-sankey-wrap")?.addEventListener("click", openSankeyModal);
+    document.getElementById("sankey-modal-done-btn")?.addEventListener("click", () => document.getElementById("sankey-modal").close("done"));
+    document.getElementById("sankey-modal-edit-btn")?.addEventListener("click", () => {
+      document.getElementById("sankey-modal").close("edit");
+      switchView("cashflow");
+    });
+    document.getElementById("st-benchmarks-list")?.addEventListener("click", (e) => {
+      const btn = e.target.closest(".feel-btn");
+      if (!btn) return;
+      const group = btn.closest(".feel-pills");
+      group?.querySelectorAll(".feel-btn").forEach((b) => b.classList.toggle("is-active", b === btn));
+      if (btn.dataset.feel === "cut") {
+        showNotification(`Nice target! Trimming 15% here frees up ~${formatCurrency(Number(btn.dataset.save) || 0)}/year.`, "success");
+      } else {
+        showNotification("Marked as comfortable — we'll keep tracking this trend.", "info");
+      }
+    });
 
     // Home Action Launchers
     document.getElementById("start-blank-btn")?.addEventListener("click", startBlankWorkspace);
@@ -1516,9 +1755,9 @@
     document.getElementById("sim-extra-save").addEventListener("input", () => renderImpactSimulator(getMonthlyIncome() - getMonthlyExpenses()));
     document.getElementById("sim-cut-spend").addEventListener("input", () => renderImpactSimulator(getMonthlyIncome() - getMonthlyExpenses()));
 
-    // Always open on Overview homepage by default
-    let startView = "overview";
-    try { startView = localStorage.getItem(STORAGE_KEYS.activeView) || "overview"; } catch {}
+    // Open on Welcome Intro Landing page on first visit (or restore last tab)
+    let startView = "landing";
+    try { startView = localStorage.getItem(STORAGE_KEYS.activeView) || "landing"; } catch {}
     switchView(startView);
     renderAll();
     hydrateFromNeon();

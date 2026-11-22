@@ -611,8 +611,21 @@ async function parsePDF(file) {
         updateProgress(30 + (i / pdf.numPages) * 40, `Reading page ${i} of ${pdf.numPages}...`);
         const page = await pdf.getPage(i);
         const textContent = await page.getTextContent();
-        const pageText = textContent.items.map((item) => item.str).join(" ");
-        fullText += pageText + "\n";
+        // Reconstruct real visual lines using PDF Y-coordinates (critical for UK bank tables like Halifax/Lloyds/HSBC)
+        const lineMap = new Map();
+        for (const item of textContent.items) {
+          const str = String(item.str || "").trim();
+          if (!str) continue;
+          const y = Math.round((item.transform?.[5] || 0) / 3) * 3;
+          const x = item.transform?.[4] || 0;
+          if (!lineMap.has(y)) lineMap.set(y, []);
+          lineMap.get(y).push({ x, str });
+        }
+        const sortedYs = [...lineMap.keys()].sort((a, b) => b - a);
+        for (const y of sortedYs) {
+          const rowText = lineMap.get(y).sort((a, b) => a.x - b.x).map((c) => c.str).join(" ");
+          fullText += rowText + "\n";
+        }
       }
 
       updateProgress(75, "Extracting transactions...");
@@ -629,60 +642,76 @@ async function parsePDF(file) {
   });
 }
 
-// Extract transactions from unstructured text (for PDFs like Virgin Media)
+// Extract transactions from UK bank PDFs (Halifax, Lloyds, Barclays, HSBC, Monzo, Virgin, Octopus)
 function extractTransactionsFromText(text) {
   const transactions = [];
+  const monthNames = { jan: "01", feb: "02", mar: "03", apr: "04", may: "05", jun: "06", jul: "07", aug: "08", sep: "09", oct: "10", nov: "11", dec: "12" };
 
-  // Pattern for amounts: £X,XXX.XX or £X.XX or -£X.XX
-  const amountPattern = /[-]?£[\d,]+\.?\d{0,2}/g;
+  // Matches: 04 Apr 24, 04 Apr 2024, 04/04/2024, 2024-04-04
+  const datePattern = /\b(?:\d{1,2}\s+(?:Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)[a-z]*\s+\d{2,4}|\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}|\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4})\b/i;
+  // Matches £12.34, -£12.34, or plain UK bank decimal 1,234.56
+  const amountPattern = /[-+]?£?\d{1,3}(?:,\d{3})*\.\d{2}\b/g;
 
-  // Pattern for dates
-  const datePattern = /\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}/g;
+  const parseBankPdfDate = (raw) => {
+    if (!raw) return null;
+    const m = raw.match(/^(\d{1,2})\s+([A-Za-z]{3})[a-z]*\s+(\d{2,4})$/);
+    if (m) {
+      const mon = monthNames[m[2].toLowerCase()];
+      if (mon) {
+        const yr = m[3].length === 2 ? `20${m[3]}` : m[3];
+        return `${yr}-${mon}-${m[1].padStart(2, "0")}`;
+      }
+    }
+    return parseDate(raw, { fallbackToToday: false });
+  };
 
-  // Find all amounts
-  const amounts = text.match(amountPattern) || [];
-  const dates = text.match(datePattern) || [];
+  const skipLineRe = /(balance brought forward|balance carried forward|opening balance|closing balance|statement period|money in \(£\)|money out \(£\)|total payments|page \d+ of \d+|sort code|account number)/i;
 
-  // Extract lines that contain amounts
-  const lines = text.split(/\n|\r/).filter((line) => amountPattern.test(line));
+  const lines = text.split(/\n|\r/).map((l) => l.trim()).filter(Boolean);
+  let lastDate = null;
 
-  lines.forEach((line, idx) => {
+  lines.forEach((line) => {
+    if (skipLineRe.test(line)) return;
     const lineAmounts = line.match(amountPattern);
     if (!lineAmounts || lineAmounts.length === 0) return;
 
-    // Get the primary amount (usually the last one on the line)
-    const amountStr = lineAmounts[lineAmounts.length - 1];
-    const amount = parseFloat(amountStr.replace(/[£,]/g, "")) || 0;
+    const dateMatch = line.match(datePattern);
+    const parsedDate = dateMatch ? parseBankPdfDate(dateMatch[0]) : lastDate;
+    if (dateMatch && parsedDate) lastDate = parsedDate;
+    if (!parsedDate) return;
 
+    // On UK bank statements with running balance at end of line (2+ amounts), the transaction amount is the one BEFORE the running balance
+    const amtStr = lineAmounts.length >= 2 ? lineAmounts[lineAmounts.length - 2] : lineAmounts[lineAmounts.length - 1];
+    let amount = parseFloat(amtStr.replace(/[£,+]/g, "")) || 0;
     if (amount === 0) return;
 
-    // Extract description (text before the amount)
-    let desc = line.replace(amountPattern, "").trim();
-    desc = desc.replace(datePattern, "").trim();
-    desc = desc.replace(/\s+/g, " ").trim();
+    // Determine income vs expense using UK bank codes (Halifax/Lloyds/HSBC)
+    const isCredit = /\b(FPI|BGC|CR|DEP|SALARY|REFUND|INTEREST|DIVIDEND)\b/i.test(line) || amtStr.startsWith("+");
+    const isDebit = /\b(DEB|DD|SO|FPO|CPT|CHG|ATM|CARD|PAYMENT|BILL)\b/i.test(line) || amtStr.startsWith("-");
+    if (isCredit && !isDebit) amount = Math.abs(amount);
+    else if (isDebit || amount > 0) amount = -Math.abs(amount);
 
-    // Skip very short or numeric-only descriptions
-    if (desc.length < 3 || /^\d+$/.test(desc)) {
-      desc = "Unknown Transaction";
-    }
+    let desc = line
+      .replace(datePattern, "")
+      .replace(amountPattern, "")
+      .replace(/\b(DEB|DD|SO|FPO|FPI|BGC|CPT|CHG|CR)\b/g, "")
+      .replace(/\s+/g, " ")
+      .trim();
 
-    // Try to find a date in this line or nearby
-    const lineDates = line.match(datePattern);
-    const dateStr = lineDates ? lineDates[0] : (dates[idx] || null);
+    if (desc.length < 3 || /^\d+$/.test(desc)) return;
 
     transactions.push({
-      id: generateSecureId('pdf'),
-      date: parseDate(dateStr),
-      description: desc.substring(0, 100),
-      amount: amount,
+      id: generateSecureId("pdf"),
+      date: parsedDate,
+      description: desc.substring(0, 90),
+      amount,
       type: amount >= 0 ? "income" : "expense",
       category: null,
       isRecurring: false,
-      selected: true
+      selected: true,
     });
   });
 
-  // Remove duplicates
   const seen = new Set();
   return transactions.filter((tx) => {
     const key = `${tx.date}-${tx.amount}-${tx.description.substring(0, 20)}`;

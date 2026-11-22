@@ -4,7 +4,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Paytp — Unified Personal Finance & Investments</title>
+  <title>Paytp — Personal Finance, Statements & Investments</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
@@ -18,157 +18,341 @@
   <a href="#workspace-main" class="skip-link">Skip to workspace</a>
 
   <div class="app-shell">
-    <!-- Single Compact Top Bar -->
+    <!-- Top Bar matching Paytp mocks -->
     <header class="topbar">
       <div class="brand">
-        <img src="icons/paytp-logo.svg" alt="" width="26" height="26" />
+        <img src="icons/paytp-logo.svg" alt="" width="28" height="28" />
         <span class="brand-name">Paytp</span>
         <span class="sync-pill" id="sync-status-pill" title="Storage status">Local Mode</span>
       </div>
 
-      <div class="topbar-actions">
-        <input type="file" id="bank-file-input" accept=".csv,.xlsx,.xls,.pdf,.txt" multiple hidden />
-        <input type="file" id="inv-file-input" accept=".csv,.txt" hidden />
-        <button type="button" class="btn soft compact" id="top-import-bank-btn">↑ Bank CSV/PDF</button>
-        <button type="button" class="btn soft compact" id="top-import-inv-btn">↑ Broker CSV</button>
-        <button type="button" class="btn soft compact" id="open-cashflow-btn">£ Cashflow &amp; Tax</button>
-        <button type="button" class="btn mint compact" id="quick-holding-btn">+ Holding</button>
-        <button type="button" class="btn ghost compact" id="reset-demo-btn" title="Restore sample UK finances">Reset</button>
+      <nav class="primary-nav" aria-label="Primary">
+        <button type="button" class="nav-pill" data-nav="overview" aria-current="page">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1V9.5z" />
+          </svg>
+          <span>Overview</span>
+        </button>
+        <button type="button" class="nav-pill" data-nav="statements">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="8" y1="13" x2="16" y2="13" />
+            <line x1="8" y1="17" x2="13" y2="17" />
+          </svg>
+          <span>Statements</span>
+        </button>
+        <button type="button" class="nav-pill" data-nav="investments">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <line x1="6" y1="20" x2="6" y2="14" />
+            <line x1="12" y1="20" x2="12" y2="9" />
+            <line x1="18" y1="20" x2="18" y2="4" />
+          </svg>
+          <span>Investments</span>
+        </button>
+        <button type="button" class="nav-pill" data-nav="cashflow">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+            <polyline points="2 12 12 17 22 12" />
+            <polyline points="2 17 12 22 22 17" />
+          </svg>
+          <span>Cashflow</span>
+        </button>
+      </nav>
+
+      <div class="topbar-right">
+        <button type="button" class="btn soft xs" id="reset-demo-btn" title="Restore sample UK finances">Reset Demo</button>
+        <button type="button" class="btn mint xs" id="quick-holding-btn">+ Add Holding</button>
       </div>
     </header>
 
     <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
-    <!-- ============================================================
-         ZERO-SCROLL UNIFIED COMMAND CENTER
-         ============================================================ -->
-    <main id="workspace-main" class="command-center">
+    <!-- Main Focused Workspace (Each view fits cleanly without excessive scrolling) -->
+    <main id="workspace-main" class="workspace-main">
 
-      <!-- TOP KPI STRIP (4 Compact Live Tiles) -->
-      <section class="kpi-strip" aria-label="Financial summary">
-        <article class="kpi-card primary-kpi">
-          <div class="kpi-head-row">
-            <span class="kpi-label">Net Worth</span>
-            <span class="delta-pill pos" id="kpi-nw-delta">+8.7%</span>
+      <!-- ============================================================
+           VIEW 1: OVERVIEW (Clear Visual Homepage matching Mock #3 & #10)
+           ============================================================ -->
+      <section class="view-panel" data-view="overview" aria-label="Overview">
+        <!-- Hero Net Worth + Interactive Wealth Trend Chart -->
+        <div class="hero-card">
+          <div class="hero-left">
+            <p class="eyebrow">Your financial picture</p>
+            <h1 class="hero-amount" id="ov-net-worth">£0</h1>
+            <div class="hero-delta-row">
+              <span class="muted-xs">Net worth</span>
+              <span class="delta-pill pos" id="ov-net-delta">↑ +0.0%</span>
+              <span class="muted-xs" id="ov-net-horizon">vs 6M</span>
+            </div>
           </div>
-          <div class="kpi-val-spark">
-            <strong class="kpi-big" id="kpi-net-worth">£0</strong>
-            <div class="mini-spark" id="kpi-nw-spark"></div>
-          </div>
-          <span class="kpi-sub" id="kpi-nw-sub">Cash + Investments − Debt</span>
-        </article>
 
-        <article class="kpi-card">
-          <div class="kpi-head-row">
-            <span class="kpi-label">Investments</span>
-            <span class="delta-pill pos" id="kpi-inv-return">+0.0%</span>
+          <div class="hero-chart-area">
+            <div class="hero-chart-controls">
+              <div class="seg-group" id="ov-range-group" role="group" aria-label="Net worth timeframe">
+                <button type="button" class="seg-btn" data-ov-range="3M">3M</button>
+                <button type="button" class="seg-btn is-active" data-ov-range="6M">6M</button>
+                <button type="button" class="seg-btn" data-ov-range="12M">12M</button>
+                <button type="button" class="seg-btn" data-ov-range="All">All</button>
+              </div>
+              <div class="change-chip">
+                <span class="pos" id="ov-change-val">+£0</span>
+                <span class="muted-xs" id="ov-change-label">Net worth change (6M)</span>
+              </div>
+            </div>
+            <div class="trend-svg-wrap" id="ov-wealth-chart"></div>
           </div>
-          <strong class="kpi-num" id="kpi-investments">£0</strong>
-          <span class="kpi-sub" id="kpi-inv-sub">0 holdings · 0% ISA/SIPP</span>
-        </article>
+        </div>
 
-        <article class="kpi-card interactive-kpi" id="kpi-surplus-card" role="button" tabindex="0" aria-label="Edit UK salary, tax and monthly budget">
-          <div class="kpi-head-row">
-            <span class="kpi-label">Monthly Surplus</span>
-            <span class="delta-pill pos" id="kpi-surplus-pct">0% kept</span>
-          </div>
-          <strong class="kpi-num" id="kpi-surplus">£0</strong>
-          <span class="kpi-sub" id="kpi-surplus-sub">Click to edit salary &amp; budget →</span>
-        </article>
+        <!-- 4 Compact KPI Tiles -->
+        <div class="kpi-row-4">
+          <article class="kpi-tile clickable" data-goto="cashflow">
+            <div class="kpi-icon blue">£</div>
+            <div class="kpi-body">
+              <div class="kpi-top">
+                <strong class="kpi-num" id="ov-surplus">£0</strong>
+                <span class="delta-pill pos" id="ov-surplus-pct">0%</span>
+              </div>
+              <span class="kpi-sub">Monthly surplus</span>
+            </div>
+          </article>
+          <article class="kpi-tile clickable" data-goto="cashflow">
+            <div class="kpi-icon sky">▤</div>
+            <div class="kpi-body">
+              <div class="kpi-top">
+                <strong class="kpi-num" id="ov-cash">£0</strong>
+              </div>
+              <span class="kpi-sub" id="ov-cash-sub">Cash &amp; savings</span>
+            </div>
+          </article>
+          <article class="kpi-tile clickable" data-goto="investments">
+            <div class="kpi-icon mint">↗</div>
+            <div class="kpi-body">
+              <div class="kpi-top">
+                <strong class="kpi-num" id="ov-investments">£0</strong>
+                <span class="delta-pill pos" id="ov-inv-pct">+0.0%</span>
+              </div>
+              <span class="kpi-sub">Investments</span>
+            </div>
+          </article>
+          <article class="kpi-tile clickable" data-goto="cashflow">
+            <div class="kpi-icon slate">▭</div>
+            <div class="kpi-body">
+              <div class="kpi-top">
+                <strong class="kpi-num" id="ov-debt">£0</strong>
+                <span class="delta-pill neutral" id="ov-debt-pill">Debt</span>
+              </div>
+              <span class="kpi-sub">Total liabilities</span>
+            </div>
+          </article>
+        </div>
 
-        <article class="kpi-card interactive-kpi" id="kpi-cash-card" role="button" tabindex="0" aria-label="Edit cash savings and debt balances">
-          <div class="kpi-head-row">
-            <span class="kpi-label">Cash &amp; Debt</span>
-            <span class="delta-pill neutral" id="kpi-runway">0 mo</span>
-          </div>
-          <strong class="kpi-num" id="kpi-cash">£0</strong>
-          <span class="kpi-sub" id="kpi-debt-sub">Debt: £0</span>
-        </article>
+        <!-- Middle 3-Col Visual Bento: Income Flow Sankey | Portfolio Donut | Financial Signals -->
+        <div class="bento-3">
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>Income to spending</h2>
+                <p class="muted-xs">Where your money goes each month</p>
+              </div>
+              <button type="button" class="link-btn" data-goto="cashflow">Edit →</button>
+            </div>
+            <div class="sankey-wrap" id="ov-sankey-wrap"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>Portfolio allocation</h2>
+                <p class="muted-xs">Investments by asset class</p>
+              </div>
+              <button type="button" class="link-btn" data-goto="investments">Details →</button>
+            </div>
+            <div class="donut-split">
+              <div class="donut-box" id="ov-donut-wrap"></div>
+              <div class="legend-col" id="ov-allocation-legend"></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>Financial signals</h2>
+                <p class="muted-xs">Key insights from your data</p>
+              </div>
+            </div>
+            <div class="signals-stack" id="ov-signals"></div>
+          </section>
+        </div>
+
+        <!-- Bottom 3-Col Bento: Top Holdings | Recent Activity | ISA Goal Progress -->
+        <div class="bento-3">
+          <section class="card">
+            <div class="card-head">
+              <h2>Top holdings</h2>
+              <button type="button" class="link-btn" data-goto="investments">View all →</button>
+            </div>
+            <div class="mini-list" id="ov-top-holdings"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h2>Recent activity</h2>
+              <button type="button" class="link-btn" data-goto="statements">View all →</button>
+            </div>
+            <div class="mini-list" id="ov-recent-tx"></div>
+          </section>
+
+          <section class="card goal-card">
+            <div class="goal-banner" aria-hidden="true"></div>
+            <div class="goal-body">
+              <p class="muted-xs">Tax-year allowance tracker</p>
+              <h2>UK ISA Allowance (£20,000)</h2>
+              <div class="progress-row">
+                <div class="progress-track"><div class="progress-fill" id="ov-isa-fill"></div></div>
+                <strong id="ov-isa-pct">0%</strong>
+              </div>
+              <div class="goal-foot">
+                <span class="muted-xs" id="ov-isa-sub">£0 in ISA</span>
+                <div class="goal-actions">
+                  <button type="button" class="btn soft xs" id="ov-upload-bank-btn">↑ Bank CSV</button>
+                  <button type="button" class="btn soft xs" id="ov-upload-inv-btn">↑ Broker CSV</button>
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
       </section>
 
-      <!-- Narrow-viewport switcher (prevents vertical stacking scroll on split panes / mobile) -->
-      <div class="narrow-switch" id="narrow-switch" role="group" aria-label="Switch panel">
-        <button type="button" class="seg-btn is-active" data-pane="statements">Bank Statements</button>
-        <button type="button" class="seg-btn" data-pane="investments">Investments</button>
-      </div>
+      <!-- ============================================================
+           VIEW 2: STATEMENTS (Matching Mock #5 — Compact & Paginated)
+           ============================================================ -->
+      <section class="view-panel" data-view="statements" aria-label="Statements" hidden>
+        <div class="st-hero">
+          <div>
+            <h1 class="page-title">Statements &amp; Spending</h1>
+            <p class="muted-xs">Upload UK bank statements (Monzo, Starling, HSBC, Barclays, Lloyds, Revolut)</p>
+          </div>
+          <div class="st-kpi-strip">
+            <div class="mini-kpi"><span class="muted-xs">Spend</span><strong id="st-total-spend">£0</strong></div>
+            <div class="mini-kpi"><span class="muted-xs">Income</span><strong class="pos" id="st-total-income">£0</strong></div>
+            <div class="mini-kpi"><span class="muted-xs">Net</span><strong id="st-net-pos">£0</strong></div>
+            <button type="button" class="btn mint xs" id="sync-budget-from-tx-btn">↻ Sync to Cashflow</button>
+          </div>
+        </div>
 
-      <!-- MAIN 2-COLUMN WORKSPACE: STATEMENTS (Left) | INVESTMENTS (Right) -->
-      <div class="split-workspace" data-active-pane="statements">
-
-        <!-- LEFT PANEL: BANK STATEMENTS -->
-        <section class="panel workspace-col" data-pane-col="statements" id="bank-dropzone" aria-label="Bank statements and spending">
-          <div class="panel-header">
-            <div>
-              <h2>Bank Statements</h2>
-              <p class="muted-xs" id="st-summary-line">In £0 · Out £0 · Net £0</p>
+        <div class="st-top-grid">
+          <div class="card upload-card">
+            <div class="dropzone-box" id="bank-dropzone" role="button" tabindex="0" aria-label="Upload UK bank statement">
+              <input type="file" id="bank-file-input" accept=".csv,.xlsx,.xls,.pdf,.txt" multiple hidden />
+              <strong>↑ Drop bank statement</strong>
+              <span class="muted-xs">PDF, CSV or XLSX · Auto-categorises merchants</span>
             </div>
-            <div class="head-btns">
-              <button type="button" class="btn soft xs" id="bank-upload-inline-btn" title="Upload UK Bank CSV, XLSX, or PDF">↑ Upload</button>
-              <button type="button" class="btn mint xs" id="sync-budget-btn" title="Sync spending to budget">↻ Sync</button>
-              <button type="button" class="btn primary xs" id="add-tx-btn">+ Entry</button>
-              <button type="button" class="btn soft xs" id="sample-bank-btn">Sample</button>
+            <div class="bank-chips">
+              <span class="bank-chip">Monzo</span>
+              <span class="bank-chip">Starling</span>
+              <span class="bank-chip">HSBC</span>
+              <span class="bank-chip">Barclays</span>
+              <span class="bank-chip">NatWest</span>
+              <span class="bank-chip">Lloyds</span>
+              <span class="bank-chip">Santander</span>
+              <span class="bank-chip">Revolut</span>
             </div>
           </div>
 
-          <div class="compact-toolbar">
-            <div class="seg-group" id="st-mode-group" role="group" aria-label="Filter transactions">
-              <button type="button" class="seg-btn is-active" data-st-mode="all">All (<span id="st-count-all">0</span>)</button>
-              <button type="button" class="seg-btn" data-st-mode="recurring">Recurring (<span id="st-count-rec">0</span>)</button>
-              <button type="button" class="seg-btn" data-st-mode="income">Income</button>
+          <div class="st-signals-3">
+            <div class="signal-tile rose">
+              <span class="signal-tag">Top spend</span>
+              <strong id="st-sig-top-val">£0</strong>
+              <span class="muted-xs" id="st-sig-top-sub">—</span>
             </div>
-            <div class="toolbar-inputs">
-              <select id="tx-cat-filter" class="input xs-input" aria-label="Filter by category"></select>
-              <input type="search" id="tx-search" class="input xs-input" placeholder="Search..." aria-label="Search transactions" />
+            <div class="signal-tile blue">
+              <span class="signal-tag">Recurring</span>
+              <strong id="st-sig-rec-val">0</strong>
+              <span class="muted-xs" id="st-sig-rec-sub">£0 / mo</span>
             </div>
-          </div>
-
-          <div tabindex="0" role="region" aria-labelledby="tx-table-caption" class="table-wrapper">
-            <table class="data-table tx-table">
-              <caption id="tx-table-caption" class="visually-hidden">Bank statement transactions</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Date</th>
-                  <th scope="col">Merchant</th>
-                  <th scope="col">Category</th>
-                  <th scope="col" class="num">Amount</th>
-                  <th scope="col" class="actions-col"><span class="visually-hidden">Delete</span></th>
-                </tr>
-              </thead>
-              <tbody id="tx-table-body"></tbody>
-            </table>
-          </div>
-
-          <div class="panel-footer">
-            <span class="muted-xs" id="tx-page-info">0 rows · Drop CSV/XLSX/PDF anywhere here</span>
-            <div class="pager">
-              <button type="button" class="btn soft xs" id="tx-prev-btn" aria-label="Previous transactions page">‹ Prev</button>
-              <button type="button" class="btn soft xs" id="tx-next-btn" aria-label="Next transactions page">Next ›</button>
+            <div class="signal-tile mint">
+              <span class="signal-tag">Savings rate</span>
+              <strong id="st-sig-rate-val">0%</strong>
+              <span class="muted-xs" id="st-sig-rate-sub">Of income</span>
             </div>
           </div>
-        </section>
+        </div>
 
-        <!-- RIGHT PANEL: INVESTMENTS -->
-        <section class="panel workspace-col" data-pane-col="investments" id="inv-dropzone" aria-label="Investments portfolio">
-          <div class="panel-header">
-            <div>
-              <h2>Investments</h2>
-              <p class="muted-xs" id="inv-summary-line">Cost £0 · Gain £0</p>
+        <div class="st-main-grid">
+          <section class="card table-card">
+            <div class="table-toolbar">
+              <div class="seg-group" id="st-tab-group" role="group" aria-label="Transaction view">
+                <button type="button" class="seg-btn is-active" data-st-mode="all">All (<span id="st-count-all">0</span>)</button>
+                <button type="button" class="seg-btn" data-st-mode="recurring">Recurring (<span id="st-count-rec">0</span>)</button>
+                <button type="button" class="seg-btn" data-st-mode="income">Income</button>
+              </div>
+              <div class="filter-right">
+                <select id="tx-cat-filter" class="input xs-input" aria-label="Filter by category"></select>
+                <input type="search" id="tx-search" class="input xs-input" placeholder="Search..." aria-label="Search transactions" />
+                <button type="button" class="btn primary xs" id="add-tx-btn">+ Manual</button>
+                <button type="button" class="btn soft xs" id="sample-bank-btn">Sample</button>
+              </div>
             </div>
-            <div class="head-btns">
-              <button type="button" class="btn soft xs" id="inv-import-btn">↑ CSV</button>
-              <button type="button" class="btn mint xs" id="add-holding-btn">+ Holding</button>
-              <button type="button" class="btn soft xs" id="sample-inv-btn">Sample</button>
+            <div tabindex="0" role="region" aria-labelledby="tx-table-caption" class="table-wrapper">
+              <table class="data-table tx-table">
+                <caption id="tx-table-caption" class="visually-hidden">Bank statement transactions</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Date</th>
+                    <th scope="col">Merchant</th>
+                    <th scope="col">Category</th>
+                    <th scope="col" class="num">Amount</th>
+                    <th scope="col">Account</th>
+                    <th scope="col" class="actions-col"><span class="visually-hidden">Delete</span></th>
+                  </tr>
+                </thead>
+                <tbody id="tx-table-body"></tbody>
+              </table>
             </div>
-          </div>
+            <div class="panel-footer">
+              <span class="muted-xs" id="tx-page-info">0 rows</span>
+              <div class="pager">
+                <button type="button" class="btn soft xs" id="tx-prev-btn">‹ Prev</button>
+                <button type="button" class="btn soft xs" id="tx-next-btn">Next ›</button>
+              </div>
+            </div>
+          </section>
 
-          <!-- Slim 1-Row Allocation Bar -->
-          <div class="alloc-bar-wrap">
-            <div class="alloc-bar" id="inv-alloc-bar" aria-hidden="true"></div>
-            <div class="alloc-legend" id="inv-alloc-legend"></div>
-          </div>
+          <aside class="st-side-col">
+            <section class="card">
+              <div class="card-head">
+                <h2>Spending breakdown</h2>
+                <strong id="st-donut-total">£0</strong>
+              </div>
+              <div class="donut-split">
+                <div class="donut-box sm" id="st-donut-wrap"></div>
+                <div class="legend-col" id="st-donut-legend"></div>
+              </div>
+            </section>
+            <section class="card">
+              <div class="card-head">
+                <h2>Recurring payments</h2>
+                <span class="muted-xs" id="st-rec-total">£0 / mo</span>
+              </div>
+              <div class="recurring-chips" id="st-recurring-list"></div>
+            </section>
+          </aside>
+        </div>
+      </section>
 
-          <div class="compact-toolbar">
-            <div class="pill-filters" id="inv-account-filters" role="group" aria-label="Filter holdings by account">
+      <!-- ============================================================
+           VIEW 3: INVESTMENTS (Matching Mock #8 — Charts + Paginated Holdings)
+           ============================================================ -->
+      <section class="view-panel" data-view="investments" aria-label="Investments" hidden>
+        <div class="inv-header">
+          <div>
+            <h1 class="page-title">Investments</h1>
+            <p class="muted-xs">Portfolio performance, Contributions vs Growth, and brokerage CSV imports</p>
+          </div>
+          <div class="inv-head-actions">
+            <input type="file" id="inv-file-input" accept=".csv,.txt" hidden />
+            <div class="pill-filters" id="inv-account-filters" role="group" aria-label="Filter by account">
               <button type="button" class="filter-pill is-active" data-inv-filter="all">All</button>
               <button type="button" class="filter-pill" data-inv-filter="ISA">ISA</button>
               <button type="button" class="filter-pill" data-inv-filter="SIPP">SIPP</button>
@@ -176,137 +360,276 @@
               <button type="button" class="filter-pill" data-inv-filter="Crypto">Crypto</button>
               <button type="button" class="filter-pill" data-inv-filter="Cash">Cash</button>
             </div>
-            <input type="search" id="inv-search" class="input xs-input" placeholder="Ticker..." aria-label="Search holdings" />
+            <button type="button" class="btn soft xs" id="inv-import-trigger-btn">↑ Import CSV</button>
+            <button type="button" class="btn mint xs" id="add-holding-btn">+ Holding</button>
+            <button type="button" class="btn soft xs" id="sample-inv-btn">Sample</button>
           </div>
+        </div>
 
-          <div tabindex="0" role="region" aria-labelledby="inv-table-caption" class="table-wrapper">
-            <table class="data-table inv-table">
-              <caption id="inv-table-caption" class="visually-hidden">Investment holdings</caption>
-              <thead>
-                <tr>
-                  <th scope="col">Holding</th>
-                  <th scope="col">Acct</th>
-                  <th scope="col" class="num">Cost</th>
-                  <th scope="col" class="num">Value</th>
-                  <th scope="col" class="num">Return</th>
-                  <th scope="col" class="actions-col"><span class="visually-hidden">Actions</span></th>
-                </tr>
-              </thead>
-              <tbody id="inv-table-body"></tbody>
-            </table>
-          </div>
-
-          <div class="panel-footer">
-            <span class="muted-xs" id="inv-page-info">0 holdings · Drop Trading 212 / Vanguard / HL CSV</span>
-            <div class="pager">
-              <button type="button" class="btn soft xs" id="inv-prev-btn" aria-label="Previous holdings page">‹ Prev</button>
-              <button type="button" class="btn soft xs" id="inv-next-btn" aria-label="Next holdings page">Next ›</button>
+        <div class="kpi-row-4">
+          <article class="kpi-tile wide-kpi">
+            <div class="kpi-body">
+              <span class="kpi-sub">Portfolio value</span>
+              <strong class="kpi-big" id="inv-total-value">£0</strong>
+              <span class="muted-xs" id="inv-value-delta">0 holdings</span>
             </div>
+            <div class="mini-spark" id="inv-sparkline"></div>
+          </article>
+          <article class="kpi-tile">
+            <div class="kpi-icon mint">↗</div>
+            <div class="kpi-body">
+              <span class="kpi-sub">Total return</span>
+              <strong class="kpi-num pos" id="inv-total-return">+0.0%</strong>
+              <span class="muted-xs" id="inv-total-gain-sub">+£0</span>
+            </div>
+          </article>
+          <article class="kpi-tile">
+            <div class="kpi-icon blue">£</div>
+            <div class="kpi-body">
+              <span class="kpi-sub">Contributions (cost)</span>
+              <strong class="kpi-num" id="inv-total-cost">£0</strong>
+              <span class="muted-xs">Total invested</span>
+            </div>
+          </article>
+          <article class="kpi-tile">
+            <div class="kpi-icon sky">✦</div>
+            <div class="kpi-body">
+              <span class="kpi-sub">Tax-wrapped</span>
+              <strong class="kpi-num" id="inv-tax-wrapped">£0</strong>
+              <span class="muted-xs" id="inv-tax-wrapped-pct">0% ISA/SIPP</span>
+            </div>
+          </article>
+        </div>
+
+        <!-- 3 Visual Charts Row -->
+        <div class="inv-charts-3">
+          <section class="card">
+            <div class="card-head">
+              <div>
+                <h2>Contributions vs growth</h2>
+                <p class="muted-xs">Cost basis vs market value</p>
+              </div>
+              <select id="inv-range-select" class="input xs-input" aria-label="Timeframe">
+                <option value="12M">12M</option>
+                <option value="6M">6M</option>
+                <option value="3M">3M</option>
+              </select>
+            </div>
+            <div class="area-chart-wrap" id="inv-growth-chart"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head"><h2>Allocation by asset class</h2></div>
+            <div class="donut-split">
+              <div class="donut-box sm" id="inv-class-donut"></div>
+              <div class="legend-col" id="inv-class-legend"></div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-head"><h2>Allocation by account</h2></div>
+            <div class="donut-split">
+              <div class="donut-box sm" id="inv-acct-donut"></div>
+              <div class="legend-col" id="inv-acct-legend"></div>
+            </div>
+          </section>
+        </div>
+
+        <div class="inv-bottom-grid">
+          <section class="card table-card" id="inv-dropzone">
+            <div class="table-toolbar">
+              <h2>Holdings</h2>
+              <input type="search" id="inv-search" class="input xs-input" placeholder="Filter ticker..." aria-label="Search holdings" />
+            </div>
+            <div tabindex="0" role="region" aria-labelledby="inv-table-caption" class="table-wrapper">
+              <table class="data-table inv-table">
+                <caption id="inv-table-caption" class="visually-hidden">Investment holdings</caption>
+                <thead>
+                  <tr>
+                    <th scope="col">Holding</th>
+                    <th scope="col">Acct</th>
+                    <th scope="col">Class</th>
+                    <th scope="col" class="num">Cost</th>
+                    <th scope="col" class="num">Value</th>
+                    <th scope="col" class="num">Gain / Loss</th>
+                    <th scope="col" class="actions-col"><span class="visually-hidden">Actions</span></th>
+                  </tr>
+                </thead>
+                <tbody id="inv-table-body"></tbody>
+              </table>
+            </div>
+            <div class="panel-footer">
+              <span class="muted-xs" id="inv-page-info">0 holdings · Drop Trading 212 / Vanguard / HL CSV</span>
+              <div class="pager">
+                <button type="button" class="btn soft xs" id="inv-prev-btn">‹ Prev</button>
+                <button type="button" class="btn soft xs" id="inv-next-btn">Next ›</button>
+              </div>
+            </div>
+          </section>
+
+          <aside class="card insights-card">
+            <div class="card-head"><h2>Portfolio insights</h2></div>
+            <div class="signals-stack" id="inv-insights-list"></div>
+            <div class="conc-box">
+              <div class="conc-head">
+                <span class="muted-xs">Top 3 concentration</span>
+                <strong id="inv-conc-pct">0%</strong>
+              </div>
+              <div class="progress-track"><div class="progress-fill" id="inv-conc-bar"></div></div>
+              <span class="muted-xs" id="inv-conc-note">—</span>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <!-- ============================================================
+           VIEW 4: CASHFLOW (Matching Mock #11 — Fits 1 Screen Cleanly)
+           ============================================================ -->
+      <section class="view-panel" data-view="cashflow" aria-label="Cashflow" hidden>
+        <div class="cf-header">
+          <div>
+            <h1 class="page-title">Cashflow</h1>
+            <p class="muted-xs">UK take-home pay, monthly budget &amp; 3-year savings impact</p>
           </div>
+          <div class="inv-head-actions">
+            <div class="seg-group" id="cf-period-group" role="group" aria-label="Display period">
+              <button type="button" class="seg-btn is-active" data-cf-period="month">Month</button>
+              <button type="button" class="seg-btn" data-cf-period="year">Year</button>
+            </div>
+            <button type="button" class="btn mint xs" id="cf-sync-tx-btn">↻ Fill from Statements</button>
+          </div>
+        </div>
+
+        <div class="cf-top-3">
+          <section class="card surplus-gauge-card">
+            <div>
+              <span class="kpi-sub" id="cf-surplus-label">Monthly surplus</span>
+              <strong class="hero-amount sm" id="cf-surplus-val">£0</strong>
+              <span class="delta-pill pos" id="cf-surplus-badge">0% kept</span>
+            </div>
+            <div class="gauge-wrap" id="cf-gauge-wrap"></div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h2>Take-home pay (UK)</h2>
+              <strong class="pos" id="cf-monthly-net">£0 / mo</strong>
+            </div>
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="cf-salary">Gross salary (£)</label>
+                <input type="number" id="cf-salary" class="input compact-full" min="0" step="500" placeholder="88000" />
+              </div>
+              <div class="field">
+                <label for="cf-net-override">Net override (£/mo)</label>
+                <input type="number" id="cf-net-override" class="input compact-full" min="0" step="50" placeholder="Auto" />
+              </div>
+            </div>
+            <div class="switch-row">
+              <label class="switch-item"><span>Pension (5%)</span><input type="checkbox" id="cf-pension" class="toggle-switch" /></label>
+              <label class="switch-item"><span>Student loan (Plan 2)</span><input type="checkbox" id="cf-student-loan" class="toggle-switch" /></label>
+            </div>
+            <div class="tax-pills">
+              <span>Tax: <strong id="cf-monthly-tax">-£0</strong></span>
+              <span>NI: <strong id="cf-monthly-ni">-£0</strong></span>
+              <span>Other: <strong id="cf-monthly-extra">-£0</strong></span>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-head"><h2>Cash &amp; debt</h2></div>
+            <div class="form-grid-2">
+              <div class="field">
+                <label for="cf-savings">Cash &amp; savings (£)</label>
+                <input type="number" id="cf-savings" class="input compact-full" min="0" step="100" placeholder="46800" />
+              </div>
+              <div class="field">
+                <label for="cf-debt">Total debt (£)</label>
+                <input type="number" id="cf-debt" class="input compact-full" min="0" step="100" placeholder="0" />
+              </div>
+            </div>
+            <div class="net-pos-box">
+              <span class="muted-xs">Liquid net position</span>
+              <strong class="pos" id="cf-liquid-net">£0</strong>
+            </div>
+          </section>
+        </div>
+
+        <section class="card">
+          <div class="card-head">
+            <h2>Monthly budget</h2>
+            <span class="muted-xs"><strong id="cf-total-spend">£0</strong> total spend</span>
+          </div>
+          <div class="budget-cards-row" id="cf-budget-grid"></div>
         </section>
-      </div>
+
+        <div class="cf-bottom-2">
+          <section class="card">
+            <div class="card-head">
+              <h2>Adjust and see the impact</h2>
+            </div>
+            <div class="sim-layout">
+              <div class="sliders-col">
+                <div class="slider-block">
+                  <div class="slider-head">
+                    <label for="sim-extra-save">Extra monthly savings</label>
+                    <strong id="sim-extra-save-val">£0</strong>
+                  </div>
+                  <input type="range" id="sim-extra-save" min="0" max="2000" step="50" value="200" />
+                </div>
+                <div class="slider-block">
+                  <div class="slider-head">
+                    <label for="sim-cut-spend">Reduce monthly spending</label>
+                    <strong id="sim-cut-spend-val">£0</strong>
+                  </div>
+                  <input type="range" id="sim-cut-spend" min="0" max="1500" step="25" value="150" />
+                </div>
+              </div>
+              <div class="new-surplus-box">
+                <span class="muted-xs">✦ New surplus</span>
+                <strong id="sim-new-surplus">£0</strong>
+                <span class="delta-pill pos" id="sim-surplus-lift">+0%</span>
+              </div>
+            </div>
+          </section>
+
+          <section class="card">
+            <div class="card-head">
+              <h2>Projected savings (3 years)</h2>
+              <span class="delta-pill pos" id="sim-proj-3y">£0</span>
+            </div>
+            <div class="proj-chart-wrap" id="cf-proj-chart"></div>
+          </section>
+        </div>
+      </section>
     </main>
+
+    <!-- Mobile Bottom Tab Bar -->
+    <nav class="mobile-bottom-nav" aria-label="Mobile primary">
+      <button type="button" class="mnav-btn" data-nav="overview" aria-current="page">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1V9.5z"/></svg>
+        <span>Overview</span>
+      </button>
+      <button type="button" class="mnav-btn" data-nav="statements">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+        <span>Statements</span>
+      </button>
+      <button type="button" class="mnav-btn" data-nav="investments">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="9"/><line x1="18" y1="20" x2="18" y2="4"/></svg>
+        <span>Investments</span>
+      </button>
+      <button type="button" class="mnav-btn" data-nav="cashflow">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/></svg>
+        <span>Cashflow</span>
+      </button>
+    </nav>
   </div>
 
-  <!-- ============================================================
-       DIALOG 1: CASHFLOW, UK TAX & 3-YEAR IMPACT
-       ============================================================ -->
-  <dialog id="cashflow-dialog" class="dialog-wide" closedby="any" aria-labelledby="cashflow-dialog-title">
-    <div class="dialog-head">
-      <div>
-        <h2 id="cashflow-dialog-title">Cashflow, UK Tax &amp; Budget</h2>
-        <p class="muted-xs">Changes update Net Worth &amp; Monthly Surplus live</p>
-      </div>
-      <form method="dialog">
-        <button type="submit" value="cancel" class="icon-close" aria-label="Close dialog">×</button>
-      </form>
-    </div>
-    <div class="dialog-body">
-      <div class="cf-modal-grid">
-        <div class="cf-box">
-          <div class="box-head">
-            <strong>UK Take-Home Pay (2024/25)</strong>
-            <strong class="pos" id="cf-monthly-net">£0 / mo</strong>
-          </div>
-          <div class="form-grid-2">
-            <div class="field">
-              <label for="cf-salary">Gross Annual Salary (£)</label>
-              <input type="number" id="cf-salary" class="input" min="0" step="500" placeholder="88000" />
-            </div>
-            <div class="field">
-              <label for="cf-net-override">Net Override (£/mo)</label>
-              <input type="number" id="cf-net-override" class="input" min="0" step="50" placeholder="Auto" />
-            </div>
-          </div>
-          <div class="switch-row">
-            <label class="switch-item">
-              <span>Workplace Pension (5%)</span>
-              <input type="checkbox" id="cf-pension" class="toggle-switch" />
-            </label>
-            <label class="switch-item">
-              <span>Student Loan (Plan 2)</span>
-              <input type="checkbox" id="cf-student-loan" class="toggle-switch" />
-            </label>
-          </div>
-          <div class="tax-pills">
-            <span>Tax: <strong id="cf-monthly-tax">-£0</strong></span>
-            <span>NI: <strong id="cf-monthly-ni">-£0</strong></span>
-            <span>Other: <strong id="cf-monthly-extra">-£0</strong></span>
-          </div>
-        </div>
-
-        <div class="cf-box">
-          <div class="box-head">
-            <strong>Cash, Debt &amp; 3-Year Impact</strong>
-            <span class="delta-pill pos" id="sim-proj-3y">£0 in 3 yrs</span>
-          </div>
-          <div class="form-grid-2">
-            <div class="field">
-              <label for="cf-savings">Cash &amp; Savings (£)</label>
-              <input type="number" id="cf-savings" class="input" min="0" step="100" placeholder="46800" />
-            </div>
-            <div class="field">
-              <label for="cf-debt">Total Debt (£)</label>
-              <input type="number" id="cf-debt" class="input" min="0" step="100" placeholder="0" />
-            </div>
-          </div>
-          <div class="slider-block">
-            <div class="slider-head">
-              <label for="sim-extra-save">Extra monthly savings / cut spend</label>
-              <strong id="sim-extra-val">+£250/mo</strong>
-            </div>
-            <input type="range" id="sim-extra-save" min="0" max="2500" step="50" value="250" />
-          </div>
-          <div class="net-pos-box">
-            <span class="muted-xs">Liquid Net (Cash − Debt)</span>
-            <strong id="cf-liquid-net">£0</strong>
-          </div>
-        </div>
-      </div>
-
-      <div class="cf-box">
-        <div class="box-head">
-          <strong>Monthly Budget (<span id="cf-total-spend">£0</span>/mo)</strong>
-          <button type="button" class="btn mint xs" id="cf-sync-tx-btn">↻ Fill from Statements</button>
-        </div>
-        <div class="budget-grid-6" id="cf-budget-grid"></div>
-      </div>
-
-      <div class="dialog-foot">
-        <button type="button" class="btn primary" id="cf-done-btn" autofocus>Done</button>
-      </div>
-    </div>
-  </dialog>
-
-  <!-- ============================================================
-       DIALOG 2: ADD / EDIT INVESTMENT HOLDING
-       ============================================================ -->
+  <!-- DIALOGS: Holding CRUD, Manual Tx, Bank Import, Investment Import -->
   <dialog id="holding-dialog" closedby="any" aria-labelledby="holding-dialog-title">
     <div class="dialog-head">
       <h2 id="holding-dialog-title">Add Investment Holding</h2>
-      <form method="dialog">
-        <button type="submit" value="cancel" class="icon-close" aria-label="Close dialog">×</button>
-      </form>
+      <form method="dialog"><button type="submit" value="cancel" class="icon-close" aria-label="Close">×</button></form>
     </div>
     <form id="holding-form" class="dialog-body" novalidate>
       <input type="hidden" id="h-id" />
@@ -314,13 +637,13 @@
         <div class="field">
           <label for="h-name">Holding Name *</label>
           <span id="h-name-hint" class="hint">e.g. Vanguard FTSE All-World</span>
-          <input type="text" id="h-name" class="input" required autofocus aria-describedby="h-name-hint" data-error="h-name-error" placeholder="Vanguard FTSE All-World" />
+          <input type="text" id="h-name" class="input" required autofocus aria-describedby="h-name-hint" data-error="h-name-error" />
           <div id="h-name-error" class="error-msg"><span role="img" aria-label="Error">⚠</span> Enter a holding name.</div>
         </div>
         <div class="field">
           <label for="h-ticker">Ticker / Symbol</label>
           <span id="h-ticker-hint" class="hint">e.g. VWRP, AAPL, BTC</span>
-          <input type="text" id="h-ticker" class="input" aria-describedby="h-ticker-hint" placeholder="VWRP" />
+          <input type="text" id="h-ticker" class="input" aria-describedby="h-ticker-hint" />
         </div>
       </div>
       <div class="form-grid-2">
@@ -347,19 +670,16 @@
         </div>
       </div>
       <div class="form-grid-3">
-        <div class="field">
-          <label for="h-qty">Quantity</label>
-          <input type="number" id="h-qty" class="input" min="0" step="any" placeholder="10" />
-        </div>
+        <div class="field"><label for="h-qty">Quantity</label><input type="number" id="h-qty" class="input" min="0" step="any" /></div>
         <div class="field">
           <label for="h-cost">Total Cost (£) *</label>
-          <input type="number" id="h-cost" class="input" min="0" step="0.01" required data-error="h-cost-error" placeholder="1000" />
-          <div id="h-cost-error" class="error-msg"><span role="img" aria-label="Error">⚠</span> Enter 0 or a positive amount.</div>
+          <input type="number" id="h-cost" class="input" min="0" step="0.01" required data-error="h-cost-error" />
+          <div id="h-cost-error" class="error-msg"><span role="img" aria-label="Error">⚠</span> Enter 0 or positive.</div>
         </div>
         <div class="field">
           <label for="h-value">Current Value (£) *</label>
-          <input type="number" id="h-value" class="input" min="0" step="0.01" required data-error="h-value-error" placeholder="1150" />
-          <div id="h-value-error" class="error-msg"><span role="img" aria-label="Error">⚠</span> Enter 0 or a positive value.</div>
+          <input type="number" id="h-value" class="input" min="0" step="0.01" required data-error="h-value-error" />
+          <div id="h-value-error" class="error-msg"><span role="img" aria-label="Error">⚠</span> Enter 0 or positive.</div>
         </div>
       </div>
       <div class="dialog-foot">
@@ -369,59 +689,38 @@
     </form>
   </dialog>
 
-  <!-- ============================================================
-       DIALOG 3: MANUAL BANK TRANSACTION
-       ============================================================ -->
   <dialog id="tx-dialog" closedby="any" aria-labelledby="tx-dialog-title">
     <div class="dialog-head">
       <h2 id="tx-dialog-title">Add Transaction</h2>
-      <form method="dialog">
-        <button type="submit" value="cancel" class="icon-close" aria-label="Close dialog">×</button>
-      </form>
+      <form method="dialog"><button type="submit" value="cancel" class="icon-close" aria-label="Close">×</button></form>
     </div>
     <form id="tx-form" class="dialog-body" novalidate>
       <div class="form-grid-2">
-        <div class="field">
-          <label for="t-type">Type</label>
-          <select id="t-type" class="input">
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
-          </select>
-        </div>
+        <div class="field"><label for="t-type">Type</label><select id="t-type" class="input"><option value="expense">Expense</option><option value="income">Income</option></select></div>
         <div class="field">
           <label for="t-date">Date *</label>
           <input type="date" id="t-date" class="input" required data-error="t-date-error" />
-          <div id="t-date-error" class="error-msg"><span role="img" aria-label="Error">⚠</span> Select a valid date.</div>
+          <div id="t-date-error" class="error-msg"><span role="img" aria-label="Error">⚠</span> Select a date.</div>
         </div>
       </div>
       <div class="form-grid-2">
         <div class="field">
-          <label for="t-desc">Merchant / Description *</label>
-          <input type="text" id="t-desc" class="input" required autofocus data-error="t-desc-error" placeholder="e.g. Tesco Express" />
+          <label for="t-desc">Merchant *</label>
+          <input type="text" id="t-desc" class="input" required autofocus data-error="t-desc-error" />
           <div id="t-desc-error" class="error-msg"><span role="img" aria-label="Error">⚠</span> Enter a description.</div>
         </div>
         <div class="field">
           <label for="t-account">Bank Account</label>
-          <select id="t-account" class="input">
-            <option value="Monzo">Monzo</option>
-            <option value="Starling">Starling</option>
-            <option value="HSBC">HSBC</option>
-            <option value="Barclays">Barclays</option>
-            <option value="Lloyds">Lloyds</option>
-            <option value="Revolut">Revolut</option>
-          </select>
+          <select id="t-account" class="input"><option>Monzo</option><option>Starling</option><option>HSBC</option><option>Barclays</option><option>Lloyds</option><option>Revolut</option></select>
         </div>
       </div>
       <div class="form-grid-2">
         <div class="field">
           <label for="t-amount">Amount (£) *</label>
-          <input type="number" id="t-amount" class="input" min="0.01" step="0.01" required data-error="t-amount-error" placeholder="42.50" />
-          <div id="t-amount-error" class="error-msg"><span role="img" aria-label="Error">⚠</span> Enter an amount greater than 0.</div>
+          <input type="number" id="t-amount" class="input" min="0.01" step="0.01" required data-error="t-amount-error" />
+          <div id="t-amount-error" class="error-msg"><span role="img" aria-label="Error">⚠</span> Enter > 0.</div>
         </div>
-        <div class="field">
-          <label for="t-category">Category</label>
-          <select id="t-category" class="input"></select>
-        </div>
+        <div class="field"><label for="t-category">Category</label><select id="t-category" class="input"></select></div>
       </div>
       <div class="dialog-foot">
         <button type="button" class="btn soft" id="tx-cancel-btn">Cancel</button>
@@ -430,18 +729,10 @@
     </form>
   </dialog>
 
-  <!-- ============================================================
-       DIALOG 4: BANK STATEMENT IMPORT PREVIEW
-       ============================================================ -->
   <dialog id="bank-import-dialog" class="dialog-wide" closedby="any" aria-labelledby="bank-import-title">
     <div class="dialog-head">
-      <div>
-        <h2 id="bank-import-title">Review Bank Statement</h2>
-        <p class="muted-xs" id="bank-import-subtitle">Verify categories before importing</p>
-      </div>
-      <form method="dialog">
-        <button type="submit" value="cancel" class="icon-close" aria-label="Close dialog">×</button>
-      </form>
+      <div><h2 id="bank-import-title">Review Bank Statement</h2><p class="muted-xs" id="bank-import-subtitle">Verify categories</p></div>
+      <form method="dialog"><button type="submit" value="cancel" class="icon-close" aria-label="Close">×</button></form>
     </div>
     <div class="dialog-body">
       <div class="stat-pills">
@@ -452,77 +743,39 @@
       </div>
       <div tabindex="0" role="region" aria-labelledby="bi-table-caption" class="table-wrapper modal-table">
         <table class="data-table">
-          <caption id="bi-table-caption" class="visually-hidden">Parsed bank statement preview</caption>
-          <thead>
-            <tr>
-              <th scope="col"><input type="checkbox" id="bi-select-all" checked aria-label="Select all" /></th>
-              <th scope="col">Date</th>
-              <th scope="col">Description</th>
-              <th scope="col">Category</th>
-              <th scope="col" class="num">Amount</th>
-            </tr>
-          </thead>
+          <caption id="bi-table-caption" class="visually-hidden">Parsed bank statement</caption>
+          <thead><tr><th><input type="checkbox" id="bi-select-all" checked aria-label="Select all" /></th><th>Date</th><th>Description</th><th>Category</th><th class="num">Amount</th></tr></thead>
           <tbody id="bi-table-body"></tbody>
         </table>
       </div>
       <div class="dialog-foot spread">
-        <label class="check-label">
-          <input type="checkbox" id="bi-sync-budget" checked />
-          <span>Also update monthly Cashflow budget</span>
-        </label>
-        <div class="foot-btns">
-          <button type="button" class="btn soft" id="bi-cancel-btn">Cancel</button>
-          <button type="button" class="btn primary" id="bi-apply-btn" autofocus>Import Selected</button>
-        </div>
+        <label class="check-label"><input type="checkbox" id="bi-sync-budget" checked /><span>Update monthly Cashflow budget</span></label>
+        <div class="foot-btns"><button type="button" class="btn soft" id="bi-cancel-btn">Cancel</button><button type="button" class="btn primary" id="bi-apply-btn" autofocus>Import Selected</button></div>
       </div>
     </div>
   </dialog>
 
-  <!-- ============================================================
-       DIALOG 5: INVESTMENT CSV IMPORT PREVIEW
-       ============================================================ -->
   <dialog id="inv-import-dialog" class="dialog-wide" closedby="any" aria-labelledby="inv-import-title">
     <div class="dialog-head">
-      <div>
-        <h2 id="inv-import-title">Review Investment Statement</h2>
-        <p class="muted-xs" id="inv-import-subtitle">Detected brokerage holdings</p>
-      </div>
-      <form method="dialog">
-        <button type="submit" value="cancel" class="icon-close" aria-label="Close dialog">×</button>
-      </form>
+      <div><h2 id="inv-import-title">Review Investment Statement</h2><p class="muted-xs" id="inv-import-subtitle">Detected brokerage holdings</p></div>
+      <form method="dialog"><button type="submit" value="cancel" class="icon-close" aria-label="Close">×</button></form>
     </div>
     <div class="dialog-body">
       <div class="stat-pills">
         <span class="stat-pill">Holdings: <strong id="ii-count">0</strong></span>
-        <span class="stat-pill">Total Cost: <strong id="ii-cost">£0</strong></span>
-        <span class="stat-pill">Total Value: <strong id="ii-value">£0</strong></span>
+        <span class="stat-pill">Cost: <strong id="ii-cost">£0</strong></span>
+        <span class="stat-pill">Value: <strong id="ii-value">£0</strong></span>
       </div>
       <div tabindex="0" role="region" aria-labelledby="ii-table-caption" class="table-wrapper modal-table">
         <table class="data-table">
-          <caption id="ii-table-caption" class="visually-hidden">Parsed investment holdings preview</caption>
-          <thead>
-            <tr>
-              <th scope="col"><input type="checkbox" id="ii-select-all" checked aria-label="Select all" /></th>
-              <th scope="col">Holding</th>
-              <th scope="col">Account</th>
-              <th scope="col">Class</th>
-              <th scope="col" class="num">Qty</th>
-              <th scope="col" class="num">Cost</th>
-              <th scope="col" class="num">Value</th>
-            </tr>
-          </thead>
+          <caption id="ii-table-caption" class="visually-hidden">Parsed investment holdings</caption>
+          <thead><tr><th><input type="checkbox" id="ii-select-all" checked aria-label="Select all" /></th><th>Holding</th><th>Acct</th><th>Class</th><th class="num">Qty</th><th class="num">Cost</th><th class="num">Value</th></tr></thead>
           <tbody id="ii-table-body"></tbody>
         </table>
       </div>
       <div class="dialog-foot spread">
-        <label class="check-label">
-          <input type="checkbox" id="ii-replace-existing" />
-          <span>Replace existing holdings (unchecked = merge by ticker)</span>
-        </label>
-        <div class="foot-btns">
-          <button type="button" class="btn soft" id="ii-cancel-btn">Cancel</button>
-          <button type="button" class="btn primary" id="ii-apply-btn" autofocus>Import Holdings</button>
-        </div>
+        <label class="check-label"><input type="checkbox" id="ii-replace-existing" /><span>Replace existing holdings</span></label>
+        <div class="foot-btns"><button type="button" class="btn soft" id="ii-cancel-btn">Cancel</button><button type="button" class="btn primary" id="ii-apply-btn" autofocus>Import Holdings</button></div>
       </div>
     </div>
   </dialog>

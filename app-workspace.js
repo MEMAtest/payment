@@ -9,7 +9,7 @@
     state: "consumerpay_state_v1",
     transactions: "consumerpay_transactions_v1",
     investments: "consumerpay_investments_v1",
-    activeView: "consumerpay_active_view_v2",
+    activeView: "paytp_active_view_v3",
     workspaceId: "paytp_workspace_id_v1",
     seeded: "paytp_seeded_v1",
   };

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="styles.css?v=20261122-2" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#2563eb" />
   <link rel="icon" href="icons/paytp-logo.svg" type="image/svg+xml" />
@@ -877,10 +877,18 @@
     </div>
   </dialog>
 
+  <script>
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.getRegistrations().then((regs) => regs.forEach((r) => r.unregister()));
+    }
+    if ("caches" in window) {
+      caches.keys().then((keys) => keys.forEach((k) => caches.delete(k)));
+    }
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
-  <script src="app-import-parse.js" defer></script>
-  <script src="app-investments-parse.js" defer></script>
-  <script src="app-workspace.js" defer></script>
+  <script src="app-import-parse.js?v=20261122-2" defer></script>
+  <script src="app-investments-parse.js?v=20261122-2" defer></script>
+  <script src="app-workspace.js?v=20261122-2" defer></script>
 </body>
 
 </html>

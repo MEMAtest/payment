@@ -194,6 +194,9 @@
   let holdings = [];
   let stMode = "all";
   let invAccountFilter = "all";
+  let txPage = 1;
+  let invPage = 1;
+  const PAGE_SIZE = 7;
   let pendingBankImport = [];
   let pendingInvImport = [];
   let neonAvailable = false;
@@ -428,29 +431,21 @@
     </svg>`;
   }
 
-  function renderMiniDonut(container, legendEl, slices) {
-    if (!container || !legendEl) return;
+  function renderAllocBar(barEl, legendEl, slices) {
+    if (!barEl || !legendEl) return;
     const valid = slices.filter((s) => s.value > 0).sort((a, b) => b.value - a.value);
     const total = valid.reduce((s, x) => s + x.value, 0);
     if (total <= 0) {
-      container.innerHTML = `<svg viewBox="0 0 80 80" width="100%" height="100%"><circle cx="40" cy="40" r="28" fill="none" stroke="#e2e8f0" stroke-width="10"/></svg>`;
+      barEl.innerHTML = "";
       legendEl.innerHTML = `<span class="muted-xs">Drop a brokerage CSV or add holdings</span>`;
       return;
     }
-    const r = 28;
-    const circ = 2 * Math.PI * r;
-    let offset = 0;
-    const segs = valid.map((s, i) => {
-      const dash = (s.value / total) * circ;
-      const svg = `<circle cx="40" cy="40" r="${r}" fill="none" stroke="${PALETTE[i % PALETTE.length]}" stroke-width="10"
-        stroke-dasharray="${dash.toFixed(1)} ${circ.toFixed(1)}" stroke-dashoffset="${(-offset).toFixed(1)}" transform="rotate(-90 40 40)"/>`;
-      offset += dash;
-      return svg;
-    }).join("");
-    container.innerHTML = `<svg viewBox="0 0 80 80" width="100%" height="100%" aria-hidden="true">${segs}</svg>`;
+    barEl.innerHTML = valid
+      .map((s, i) => `<span style="width:${((s.value / total) * 100).toFixed(2)}%;background:${PALETTE[i % PALETTE.length]}" title="${escapeHtml(s.label)}: ${formatCompact(s.value)}"></span>`)
+      .join("");
     legendEl.innerHTML = valid.slice(0, 6).map((s, i) => {
       const pct = Math.round((s.value / total) * 100);
-      return `<span class="legend-chip"><span class="dot" style="background:${PALETTE[i % PALETTE.length]}"></span><strong>${escapeHtml(s.label)}</strong> ${pct}% (${formatCompact(s.value)})</span>`;
+      return `<span class="legend-chip"><span class="dot" style="background:${PALETTE[i % PALETTE.length]}"></span><strong>${escapeHtml(s.label)}</strong> ${pct}%</span>`;
     }).join("");
   }
 
@@ -530,9 +525,25 @@
       .map(([k, v]) => `<option value="${k}">${escapeHtml(v.label)}</option>`)
       .join("");
 
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    txPage = Math.min(Math.max(1, txPage), totalPages);
+    const startIdx = (txPage - 1) * PAGE_SIZE;
+    const pageRows = filtered.slice(startIdx, startIdx + PAGE_SIZE);
+
+    const pageInfo = document.getElementById("tx-page-info");
+    if (pageInfo) {
+      pageInfo.textContent = filtered.length
+        ? `Showing ${startIdx + 1}–${startIdx + pageRows.length} of ${filtered.length} · Drop CSV/XLSX/PDF here`
+        : "0 rows · Drop CSV/XLSX/PDF here";
+    }
+    const prevBtn = document.getElementById("tx-prev-btn");
+    const nextBtn = document.getElementById("tx-next-btn");
+    if (prevBtn) prevBtn.disabled = txPage <= 1;
+    if (nextBtn) nextBtn.disabled = txPage >= totalPages;
+
     const tbody = document.getElementById("tx-table-body");
-    tbody.innerHTML = filtered.length
-      ? filtered.slice(0, 250).map((tx) => {
+    tbody.innerHTML = pageRows.length
+      ? pageRows.map((tx) => {
           const isInc = tx.type === "income";
           const cat = tx.category || (isInc ? "income" : "other");
           return `<tr>
@@ -584,15 +595,31 @@
       const k = h.assetClass || "Stock";
       byClass.set(k, (byClass.get(k) || 0) + Math.max(0, Number(h.currentValue) || 0));
     }
-    renderMiniDonut(
-      document.getElementById("inv-donut-wrap"),
+    renderAllocBar(
+      document.getElementById("inv-alloc-bar"),
       document.getElementById("inv-alloc-legend"),
       [...byClass.entries()].map(([label, value]) => ({ label, value }))
     );
 
+    const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+    invPage = Math.min(Math.max(1, invPage), totalPages);
+    const startIdx = (invPage - 1) * PAGE_SIZE;
+    const pageRows = filtered.slice(startIdx, startIdx + PAGE_SIZE);
+
+    const pageInfo = document.getElementById("inv-page-info");
+    if (pageInfo) {
+      pageInfo.textContent = filtered.length
+        ? `Showing ${startIdx + 1}–${startIdx + pageRows.length} of ${filtered.length} · Drop broker CSV here`
+        : "0 holdings · Drop broker CSV here";
+    }
+    const prevBtn = document.getElementById("inv-prev-btn");
+    const nextBtn = document.getElementById("inv-next-btn");
+    if (prevBtn) prevBtn.disabled = invPage <= 1;
+    if (nextBtn) nextBtn.disabled = invPage >= totalPages;
+
     const tbody = document.getElementById("inv-table-body");
-    tbody.innerHTML = filtered.length
-      ? filtered.map((h) => {
+    tbody.innerHTML = pageRows.length
+      ? pageRows.map((h) => {
           const val = Math.max(0, Number(h.currentValue) || 0);
           const cost = Math.max(0, Number(h.costBasis) || 0);
           const gain = val - cost;
@@ -926,13 +953,26 @@
     document.getElementById("kpi-cash-card").addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openCashflow(); } });
     document.getElementById("cf-done-btn").addEventListener("click", () => document.getElementById("cashflow-dialog").close("done"));
 
-    // File inputs & Dropzones
+    // Narrow-viewport switcher (prevents vertical scroll stacking on split panes)
+    document.getElementById("narrow-switch")?.addEventListener("click", (e) => {
+      const btn = e.target.closest("[data-pane]");
+      if (!btn) return;
+      document.querySelector(".split-workspace")?.setAttribute("data-active-pane", btn.dataset.pane);
+      document.querySelectorAll("#narrow-switch [data-pane]").forEach((b) => b.classList.toggle("is-active", b === btn));
+    });
+
+    // Pagination buttons
+    document.getElementById("tx-prev-btn")?.addEventListener("click", () => { txPage--; renderStatements(); });
+    document.getElementById("tx-next-btn")?.addEventListener("click", () => { txPage++; renderStatements(); });
+    document.getElementById("inv-prev-btn")?.addEventListener("click", () => { invPage--; renderInvestments(); });
+    document.getElementById("inv-next-btn")?.addEventListener("click", () => { invPage++; renderInvestments(); });
+
+    // File inputs & Dropzones (entire panel accepts drag-and-drop)
     bankInput.addEventListener("change", (e) => { if (e.target.files?.length) handleBankFiles(e.target.files); bankInput.value = ""; });
     invInput.addEventListener("change", (e) => { if (e.target.files?.length) handleInvestmentFiles(e.target.files); invInput.value = ""; });
+    document.getElementById("bank-upload-inline-btn")?.addEventListener("click", () => bankInput.click());
 
     const bankZone = document.getElementById("bank-dropzone");
-    bankZone.addEventListener("click", () => bankInput.click());
-    bankZone.addEventListener("keydown", (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); bankInput.click(); } });
     bankZone.addEventListener("dragover", (e) => { e.preventDefault(); bankZone.classList.add("dragover"); });
     bankZone.addEventListener("dragleave", () => bankZone.classList.remove("dragover"));
     bankZone.addEventListener("drop", (e) => { e.preventDefault(); bankZone.classList.remove("dragover"); if (e.dataTransfer?.files?.length) handleBankFiles(e.dataTransfer.files); });

@@ -18,10 +18,10 @@
   <a href="#workspace-main" class="skip-link">Skip to workspace</a>
 
   <div class="app-shell">
-    <!-- Single Compact Top Bar — Zero Tab Hopping -->
+    <!-- Single Compact Top Bar -->
     <header class="topbar">
       <div class="brand">
-        <img src="icons/paytp-logo.svg" alt="" width="28" height="28" />
+        <img src="icons/paytp-logo.svg" alt="" width="26" height="26" />
         <span class="brand-name">Paytp</span>
         <span class="sync-pill" id="sync-status-pill" title="Storage status">Local Mode</span>
       </div>
@@ -29,22 +29,22 @@
       <div class="topbar-actions">
         <input type="file" id="bank-file-input" accept=".csv,.xlsx,.xls,.pdf,.txt" multiple hidden />
         <input type="file" id="inv-file-input" accept=".csv,.txt" hidden />
-        <button type="button" class="btn soft compact" id="top-import-bank-btn">↑ Bank CSV / PDF</button>
+        <button type="button" class="btn soft compact" id="top-import-bank-btn">↑ Bank CSV/PDF</button>
         <button type="button" class="btn soft compact" id="top-import-inv-btn">↑ Broker CSV</button>
         <button type="button" class="btn soft compact" id="open-cashflow-btn">£ Cashflow &amp; Tax</button>
         <button type="button" class="btn mint compact" id="quick-holding-btn">+ Holding</button>
-        <button type="button" class="btn ghost compact" id="reset-demo-btn" title="Restore sample UK finances">Reset Demo</button>
+        <button type="button" class="btn ghost compact" id="reset-demo-btn" title="Restore sample UK finances">Reset</button>
       </div>
     </header>
 
     <div id="toast-region" class="toast-region" aria-live="polite" aria-atomic="true"></div>
 
     <!-- ============================================================
-         SINGLE UNIFIED COMMAND CENTER (Fits 1 Viewport — Zero Screen Bloat)
+         ZERO-SCROLL UNIFIED COMMAND CENTER
          ============================================================ -->
     <main id="workspace-main" class="command-center">
 
-      <!-- TOP KPI STRIP (4 Live Interactive Tiles) -->
+      <!-- TOP KPI STRIP (4 Compact Live Tiles) -->
       <section class="kpi-strip" aria-label="Financial summary">
         <article class="kpi-card primary-kpi">
           <div class="kpi-head-row">
@@ -79,34 +79,35 @@
         <article class="kpi-card interactive-kpi" id="kpi-cash-card" role="button" tabindex="0" aria-label="Edit cash savings and debt balances">
           <div class="kpi-head-row">
             <span class="kpi-label">Cash &amp; Debt</span>
-            <span class="delta-pill neutral" id="kpi-runway">0 mo runway</span>
+            <span class="delta-pill neutral" id="kpi-runway">0 mo</span>
           </div>
           <strong class="kpi-num" id="kpi-cash">£0</strong>
           <span class="kpi-sub" id="kpi-debt-sub">Debt: £0</span>
         </article>
       </section>
 
-      <!-- MAIN 2-COLUMN WORKSPACE: STATEMENTS (Left) | INVESTMENTS (Right) -->
-      <div class="split-workspace">
+      <!-- Narrow-viewport switcher (prevents vertical stacking scroll on split panes / mobile) -->
+      <div class="narrow-switch" id="narrow-switch" role="group" aria-label="Switch panel">
+        <button type="button" class="seg-btn is-active" data-pane="statements">Bank Statements</button>
+        <button type="button" class="seg-btn" data-pane="investments">Investments</button>
+      </div>
 
-        <!-- LEFT PANEL: BANK STATEMENTS & TRANSACTIONS -->
-        <section class="panel workspace-col" aria-label="Bank statements and spending">
+      <!-- MAIN 2-COLUMN WORKSPACE: STATEMENTS (Left) | INVESTMENTS (Right) -->
+      <div class="split-workspace" data-active-pane="statements">
+
+        <!-- LEFT PANEL: BANK STATEMENTS -->
+        <section class="panel workspace-col" data-pane-col="statements" id="bank-dropzone" aria-label="Bank statements and spending">
           <div class="panel-header">
             <div>
               <h2>Bank Statements</h2>
               <p class="muted-xs" id="st-summary-line">In £0 · Out £0 · Net £0</p>
             </div>
             <div class="head-btns">
-              <button type="button" class="btn mint xs" id="sync-budget-btn" title="Apply statement spending averages to monthly budget">↻ Sync Budget</button>
+              <button type="button" class="btn soft xs" id="bank-upload-inline-btn" title="Upload UK Bank CSV, XLSX, or PDF">↑ Upload</button>
+              <button type="button" class="btn mint xs" id="sync-budget-btn" title="Sync spending to budget">↻ Sync</button>
               <button type="button" class="btn primary xs" id="add-tx-btn">+ Entry</button>
               <button type="button" class="btn soft xs" id="sample-bank-btn">Sample</button>
             </div>
-          </div>
-
-          <!-- Compact Dropzone + Filters -->
-          <div class="inline-dropzone" id="bank-dropzone" role="button" tabindex="0" aria-label="Drop UK bank statement CSV, Excel or PDF">
-            <strong>Drop UK bank statement</strong>
-            <span class="muted-xs">Monzo · Starling · HSBC · Barclays · Lloyds · Revolut (CSV / XLSX / PDF)</span>
           </div>
 
           <div class="compact-toolbar">
@@ -117,11 +118,10 @@
             </div>
             <div class="toolbar-inputs">
               <select id="tx-cat-filter" class="input xs-input" aria-label="Filter by category"></select>
-              <input type="search" id="tx-search" class="input xs-input" placeholder="Search merchant..." aria-label="Search transactions" />
+              <input type="search" id="tx-search" class="input xs-input" placeholder="Search..." aria-label="Search transactions" />
             </div>
           </div>
 
-          <!-- Internally Scrollable Transactions Table -->
           <div tabindex="0" role="region" aria-labelledby="tx-table-caption" class="table-wrapper">
             <table class="data-table tx-table">
               <caption id="tx-table-caption" class="visually-hidden">Bank statement transactions</caption>
@@ -137,29 +137,36 @@
               <tbody id="tx-table-body"></tbody>
             </table>
           </div>
+
+          <div class="panel-footer">
+            <span class="muted-xs" id="tx-page-info">0 rows · Drop CSV/XLSX/PDF anywhere here</span>
+            <div class="pager">
+              <button type="button" class="btn soft xs" id="tx-prev-btn" aria-label="Previous transactions page">‹ Prev</button>
+              <button type="button" class="btn soft xs" id="tx-next-btn" aria-label="Next transactions page">Next ›</button>
+            </div>
+          </div>
         </section>
 
-        <!-- RIGHT PANEL: INVESTMENTS PORTFOLIO -->
-        <section class="panel workspace-col" aria-label="Investments portfolio">
+        <!-- RIGHT PANEL: INVESTMENTS -->
+        <section class="panel workspace-col" data-pane-col="investments" id="inv-dropzone" aria-label="Investments portfolio">
           <div class="panel-header">
             <div>
               <h2>Investments</h2>
               <p class="muted-xs" id="inv-summary-line">Cost £0 · Gain £0</p>
             </div>
             <div class="head-btns">
-              <button type="button" class="btn soft xs" id="inv-import-btn">↑ Import CSV</button>
+              <button type="button" class="btn soft xs" id="inv-import-btn">↑ CSV</button>
               <button type="button" class="btn mint xs" id="add-holding-btn">+ Holding</button>
               <button type="button" class="btn soft xs" id="sample-inv-btn">Sample</button>
             </div>
           </div>
 
-          <!-- Allocation Strip (Compact Donut + Asset Class Legend) -->
-          <div class="alloc-strip" id="inv-dropzone">
-            <div class="donut-mini" id="inv-donut-wrap"></div>
+          <!-- Slim 1-Row Allocation Bar -->
+          <div class="alloc-bar-wrap">
+            <div class="alloc-bar" id="inv-alloc-bar" aria-hidden="true"></div>
             <div class="alloc-legend" id="inv-alloc-legend"></div>
           </div>
 
-          <!-- Account Filter Pills + Search -->
           <div class="compact-toolbar">
             <div class="pill-filters" id="inv-account-filters" role="group" aria-label="Filter holdings by account">
               <button type="button" class="filter-pill is-active" data-inv-filter="all">All</button>
@@ -169,10 +176,9 @@
               <button type="button" class="filter-pill" data-inv-filter="Crypto">Crypto</button>
               <button type="button" class="filter-pill" data-inv-filter="Cash">Cash</button>
             </div>
-            <input type="search" id="inv-search" class="input xs-input" placeholder="Filter ticker..." aria-label="Search holdings" />
+            <input type="search" id="inv-search" class="input xs-input" placeholder="Ticker..." aria-label="Search holdings" />
           </div>
 
-          <!-- Internally Scrollable Holdings Table -->
           <div tabindex="0" role="region" aria-labelledby="inv-table-caption" class="table-wrapper">
             <table class="data-table inv-table">
               <caption id="inv-table-caption" class="visually-hidden">Investment holdings</caption>
@@ -189,13 +195,21 @@
               <tbody id="inv-table-body"></tbody>
             </table>
           </div>
+
+          <div class="panel-footer">
+            <span class="muted-xs" id="inv-page-info">0 holdings · Drop Trading 212 / Vanguard / HL CSV</span>
+            <div class="pager">
+              <button type="button" class="btn soft xs" id="inv-prev-btn" aria-label="Previous holdings page">‹ Prev</button>
+              <button type="button" class="btn soft xs" id="inv-next-btn" aria-label="Next holdings page">Next ›</button>
+            </div>
+          </div>
         </section>
       </div>
     </main>
   </div>
 
   <!-- ============================================================
-       DIALOG 1: CASHFLOW, UK TAX & 3-YEAR IMPACT (On-Demand Overlay)
+       DIALOG 1: CASHFLOW, UK TAX & 3-YEAR IMPACT
        ============================================================ -->
   <dialog id="cashflow-dialog" class="dialog-wide" closedby="any" aria-labelledby="cashflow-dialog-title">
     <div class="dialog-head">

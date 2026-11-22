@@ -71,15 +71,17 @@ html, body {
    SINGLE-VIEWPORT SHELL
    ============================================================ */
 .app-shell {
-  min-height: 100dvh;
+  height: 100dvh;
+  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-@media (min-width: 1020px) {
+@media (max-width: 600px) {
   .app-shell {
-    height: 100dvh;
-    overflow: hidden;
+    height: auto;
+    min-height: 100dvh;
+    overflow: visible;
   }
 }
 
@@ -242,15 +244,77 @@ html, body {
 /* ============================================================
    2-COLUMN SPLIT WORKSPACE (Statements | Investments)
    ============================================================ */
+.narrow-switch {
+  display: none;
+  align-self: flex-start;
+  padding: 3px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  gap: 3px;
+  flex-shrink: 0;
+}
+
 .split-workspace {
   flex: 1;
   min-height: 0;
   display: grid;
   grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: 14px;
+  gap: 12px;
 }
-@media (max-width: 1019px) {
+
+@media (max-width: 920px) {
+  .narrow-switch { display: inline-flex; }
   .split-workspace { grid-template-columns: 1fr; }
+  .split-workspace[data-active-pane="statements"] [data-pane-col="investments"],
+  .split-workspace[data-active-pane="investments"] [data-pane-col="statements"] {
+    display: none;
+  }
+}
+
+.workspace-col.dragover {
+  outline: 2px dashed var(--blue);
+  outline-offset: -3px;
+}
+
+.alloc-bar-wrap {
+  padding: 8px 14px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.alloc-bar {
+  height: 7px;
+  border-radius: 999px;
+  overflow: hidden;
+  display: flex;
+  background: #e2e8f0;
+  gap: 2px;
+}
+.alloc-bar > span {
+  height: 100%;
+  display: block;
+}
+
+.panel-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 7px 14px;
+  border-top: 1px solid var(--border);
+  background: var(--surface-soft);
+  flex-shrink: 0;
+}
+.pager {
+  display: flex;
+  gap: 5px;
+}
+.pager button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 .panel {
@@ -381,7 +445,7 @@ html, body {
    ============================================================ */
 .table-wrapper {
   flex: 1;
-  min-height: 220px;
+  min-height: 0;
   overflow: auto;
   max-inline-size: 100%;
   container-type: inline-size;
@@ -406,7 +470,7 @@ html, body {
 }
 .data-table th,
 .data-table td {
-  padding: 8px 11px;
+  padding: 6px 10px;
   text-align: left;
   border-bottom: 1px solid var(--border);
   vertical-align: middle;

@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261122-2" />
+  <link rel="stylesheet" href="styles.css?v=20261123-1" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#2563eb" />
   <link rel="icon" href="icons/paytp-logo.svg" type="image/svg+xml" />
@@ -78,42 +78,72 @@
     <main id="workspace-main" class="workspace-main">
 
       <!-- ============================================================
-           VIEW 0: INTRO / WELCOME LANDING PAGE (360° 3D Particle Globe)
+           VIEW 0: BOLD 3D SPHERE HOMEPAGE (Centerpiece Globe + Orbiting Finance Clarity)
            ============================================================ -->
       <section class="view-panel landing-view" data-view="landing" aria-label="Welcome to Paytp">
-        <div class="landing-hero">
-          <div class="landing-copy">
-            <span class="landing-eyebrow"><span class="live-dot"></span> UK Personal Finance · 2026/27 Tax Ready · Zero Sign-In Lockup</span>
-            <h1 class="landing-title">See where every pound goes — and grow your <span class="grad-text-blue">UK wealth</span> visually.</h1>
-            <p class="landing-lede">
-              Import UK bank statements (Virgin Money, Monzo, Starling, HSBC, Barclays, Halifax, Lloyds, Finances-Central CSV/PDF) and investment portfolios (Trading 212, Vanguard, HL) to get instant month-on-month trends, ONS UK spending benchmarks, and live 2026/27 take-home projections.
-            </p>
-            <div class="landing-ctas">
-              <button type="button" class="btn primary lg" id="landing-enter-btn" data-goto="overview">Open My Dashboard →</button>
-              <button type="button" class="btn soft lg" id="landing-import-btn">↑ Import a Statement</button>
-            </div>
-            <div class="landing-pillars">
-              <div class="pillar-card" data-goto="overview" role="button" tabindex="0">
-                <strong>📊 Visual Command Center</strong>
-                <span>Interactive Wealth Trend, enlargeable Income-to-Spending Sankey &amp; instant KPI modals.</span>
-              </div>
-              <div class="pillar-card" data-goto="statements" role="button" tabindex="0">
-                <strong>💡 UK Spending Insights</strong>
-                <span>Month-on-month &amp; year-on-year charts, 50/30/20 split, and ONS UK household benchmarks.</span>
-              </div>
-              <div class="pillar-card" data-goto="investments" role="button" tabindex="0">
-                <strong>📈 ISA, SIPP &amp; Portfolio</strong>
-                <span>Contributions vs Growth, asset allocation donuts, and Trading 212 / Vanguard / HL CSV import.</span>
-              </div>
-            </div>
+        <div class="sphere-stage" id="sphere-stage">
+          <!-- Full-stage 360° 3D Particle Sphere + Animated Finance Tethers -->
+          <canvas id="landing-globe-canvas" class="sphere-canvas" aria-label="Interactive 360 degree 3D wealth sphere"></canvas>
+
+          <!-- Top Minimal Header Overlay -->
+          <div class="sphere-top-copy">
+            <span class="sphere-pill"><span class="live-dot"></span> UK 2026/27 · Open Live Engine</span>
+            <h1 class="sphere-headline">Clarity on every <span class="grad-text">UK pound</span>.</h1>
           </div>
 
-          <div class="landing-globe-stage">
-            <canvas id="landing-globe-canvas" class="landing-globe-canvas" aria-label="Interactive 360 degree 3D wealth particle globe"></canvas>
-            <div class="globe-caption">
-              <span>Drag or hover to rotate 360°</span>
-              <strong id="landing-live-nw">Live Net Worth: £361,470</strong>
+          <!-- Center Live Net Worth Badge over the 3D Sphere -->
+          <div class="sphere-core-badge" data-goto="overview" role="button" tabindex="0" title="Open full financial dashboard">
+            <span class="core-label">Total Net Worth</span>
+            <strong class="core-value" id="landing-live-nw">£0</strong>
+            <span class="delta-pill pos" id="landing-nw-delta">↑ +8.7% (6M)</span>
+          </div>
+
+          <!-- 4 Interactive Finance Cards Radiating Out from the Sphere -->
+          <button type="button" class="orbit-card orbit-tl" data-kpi-modal="surplus">
+            <div class="orbit-head">
+              <span class="orbit-ico blue">£</span>
+              <span class="orbit-kicker">Monthly Surplus</span>
+              <span class="delta-pill pos" id="orb-surplus-pct">41%</span>
             </div>
+            <strong class="orbit-val" id="orb-surplus">£0</strong>
+            <span class="orbit-sub" id="orb-surplus-sub">UK 2026/27 take-home − spend</span>
+          </button>
+
+          <button type="button" class="orbit-card orbit-tr" data-goto="investments">
+            <div class="orbit-head">
+              <span class="orbit-ico mint">↗</span>
+              <span class="orbit-kicker">Investments</span>
+              <span class="delta-pill pos" id="orb-inv-pct">+0.0%</span>
+            </div>
+            <strong class="orbit-val" id="orb-inv">£0</strong>
+            <span class="orbit-sub" id="orb-inv-sub">ISA · SIPP · GIA · Crypto</span>
+          </button>
+
+          <button type="button" class="orbit-card orbit-bl" data-goto="statements">
+            <div class="orbit-head">
+              <span class="orbit-ico amber">📊</span>
+              <span class="orbit-kicker">Spending &amp; Insights</span>
+              <span class="delta-pill pos" id="orb-mom-pill">MoM</span>
+            </div>
+            <strong class="orbit-val" id="orb-spend">£0 / mo</strong>
+            <span class="orbit-sub" id="orb-spend-sub">ONS UK benchmarks · Recurring</span>
+          </button>
+
+          <button type="button" class="orbit-card orbit-br" data-kpi-modal="cash">
+            <div class="orbit-head">
+              <span class="orbit-ico sky">🛡️</span>
+              <span class="orbit-kicker">Cash &amp; Runway</span>
+              <span class="delta-pill neutral" id="orb-runway">0 mo</span>
+            </div>
+            <strong class="orbit-val" id="orb-cash">£0</strong>
+            <span class="orbit-sub" id="orb-debt-sub">Liquid safety buffer</span>
+          </button>
+
+          <!-- Bottom Bold Action Dock -->
+          <div class="sphere-dock">
+            <button type="button" class="btn primary lg glow-btn" id="landing-enter-btn" data-goto="overview">Enter Dashboard →</button>
+            <button type="button" class="btn glass-btn lg" id="landing-import-btn">↑ Drop Bank / Broker CSV</button>
+            <button type="button" class="btn glass-btn lg" id="landing-blank-btn">Start Blank</button>
           </div>
         </div>
       </section>
@@ -888,7 +918,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
   <script src="app-import-parse.js?v=20261122-4" defer></script>
   <script src="app-investments-parse.js?v=20261122-4" defer></script>
-  <script src="app-workspace.js?v=20261122-4" defer></script>
+  <script src="app-workspace.js?v=20261123-1" defer></script>
 </body>
 
 </html>

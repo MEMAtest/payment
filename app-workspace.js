@@ -668,7 +668,18 @@
 
     document.getElementById("ov-net-worth").textContent = formatCurrency(netWorth);
     const landNW = document.getElementById("landing-live-nw");
-    if (landNW) landNW.textContent = `Live Net Worth: ${formatCurrency(netWorth)}`;
+    if (landNW) landNW.textContent = formatCurrency(netWorth);
+    const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
+    setTxt("orb-surplus", formatSignedCurrency(surplus));
+    setTxt("orb-surplus-pct", `${surplusRate}%`);
+    setTxt("orb-surplus-sub", `${formatCurrency(monthlyIn)} in · ${formatCurrency(monthlyOut)} out`);
+    setTxt("orb-inv", formatCurrency(port.totalValue));
+    setTxt("orb-inv-pct", port.totalCost > 0 ? `${port.returnPct >= 0 ? "+" : ""}${port.returnPct.toFixed(1)}%` : "—");
+    setTxt("orb-inv-sub", `${holdings.length} holdings · ${port.totalValue > 0 ? Math.round((port.taxWrapped / port.totalValue) * 100) : 0}% ISA/SIPP`);
+    setTxt("orb-spend", `${formatCurrency(monthlyOut)} / mo`);
+    setTxt("orb-cash", formatCurrency(cash));
+    setTxt("orb-runway", monthlyOut > 0 ? `${(cash / monthlyOut).toFixed(1)} mo` : "—");
+    setTxt("orb-debt-sub", debt > 0 ? `Debt: ${formatCurrency(debt)}` : "Debt-free buffer");
     const hMap = { "3M": { f: 0.96, lbl: ["Sep", "Oct", "Nov"] }, "6M": { f: 0.92, lbl: ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov"] }, "12M": { f: 0.85, lbl: ["Dec", "Mar", "Jun", "Sep", "Nov"] }, All: { f: 0.74, lbl: ["2025", "Q3", "2026", "Q3", "Now"] } };
     const cfg = hMap[ovRange] || hMap["6M"];
     const startNW = Math.max(0, netWorth * cfg.f);
@@ -826,25 +837,33 @@
       `;
     }
 
-    // 4. UK ONS Benchmarks & Interactive "How do you feel?" Coaching
+    // 4. Visual UK ONS Benchmarks (Comparison bars + 1-click Apply -15% to budget!)
     const benchEl = document.getElementById("st-benchmarks-list");
     if (benchEl) {
       const benchItems = [
-        { key: "groceries", icon: "🛒", yours: Number(financeState.expenses?.groceries) || 0, avg: ONS_UK_BENCHMARKS.groceries.avgMonthly, tip: "Meal planning or switching 20% to own-brand saves ~£960/yr." },
-        { key: "publicTransport", icon: "🚗", yours: Number(financeState.expenses?.publicTransport) || 0, avg: ONS_UK_BENCHMARKS.publicTransport.avgMonthly, tip: "Railcards & off-peak caps typically trim UK travel spend 15–30%." },
-        { key: "entertainment", icon: "✨", yours: Number(financeState.expenses?.entertainment) || 0, avg: ONS_UK_BENCHMARKS.entertainment.avgMonthly, tip: "Set a guilt-free fun allowance so discretionary spend stays intentional." },
-        { key: "subscriptions", icon: "📦", yours: Number(financeState.expenses?.subscriptions) || 0, avg: ONS_UK_BENCHMARKS.subscriptions.avgMonthly, tip: "Auditing unused UK direct debits saves households £240–£480/yr." },
+        { key: "groceries", icon: "🛒", label: "Groceries", yours: Number(financeState.expenses?.groceries) || 0, avg: ONS_UK_BENCHMARKS.groceries.avgMonthly },
+        { key: "publicTransport", icon: "🚗", label: "Transport", yours: Number(financeState.expenses?.publicTransport) || 0, avg: ONS_UK_BENCHMARKS.publicTransport.avgMonthly },
+        { key: "entertainment", icon: "✨", label: "Lifestyle", yours: Number(financeState.expenses?.entertainment) || 0, avg: ONS_UK_BENCHMARKS.entertainment.avgMonthly },
+        { key: "subscriptions", icon: "📦", label: "Subscriptions", yours: Number(financeState.expenses?.subscriptions) || 0, avg: ONS_UK_BENCHMARKS.subscriptions.avgMonthly },
       ];
       benchEl.innerHTML = benchItems.map((b) => {
         const diff = b.yours - b.avg;
-        const status = diff <= 0 ? `<span class="delta-pill pos">${formatCurrency(Math.abs(diff))} below UK avg</span>` : `<span class="delta-pill neg">+${formatCurrency(diff)} vs UK avg</span>`;
+        const maxVal = Math.max(b.yours, b.avg, 1);
+        const youPct = Math.round((b.yours / maxVal) * 100);
+        const avgPct = Math.round((b.avg / maxVal) * 100);
+        const status = diff <= 0
+          ? `<span class="delta-pill pos">-${formatCurrency(Math.abs(diff))} vs UK</span>`
+          : `<span class="delta-pill neg">+${formatCurrency(diff)} vs UK</span>`;
         const cut15 = Math.round(b.yours * 0.15 * 12);
         return `<div class="bench-card">
-          <div class="bench-head"><strong>${b.icon} ${escapeHtml(ONS_UK_BENCHMARKS[b.key].label)}</strong>${status}</div>
-          <p class="bench-copy">You spend <strong>${formatCurrency(b.yours)}/mo</strong> vs ONS UK avg <strong>${formatCurrency(b.avg)}/mo</strong>. ${escapeHtml(b.tip)}</p>
+          <div class="bench-head"><strong>${b.icon} ${escapeHtml(b.label)}</strong>${status}</div>
+          <div class="bench-bars">
+            <div class="bench-bar-row"><span>You</span><div class="bench-track"><span class="bench-fill you ${diff > 0 ? "over" : "under"}" style="width:${youPct}%"></span></div><strong>${formatCurrency(b.yours)}</strong></div>
+            <div class="bench-bar-row"><span class="muted-xs">UK avg</span><div class="bench-track"><span class="bench-fill avg" style="width:${avgPct}%"></span></div><span class="muted-xs">${formatCurrency(b.avg)}</span></div>
+          </div>
           <div class="feel-pills" data-bench-key="${b.key}">
-            <button type="button" class="feel-btn" data-feel="ok">✓ Comfortable</button>
-            <button type="button" class="feel-btn" data-feel="cut" data-save="${cut15}">✂ Cut 15% (+${formatCurrency(cut15)}/yr)</button>
+            <button type="button" class="feel-btn" data-feel="ok">✓ Keep</button>
+            <button type="button" class="feel-btn" data-feel="cut" data-save="${cut15}" data-key="${b.key}">✂ Apply -15% (+${formatCurrency(cut15)}/yr)</button>
           </div>
         </div>`;
       }).join("");
@@ -980,8 +999,9 @@
 
     document.getElementById("cf-total-spend").textContent = formatCurrency(monthlyOut * mult);
     const grid = document.getElementById("cf-budget-grid");
+    const bIcons = { mortgage: "🏠", groceries: "🛒", energy: "⚡", publicTransport: "🚗", entertainment: "✨", subscriptions: "📦" };
     if (!grid.dataset.built) {
-      grid.innerHTML = BUDGET_BUCKETS.map((b) => `<div class="budget-tile"><div class="budget-tile-head"><span>${escapeHtml(b.label)}</span><span data-b-pct="${b.key}">0%</span></div><input type="number" min="0" step="10" data-budget-key="${b.key}" aria-label="${escapeHtml(b.label)}" placeholder="0" /><div class="budget-bar"><span data-b-bar="${b.key}" style="width:0%"></span></div></div>`).join("");
+      grid.innerHTML = BUDGET_BUCKETS.map((b) => `<div class="budget-tile"><div class="budget-tile-head"><span>${bIcons[b.key] || ""} ${escapeHtml(b.label)}</span><span data-b-pct="${b.key}">0%</span></div><input type="number" min="0" step="10" data-budget-key="${b.key}" aria-label="${escapeHtml(b.label)}" placeholder="0" /><div class="budget-bar"><span data-b-bar="${b.key}" style="width:0%"></span></div></div>`).join("");
       grid.dataset.built = "1";
     }
     for (const b of BUDGET_BUCKETS) {
@@ -1451,10 +1471,41 @@
       if (!dragging) rotY += 0.0055;
 
       const cx = w / 2;
-      const cy = h * 0.46;
-      const rad = Math.min(w, h) * 0.36;
+      const cy = h * 0.5;
+      const rad = Math.min(w, h) * 0.34;
       const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
       const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
+
+      // Glowing animated energy beams radiating from the 3D sphere out to the 4 finance orbit cards!
+      if (w > 900) {
+        const targets = [
+          { x: w * 0.16, y: h * 0.28, col: "rgba(96, 165, 250, 0.42)" },
+          { x: w * 0.84, y: h * 0.28, col: "rgba(52, 211, 153, 0.42)" },
+          { x: w * 0.16, y: h * 0.74, col: "rgba(251, 191, 36, 0.38)" },
+          { x: w * 0.84, y: h * 0.74, col: "rgba(56, 189, 248, 0.42)" },
+        ];
+        const pulse = (Date.now() * 0.0012) % 1;
+        for (const t of targets) {
+          ctx.save();
+          ctx.strokeStyle = t.col;
+          ctx.lineWidth = 1.6;
+          ctx.setLineDash([6, 8]);
+          ctx.lineDashOffset = -(Date.now() * 0.025);
+          ctx.beginPath();
+          ctx.moveTo(cx, cy);
+          ctx.quadraticCurveTo((cx + t.x) / 2, cy, t.x, t.y);
+          ctx.stroke();
+          // Traveling energy orb along each finance beam
+          const u = pulse;
+          const ox = (1 - u) * (1 - u) * cx + 2 * (1 - u) * u * ((cx + t.x) / 2) + u * u * t.x;
+          const oy = (1 - u) * (1 - u) * cy + 2 * (1 - u) * u * cy + u * u * t.y;
+          ctx.fillStyle = "#ffffff";
+          ctx.beginPath();
+          ctx.arc(ox, oy, 3, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.restore();
+        }
+      }
 
       const projected = pts.map((p) => {
         const x1 = p.x * cosY - p.z * sinY;
@@ -1540,6 +1591,10 @@
       switchView("statements");
       document.getElementById("bank-file-input").click();
     });
+    document.getElementById("landing-blank-btn")?.addEventListener("click", () => {
+      startBlankWorkspace();
+      switchView("overview");
+    });
     document.getElementById("enlarge-sankey-btn")?.addEventListener("click", openSankeyModal);
     document.getElementById("ov-sankey-wrap")?.addEventListener("click", openSankeyModal);
     document.getElementById("sankey-modal-done-btn")?.addEventListener("click", () => document.getElementById("sankey-modal").close("done"));
@@ -1552,10 +1607,17 @@
       if (!btn) return;
       const group = btn.closest(".feel-pills");
       group?.querySelectorAll(".feel-btn").forEach((b) => b.classList.toggle("is-active", b === btn));
-      if (btn.dataset.feel === "cut") {
-        showNotification(`Nice target! Trimming 15% here frees up ~${formatCurrency(Number(btn.dataset.save) || 0)}/year.`, "success");
+      if (btn.dataset.feel === "cut" && btn.dataset.key) {
+        const k = btn.dataset.key;
+        const curr = Number(financeState.expenses?.[k]) || 0;
+        if (curr > 0) {
+          financeState.expenses[k] = Math.round(curr * 0.85);
+          persistAll();
+          renderAll();
+          showNotification(`Budget trimmed 15% (+${formatCurrency(Number(btn.dataset.save) || 0)}/yr added to surplus)!`, "success");
+        }
       } else {
-        showNotification("Marked as comfortable — we'll keep tracking this trend.", "info");
+        showNotification("Kept as-is — we'll keep tracking this trend.", "info");
       }
     });
 

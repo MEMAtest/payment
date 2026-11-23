@@ -1124,3 +1124,229 @@ dialog::backdrop { background: rgba(15, 23, 42, 0.42); backdrop-filter: blur(3px
   font-size: 0.72rem;
   font-variant-numeric: tabular-nums;
 }
+
+/* ============================================================
+   BOLD 3D SPHERE HOMEPAGE STAGE + ORBITING FINANCE CARDS
+   ============================================================ */
+.sphere-stage {
+  position: relative;
+  min-height: calc(100dvh - 88px);
+  border-radius: 22px;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 48%, #1d4ed8 0%, #0f172a 62%, #070d19 100%);
+  color: #ffffff;
+  box-shadow: 0 22px 54px rgba(15, 23, 42, 0.25);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 20px 24px 18px;
+}
+
+.sphere-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  z-index: 1;
+}
+.sphere-canvas:active { cursor: grabbing; }
+
+.sphere-top-copy {
+  position: relative;
+  z-index: 3;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.sphere-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #bae6fd;
+  backdrop-filter: blur(8px);
+}
+
+.sphere-headline {
+  margin: 0;
+  font-size: clamp(1.75rem, 3.2vw, 2.55rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.1;
+}
+
+.sphere-core-badge {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 3;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px 24px;
+  border-radius: 20px;
+  background: rgba(15, 23, 42, 0.62);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(125, 211, 252, 0.35);
+  box-shadow: 0 0 40px rgba(56, 189, 248, 0.24);
+  cursor: pointer;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+.sphere-core-badge:hover {
+  transform: translate(-50%, -52%) scale(1.03);
+  border-color: rgba(110, 231, 183, 0.7);
+}
+.core-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #bae6fd;
+}
+.core-value {
+  font-size: clamp(1.8rem, 3vw, 2.45rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.05;
+}
+
+/* 4 Orbiting Finance Cards radiating from the sphere */
+.orbit-card {
+  position: absolute;
+  z-index: 3;
+  width: 248px;
+  text-align: left;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: rgba(15, 23, 42, 0.64);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  color: #ffffff;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
+}
+.orbit-card:hover {
+  transform: translateY(-3px) scale(1.02);
+  border-color: rgba(125, 211, 252, 0.7);
+  background: rgba(30, 58, 138, 0.62);
+}
+.orbit-tl { top: 20%; left: 3%; }
+.orbit-tr { top: 20%; right: 3%; }
+.orbit-bl { bottom: 17%; left: 3%; }
+.orbit-br { bottom: 17%; right: 3%; }
+
+.orbit-head {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.orbit-ico {
+  width: 24px;
+  height: 24px;
+  border-radius: 7px;
+  display: grid;
+  place-items: center;
+  font-size: 0.78rem;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+.orbit-ico.blue { background: rgba(37, 99, 235, 0.35); color: #93c5fd; }
+.orbit-ico.mint { background: rgba(22, 163, 74, 0.35); color: #86efac; }
+.orbit-ico.amber { background: rgba(245, 158, 11, 0.3); color: #fde68a; }
+.orbit-ico.sky { background: rgba(14, 165, 233, 0.35); color: #7dd3fc; }
+.orbit-kicker {
+  font-size: 0.75rem;
+  font-weight: 700;
+  color: #e2e8f0;
+  flex: 1;
+}
+.orbit-val {
+  font-size: 1.32rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.02em;
+}
+.orbit-sub {
+  font-size: 0.71rem;
+  color: #94a3b8;
+}
+
+.sphere-dock {
+  position: relative;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.glow-btn {
+  box-shadow: 0 0 24px rgba(37, 99, 235, 0.55);
+}
+.glass-btn {
+  background: rgba(255, 255, 255, 0.12);
+  color: #ffffff;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  backdrop-filter: blur(8px);
+}
+.glass-btn:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+@media (max-width: 960px) {
+  .sphere-stage { gap: 12px; min-height: auto; }
+  .sphere-core-badge { position: relative; left: auto; top: auto; transform: none; margin: 16px auto; }
+  .orbit-card { position: relative; top: auto; left: auto; right: auto; bottom: auto; width: 100%; }
+}
+
+/* Visual Benchmark Comparison Bars (replaces text walls) */
+.bench-head { flex-wrap: nowrap; }
+.bench-head .delta-pill { white-space: nowrap; flex-shrink: 0; }
+.bench-bars {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 2px 0;
+}
+.bench-bar-row {
+  display: grid;
+  grid-template-columns: 44px 1fr 48px;
+  align-items: center;
+  gap: 7px;
+  font-size: 0.71rem;
+  font-variant-numeric: tabular-nums;
+}
+.bench-track {
+  height: 7px;
+  border-radius: 999px;
+  background: #e2e8f0;
+  overflow: hidden;
+}
+.bench-fill {
+  height: 100%;
+  border-radius: 999px;
+  display: block;
+}
+.bench-fill.you { background: var(--blue); }
+.bench-fill.you.over { background: var(--rose); }
+.bench-fill.you.under { background: var(--mint); }
+.bench-fill.avg { background: #94a3b8; }

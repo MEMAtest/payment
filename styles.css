@@ -1126,196 +1126,466 @@ dialog::backdrop { background: rgba(15, 23, 42, 0.42); backdrop-filter: blur(3px
 }
 
 /* ============================================================
-   BOLD 3D SPHERE HOMEPAGE STAGE + ORBITING FINANCE CARDS
+   OBSIDIAN LUXURY 3D SPHERE HOMEPAGE (matches bespoke mockup)
    ============================================================ */
-.sphere-stage {
-  position: relative;
-  min-height: calc(100dvh - 88px);
-  border-radius: 22px;
-  overflow: hidden;
-  background: radial-gradient(circle at 50% 48%, #1d4ed8 0%, #0f172a 62%, #070d19 100%);
+body.is-landing-hero {
+  background: radial-gradient(ellipse 85% 60% at 50% 30%, #141c2f 0%, #090d16 58%, #06080f 100%);
+  color: #f8fafc;
+}
+body.is-landing-hero .topbar {
+  background: rgba(9, 13, 22, 0.84);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+}
+body.is-landing-hero .brand-name { color: #ffffff; }
+body.is-landing-hero .sync-pill {
+  background: rgba(255, 255, 255, 0.08);
+  color: #cbd5e1;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+body.is-landing-hero .nav-pill {
+  color: #cbd5e1;
+}
+body.is-landing-hero .nav-pill:hover {
+  background: rgba(255, 255, 255, 0.08);
   color: #ffffff;
-  box-shadow: 0 22px 54px rgba(15, 23, 42, 0.25);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  padding: 20px 24px 18px;
+}
+body.is-landing-hero .nav-pill[aria-current="page"] {
+  background: linear-gradient(135deg, #f2cda4 0%, #d8a272 100%);
+  color: #16110b;
+  box-shadow: 0 4px 18px rgba(232, 184, 138, 0.32);
+}
+body.is-landing-hero .topbar-right .btn.soft {
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+}
+body.is-landing-hero .topbar-right .btn.soft:hover {
+  background: rgba(255, 255, 255, 0.14);
+}
+body.is-landing-hero .topbar-right .btn.mint {
+  background: rgba(16, 185, 129, 0.18);
+  color: #86efac;
+  border: 1px solid rgba(110, 231, 183, 0.32);
+}
+body.is-landing-hero .workspace-main {
+  padding-top: 12px;
+  padding-bottom: 20px;
 }
 
-.sphere-canvas {
+.lux-home {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  padding: 6px 4px 14px;
+  overflow: hidden;
+}
+
+.lux-ribbon-bg {
   position: absolute;
   inset: 0;
-  width: 100%;
-  height: 100%;
-  cursor: grab;
-  z-index: 1;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse 46% 36% at 50% 34%, rgba(56, 189, 248, 0.13) 0%, transparent 70%),
+    radial-gradient(ellipse 36% 28% at 58% 24%, rgba(232, 184, 138, 0.12) 0%, transparent 68%),
+    radial-gradient(ellipse 70% 18% at 50% 98%, rgba(232, 184, 138, 0.14) 0%, rgba(56, 189, 248, 0.09) 45%, transparent 72%);
 }
-.sphere-canvas:active { cursor: grabbing; }
 
-.sphere-top-copy {
+/* TOP 3-COLUMN HERO BENTO */
+.lux-hero-grid {
   position: relative;
-  z-index: 3;
-  text-align: center;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(270px, 0.96fr) minmax(320px, 1.24fr) minmax(260px, 0.88fr);
+  gap: 18px;
+  align-items: center;
+}
+
+.lux-col-left,
+.lux-col-right {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  gap: 8px;
-  pointer-events: none;
+  gap: 12px;
 }
 
-.sphere-pill {
+.lux-copy-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.lux-engine-pill {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  padding: 4px 12px;
+  gap: 8px;
+  padding: 5px 13px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
-  font-size: 0.72rem;
-  font-weight: 700;
-  color: #bae6fd;
-  backdrop-filter: blur(8px);
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  font-size: 0.74rem;
+  font-weight: 600;
+  color: #cbd5e1;
+  backdrop-filter: blur(10px);
 }
 
-.sphere-headline {
+.lux-headline {
   margin: 0;
-  font-size: clamp(1.75rem, 3.2vw, 2.55rem);
+  font-size: clamp(2rem, 3.2vw, 2.85rem);
   font-weight: 800;
-  letter-spacing: -0.03em;
-  line-height: 1.1;
+  line-height: 1.04;
+  letter-spacing: -0.035em;
+  color: #f8fafc;
+}
+.lux-gold-text {
+  background: linear-gradient(135deg, #fbe2c4 0%, #e5b283 58%, #cf8f5b 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
 }
 
-.sphere-core-badge {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  z-index: 3;
-  display: flex;
-  flex-direction: column;
+.lux-subline {
+  margin: 0;
+  font-size: 0.86rem;
+  color: #94a3b8;
+  letter-spacing: 0.01em;
+}
+
+/* Warm Champagne Gold CTA Button */
+.lux-gold-btn {
+  display: inline-flex;
   align-items: center;
-  gap: 4px;
-  padding: 16px 24px;
-  border-radius: 20px;
-  background: rgba(15, 23, 42, 0.62);
+  justify-content: center;
+  gap: 8px;
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 232, 204, 0.45);
+  background: linear-gradient(135deg, #f3cfa6 0%, #d9a06c 100%);
+  color: #16100a;
+  font: 700 0.86rem/1 var(--font);
+  cursor: pointer;
+  box-shadow: 0 8px 26px rgba(226, 169, 114, 0.3);
+  transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
+}
+.lux-gold-btn.lg {
+  padding: 12px 26px;
+  font-size: 0.9rem;
+}
+.lux-gold-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 32px rgba(226, 169, 114, 0.46);
+  filter: brightness(1.04);
+}
+
+.lux-glass-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 22px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  background: rgba(255, 255, 255, 0.06);
+  color: #e2e8f0;
+  font: 600 0.86rem/1 var(--font);
+  cursor: pointer;
   backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(125, 211, 252, 0.35);
-  box-shadow: 0 0 40px rgba(56, 189, 248, 0.24);
-  cursor: pointer;
-  transition: transform 0.2s ease, border-color 0.2s ease;
+  transition: transform 0.18s ease, background 0.18s ease, border-color 0.18s ease;
 }
-.sphere-core-badge:hover {
-  transform: translate(-50%, -52%) scale(1.03);
-  border-color: rgba(110, 231, 183, 0.7);
-}
-.core-label {
-  font-size: 0.72rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #bae6fd;
-}
-.core-value {
-  font-size: clamp(1.8rem, 3vw, 2.45rem);
-  font-weight: 800;
-  letter-spacing: -0.03em;
-  font-variant-numeric: tabular-nums;
-  line-height: 1.05;
-}
-
-/* 4 Orbiting Finance Cards radiating from the sphere */
-.orbit-card {
-  position: absolute;
-  z-index: 3;
-  width: 248px;
-  text-align: left;
-  padding: 12px 14px;
-  border-radius: 16px;
-  background: rgba(15, 23, 42, 0.64);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(148, 163, 184, 0.28);
+.lux-glass-btn:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.12);
+  border-color: rgba(232, 184, 138, 0.45);
   color: #ffffff;
-  cursor: pointer;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.28);
-  transition: transform 0.2s ease, border-color 0.2s ease, background 0.2s ease;
 }
-.orbit-card:hover {
-  transform: translateY(-3px) scale(1.02);
-  border-color: rgba(125, 211, 252, 0.7);
-  background: rgba(30, 58, 138, 0.62);
-}
-.orbit-tl { top: 20%; left: 3%; }
-.orbit-tr { top: 20%; right: 3%; }
-.orbit-bl { bottom: 17%; left: 3%; }
-.orbit-br { bottom: 17%; right: 3%; }
 
-.orbit-head {
+/* Dark Obsidian Glass Cards */
+.lux-card {
+  position: relative;
+  border-radius: 18px;
+  background: linear-gradient(155deg, rgba(28, 35, 52, 0.72) 0%, rgba(15, 20, 32, 0.86) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 16px 36px rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  color: #f8fafc;
+  text-align: left;
+  transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+.lux-card:hover {
+  transform: translateY(-2px);
+  border-color: rgba(232, 184, 138, 0.42);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 18px 42px rgba(0, 0, 0, 0.45);
+}
+
+.lux-metric-card {
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 12px;
+  padding: 14px 16px;
+  width: 100%;
+  cursor: pointer;
 }
-.orbit-ico {
-  width: 24px;
-  height: 24px;
-  border-radius: 7px;
+.lux-ico-box {
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(232, 184, 138, 0.24);
+  color: #e8b88a;
   display: grid;
   place-items: center;
-  font-size: 0.78rem;
-  font-weight: 800;
   flex-shrink: 0;
 }
-.orbit-ico.blue { background: rgba(37, 99, 235, 0.35); color: #93c5fd; }
-.orbit-ico.mint { background: rgba(22, 163, 74, 0.35); color: #86efac; }
-.orbit-ico.amber { background: rgba(245, 158, 11, 0.3); color: #fde68a; }
-.orbit-ico.sky { background: rgba(14, 165, 233, 0.35); color: #7dd3fc; }
-.orbit-kicker {
-  font-size: 0.75rem;
-  font-weight: 700;
-  color: #e2e8f0;
+.lux-ico-box.sm {
+  width: 34px;
+  height: 34px;
+  border-radius: 10px;
+}
+.lux-metric-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
   flex: 1;
+  min-width: 0;
 }
-.orbit-val {
-  font-size: 1.32rem;
+.lux-card-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #cbd5e1;
+}
+.lux-card-val {
+  font-size: 1.38rem;
   font-weight: 800;
+  letter-spacing: -0.025em;
   font-variant-numeric: tabular-nums;
-  letter-spacing: -0.02em;
+  line-height: 1.15;
+  color: #ffffff;
 }
-.orbit-sub {
-  font-size: 0.71rem;
+.lux-card-sub {
+  font-size: 0.72rem;
   color: #94a3b8;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.sphere-dock {
+.lux-mint-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(167, 243, 208, 0.92);
+  color: #064e3b;
+  font-size: 0.74rem;
+  font-weight: 800;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-variant-numeric: tabular-nums;
+}
+.lux-mint-pill.lg {
+  padding: 6px 14px;
+  font-size: 0.84rem;
+}
+.lux-mint-pill.neg {
+  background: rgba(254, 205, 211, 0.92);
+  color: #881337;
+}
+.lux-slate-pill {
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(148, 163, 184, 0.16);
+  border: 1px solid rgba(148, 163, 184, 0.28);
+  color: #e2e8f0;
+  font-size: 0.74rem;
+  font-weight: 700;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* Right Column: Total Net Worth Hero Card */
+.lux-nw-card {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 22px 22px 20px;
+  width: 100%;
+  cursor: pointer;
+  background:
+    radial-gradient(circle at 88% 92%, rgba(232, 184, 138, 0.28) 0%, transparent 56%),
+    linear-gradient(155deg, rgba(30, 38, 56, 0.76) 0%, rgba(16, 21, 34, 0.9) 100%);
+  border-color: rgba(232, 184, 138, 0.28);
+}
+.lux-nw-label {
+  font-size: 0.92rem;
+  font-weight: 600;
+  color: #e2e8f0;
+}
+.lux-nw-val {
+  font-size: clamp(2rem, 3.1vw, 2.65rem);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+  font-variant-numeric: tabular-nums;
+  color: #ffffff;
+}
+
+/* Center Column: 360° Financial Waveform Sphere */
+.lux-col-sphere {
   position: relative;
-  z-index: 3;
+  height: 390px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
 }
-.glow-btn {
-  box-shadow: 0 0 24px rgba(37, 99, 235, 0.55);
+.lux-sphere-canvas {
+  width: 100%;
+  height: 100%;
+  cursor: grab;
+  display: block;
 }
-.glass-btn {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  backdrop-filter: blur(8px);
+.lux-sphere-canvas:active { cursor: grabbing; }
+
+.sphere-float-pill {
+  position: absolute;
+  z-index: 3;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 11px;
+  border-radius: 999px;
+  background: rgba(15, 22, 36, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.22);
+  backdrop-filter: blur(10px);
+  color: #f8fafc;
+  font-size: 0.72rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.36);
+  pointer-events: none;
 }
-.glass-btn:hover {
-  background: rgba(255, 255, 255, 0.22);
+.fp-left { top: 34%; left: 3%; }
+.fp-top { top: 10%; right: 12%; border-color: rgba(232, 184, 138, 0.4); }
+.fp-right { bottom: 26%; right: 4%; border-color: rgba(96, 165, 250, 0.4); }
+
+/* Bottom Row: 2 Live Visual Chart Cards */
+.lux-charts-row {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: minmax(0, 0.84fr) minmax(0, 1.16fr);
+  gap: 16px;
 }
 
-@media (max-width: 960px) {
-  .sphere-stage { gap: 12px; min-height: auto; }
-  .sphere-core-badge { position: relative; left: auto; top: auto; transform: none; margin: 16px auto; }
-  .orbit-card { position: relative; top: auto; left: auto; right: auto; bottom: auto; width: 100%; }
+.lux-chart-card {
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+}
+.lux-chart-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.lux-chart-title-wrap {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}
+.lux-chart-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: #ffffff;
+}
+.lux-chart-sub {
+  font-size: 0.73rem;
+  color: #94a3b8;
+}
+
+.lux-donut-body {
+  display: grid;
+  grid-template-columns: 146px 1fr;
+  align-items: center;
+  gap: 18px;
+}
+.lux-donut-svg {
+  width: 146px;
+  height: 146px;
+}
+.lux-donut-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+.lux-legend-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 0.8rem;
+  color: #cbd5e1;
+  font-variant-numeric: tabular-nums;
+}
+.lux-legend-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.lux-legend-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+.lux-legend-pct {
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.lux-area-chart {
+  width: 100%;
+  height: 152px;
+  position: relative;
+}
+
+/* Bottom Action Dock */
+.lux-dock {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding-top: 4px;
+}
+
+@media (max-width: 1020px) {
+  .lux-hero-grid {
+    grid-template-columns: 1fr;
+  }
+  .lux-col-sphere {
+    height: 310px;
+    order: -1;
+  }
+  .lux-charts-row {
+    grid-template-columns: 1fr;
+  }
+  .lux-donut-body {
+    grid-template-columns: 120px 1fr;
+  }
+  .lux-donut-svg { width: 120px; height: 120px; }
 }
 
 /* Visual Benchmark Comparison Bars (replaces text walls) */

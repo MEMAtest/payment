@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261123-1" />
+  <link rel="stylesheet" href="styles.css?v=20261125-1" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#2563eb" />
   <link rel="icon" href="icons/paytp-logo.svg" type="image/svg+xml" />
@@ -29,13 +29,15 @@
       <nav class="primary-nav" aria-label="Primary">
         <button type="button" class="nav-pill" data-nav="landing" aria-current="page">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <circle cx="12" cy="12" r="10" /><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+            <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1V9.5z" />
           </svg>
-          <span>Welcome</span>
+          <span>Home</span>
         </button>
         <button type="button" class="nav-pill" data-nav="overview">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
-            <path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1h-5.5v-6h-5v6H4a1 1 0 0 1-1-1V9.5z" />
+            <polygon points="12 2 2 7 12 12 22 7 12 2" />
+            <polyline points="2 12 12 17 22 12" />
+            <polyline points="2 17 12 22 22 17" />
           </svg>
           <span>Overview</span>
         </button>
@@ -78,72 +80,120 @@
     <main id="workspace-main" class="workspace-main">
 
       <!-- ============================================================
-           VIEW 0: BOLD 3D SPHERE HOMEPAGE (Centerpiece Globe + Orbiting Finance Clarity)
+           VIEW 0: OBSIDIAN LUXURY 3D SPHERE HOMEPAGE
            ============================================================ -->
-      <section class="view-panel landing-view" data-view="landing" aria-label="Welcome to Paytp">
-        <div class="sphere-stage" id="sphere-stage">
-          <!-- Full-stage 360° 3D Particle Sphere + Animated Finance Tethers -->
-          <canvas id="landing-globe-canvas" class="sphere-canvas" aria-label="Interactive 360 degree 3D wealth sphere"></canvas>
+      <section class="view-panel landing-view" data-view="landing" aria-label="Paytp Home">
+        <div class="lux-home" id="sphere-stage">
+          <!-- Ambient golden & ice-blue wave ribbons -->
+          <div class="lux-ribbon-bg" aria-hidden="true"></div>
 
-          <!-- Top Minimal Header Overlay -->
-          <div class="sphere-top-copy">
-            <span class="sphere-pill"><span class="live-dot"></span> UK 2026/27 · Open Live Engine</span>
-            <h1 class="sphere-headline">Clarity on every <span class="grad-text">UK pound</span>.</h1>
+          <!-- TOP 3-COLUMN HERO BENTO -->
+          <div class="lux-hero-grid">
+            <!-- Left Column: Editorial Headline + Stacked Metric Cards -->
+            <div class="lux-col-left">
+              <div class="lux-copy-block">
+                <span class="lux-engine-pill"><span class="live-dot"></span> UK 2026/27 · Open Live Engine</span>
+                <h1 class="lux-headline">Clarity on every<br /><span class="lux-gold-text">UK pound.</span></h1>
+                <p class="lux-subline">Accounts · Investments · Cashflow · Insights</p>
+                <button type="button" class="lux-gold-btn" id="landing-enter-top-btn" data-goto="overview">Enter Dashboard →</button>
+              </div>
+
+              <button type="button" class="lux-card lux-metric-card" data-goto="investments">
+                <div class="lux-ico-box">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>
+                </div>
+                <div class="lux-metric-body">
+                  <span class="lux-card-label">Investments</span>
+                  <strong class="lux-card-val" id="orb-inv">£0</strong>
+                  <span class="lux-card-sub" id="orb-inv-sub">ISA · SIPP · GIA</span>
+                </div>
+                <span class="lux-mint-pill" id="orb-inv-pct">+0.0%</span>
+              </button>
+
+              <button type="button" class="lux-card lux-metric-card" data-kpi-modal="surplus">
+                <div class="lux-ico-box">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                </div>
+                <div class="lux-metric-body">
+                  <span class="lux-card-label">Monthly Surplus</span>
+                  <strong class="lux-card-val" id="orb-surplus">£0</strong>
+                  <span class="lux-card-sub" id="orb-surplus-sub">UK 2026/27 take-home − spend</span>
+                </div>
+                <span class="lux-mint-pill" id="orb-surplus-pct">+41%</span>
+              </button>
+            </div>
+
+            <!-- Center Column: Interactive 360° Financial Waveform Sphere -->
+            <div class="lux-col-sphere">
+              <canvas id="landing-globe-canvas" class="lux-sphere-canvas" aria-label="Interactive 360 degree 3D financial sphere"></canvas>
+              <span class="sphere-float-pill fp-left" id="sphere-pill-inv">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="9"/><line x1="18" y1="20" x2="18" y2="4"/></svg>
+                <span id="sphere-pill-inv-val">+25.1%</span>
+              </span>
+              <span class="sphere-float-pill fp-top" id="sphere-pill-nw">▲ +8.7%</span>
+              <span class="sphere-float-pill fp-right" id="sphere-pill-mom">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="9"/><line x1="18" y1="20" x2="18" y2="4"/></svg>
+                <span id="sphere-pill-mom-val">MoM +4.7%</span>
+              </span>
+            </div>
+
+            <!-- Right Column: Total Net Worth Hero Card + Cash & Runway -->
+            <div class="lux-col-right">
+              <button type="button" class="lux-card lux-nw-card" data-goto="overview" title="Open full financial dashboard">
+                <span class="lux-nw-label">Total Net Worth</span>
+                <strong class="lux-nw-val" id="landing-live-nw">£0</strong>
+                <span class="lux-mint-pill lg" id="landing-nw-delta">↑ +8.7% (6M)</span>
+              </button>
+
+              <button type="button" class="lux-card lux-metric-card" data-kpi-modal="cash">
+                <div class="lux-ico-box">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 12h4"/></svg>
+                </div>
+                <div class="lux-metric-body">
+                  <span class="lux-card-label">Cash &amp; Runway</span>
+                  <strong class="lux-card-val" id="orb-cash">£0</strong>
+                  <span class="lux-card-sub" id="orb-debt-sub">Liquid safety buffer</span>
+                </div>
+                <span class="lux-slate-pill" id="orb-runway">0 mo</span>
+              </button>
+            </div>
           </div>
 
-          <!-- Center Live Net Worth Badge over the 3D Sphere -->
-          <div class="sphere-core-badge" data-goto="overview" role="button" tabindex="0" title="Open full financial dashboard">
-            <span class="core-label">Total Net Worth</span>
-            <strong class="core-value" id="landing-live-nw">£0</strong>
-            <span class="delta-pill pos" id="landing-nw-delta">↑ +8.7% (6M)</span>
+          <!-- BOTTOM VISUAL CHARTS ROW (Live Spending Donut + Live Net Worth Trend) -->
+          <div class="lux-charts-row">
+            <div class="lux-card lux-chart-card" data-goto="statements" role="button" tabindex="0" title="Explore Insights & Statements">
+              <div class="lux-chart-head">
+                <div class="lux-ico-box sm">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+                </div>
+                <strong class="lux-chart-title">Spending this month</strong>
+              </div>
+              <div class="lux-donut-body">
+                <div id="landing-spend-donut" class="lux-donut-svg"></div>
+                <div id="landing-spend-legend" class="lux-donut-legend"></div>
+              </div>
+            </div>
+
+            <div class="lux-card lux-chart-card" data-goto="overview" role="button" tabindex="0" title="Explore Wealth Overview">
+              <div class="lux-chart-head">
+                <div class="lux-ico-box sm">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                </div>
+                <div class="lux-chart-title-wrap">
+                  <strong class="lux-chart-title">Net Worth Trend</strong>
+                  <span class="lux-chart-sub">Last 12 months</span>
+                </div>
+                <span class="lux-mint-pill" id="landing-trend-badge">↑ +8.7%</span>
+              </div>
+              <div id="landing-nw-chart" class="lux-area-chart"></div>
+            </div>
           </div>
 
-          <!-- 4 Interactive Finance Cards Radiating Out from the Sphere -->
-          <button type="button" class="orbit-card orbit-tl" data-kpi-modal="surplus">
-            <div class="orbit-head">
-              <span class="orbit-ico blue">£</span>
-              <span class="orbit-kicker">Monthly Surplus</span>
-              <span class="delta-pill pos" id="orb-surplus-pct">41%</span>
-            </div>
-            <strong class="orbit-val" id="orb-surplus">£0</strong>
-            <span class="orbit-sub" id="orb-surplus-sub">UK 2026/27 take-home − spend</span>
-          </button>
-
-          <button type="button" class="orbit-card orbit-tr" data-goto="investments">
-            <div class="orbit-head">
-              <span class="orbit-ico mint">↗</span>
-              <span class="orbit-kicker">Investments</span>
-              <span class="delta-pill pos" id="orb-inv-pct">+0.0%</span>
-            </div>
-            <strong class="orbit-val" id="orb-inv">£0</strong>
-            <span class="orbit-sub" id="orb-inv-sub">ISA · SIPP · GIA · Crypto</span>
-          </button>
-
-          <button type="button" class="orbit-card orbit-bl" data-goto="statements">
-            <div class="orbit-head">
-              <span class="orbit-ico amber">📊</span>
-              <span class="orbit-kicker">Spending &amp; Insights</span>
-              <span class="delta-pill pos" id="orb-mom-pill">MoM</span>
-            </div>
-            <strong class="orbit-val" id="orb-spend">£0 / mo</strong>
-            <span class="orbit-sub" id="orb-spend-sub">ONS UK benchmarks · Recurring</span>
-          </button>
-
-          <button type="button" class="orbit-card orbit-br" data-kpi-modal="cash">
-            <div class="orbit-head">
-              <span class="orbit-ico sky">🛡️</span>
-              <span class="orbit-kicker">Cash &amp; Runway</span>
-              <span class="delta-pill neutral" id="orb-runway">0 mo</span>
-            </div>
-            <strong class="orbit-val" id="orb-cash">£0</strong>
-            <span class="orbit-sub" id="orb-debt-sub">Liquid safety buffer</span>
-          </button>
-
-          <!-- Bottom Bold Action Dock -->
-          <div class="sphere-dock">
-            <button type="button" class="btn primary lg glow-btn" id="landing-enter-btn" data-goto="overview">Enter Dashboard →</button>
-            <button type="button" class="btn glass-btn lg" id="landing-import-btn">↑ Drop Bank / Broker CSV</button>
-            <button type="button" class="btn glass-btn lg" id="landing-blank-btn">Start Blank</button>
+          <!-- BOTTOM ACTION DOCK -->
+          <div class="lux-dock">
+            <button type="button" class="lux-gold-btn lg" id="landing-enter-btn" data-goto="overview">Enter Dashboard →</button>
+            <button type="button" class="lux-glass-btn lg" id="landing-import-btn">↑ Drop Bank / Broker CSV</button>
+            <button type="button" class="lux-glass-btn lg" id="landing-blank-btn">+ Start Blank</button>
           </div>
         </div>
       </section>
@@ -918,7 +968,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
   <script src="app-import-parse.js?v=20261122-4" defer></script>
   <script src="app-investments-parse.js?v=20261122-4" defer></script>
-  <script src="app-workspace.js?v=20261123-1" defer></script>
+  <script src="app-workspace.js?v=20261125-1" defer></script>
 </body>
 
 </html>

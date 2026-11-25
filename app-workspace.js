@@ -670,21 +670,31 @@
     const landNW = document.getElementById("landing-live-nw");
     if (landNW) landNW.textContent = formatCurrency(netWorth);
     const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-    setTxt("orb-surplus", formatSignedCurrency(surplus));
-    setTxt("orb-surplus-pct", `${surplusRate}%`);
+    setTxt("orb-surplus", formatCurrency(Math.max(0, surplus)));
+    setTxt("orb-surplus-pct", `${surplus >= 0 ? "+" : ""}${surplusRate}%`);
     setTxt("orb-surplus-sub", `${formatCurrency(monthlyIn)} in · ${formatCurrency(monthlyOut)} out`);
     setTxt("orb-inv", formatCurrency(port.totalValue));
-    setTxt("orb-inv-pct", port.totalCost > 0 ? `${port.returnPct >= 0 ? "+" : ""}${port.returnPct.toFixed(1)}%` : "—");
+    const invPctStr = port.totalCost > 0 ? `${port.returnPct >= 0 ? "+" : ""}${port.returnPct.toFixed(1)}%` : "—";
+    setTxt("orb-inv-pct", invPctStr);
+    setTxt("sphere-pill-inv-val", invPctStr);
     setTxt("orb-inv-sub", `${holdings.length} holdings · ${port.totalValue > 0 ? Math.round((port.taxWrapped / port.totalValue) * 100) : 0}% ISA/SIPP`);
-    setTxt("orb-spend", `${formatCurrency(monthlyOut)} / mo`);
     setTxt("orb-cash", formatCurrency(cash));
     setTxt("orb-runway", monthlyOut > 0 ? `${(cash / monthlyOut).toFixed(1)} mo` : "—");
     setTxt("orb-debt-sub", debt > 0 ? `Debt: ${formatCurrency(debt)}` : "Debt-free buffer");
+
+    // Live Dark-Luxury Spending Donut on Homepage
+    renderLandingSpendDonut(monthlyOut);
+
     const hMap = { "3M": { f: 0.96, lbl: ["Sep", "Oct", "Nov"] }, "6M": { f: 0.92, lbl: ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov"] }, "12M": { f: 0.85, lbl: ["Dec", "Mar", "Jun", "Sep", "Nov"] }, All: { f: 0.74, lbl: ["2025", "Q3", "2026", "Q3", "Now"] } };
     const cfg = hMap[ovRange] || hMap["6M"];
     const startNW = Math.max(0, netWorth * cfg.f);
     const deltaNW = netWorth - startNW;
     const deltaPct = startNW > 0 ? (deltaNW / startNW) * 100 : 0;
+
+    setTxt("landing-nw-delta", `↑ +${deltaPct.toFixed(1)}% (${ovRange})`);
+    setTxt("sphere-pill-nw", `▲ +${deltaPct.toFixed(1)}%`);
+    setTxt("landing-trend-badge", `↑ +${deltaPct.toFixed(1)}%`);
+    renderLandingNetWorthChart(netWorth);
 
     document.getElementById("ov-net-delta").textContent = `↑ +${deltaPct.toFixed(1)}%`;
     const lblEl = document.getElementById("ov-change-label");
@@ -1160,6 +1170,7 @@
     let matched = false;
     document.querySelectorAll("[data-view]").forEach((p) => { const a = p.dataset.view === viewName; p.hidden = !a; if (a) matched = true; });
     if (!matched) { viewName = "overview"; document.querySelector('[data-view="overview"]').hidden = false; }
+    document.body.classList.toggle("is-landing-hero", viewName === "landing");
     document.querySelectorAll("[data-nav]").forEach((btn) => { if (btn.dataset.nav === viewName) btn.setAttribute("aria-current", "page"); else btn.removeAttribute("aria-current"); });
     try { localStorage.setItem(STORAGE_KEYS.activeView, viewName); } catch {}
   }
@@ -1428,7 +1439,92 @@
     showNotification("Cleared demo data — ready for your own statements & holdings!", "success");
   }
 
-  // Interactive 360° Draggable 3D Particle Globe on Welcome Landing Page
+  // Dark-Luxury Spending Donut for Homepage
+  function renderLandingSpendDonut(monthlyOut) {
+    const svgWrap = document.getElementById("landing-spend-donut");
+    const legWrap = document.getElementById("landing-spend-legend");
+    if (!svgWrap || !legWrap) return;
+    const luxColors = ["#60a5fa", "#3b82f6", "#e8b88a", "#f1d7b8", "#a5b4fc", "#38bdf8"];
+    const slices = BUDGET_BUCKETS.map((b) => ({
+      label: b.label,
+      value: Math.max(0, Number(financeState.expenses?.[b.key]) || 0),
+    })).filter((s) => s.value > 0).sort((a, b) => b.value - a.value);
+    const total = slices.reduce((s, x) => s + x.value, 0);
+    if (total <= 0) {
+      svgWrap.innerHTML = `<svg viewBox="0 0 140 140" width="100%" height="100%"><circle cx="70" cy="70" r="50" fill="none" stroke="rgba(255,255,255,0.12)" stroke-width="18"/><text x="70" y="74" text-anchor="middle" font-size="12" fill="#94a3b8">£0</text></svg>`;
+      legWrap.innerHTML = `<span class="lux-card-sub">Import a statement or set budget</span>`;
+      return;
+    }
+    const r = 50, circ = 2 * Math.PI * r;
+    let offset = 0;
+    const segs = slices.map((s, i) => {
+      const dash = (s.value / total) * circ;
+      const el = `<circle cx="70" cy="70" r="${r}" fill="none" stroke="${luxColors[i % luxColors.length]}" stroke-width="18" stroke-dasharray="${dash.toFixed(2)} ${circ.toFixed(2)}" stroke-dashoffset="${(-offset).toFixed(2)}" transform="rotate(-90 70 70)"/>`;
+      offset += dash;
+      return el;
+    }).join("");
+    svgWrap.innerHTML = `<svg viewBox="0 0 140 140" width="100%" height="100%">
+      ${segs}
+      <text x="70" y="67" text-anchor="middle" font-size="17" font-weight="800" fill="#ffffff">${escapeHtml(formatCurrency(monthlyOut))}</text>
+      <text x="70" y="84" text-anchor="middle" font-size="10.5" fill="#94a3b8">This month</text>
+    </svg>`;
+    legWrap.innerHTML = slices.slice(0, 5).map((s, i) => {
+      const pct = Math.round((s.value / total) * 100);
+      return `<div class="lux-legend-row"><span class="lux-legend-left"><span class="lux-legend-dot" style="background:${luxColors[i % luxColors.length]}"></span>${escapeHtml(s.label)}</span><span class="lux-legend-pct">${pct}%</span></div>`;
+    }).join("");
+  }
+
+  // Dark-Luxury Glowing Ice-Blue 12-Month Net Worth Area Chart for Homepage
+  function renderLandingNetWorthChart(netWorth) {
+    const container = document.getElementById("landing-nw-chart");
+    if (!container) return;
+    const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const startVal = Math.max(0, netWorth * 0.86);
+    const series = buildSeriesPoints(netWorth, startVal, 12);
+    const dataMax = Math.max(...series, 100);
+    const dataMin = Math.min(...series);
+    const rawRange = Math.max(dataMax - dataMin, dataMax * 0.1, 100);
+    const minV = Math.max(0, dataMin - rawRange * 0.25);
+    const maxV = dataMax + rawRange * 0.18;
+    const span = Math.max(1, maxV - minV);
+
+    const w = 520, h = 152, padL = 44, padR = 14, padT = 12, padB = 22;
+    const xPos = (i) => padL + (i / (series.length - 1)) * (w - padL - padR);
+    const yPos = (v) => padT + (1 - (v - minV) / span) * (h - padT - padB);
+    const pts = series.map((v, i) => [xPos(i), yPos(v)]);
+    const lineD = smoothPath(pts);
+    const areaD = `${lineD} L${pts[pts.length - 1][0].toFixed(1)},${h - padB} L${pts[0][0].toFixed(1)},${h - padB} Z`;
+    const lastPt = pts[pts.length - 1];
+
+    const yTicks = [minV, minV + span * 0.33, minV + span * 0.66, maxV];
+    const gridSvg = yTicks.map((tv) => {
+      const y = yPos(tv).toFixed(1);
+      return `<line x1="${padL}" y1="${y}" x2="${w - padR}" y2="${y}" stroke="rgba(255,255,255,0.08)" stroke-width="1"/>
+              <text x="${padL - 7}" y="${Number(y) + 3}" text-anchor="end" font-size="9" fill="#94a3b8">${escapeHtml(formatCompact(tv))}</text>`;
+    }).join("");
+    const xSvg = months.map((m, i) => `<text x="${xPos(i).toFixed(1)}" y="${h - 5}" text-anchor="middle" font-size="9" fill="#94a3b8">${m}</text>`).join("");
+
+    container.innerHTML = `<svg viewBox="0 0 ${w} ${h}" width="100%" height="100%" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="luxAreaGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#38bdf8" stop-opacity="0.34"/>
+          <stop offset="100%" stop-color="#38bdf8" stop-opacity="0.01"/>
+        </linearGradient>
+        <filter id="luxGlow" x="-10%" y="-20%" width="120%" height="140%">
+          <feGaussianBlur stdDeviation="3.2" result="blur"/>
+          <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+        </filter>
+      </defs>
+      ${gridSvg}
+      <path d="${areaD}" fill="url(#luxAreaGrad)"/>
+      <path d="${lineD}" fill="none" stroke="#7dd3fc" stroke-width="2.4" stroke-linecap="round" filter="url(#luxGlow)"/>
+      <circle cx="${lastPt[0].toFixed(1)}" cy="${lastPt[1].toFixed(1)}" r="8" fill="rgba(125,211,252,0.28)"/>
+      <circle cx="${lastPt[0].toFixed(1)}" cy="${lastPt[1].toFixed(1)}" r="4" fill="#ffffff" stroke="#38bdf8" stroke-width="2"/>
+      ${xSvg}
+    </svg>`;
+  }
+
+  // Interactive 360° Financial Waveform 3D Sphere on Homepage
   function initLanding360Globe() {
     const canvas = document.getElementById("landing-globe-canvas");
     if (!canvas || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
@@ -1436,7 +1532,7 @@
     if (!ctx) return;
 
     const pts = [];
-    const N = 160;
+    const N = 260;
     for (let i = 0; i < N; i++) {
       const phi = Math.acos(1 - (2 * (i + 0.5)) / N);
       const theta = Math.PI * (1 + Math.sqrt(5)) * i;
@@ -1444,12 +1540,12 @@
         x: Math.sin(phi) * Math.cos(theta),
         y: Math.cos(phi),
         z: Math.sin(phi) * Math.sin(theta),
-        c: i % 4 === 0 ? "#6ee7b7" : i % 4 === 1 ? "#38bdf8" : i % 4 === 2 ? "#93c5fd" : "#f8fafc",
+        c: i % 5 === 0 ? "#f3cfa6" : i % 3 === 0 ? "#7dd3fc" : i % 2 === 0 ? "#93c5fd" : "#ffffff",
       });
     }
 
-    let rotY = 0;
-    let rotX = 0.22;
+    let rotY = 0.4;
+    let rotX = 0.18;
     let dragging = false;
     let lastX = 0;
     let lastY = 0;
@@ -1459,83 +1555,169 @@
     window.addEventListener("pointermove", (e) => {
       if (!dragging) return;
       rotY += (e.clientX - lastX) * 0.008;
-      rotX = Math.max(-1.1, Math.min(1.1, rotX + (e.clientY - lastY) * 0.006));
+      rotX = Math.max(-1.0, Math.min(1.0, rotX + (e.clientY - lastY) * 0.006));
       lastX = e.clientX;
       lastY = e.clientY;
     });
 
     function draw() {
-      const w = (canvas.width = canvas.offsetWidth || 460);
-      const h = (canvas.height = canvas.offsetHeight || 420);
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const w = canvas.offsetWidth || 440;
+      const h = canvas.offsetHeight || 390;
+      if (canvas.width !== Math.round(w * dpr) || canvas.height !== Math.round(h * dpr)) {
+        canvas.width = Math.round(w * dpr);
+        canvas.height = Math.round(h * dpr);
+      }
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       ctx.clearRect(0, 0, w, h);
-      if (!dragging) rotY += 0.0055;
 
-      const cx = w / 2;
-      const cy = h * 0.5;
-      const rad = Math.min(w, h) * 0.34;
+      const t = Date.now() * 0.001;
+      if (!dragging) rotY += 0.0045;
+
+      const cx = w * 0.5;
+      const cy = h * 0.47;
+      const rad = Math.min(w, h) * 0.36;
       const cosY = Math.cos(rotY), sinY = Math.sin(rotY);
       const cosX = Math.cos(rotX), sinX = Math.sin(rotX);
 
-      // Glowing animated energy beams radiating from the 3D sphere out to the 4 finance orbit cards!
-      if (w > 900) {
-        const targets = [
-          { x: w * 0.16, y: h * 0.28, col: "rgba(96, 165, 250, 0.42)" },
-          { x: w * 0.84, y: h * 0.28, col: "rgba(52, 211, 153, 0.42)" },
-          { x: w * 0.16, y: h * 0.74, col: "rgba(251, 191, 36, 0.38)" },
-          { x: w * 0.84, y: h * 0.74, col: "rgba(56, 189, 248, 0.42)" },
-        ];
-        const pulse = (Date.now() * 0.0012) % 1;
-        for (const t of targets) {
-          ctx.save();
-          ctx.strokeStyle = t.col;
-          ctx.lineWidth = 1.6;
-          ctx.setLineDash([6, 8]);
-          ctx.lineDashOffset = -(Date.now() * 0.025);
-          ctx.beginPath();
-          ctx.moveTo(cx, cy);
-          ctx.quadraticCurveTo((cx + t.x) / 2, cy, t.x, t.y);
-          ctx.stroke();
-          // Traveling energy orb along each finance beam
-          const u = pulse;
-          const ox = (1 - u) * (1 - u) * cx + 2 * (1 - u) * u * ((cx + t.x) / 2) + u * u * t.x;
-          const oy = (1 - u) * (1 - u) * cy + 2 * (1 - u) * u * cy + u * u * t.y;
-          ctx.fillStyle = "#ffffff";
-          ctx.beginPath();
-          ctx.arc(ox, oy, 3, 0, Math.PI * 2);
-          ctx.fill();
-          ctx.restore();
-        }
-      }
+      // 1. Glowing pedestal halo beneath the sphere
+      ctx.save();
+      const pedGrad = ctx.createRadialGradient(cx, cy + rad * 1.12, 6, cx, cy + rad * 1.12, rad * 1.08);
+      pedGrad.addColorStop(0, "rgba(243, 207, 166, 0.45)");
+      pedGrad.addColorStop(0.45, "rgba(56, 189, 248, 0.22)");
+      pedGrad.addColorStop(1, "rgba(0, 0, 0, 0)");
+      ctx.fillStyle = pedGrad;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + rad * 1.12, rad * 1.05, rad * 0.16, 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = "rgba(125, 211, 252, 0.4)";
+      ctx.lineWidth = 1.2;
+      ctx.beginPath();
+      ctx.ellipse(cx, cy + rad * 1.12, rad * 0.86, rad * 0.11, 0, 0, Math.PI * 2);
+      ctx.stroke();
+      ctx.restore();
 
+      // 2. Volumetric sphere atmosphere (warm amber top-right + ice-blue bottom-left)
+      const atm = ctx.createRadialGradient(cx + rad * 0.35, cy - rad * 0.38, rad * 0.08, cx, cy, rad * 1.25);
+      atm.addColorStop(0, "rgba(243, 207, 166, 0.26)");
+      atm.addColorStop(0.45, "rgba(59, 130, 246, 0.2)");
+      atm.addColorStop(0.8, "rgba(15, 23, 42, 0.35)");
+      atm.addColorStop(1, "rgba(15, 23, 42, 0)");
+      ctx.fillStyle = atm;
+      ctx.beginPath();
+      ctx.arc(cx, cy, rad * 1.22, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Luminous rim outline of the glass sphere
+      const rim = ctx.createLinearGradient(cx - rad, cy + rad, cx + rad, cy - rad);
+      rim.addColorStop(0, "rgba(96, 165, 250, 0.55)");
+      rim.addColorStop(0.5, "rgba(255, 255, 255, 0.18)");
+      rim.addColorStop(1, "rgba(243, 207, 166, 0.75)");
+      ctx.strokeStyle = rim;
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.arc(cx, cy, rad, 0, Math.PI * 2);
+      ctx.stroke();
+
+      // 3. Tilted glowing orbital rings (ice-blue + champagne gold)
+      const drawOrbitRing = (rx, ry, angle, color, satSpeed, satColor) => {
+        ctx.save();
+        ctx.translate(cx, cy);
+        ctx.rotate(angle);
+        ctx.strokeStyle = color;
+        ctx.lineWidth = 1.25;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2);
+        ctx.stroke();
+        const a = t * satSpeed;
+        const sx = Math.cos(a) * rx;
+        const sy = Math.sin(a) * ry;
+        ctx.fillStyle = satColor;
+        ctx.shadowColor = satColor;
+        ctx.shadowBlur = 10;
+        ctx.beginPath();
+        ctx.arc(sx, sy, 3.6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      };
+      drawOrbitRing(rad * 1.28, rad * 0.42, -0.26, "rgba(243, 207, 166, 0.42)", 0.55, "#fbe2c4");
+      drawOrbitRing(rad * 1.22, rad * 0.36, 0.24, "rgba(96, 165, 250, 0.38)", -0.45, "#7dd3fc");
+
+      // 4. 3D Projected Particle Constellation
       const projected = pts.map((p) => {
         const x1 = p.x * cosY - p.z * sinY;
         const z1 = p.x * sinY + p.z * cosY;
         const y2 = p.y * cosX - z1 * sinX;
         const z2 = p.y * sinX + z1 * cosX;
         const scale = 2.6 / (3.0 - z2);
-        return { sx: cx + x1 * rad * scale, sy: cy + y2 * rad * scale, z: z2, r: Math.max(1.3, scale * 2.5), c: p.c };
+        return { sx: cx + x1 * rad * scale * 0.88, sy: cy + y2 * rad * scale * 0.88, z: z2, r: Math.max(0.9, scale * 1.9), c: p.c };
       }).sort((a, b) => a.z - b.z);
 
-      ctx.strokeStyle = "rgba(125, 211, 252, 0.16)";
-      ctx.lineWidth = 0.9;
+      ctx.strokeStyle = "rgba(125, 211, 252, 0.1)";
+      ctx.lineWidth = 0.7;
       for (let i = 0; i < projected.length; i++) {
         const a = projected[i];
-        if (a.z < -0.1) continue;
-        for (let j = i + 1; j < Math.min(i + 7, projected.length); j++) {
+        if (a.z < 0) continue;
+        for (let j = i + 1; j < Math.min(i + 5, projected.length); j++) {
           const b = projected[j];
           const dx = a.sx - b.sx, dy = a.sy - b.sy;
-          if (dx * dx + dy * dy < 2400) {
+          if (dx * dx + dy * dy < 1600) {
             ctx.beginPath(); ctx.moveTo(a.sx, a.sy); ctx.lineTo(b.sx, b.sy); ctx.stroke();
           }
         }
       }
-
       for (const p of projected) {
-        ctx.globalAlpha = Math.max(0.18, (p.z + 1.2) / 2.2);
+        ctx.globalAlpha = Math.max(0.14, (p.z + 1.15) / 2.15);
         ctx.fillStyle = p.c;
         ctx.beginPath(); ctx.arc(p.sx, p.sy, p.r, 0, Math.PI * 2); ctx.fill();
       }
       ctx.globalAlpha = 1;
+
+      // 5. Dual Glowing 3D Financial Waveforms + Vertical Bar Spectrum inside the Sphere!
+      ctx.save();
+      ctx.beginPath();
+      ctx.arc(cx, cy, rad * 0.98, 0, Math.PI * 2);
+      ctx.clip();
+
+      const steps = 44;
+      const bluePts = [];
+      const goldPts = [];
+      for (let i = 0; i <= steps; i++) {
+        const u = i / steps;
+        const x = cx - rad * 0.95 + u * rad * 1.9;
+        const climb = (0.5 - u) * rad * 0.58;
+        const yBlue = cy + climb * 0.95 + Math.sin(u * 9.5 + t * 1.1) * rad * 0.14 + Math.cos(u * 4.5 - t * 0.7) * rad * 0.08 - rad * 0.1;
+        const yGold = cy + climb * 0.45 + Math.sin(u * 6.5 - t * 0.85) * rad * 0.16 + rad * 0.18;
+        bluePts.push([x, yBlue]);
+        goldPts.push([x, yGold]);
+
+        // Translucent vertical financial spectrum bars
+        if (i % 2 === 0) {
+          const barH = (Math.sin(u * 13 + t * 1.4) * 0.5 + 0.5) * rad * 0.36 + 10;
+          ctx.strokeStyle = i % 4 === 0 ? "rgba(243, 207, 166, 0.28)" : "rgba(96, 165, 250, 0.28)";
+          ctx.lineWidth = 1.6;
+          ctx.beginPath();
+          ctx.moveTo(x, yBlue);
+          ctx.lineTo(x, yBlue - barH);
+          ctx.stroke();
+        }
+      }
+
+      const drawWave = (arr, strokeCol, glowCol) => {
+        ctx.save();
+        ctx.strokeStyle = strokeCol;
+        ctx.lineWidth = 2.4;
+        ctx.shadowColor = glowCol;
+        ctx.shadowBlur = 14;
+        ctx.beginPath();
+        arr.forEach(([x, y], idx) => (idx === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y)));
+        ctx.stroke();
+        ctx.restore();
+      };
+      drawWave(goldPts, "#f3cfa6", "#e8b88a");
+      drawWave(bluePts, "#7dd3fc", "#38bdf8");
+      ctx.restore();
+
       requestAnimationFrame(draw);
     }
     requestAnimationFrame(draw);

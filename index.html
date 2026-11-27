@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20261125-1" />
+  <link rel="stylesheet" href="styles.css?v=20261127-1" />
   <link rel="manifest" href="manifest.webmanifest" />
   <meta name="theme-color" content="#2563eb" />
   <link rel="icon" href="icons/paytp-logo.svg" type="image/svg+xml" />
@@ -80,289 +80,393 @@
     <main id="workspace-main" class="workspace-main">
 
       <!-- ============================================================
-           VIEW 0: OBSIDIAN LUXURY 3D SPHERE HOMEPAGE
+           VIEW 0: AIRY SUNLIT HOMEPAGE (Image 1 Bento + Explore Paytp)
            ============================================================ -->
       <section class="view-panel landing-view" data-view="landing" aria-label="Paytp Home">
-        <div class="lux-home" id="sphere-stage">
-          <!-- Ambient golden & ice-blue wave ribbons -->
-          <div class="lux-ribbon-bg" aria-hidden="true"></div>
+        <div class="airy-home">
+          <!-- Sunlit Sky-Blue Silk Backdrop -->
+          <div class="airy-hero-stage">
+            <svg class="airy-silk-bg" viewBox="0 0 1440 520" preserveAspectRatio="none" aria-hidden="true">
+              <defs>
+                <linearGradient id="silkG1" x1="0" y1="0" x2="1" y2="1">
+                  <stop offset="0%" stop-color="#dbeafe" stop-opacity="0.7"/>
+                  <stop offset="55%" stop-color="#eff6ff" stop-opacity="0.4"/>
+                  <stop offset="100%" stop-color="#bfdbfe" stop-opacity="0.65"/>
+                </linearGradient>
+                <linearGradient id="silkG2" x1="0" y1="1" x2="1" y2="0">
+                  <stop offset="0%" stop-color="#93c5fd" stop-opacity="0.32"/>
+                  <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+                </linearGradient>
+              </defs>
+              <path d="M0,120 C320,20 560,260 960,110 C1180,25 1340,70 1440,30 L1440,520 L0,520 Z" fill="url(#silkG1)"/>
+              <path d="M0,380 C260,310 520,440 840,350 C1120,270 1320,360 1440,310 L1440,520 L0,520 Z" fill="url(#silkG2)"/>
+            </svg>
 
-          <!-- TOP 3-COLUMN HERO BENTO -->
-          <div class="lux-hero-grid">
-            <!-- Left Column: Editorial Headline + Stacked Metric Cards -->
-            <div class="lux-col-left">
-              <div class="lux-copy-block">
-                <span class="lux-engine-pill"><span class="live-dot"></span> UK 2026/27 · Open Live Engine</span>
-                <h1 class="lux-headline">Clarity on every<br /><span class="lux-gold-text">UK pound.</span></h1>
-                <p class="lux-subline">Accounts · Investments · Cashflow · Insights</p>
-                <button type="button" class="lux-gold-btn" id="landing-enter-top-btn" data-goto="overview">Enter Dashboard →</button>
+            <div class="airy-hero-grid">
+              <!-- Left Editorial Column -->
+              <div class="airy-hero-left">
+                <span class="airy-uk-pill"><span class="live-dot"></span> UK 2026/27 · Open Live Engine</span>
+                <h1 class="airy-headline">
+                  Paytp.<br />
+                  Clarity across your<br />
+                  <span class="airy-blue">cash, spending, investments</span> and <span class="airy-blue">net worth.</span>
+                </h1>
+                <p class="airy-lead">
+                  A connected view of your financial life, so you can see where you stand, what's changing, and what to do next.
+                </p>
+                <div class="airy-cta-row">
+                  <button type="button" class="btn primary lg" id="landing-enter-btn" data-goto="overview">Enter Dashboard →</button>
+                  <button type="button" class="btn soft lg" id="landing-import-btn">↑ Import Statements</button>
+                  <button type="button" class="btn soft lg" id="landing-holding-btn">+ Add Holding</button>
+                </div>
+                <button type="button" class="link-btn subtle-link airy-blank-link" id="landing-blank-btn">Or start blank with your own numbers →</button>
               </div>
 
-              <button type="button" class="lux-card lux-metric-card" data-goto="investments">
-                <div class="lux-ico-box">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>
-                </div>
-                <div class="lux-metric-body">
-                  <span class="lux-card-label">Investments</span>
-                  <strong class="lux-card-val" id="orb-inv">£0</strong>
-                  <span class="lux-card-sub" id="orb-inv-sub">ISA · SIPP · GIA</span>
-                </div>
-                <span class="lux-mint-pill" id="orb-inv-pct">+0.0%</span>
-              </button>
+              <!-- Right Live Bento Column -->
+              <div class="airy-hero-right">
+                <!-- Top Pair: Total Net Worth + Wealth Trend -->
+                <div class="airy-bento-top">
+                  <button type="button" class="airy-card airy-nw-card" data-goto="overview" title="Open Wealth Overview">
+                    <div class="airy-card-kicker">
+                      <span class="airy-ico-badge blue">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 12 12 17 22 12"/><polyline points="2 17 12 22 22 17"/></svg>
+                      </span>
+                      <span>Total Net Worth</span>
+                    </div>
+                    <strong class="airy-nw-amount" id="landing-live-nw">£0</strong>
+                    <span class="delta-pill pos airy-nw-pill" id="landing-nw-delta">↑ +8.7% (+£28,970)</span>
+                  </button>
 
-              <button type="button" class="lux-card lux-metric-card" data-kpi-modal="surplus">
-                <div class="lux-ico-box">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                  <div class="airy-card airy-trend-card" data-goto="overview" role="button" tabindex="0" title="Explore Wealth Trend">
+                    <div class="airy-trend-head">
+                      <div class="airy-card-kicker">
+                        <span class="airy-ico-badge sky">
+                          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+                        </span>
+                        <strong>Wealth Trend</strong>
+                      </div>
+                      <span class="airy-period-pill">12 months</span>
+                    </div>
+                    <div id="landing-nw-chart" class="airy-trend-wrap"></div>
+                  </div>
                 </div>
-                <div class="lux-metric-body">
-                  <span class="lux-card-label">Monthly Surplus</span>
-                  <strong class="lux-card-val" id="orb-surplus">£0</strong>
-                  <span class="lux-card-sub" id="orb-surplus-sub">UK 2026/27 take-home − spend</span>
-                </div>
-                <span class="lux-mint-pill" id="orb-surplus-pct">+41%</span>
-              </button>
-            </div>
 
-            <!-- Center Column: Interactive 360° Financial Waveform Sphere -->
-            <div class="lux-col-sphere">
-              <canvas id="landing-globe-canvas" class="lux-sphere-canvas" aria-label="Interactive 360 degree 3D financial sphere"></canvas>
-              <span class="sphere-float-pill fp-left" id="sphere-pill-inv">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="9"/><line x1="18" y1="20" x2="18" y2="4"/></svg>
-                <span id="sphere-pill-inv-val">+25.1%</span>
-              </span>
-              <span class="sphere-float-pill fp-top" id="sphere-pill-nw">▲ +8.7%</span>
-              <span class="sphere-float-pill fp-right" id="sphere-pill-mom">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" aria-hidden="true"><line x1="6" y1="20" x2="6" y2="14"/><line x1="12" y1="20" x2="12" y2="9"/><line x1="18" y1="20" x2="18" y2="4"/></svg>
-                <span id="sphere-pill-mom-val">MoM +4.7%</span>
-              </span>
-            </div>
+                <!-- Middle 4 KPI Cards -->
+                <div class="airy-kpi-4">
+                  <button type="button" class="airy-card airy-mini-kpi" data-kpi-modal="surplus">
+                    <div class="airy-mini-top">
+                      <span class="airy-mini-label">Monthly Surplus</span>
+                      <span class="delta-pill pos" id="orb-surplus-pct">+41%</span>
+                    </div>
+                    <strong class="airy-mini-val" id="orb-surplus">+£0</strong>
+                    <span class="airy-mini-sub" id="orb-surplus-sub">£0 in · £0 out</span>
+                  </button>
 
-            <!-- Right Column: Total Net Worth Hero Card + Cash & Runway -->
-            <div class="lux-col-right">
-              <button type="button" class="lux-card lux-nw-card" data-goto="overview" title="Open full financial dashboard">
-                <span class="lux-nw-label">Total Net Worth</span>
-                <strong class="lux-nw-val" id="landing-live-nw">£0</strong>
-                <span class="lux-mint-pill lg" id="landing-nw-delta">↑ +8.7% (6M)</span>
-              </button>
+                  <button type="button" class="airy-card airy-mini-kpi" data-goto="investments">
+                    <div class="airy-mini-top">
+                      <span class="airy-mini-label">Investments</span>
+                      <span class="delta-pill pos" id="orb-inv-pct">+0.0%</span>
+                    </div>
+                    <strong class="airy-mini-val" id="orb-inv">£0</strong>
+                    <span class="airy-mini-sub" id="orb-inv-sub">0 holdings · ISA/SIPP</span>
+                  </button>
 
-              <button type="button" class="lux-card lux-metric-card" data-kpi-modal="cash">
-                <div class="lux-ico-box">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M16 12h4"/></svg>
+                  <button type="button" class="airy-card airy-mini-kpi" data-kpi-modal="cash">
+                    <div class="airy-mini-top">
+                      <span class="airy-mini-label">Cash Runway</span>
+                      <span class="delta-pill neutral" id="orb-runway">0 mo</span>
+                    </div>
+                    <strong class="airy-mini-val" id="orb-cash">£0</strong>
+                    <span class="airy-mini-sub" id="orb-debt-sub">Debt: £0</span>
+                  </button>
+
+                  <button type="button" class="airy-card airy-mini-kpi" data-goto="statements">
+                    <div class="airy-mini-top">
+                      <span class="airy-mini-label">Spending Insights</span>
+                      <span class="delta-pill pos">MoM</span>
+                    </div>
+                    <strong class="airy-mini-val" id="orb-spend">£0 / mo</strong>
+                    <span class="airy-mini-sub">ONS UK benchmarks · Recurring</span>
+                  </button>
                 </div>
-                <div class="lux-metric-body">
-                  <span class="lux-card-label">Cash &amp; Runway</span>
-                  <strong class="lux-card-val" id="orb-cash">£0</strong>
-                  <span class="lux-card-sub" id="orb-debt-sub">Liquid safety buffer</span>
+
+                <!-- Horizontal Financial Signals Card -->
+                <div class="airy-card airy-signals-bar">
+                  <div class="airy-sig-left">
+                    <span class="airy-ico-badge blue lg">⚡</span>
+                    <div>
+                      <strong>Financial Signals</strong>
+                      <span class="muted-xs">Key takeaways from your latest data.</span>
+                    </div>
+                  </div>
+                  <ul class="airy-sig-list" id="landing-signals-list">
+                    <li>Loading live financial signals…</li>
+                  </ul>
                 </div>
-                <span class="lux-slate-pill" id="orb-runway">0 mo</span>
-              </button>
+              </div>
             </div>
           </div>
 
-          <!-- BOTTOM VISUAL CHARTS ROW (Live Spending Donut + Live Net Worth Trend) -->
-          <div class="lux-charts-row">
-            <div class="lux-card lux-chart-card" data-goto="statements" role="button" tabindex="0" title="Explore Insights & Statements">
-              <div class="lux-chart-head">
-                <div class="lux-ico-box sm">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                </div>
-                <strong class="lux-chart-title">Spending this month</strong>
-              </div>
-              <div class="lux-donut-body">
-                <div id="landing-spend-donut" class="lux-donut-svg"></div>
-                <div id="landing-spend-legend" class="lux-donut-legend"></div>
-              </div>
+          <!-- Bottom Explore Paytp Gateway Section -->
+          <div class="airy-explore-section">
+            <div class="airy-explore-head">
+              <h2>Explore Paytp</h2>
+              <span>Dive deeper into your statements, investments and cashflow.</span>
             </div>
+            <div class="airy-explore-grid">
+              <article class="airy-explore-card" data-goto="statements" role="button" tabindex="0">
+                <div class="airy-exp-copy">
+                  <div class="airy-exp-title">
+                    <span class="airy-ico-badge blue">📄</span>
+                    <h3>Statements</h3>
+                  </div>
+                  <p>Import, view and analyse your bank and brokerage statements.</p>
+                  <span class="airy-go-pill">Go to Statements →</span>
+                </div>
+                <svg class="airy-exp-art" viewBox="0 0 110 92" aria-hidden="true">
+                  <rect x="34" y="10" width="54" height="68" rx="10" fill="#dbeafe" stroke="#93c5fd" stroke-width="1.5"/>
+                  <rect x="20" y="18" width="54" height="68" rx="10" fill="rgba(255,255,255,0.88)" stroke="#60a5fa" stroke-width="1.5"/>
+                  <line x1="32" y1="36" x2="62" y2="36" stroke="#93c5fd" stroke-width="4" stroke-linecap="round"/>
+                  <line x1="32" y1="49" x2="56" y2="49" stroke="#bfdbfe" stroke-width="4" stroke-linecap="round"/>
+                  <line x1="32" y1="62" x2="50" y2="62" stroke="#dbeafe" stroke-width="4" stroke-linecap="round"/>
+                </svg>
+              </article>
 
-            <div class="lux-card lux-chart-card" data-goto="overview" role="button" tabindex="0" title="Explore Wealth Overview">
-              <div class="lux-chart-head">
-                <div class="lux-ico-box sm">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+              <article class="airy-explore-card" data-goto="investments" role="button" tabindex="0">
+                <div class="airy-exp-copy">
+                  <div class="airy-exp-title">
+                    <span class="airy-ico-badge sky">📈</span>
+                    <h3>Investments</h3>
+                  </div>
+                  <p>Track your holdings, performance and tax wrappers (ISA/SIPP).</p>
+                  <span class="airy-go-pill">Go to Investments →</span>
                 </div>
-                <div class="lux-chart-title-wrap">
-                  <strong class="lux-chart-title">Net Worth Trend</strong>
-                  <span class="lux-chart-sub">Last 12 months</span>
+                <svg class="airy-exp-art" viewBox="0 0 110 92" aria-hidden="true">
+                  <rect x="16" y="54" width="22" height="30" rx="6" fill="#dbeafe" stroke="#93c5fd"/>
+                  <rect x="44" y="36" width="22" height="48" rx="6" fill="#bfdbfe" stroke="#60a5fa"/>
+                  <rect x="72" y="16" width="22" height="68" rx="6" fill="url(#expBarG)" stroke="#2563eb"/>
+                  <defs><linearGradient id="expBarG" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#60a5fa"/><stop offset="100%" stop-color="#dbeafe"/></linearGradient></defs>
+                </svg>
+              </article>
+
+              <article class="airy-explore-card" data-goto="cashflow" role="button" tabindex="0">
+                <div class="airy-exp-copy">
+                  <div class="airy-exp-title">
+                    <span class="airy-ico-badge mint">💷</span>
+                    <h3>Cashflow</h3>
+                  </div>
+                  <p>See your income, spending and monthly surplus in one place.</p>
+                  <span class="airy-go-pill">Go to Cashflow →</span>
                 </div>
-                <span class="lux-mint-pill" id="landing-trend-badge">↑ +8.7%</span>
-              </div>
-              <div id="landing-nw-chart" class="lux-area-chart"></div>
+                <svg class="airy-exp-art" viewBox="0 0 110 92" aria-hidden="true">
+                  <circle cx="56" cy="48" r="30" fill="none" stroke="#dbeafe" stroke-width="14"/>
+                  <circle cx="56" cy="48" r="30" fill="none" stroke="#3b82f6" stroke-width="14" stroke-dasharray="115 190" stroke-linecap="round" transform="rotate(-110 56 48)"/>
+                  <circle cx="56" cy="48" r="30" fill="none" stroke="#34d399" stroke-width="14" stroke-dasharray="48 190" stroke-dashoffset="-118" stroke-linecap="round" transform="rotate(-110 56 48)"/>
+                </svg>
+              </article>
             </div>
-          </div>
-
-          <!-- BOTTOM ACTION DOCK -->
-          <div class="lux-dock">
-            <button type="button" class="lux-gold-btn lg" id="landing-enter-btn" data-goto="overview">Enter Dashboard →</button>
-            <button type="button" class="lux-glass-btn lg" id="landing-import-btn">↑ Drop Bank / Broker CSV</button>
-            <button type="button" class="lux-glass-btn lg" id="landing-blank-btn">+ Start Blank</button>
           </div>
         </div>
       </section>
 
       <!-- ============================================================
-           VIEW 1: OVERVIEW (Actionable 3D Command Dashboard)
+           VIEW 1: OVERVIEW COMMAND CENTRE (Image 2 + Image 3 All-in-One)
            ============================================================ -->
       <section class="view-panel" data-view="overview" aria-label="Overview" hidden>
-        <!-- 3D Interactive Hero Command Banner -->
-        <div class="home-hero-3d" id="hero-3d-card">
-          <canvas id="hero-3d-canvas" class="hero-3d-canvas" aria-hidden="true"></canvas>
-          <div class="home-hero-left">
-            <div class="hero-badge-row">
-              <span class="live-pill"><span class="live-dot"></span> Live Wealth Engine</span>
-              <button type="button" class="link-btn subtle-link" id="start-blank-btn" title="Clear demo data and enter your own numbers">Start with my numbers</button>
-            </div>
-            <h1 class="home-headline">Your UK money, statements &amp; investments — <span class="grad-text">crystal clear</span></h1>
-            <div class="home-nw-row">
-              <div>
-                <span class="muted-xs">Total Net Worth</span>
-                <strong class="hero-amount" id="ov-net-worth">£0</strong>
-              </div>
-              <div class="hero-delta-col">
-                <span class="delta-pill pos" id="ov-net-delta">↑ +8.7%</span>
-                <span class="muted-xs" id="ov-change-label">+£0 vs 6M</span>
-              </div>
-            </div>
+        <!-- Command Centre Header -->
+        <div class="ov-focus-head">
+          <div>
+            <span class="ov-kicker">YOUR FINANCE COMMAND CENTRE</span>
+            <h1 class="ov-title">Your money, <span class="airy-blue">in focus.</span></h1>
           </div>
-
-          <!-- 3 Direct "Do Something Useful Now" Action Launchers -->
-          <div class="home-action-grid">
-            <button type="button" class="action-card" id="home-act-bank">
-              <span class="act-icon blue">📄</span>
-              <div class="act-text">
-                <strong>Import Bank Statement</strong>
-                <span>Drop Monzo, Starling, HSBC, Barclays CSV/PDF</span>
-              </div>
-              <span class="act-arrow">→</span>
-            </button>
-            <button type="button" class="action-card" id="home-act-inv">
-              <span class="act-icon mint">📈</span>
-              <div class="act-text">
-                <strong>Import / Add Investments</strong>
-                <span>Trading 212, Vanguard, HL CSV or ISA/SIPP</span>
-              </div>
-              <span class="act-arrow">→</span>
-            </button>
-            <button type="button" class="action-card" id="home-act-tax">
-              <span class="act-icon sky">💷</span>
-              <div class="act-text">
-                <strong>UK Salary &amp; Surplus</strong>
-                <span>2024/25 take-home, budget &amp; 3-yr projection</span>
-              </div>
-              <span class="act-arrow">→</span>
-            </button>
+          <div class="ov-head-actions">
+            <button type="button" class="btn primary sm" id="home-act-bank">↑ Import Statement</button>
+            <button type="button" class="btn soft sm" id="home-act-inv">+ Add Holding</button>
+            <button type="button" class="btn soft sm" id="home-act-tax">UK Tax &amp; Surplus</button>
+            <button type="button" class="link-btn subtle-link" id="start-blank-btn" title="Clear demo data and enter your own numbers">Start blank</button>
           </div>
         </div>
 
-        <!-- 4 Interactive KPI Tiles (Click opens Quick-Inspect & Edit Modal first!) -->
-        <div class="kpi-row-4">
-          <article class="kpi-tile clickable" data-kpi-modal="surplus" role="button" tabindex="0">
-            <div class="kpi-icon blue">£</div>
-            <div class="kpi-body">
-              <div class="kpi-top">
-                <strong class="kpi-num" id="ov-surplus">£0</strong>
-                <span class="delta-pill pos" id="ov-surplus-pct">0%</span>
-              </div>
-              <span class="kpi-sub">Monthly surplus · Inspect ↗</span>
+        <!-- Unified Net Worth + Interactive Wealth Trend Card (Image 2) -->
+        <section class="card ov-nw-banner">
+          <div class="ov-nw-left">
+            <span class="ov-micro-label">TOTAL NET WORTH</span>
+            <strong class="ov-nw-big" id="ov-net-worth">£0</strong>
+            <div class="ov-nw-delta-row">
+              <span class="delta-pill pos" id="ov-net-delta">↑ +8.7%</span>
+              <span class="muted-xs" id="ov-change-label">+£0 vs 6M</span>
             </div>
-          </article>
-          <article class="kpi-tile clickable" data-kpi-modal="cash" role="button" tabindex="0">
-            <div class="kpi-icon sky">▤</div>
-            <div class="kpi-body">
-              <div class="kpi-top">
-                <strong class="kpi-num" id="ov-cash">£0</strong>
+            <div class="ov-assets-liab">
+              <div class="ov-al-item clickable" data-kpi-modal="investments" role="button" tabindex="0">
+                <span class="muted-xs">Assets</span>
+                <strong id="ov-assets-total">£0</strong>
               </div>
-              <span class="kpi-sub" id="ov-cash-sub">Cash &amp; savings · Inspect ↗</span>
-            </div>
-          </article>
-          <article class="kpi-tile clickable" data-kpi-modal="investments" role="button" tabindex="0">
-            <div class="kpi-icon mint">↗</div>
-            <div class="kpi-body">
-              <div class="kpi-top">
-                <strong class="kpi-num" id="ov-investments">£0</strong>
-                <span class="delta-pill pos" id="ov-inv-pct">+0.0%</span>
+              <div class="ov-al-divider"></div>
+              <div class="ov-al-item clickable" data-kpi-modal="debt" role="button" tabindex="0">
+                <span class="muted-xs">Liabilities</span>
+                <strong id="ov-debt">£0</strong>
               </div>
-              <span class="kpi-sub">Investments · Inspect ↗</span>
+              <span class="delta-pill neutral" id="ov-debt-pill" hidden>Debt</span>
             </div>
-          </article>
-          <article class="kpi-tile clickable" data-kpi-modal="debt" role="button" tabindex="0">
-            <div class="kpi-icon slate">▭</div>
-            <div class="kpi-body">
-              <div class="kpi-top">
-                <strong class="kpi-num" id="ov-debt">£0</strong>
-                <span class="delta-pill neutral" id="ov-debt-pill">Debt</span>
-              </div>
-              <span class="kpi-sub">Total liabilities · Inspect ↗</span>
-            </div>
-          </article>
-        </div>
+          </div>
 
-        <!-- 2 Generous, High-Impact Visual Cards (Switchable sub-views — Zero Clutter, Zero Scroll) -->
-        <div class="home-visuals-2">
-          <!-- Left Visual Card: Wealth Trend | Top Holdings | Recent Activity -->
-          <section class="card home-viz-card">
-            <div class="card-head">
-              <div class="seg-group" id="home-left-tabs" role="group" aria-label="Wealth visual view">
-                <button type="button" class="seg-btn is-active" data-home-left="trend">Wealth Trend</button>
-                <button type="button" class="seg-btn" data-home-left="holdings">Top Holdings</button>
-                <button type="button" class="seg-btn" data-home-left="activity">Recent Activity</button>
-              </div>
+          <div class="ov-nw-right">
+            <div class="ov-range-bar">
               <div class="seg-group" id="ov-range-group" role="group" aria-label="Timeframe">
                 <button type="button" class="seg-btn" data-ov-range="3M">3M</button>
                 <button type="button" class="seg-btn is-active" data-ov-range="6M">6M</button>
                 <button type="button" class="seg-btn" data-ov-range="12M">12M</button>
                 <button type="button" class="seg-btn" data-ov-range="All">All</button>
               </div>
+              <span class="ov-callout-pill" id="ov-trend-callout">£0</span>
+            </div>
+            <div class="trend-svg-wrap ov-banner-chart" id="ov-wealth-chart"></div>
+          </div>
+        </section>
+
+        <!-- 4-STAGE HORIZONTAL "YOUR FINANCIAL FLOW" (Image 3!) -->
+        <section class="card ov-flow-card">
+          <div class="card-head">
+            <div class="ov-flow-title-row">
+              <h2>Your Financial Flow</h2>
+              <span class="muted-xs">How your money moves each month</span>
+            </div>
+            <div class="head-actions-mini">
+              <button type="button" class="btn soft xs" id="enlarge-sankey-btn" title="Enlarge Income to Spending Sankey breakdown">⤢ Enlarge Sankey</button>
+              <button type="button" class="link-btn" data-goto="cashflow">Edit Cashflow →</button>
+            </div>
+          </div>
+
+          <div class="flow-pipeline" id="ov-flow-pipeline">
+            <!-- Stage 1: Income -->
+            <div class="flow-stage flow-income clickable" data-kpi-modal="surplus" role="button" tabindex="0">
+              <span class="flow-stage-label">💼 Income (In)</span>
+              <strong class="flow-stage-val" id="flow-in-val">£0 / mo</strong>
+              <span class="delta-pill pos" id="flow-in-sub">UK 2026/27 net</span>
             </div>
 
-            <div class="home-pane" data-home-left-pane="trend">
-              <div class="trend-svg-wrap tall-chart" id="ov-wealth-chart"></div>
-              <div class="home-signals-inline" id="ov-signals"></div>
+            <div class="flow-connector" aria-hidden="true">→</div>
+
+            <!-- Stage 2: Spending + Savings Split -->
+            <div class="flow-mid-stack">
+              <div class="flow-stage flow-spend clickable" id="ov-sankey-wrap" role="button" tabindex="0" title="Click to enlarge spending breakdown">
+                <div class="flow-spend-head">
+                  <div>
+                    <span class="flow-stage-label">🛒 Spending (Out)</span>
+                    <strong class="flow-stage-val sm" id="flow-out-val">£0 / mo</strong>
+                  </div>
+                  <span class="delta-pill neutral" id="flow-out-pct">0% of income</span>
+                </div>
+                <div class="flow-cat-bars" id="flow-cat-bars"></div>
+              </div>
+
+              <div class="flow-stage flow-save clickable" data-kpi-modal="surplus" role="button" tabindex="0">
+                <div class="flow-save-row">
+                  <div>
+                    <span class="flow-stage-label">🐷 Surplus (Kept)</span>
+                    <strong class="flow-stage-val sm pos" id="ov-surplus">+£0</strong>
+                  </div>
+                  <span class="delta-pill pos" id="ov-surplus-pct">0% kept</span>
+                </div>
+              </div>
             </div>
-            <div class="home-pane" data-home-left-pane="holdings" hidden>
-              <div class="mini-list" id="ov-top-holdings"></div>
-              <div class="pane-foot"><button type="button" class="link-btn" data-goto="investments">Manage full portfolio →</button></div>
+
+            <div class="flow-connector" aria-hidden="true">→</div>
+
+            <!-- Stage 3: Investments -->
+            <div class="flow-stage flow-invest clickable" data-kpi-modal="investments" role="button" tabindex="0">
+              <span class="flow-stage-label">📈 Investments</span>
+              <strong class="flow-stage-val" id="ov-investments">£0</strong>
+              <span class="delta-pill pos" id="ov-inv-pct">+0.0%</span>
+              <span class="muted-xs" id="flow-inv-sub">Tax-wrapped growth</span>
             </div>
-            <div class="home-pane" data-home-left-pane="activity" hidden>
-              <div class="mini-list" id="ov-recent-tx"></div>
-              <div class="pane-foot"><button type="button" class="link-btn" data-goto="statements">Open all statements →</button></div>
+
+            <div class="flow-connector" aria-hidden="true">→</div>
+
+            <!-- Stage 4: Runway -->
+            <div class="flow-stage flow-runway clickable" data-kpi-modal="cash" role="button" tabindex="0">
+              <span class="flow-stage-label">🛡️ Your Runway</span>
+              <strong class="flow-stage-val" id="flow-runway-val">0 mo</strong>
+              <span class="muted-xs" id="ov-cash">£0 cash</span>
+              <span class="muted-xs" id="ov-cash-sub" hidden>Cash</span>
+            </div>
+          </div>
+
+          <div class="flow-takeaway-bar">
+            <p class="flow-takeaway-text">💡 <strong>Key takeaway:</strong> <span id="flow-takeaway-copy">Loading monthly flow summary…</span></p>
+            <div class="flow-takeaway-btns">
+              <button type="button" class="btn primary xs" data-goto="cashflow">Optimise Cashflow</button>
+              <button type="button" class="btn soft xs" data-goto="investments">Rebalance Portfolio</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- "✨ WHAT CHANGED THIS MONTH?" INSIGHT STRIP (Image 2!) -->
+        <section class="card ov-changed-card">
+          <div class="ov-changed-grid">
+            <div class="ov-changed-intro">
+              <h2>✨ What changed this month?</h2>
+              <p class="muted-xs">Your key financial movements and opportunities, curated from your live data.</p>
+              <button type="button" class="btn primary sm" data-goto="statements">View Full Insights →</button>
+            </div>
+
+            <div class="ov-changed-tiles" id="ov-changed-tiles">
+              <!-- Populated live with mini sparklines -->
+            </div>
+          </div>
+          <div class="ov-drivers-row" id="ov-signals"></div>
+        </section>
+
+        <!-- BOTTOM 4-COLUMN VISUAL BENTO (Spending Donut | Allocation | Account Health | Goals Progress) -->
+        <div class="ov-bottom-4">
+          <section class="card ov-mini-card">
+            <div class="card-head">
+              <h3>Spending Breakdown</h3>
+              <button type="button" class="link-btn" data-goto="statements">Details →</button>
+            </div>
+            <div class="donut-split compact-ov-donut">
+              <div class="donut-box sm" id="ov-spend-donut"></div>
+              <div class="legend-col" id="ov-spend-legend"></div>
             </div>
           </section>
 
-          <!-- Right Visual Card: Income to Spending Sankey | Portfolio Allocation Donut -->
-          <section class="card home-viz-card">
+          <section class="card ov-mini-card">
             <div class="card-head">
-              <div class="seg-group" id="home-right-tabs" role="group" aria-label="Breakdown visual view">
-                <button type="button" class="seg-btn is-active" data-home-right="sankey">Income to Spending</button>
-                <button type="button" class="seg-btn" data-home-right="allocation">Portfolio Mix</button>
-                <button type="button" class="seg-btn" data-home-right="isa">ISA Allowance</button>
-              </div>
-              <div class="head-actions-mini">
-                <button type="button" class="btn soft xs" id="enlarge-sankey-btn" title="Enlarge Income to Spending breakdown">⤢ Enlarge</button>
-                <button type="button" class="link-btn" data-goto="cashflow">Edit →</button>
-              </div>
+              <h3>Investment Mix</h3>
+              <button type="button" class="link-btn" data-goto="investments">Portfolio →</button>
             </div>
+            <div class="donut-split compact-ov-donut">
+              <div class="donut-box sm" id="ov-donut-wrap"></div>
+              <div class="legend-col" id="ov-allocation-legend"></div>
+            </div>
+          </section>
 
-            <div class="home-pane" data-home-right-pane="sankey">
-              <div class="sankey-wrap tall-sankey clickable-sankey" id="ov-sankey-wrap" role="button" tabindex="0" title="Click to enlarge Income to Spending breakdown"></div>
+          <section class="card ov-mini-card">
+            <div class="card-head">
+              <h3>Account Health</h3>
+              <span class="muted-xs">Foundation check</span>
             </div>
-            <div class="home-pane" data-home-right-pane="allocation" hidden>
-              <div class="donut-split padded-donut">
-                <div class="donut-box" id="ov-donut-wrap"></div>
-                <div class="legend-col" id="ov-allocation-legend"></div>
-              </div>
+            <div class="health-list" id="ov-health-list"></div>
+          </section>
+
+          <section class="card ov-mini-card">
+            <div class="card-head">
+              <h3>Goals &amp; ISA Progress</h3>
+              <button type="button" class="link-btn" data-goto="investments">Manage →</button>
             </div>
-            <div class="home-pane" data-home-right-pane="isa" hidden>
-              <div class="isa-focus-box">
-                <div class="goal-banner rounded" aria-hidden="true"></div>
-                <h3>UK ISA Tax-Year Allowance (£20,000)</h3>
-                <div class="progress-row">
-                  <div class="progress-track"><div class="progress-fill" id="ov-isa-fill"></div></div>
-                  <strong id="ov-isa-pct">0%</strong>
-                </div>
-                <p class="muted-xs" id="ov-isa-sub">£0 total in ISA</p>
+            <div class="goals-list" id="ov-goals-list">
+              <div class="goal-item">
+                <div class="goal-item-head"><strong>UK ISA Allowance (£20k)</strong><strong id="ov-isa-pct">0%</strong></div>
+                <div class="progress-track"><div class="progress-fill" id="ov-isa-fill"></div></div>
+                <span class="muted-xs" id="ov-isa-sub">£0 total in ISA</span>
               </div>
+              <div id="ov-extra-goals"></div>
             </div>
           </section>
         </div>
+
+        <!-- Hidden compatibility anchors for top holdings / recent tx if referenced -->
+        <div hidden><div id="ov-top-holdings"></div><div id="ov-recent-tx"></div></div>
       </section>
 
       <!-- ============================================================
@@ -968,7 +1072,7 @@
   <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js" defer></script>
   <script src="app-import-parse.js?v=20261122-4" defer></script>
   <script src="app-investments-parse.js?v=20261122-4" defer></script>
-  <script src="app-workspace.js?v=20261125-1" defer></script>
+  <script src="app-workspace.js?v=20261127-1" defer></script>
 </body>
 
 </html>

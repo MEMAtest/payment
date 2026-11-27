@@ -667,72 +667,196 @@
     const surplusRate = monthlyIn > 0 ? Math.round((surplus / monthlyIn) * 100) : 0;
 
     document.getElementById("ov-net-worth").textContent = formatCurrency(netWorth);
-    const landNW = document.getElementById("landing-live-nw");
-    if (landNW) landNW.textContent = formatCurrency(netWorth);
     const setTxt = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
-    setTxt("orb-surplus", formatCurrency(Math.max(0, surplus)));
-    setTxt("orb-surplus-pct", `${surplus >= 0 ? "+" : ""}${surplusRate}%`);
-    setTxt("orb-surplus-sub", `${formatCurrency(monthlyIn)} in · ${formatCurrency(monthlyOut)} out`);
-    setTxt("orb-inv", formatCurrency(port.totalValue));
-    const invPctStr = port.totalCost > 0 ? `${port.returnPct >= 0 ? "+" : ""}${port.returnPct.toFixed(1)}%` : "—";
-    setTxt("orb-inv-pct", invPctStr);
-    setTxt("sphere-pill-inv-val", invPctStr);
-    setTxt("orb-inv-sub", `${holdings.length} holdings · ${port.totalValue > 0 ? Math.round((port.taxWrapped / port.totalValue) * 100) : 0}% ISA/SIPP`);
-    setTxt("orb-cash", formatCurrency(cash));
-    setTxt("orb-runway", monthlyOut > 0 ? `${(cash / monthlyOut).toFixed(1)} mo` : "—");
-    setTxt("orb-debt-sub", debt > 0 ? `Debt: ${formatCurrency(debt)}` : "Debt-free buffer");
+    const runwayNum = monthlyOut > 0 ? cash / monthlyOut : 0;
+    const runway = monthlyOut > 0 ? runwayNum.toFixed(1) : "—";
+    const totalAssets = cash + port.totalValue;
 
-    // Live Dark-Luxury Spending Donut on Homepage
-    renderLandingSpendDonut(monthlyOut);
-
-    const hMap = { "3M": { f: 0.96, lbl: ["Sep", "Oct", "Nov"] }, "6M": { f: 0.92, lbl: ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov"] }, "12M": { f: 0.85, lbl: ["Dec", "Mar", "Jun", "Sep", "Nov"] }, All: { f: 0.74, lbl: ["2025", "Q3", "2026", "Q3", "Now"] } };
+    const hMap = { "3M": { f: 0.96, lbl: ["Sep", "Oct", "Nov"] }, "6M": { f: 0.92, lbl: ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov"] }, "12M": { f: 0.85, lbl: ["Dec", "Feb", "Apr", "Jun", "Aug", "Oct", "Nov"] }, All: { f: 0.74, lbl: ["2024", "2025", "Q3", "2026", "Now"] } };
     const cfg = hMap[ovRange] || hMap["6M"];
     const startNW = Math.max(0, netWorth * cfg.f);
     const deltaNW = netWorth - startNW;
     const deltaPct = startNW > 0 ? (deltaNW / startNW) * 100 : 0;
+    const invPctStr = port.totalCost > 0 ? `${port.returnPct >= 0 ? "+" : ""}${port.returnPct.toFixed(1)}%` : "—";
+    const taxWrappedPct = port.totalValue > 0 ? Math.round((port.taxWrapped / port.totalValue) * 100) : 0;
 
-    setTxt("landing-nw-delta", `↑ +${deltaPct.toFixed(1)}% (${ovRange})`);
-    setTxt("sphere-pill-nw", `▲ +${deltaPct.toFixed(1)}%`);
-    setTxt("landing-trend-badge", `↑ +${deltaPct.toFixed(1)}%`);
-    renderLandingNetWorthChart(netWorth);
+    // 1. Airy Homepage (Image 1) Live Bindings
+    setTxt("landing-live-nw", formatCurrency(netWorth));
+    setTxt("landing-nw-delta", `↑ +${deltaPct.toFixed(1)}% (${formatSignedCurrency(deltaNW)})`);
+    setTxt("orb-surplus", formatSignedCurrency(surplus));
+    setTxt("orb-surplus-pct", `${surplus >= 0 ? "+" : ""}${surplusRate}%`);
+    setTxt("orb-surplus-sub", `${formatCurrency(monthlyIn)} in · ${formatCurrency(monthlyOut)} out`);
+    setTxt("orb-inv", formatCurrency(port.totalValue));
+    setTxt("orb-inv-pct", invPctStr);
+    setTxt("orb-inv-sub", `${holdings.length} holdings · ${taxWrappedPct}% ISA/SIPP`);
+    setTxt("orb-cash", formatCurrency(cash));
+    setTxt("orb-runway", monthlyOut > 0 ? `${runway} mo` : "—");
+    setTxt("orb-debt-sub", debt > 0 ? `Debt: ${formatCurrency(debt)}` : "Debt-free buffer");
+    setTxt("orb-spend", `${formatCurrency(monthlyOut)} / mo`);
 
-    document.getElementById("ov-net-delta").textContent = `↑ +${deltaPct.toFixed(1)}%`;
-    const lblEl = document.getElementById("ov-change-label");
-    if (lblEl) lblEl.textContent = `${formatSignedCurrency(deltaNW)} vs ${ovRange}`;
+    const sigList = document.getElementById("landing-signals-list");
+    if (sigList) {
+      sigList.innerHTML = `
+        <li>Net worth up <strong>${formatCurrency(Math.max(0, deltaNW))} (+${deltaPct.toFixed(1)}%)</strong> over the last ${ovRange}.</li>
+        <li>Investments ${port.gain >= 0 ? "up" : "down"} <strong>${formatSignedCurrency(port.gain)} (${invPctStr})</strong> across ${holdings.length} holdings.</li>
+        <li>You have <strong>${runway} months</strong> of cash runway at your current ${formatCurrency(monthlyOut)}/mo spend.</li>
+      `;
+    }
+    const landChart = document.getElementById("landing-nw-chart");
+    if (landChart) {
+      const m12 = ["Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb"];
+      renderAreaChart(landChart, buildSeriesPoints(netWorth, Math.max(0, netWorth * 0.86), 12), null, m12, "#2563eb");
+    }
+
+    // 2. Overview Command Centre (Image 2 + Image 3) Live Bindings
+    setTxt("ov-net-delta", `↑ +${deltaPct.toFixed(1)}%`);
+    setTxt("ov-change-label", `${formatSignedCurrency(deltaNW)} vs ${ovRange}`);
+    setTxt("ov-assets-total", formatCurrency(totalAssets));
+    setTxt("ov-trend-callout", formatCurrency(netWorth));
     renderAreaChart(document.getElementById("ov-wealth-chart"), buildSeriesPoints(netWorth, startNW, cfg.lbl.length), null, cfg.lbl, "#2563eb");
 
     const surpEl = document.getElementById("ov-surplus");
-    surpEl.textContent = formatSignedCurrency(surplus);
-    surpEl.className = `kpi-num ${surplus >= 0 ? "" : "neg"}`;
+    if (surpEl) {
+      surpEl.textContent = formatSignedCurrency(surplus);
+      surpEl.className = `flow-stage-val sm ${surplus >= 0 ? "pos" : "neg"}`;
+    }
     const sp = document.getElementById("ov-surplus-pct");
-    sp.textContent = `${surplusRate}% kept`;
-    sp.className = `delta-pill ${surplus >= 0 ? "pos" : "neg"}`;
+    if (sp) {
+      sp.textContent = `${surplusRate}% kept`;
+      sp.className = `delta-pill ${surplus >= 0 ? "pos" : "neg"}`;
+    }
 
-    document.getElementById("ov-cash").textContent = formatCurrency(cash);
-    const runway = monthlyOut > 0 ? (cash / monthlyOut).toFixed(1) : "—";
-    document.getElementById("ov-cash-sub").textContent = monthlyOut > 0 ? `Cash (${runway} mo runway)` : "Cash & savings";
-
-    document.getElementById("ov-investments").textContent = formatCurrency(port.totalValue);
+    setTxt("ov-cash", `${formatCurrency(cash)} cash`);
+    setTxt("ov-cash-sub", monthlyOut > 0 ? `Cash (${runway} mo runway)` : "Cash & savings");
+    setTxt("ov-investments", formatCurrency(port.totalValue));
     const ip = document.getElementById("ov-inv-pct");
-    ip.textContent = port.totalCost > 0 ? `${port.returnPct >= 0 ? "+" : ""}${port.returnPct.toFixed(1)}%` : "—";
-    ip.className = `delta-pill ${port.gain >= 0 ? "pos" : "neg"}`;
+    if (ip) {
+      ip.textContent = invPctStr;
+      ip.className = `delta-pill ${port.gain >= 0 ? "pos" : "neg"}`;
+    }
+    setTxt("ov-debt", formatCurrency(debt));
+    setTxt("ov-debt-pill", debt > 0 ? "Active" : "Debt-free");
 
-    document.getElementById("ov-debt").textContent = formatCurrency(debt);
-    document.getElementById("ov-debt-pill").textContent = debt > 0 ? "Active" : "Debt-free";
+    // 4-Stage Horizontal Financial Flow (Image 3)
+    setTxt("flow-in-val", `${formatCurrency(monthlyIn)} / mo`);
+    setTxt("flow-out-val", `${formatCurrency(monthlyOut)} / mo`);
+    const spendPctIn = monthlyIn > 0 ? Math.round((monthlyOut / monthlyIn) * 100) : 0;
+    setTxt("flow-out-pct", `${spendPctIn}% of income`);
+    setTxt("flow-inv-sub", `${holdings.length} holdings · ${taxWrappedPct}% tax-wrapped`);
+    setTxt("flow-runway-val", monthlyOut > 0 ? `${runway} months` : "—");
+    setTxt(
+      "flow-takeaway-copy",
+      `You're keeping ${surplusRate}% (${formatCurrency(Math.max(0, surplus))}/mo) of your UK take-home pay with ${runway} months of cash runway.`
+    );
 
-    renderSankey(document.getElementById("ov-sankey-wrap"), monthlyIn, financeState.expenses);
+    const catBarsEl = document.getElementById("flow-cat-bars");
+    if (catBarsEl) {
+      const catIcons = { mortgage: "🏠", groceries: "🛒", energy: "⚡", publicTransport: "🚗", entertainment: "✨", subscriptions: "📦" };
+      const topCats = BUDGET_BUCKETS.map((b) => ({
+        label: b.label,
+        icon: catIcons[b.key] || "•",
+        val: Math.max(0, Number(financeState.expenses?.[b.key]) || 0),
+        color: b.color,
+      })).filter((c) => c.val > 0).sort((a, b) => b.val - a.val).slice(0, 4);
+      const maxCat = Math.max(...topCats.map((c) => c.val), 1);
+      catBarsEl.innerHTML = topCats.length
+        ? topCats.map((c) => {
+            const pct = monthlyIn > 0 ? Math.round((c.val / monthlyIn) * 100) : 0;
+            const w = Math.max(8, Math.round((c.val / maxCat) * 100));
+            return `<div class="flow-cat-row"><span>${c.icon} ${escapeHtml(c.label)}</span><strong>${formatCurrency(c.val)}</strong><span class="flow-cat-track"><span class="flow-cat-fill" style="width:${w}%;background:${c.color}"></span></span><span>${pct}%</span></div>`;
+          }).join("")
+        : `<span class="muted-xs">Set monthly budget in Cashflow</span>`;
+    }
+
+    // "What changed this month?" 3 Sparkline Movement Cards (Image 2)
+    const changedEl = document.getElementById("ov-changed-tiles");
+    if (changedEl) {
+      const miniSpark = (pts, stroke, fill) => `<svg class="changed-spark" viewBox="0 0 72 34" preserveAspectRatio="none"><path d="M0,34 L${pts} L72,34 Z" fill="${fill}"/><polyline points="${pts}" fill="none" stroke="${stroke}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+      changedEl.innerHTML = `
+        <div class="changed-tile">
+          <div class="changed-tile-copy">
+            <span class="changed-tile-label">📈 Net worth growth</span>
+            <strong class="changed-tile-val">${formatSignedCurrency(deltaNW)}</strong>
+            <span class="delta-pill pos">↑ +${deltaPct.toFixed(1)}% (${ovRange})</span>
+          </div>
+          ${miniSpark("0,28 16,24 32,20 48,14 60,10 72,5", "#16a34a", "rgba(34,197,94,0.16)")}
+        </div>
+        <div class="changed-tile">
+          <div class="changed-tile-copy">
+            <span class="changed-tile-label">💷 Monthly surplus</span>
+            <strong class="changed-tile-val">${formatSignedCurrency(surplus)}</strong>
+            <span class="delta-pill ${surplus >= 0 ? "pos" : "neg"}">${surplusRate}% kept of pay</span>
+          </div>
+          ${miniSpark("0,24 18,22 36,16 54,14 72,8", "#2563eb", "rgba(37,99,235,0.15)")}
+        </div>
+        <div class="changed-tile">
+          <div class="changed-tile-copy">
+            <span class="changed-tile-label">📊 Investments gain</span>
+            <strong class="changed-tile-val">${formatSignedCurrency(port.gain)}</strong>
+            <span class="delta-pill ${port.gain >= 0 ? "pos" : "neg"}">${invPctStr} total return</span>
+          </div>
+          ${miniSpark("0,29 14,25 28,26 44,17 58,12 72,6", "#0284c7", "rgba(14,165,233,0.16)")}
+        </div>
+      `;
+    }
+
+    // Bottom 4-Column Bento: Spending Donut + Allocation Donut + Account Health + Goals
+    const spendSlices = BUDGET_BUCKETS.map((b) => ({
+      label: b.label,
+      value: Math.max(0, Number(financeState.expenses?.[b.key]) || 0),
+    })).filter((s) => s.value > 0);
+    renderDonut(document.getElementById("ov-spend-donut"), document.getElementById("ov-spend-legend"), spendSlices, "Spend");
 
     const classMap = new Map();
     for (const h of holdings) classMap.set(h.assetClass || "Stock", (classMap.get(h.assetClass || "Stock") || 0) + Math.max(0, Number(h.currentValue) || 0));
     renderDonut(document.getElementById("ov-donut-wrap"), document.getElementById("ov-allocation-legend"), [...classMap.entries()].map(([label, value]) => ({ label, value })), "Investments");
 
+    const healthEl = document.getElementById("ov-health-list");
+    if (healthEl) {
+      const cashStrong = runwayNum >= 6;
+      const saveStrong = surplusRate >= 20;
+      const divStrong = holdings.length >= 4;
+      const scoreCount = [cashStrong, saveStrong, divStrong].filter(Boolean).length;
+      healthEl.innerHTML = `
+        <div class="health-row"><div><strong>Emergency cash</strong><span>${runway} months of expenses</span></div><span class="delta-pill ${cashStrong ? "pos" : "neutral"}">${cashStrong ? "✓ Strong" : "Build to 6m"}</span></div>
+        <div class="health-row"><div><strong>Savings rate</strong><span>${surplusRate}% of UK take-home</span></div><span class="delta-pill ${saveStrong ? "pos" : "neutral"}">${saveStrong ? "✓ On track" : "Aim 20%+"}</span></div>
+        <div class="health-row"><div><strong>Investment mix</strong><span>${holdings.length} holdings · ${taxWrappedPct}% ISA/SIPP</span></div><span class="delta-pill ${divStrong ? "pos" : "neutral"}">${divStrong ? "✓ Healthy" : "Diversify"}</span></div>
+        <div class="health-row"><div><strong>Overall foundation</strong><span>Live financial health score</span></div><span class="delta-pill ${scoreCount >= 2 ? "pos" : "neutral"}">${scoreCount === 3 ? "✓ Strong" : scoreCount === 2 ? "✓ Good" : "Growing"}</span></div>
+      `;
+    }
+
     const recurring = transactions.filter((t) => t.isRecurring && t.type === "expense");
     const recSum = recurring.reduce((s, t) => s + Math.abs(Number(t.amount) || 0), 0);
-    document.getElementById("ov-signals").innerHTML = `
-      <div class="signal-row mint"><strong>Investments ${port.gain >= 0 ? "up" : "down"} ${Math.abs(port.returnPct).toFixed(1)}%</strong><span>${formatSignedCurrency(port.gain)} across ${holdings.length} holdings</span></div>
-      <div class="signal-row amber"><strong>${recurring.length} recurring payment${recurring.length === 1 ? "" : "s"}</strong><span>${formatCurrency(recSum, 2)} / month from statements</span></div>
-      <div class="signal-row blue"><strong>Emergency fund at ${runway} months</strong><span>${cash >= monthlyOut * 3 ? "Above 3-month safety target" : "Aim for 3–6 months"}</span></div>
-    `;
+    const sigEl = document.getElementById("ov-signals");
+    if (sigEl) {
+      sigEl.innerHTML = `
+        <span class="muted-xs" style="font-weight:800;letter-spacing:.05em">KEY DRIVERS</span>
+        <span class="driver-pill">📈 Investments ${port.gain >= 0 ? "up" : "down"} ${Math.abs(port.returnPct).toFixed(1)}% (${formatSignedCurrency(port.gain)})</span>
+        <span class="driver-pill">🔁 ${recurring.length} recurring bills (${formatCurrency(recSum, 0)}/mo)</span>
+        <span class="driver-pill">🛡️ Emergency runway: ${runway} months</span>
+        <span class="driver-pill">🏦 ${taxWrappedPct}% tax-wrapped in ISA/SIPP</span>
+      `;
+    }
+
+    const extraGoalsEl = document.getElementById("ov-extra-goals");
+    if (extraGoalsEl) {
+      const retireTarget = 500000;
+      const retirePct = Math.min(100, Math.round((port.totalValue / retireTarget) * 100));
+      const emTarget = Math.max(monthlyOut * 6, 15000);
+      const emPct = Math.min(100, Math.round((cash / emTarget) * 100));
+      extraGoalsEl.innerHTML = `
+        <div class="goal-item">
+          <div class="goal-item-head"><strong>6-Month Safety Buffer</strong><strong>${emPct}%</strong></div>
+          <div class="progress-track"><div class="progress-fill" style="width:${emPct}%;background:#16a34a"></div></div>
+          <span class="muted-xs">${formatCurrency(cash)} of ${formatCurrency(emTarget)} target</span>
+        </div>
+        <div class="goal-item">
+          <div class="goal-item-head"><strong>Early Retirement (£500k)</strong><strong>${retirePct}%</strong></div>
+          <div class="progress-track"><div class="progress-fill" style="width:${retirePct}%"></div></div>
+          <span class="muted-xs">${formatCurrency(port.totalValue)} invested</span>
+        </div>
+      `;
+    }
 
     const top3 = [...holdings].sort((a, b) => (Number(b.currentValue) || 0) - (Number(a.currentValue) || 0)).slice(0, 3);
     document.getElementById("ov-top-holdings").innerHTML = top3.length
@@ -1170,7 +1294,7 @@
     let matched = false;
     document.querySelectorAll("[data-view]").forEach((p) => { const a = p.dataset.view === viewName; p.hidden = !a; if (a) matched = true; });
     if (!matched) { viewName = "overview"; document.querySelector('[data-view="overview"]').hidden = false; }
-    document.body.classList.toggle("is-landing-hero", viewName === "landing");
+    document.body.classList.remove("is-landing-hero");
     document.querySelectorAll("[data-nav]").forEach((btn) => { if (btn.dataset.nav === viewName) btn.setAttribute("aria-current", "page"); else btn.removeAttribute("aria-current"); });
     try { localStorage.setItem(STORAGE_KEYS.activeView, viewName); } catch {}
   }
@@ -1773,6 +1897,7 @@
       switchView("statements");
       document.getElementById("bank-file-input").click();
     });
+    document.getElementById("landing-holding-btn")?.addEventListener("click", () => openHoldingModal());
     document.getElementById("landing-blank-btn")?.addEventListener("click", () => {
       startBlankWorkspace();
       switchView("overview");
